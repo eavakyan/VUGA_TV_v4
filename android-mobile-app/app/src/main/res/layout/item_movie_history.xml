@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:apps="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.retry.vuga.model.history.MovieHistory" />
+    </data>
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            apps:cardCornerRadius="10dp"
+            apps:cardUseCompatPadding="true">
+
+            <FrameLayout
+                android:layout_width="175dp"
+                android:layout_height="100dp">
+
+                <androidx.constraintlayout.utils.widget.ImageFilterView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    apps:image_url="@{model.thumbnail}"
+                    tools:src="@tools:sample/avatars" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_gravity="center"
+                    android:background="@drawable/bg_round_rect_500"
+                    android:backgroundTint="#27FDFDFD"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_play"
+                    android:tint="@color/white" />
+
+                <ProgressBar
+                    android:id="@+id/pb_player"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:layout_gravity="bottom"
+                    android:indeterminate="false"
+                    tools:progress="50" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_delete"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_gravity="end"
+                    android:padding="10dp"
+                    android:src="@drawable/ic_close"
+                    android:tint="@color/white" />
+
+            </FrameLayout>
+        </androidx.cardview.widget.CardView>
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="175dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="5dp"
+            android:gravity="center">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:fontFamily="@font/outfit_medium"
+                android:maxLines="1"
+                android:text="@{model.movieName}"
+                android:textColor="@color/white"
+                tools:text="@tools:sample/full_names" />
+
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/iv_info"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginStart="5dp"
+                android:padding="1dp"
+                android:src="@drawable/ic_info" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

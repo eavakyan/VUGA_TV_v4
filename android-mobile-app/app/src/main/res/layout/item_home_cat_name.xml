@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="content"
+            type="com.retry.vuga.model.HomePage.GenreContents" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="15dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tv_Name"
+                style="@style/TextViewLocal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:maxLines="1"
+                android:text="@{content.title}"
+                android:textSize="@dimen/_20sp"
+                tools:text="Money heist" />
+
+            <TextView
+                android:id="@+id/btn_more"
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/outfit_light"
+                android:text="@string/see_all"
+                android:textColor="@color/text_color_light"
+                android:textSize="@dimen/_16sp" />
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_cat_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:nestedScrollingEnabled="false"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:itemCount="6"
+            tools:listitem="@layout/item_home_cat_item">
+
+        </androidx.recyclerview.widget.RecyclerView>
+
+    </LinearLayout>
+</layout>

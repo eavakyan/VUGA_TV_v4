@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <import type="android.text.InputType" />
+
+
+        <variable
+            name="showEmailLout"
+            type="Boolean" />
+
+        <variable
+            name="showPass"
+            type="Boolean" />
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_black"
+        android:fitsSystemWindows="true"
+        tools:context=".activity.EmailLoginActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginBottom="50dp"
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+
+            <ImageView
+                android:layout_width="@dimen/logo_big_width"
+                android:layout_height="@dimen/logo_big_height"
+                android:src="@drawable/logo" />
+
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="40dp"
+                android:layout_weight="1"
+                android:scrollbars="none"
+                android:fillViewport="true"
+                android:fitsSystemWindows="true">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+
+                    >
+
+                    <LinearLayout
+                        android:id="@+id/lout_Email"
+                        android:layout_width="match_parent"
+                        android:layout_alignParentBottom="true"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="30dp"
+                            style="@style/TextViewLocal"
+                            android:fontFamily="@font/outfit_medium"
+                            android:text="@string/sign_in"
+
+                            android:textSize="@dimen/_30sp" />
+
+                        <com.retry.vuga.utils.MyEditText
+                            style="@style/EditTextLocal"
+                            android:id="@+id/et_email"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:background="@drawable/bg_for_edit_text_10"
+                            android:fontFamily="@font/outfit_medium"
+                            android:hint="@string/email"
+                            android:imeOptions="actionNext"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:paddingHorizontal="@dimen/edit_text_padding_h"
+                            android:singleLine="true"
+                            android:textSize="@dimen/_16sp"
+
+                            />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="20dp"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:background="@drawable/bg_for_edit_text_10"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingEnd="10dp">
+
+                            <com.retry.vuga.utils.MyEditText
+                                android:id="@+id/et_pass"
+                                style="@style/EditTextLocal"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+
+                                android:background="@null"
+                                android:fontFamily="@font/outfit_medium"
+                                android:hint="@string/password"
+                                android:imeOptions="actionDone"
+                                android:inputType="@{showPass?InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD:InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD}"
+                                android:maxLines="1"
+                                android:paddingHorizontal="@dimen/edit_text_padding_h"
+                                android:singleLine="true"
+
+                                />
+
+                            <ImageView
+                                android:id="@+id/btn_show_hide_sign_in"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="5dp"
+                                android:padding="5dp"
+                                android:src="@{showPass?@drawable/ic_hidden:@drawable/ic_show}"
+                                app:tint="@color/text_color" />
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/btn_forget"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="15dp"
+                            android:fontFamily="@font/outfit_medium"
+                            android:paddingHorizontal="10dp"
+                            android:paddingVertical="3dp"
+                            android:text="@string/forgot_password"
+
+                            android:textSize="@dimen/_14sp" />
+
+                        <!--                        <View-->
+                        <!--                            android:layout_width="3dp"-->
+                        <!--                            android:layout_height="300dp" />-->
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:id="@+id/btn_continue"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:layout_marginTop="20dp"
+                            android:background="@drawable/bg_round_rect_15"
+                            android:backgroundTint="@color/app_color"
+                            android:fontFamily="@font/outfit_medium"
+                            android:gravity="center"
+                            android:paddingHorizontal="60dp"
+                            android:paddingVertical="10dp"
+                            android:text="@string/sign_in"
+
+                            android:textSize="@dimen/_20sp" />
+
+
+
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:id="@+id/btn_sign_up"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+
+                                android:layout_marginTop="15dp"
+                                android:fontFamily="@font/outfit_medium"
+                                android:paddingHorizontal="20dp"
+                                android:paddingVertical="5dp"
+                                android:text="@string/sign_up_"
+                                android:textSize="@dimen/_18sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_create_account"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_alignParentBottom="true"
+
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="gone">
+
+                        <TextView
+
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            style="@style/TextViewLocal"
+                            android:textColor="@color/text_color"
+                            android:layout_marginBottom="30dp"
+                            android:text="@string/sign_up"
+                            android:textSize="@dimen/_30sp" />
+
+
+                        <com.retry.vuga.utils.MyEditText
+                            android:id="@+id/et_email_create_account"
+                            android:layout_width="match_parent"
+                            style="@style/EditTextLocal"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:hint="@string/email"
+                            android:imeOptions="actionNext"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:autofillHints="emailAddress"
+                            android:paddingHorizontal="20dp"
+                            android:singleLine="true"
+                            android:background="@drawable/bg_for_edit_text_10"
+                            android:textSize="@dimen/_16sp"
+
+                            />
+
+                        <com.retry.vuga.utils.MyEditText
+                            android:id="@+id/et_fullname_create"
+                            android:layout_width="match_parent"
+                            style="@style/EditTextLocal"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:layout_marginTop="15dp"
+                            android:fontFamily="@font/outfit_medium"
+                            android:hint="@string/full_name"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"
+                            android:autofillHints="name"
+                            android:maxLines="1"
+                            android:paddingHorizontal="20dp"
+                            android:singleLine="true"
+                            android:background="@drawable/bg_for_edit_text_10"
+                            android:textSize="@dimen/_16sp"
+
+                            />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:layout_marginTop="15dp"
+                            android:background="@drawable/bg_for_edit_text_10"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingEnd="10dp">
+
+                            <com.retry.vuga.utils.MyEditText
+                                android:id="@+id/et_pass_create"
+                                style="@style/EditTextLocal"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@null"
+                                android:fontFamily="@font/outfit_medium"
+                                android:hint="@string/password"
+                                android:imeOptions="actionNext"
+                                android:inputType="@{showPass?InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD:InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD}"
+                                android:maxLines="1"
+                                android:paddingHorizontal="@dimen/edit_text_padding_h"
+                                android:singleLine="true"
+
+                                />
+
+                            <ImageView
+                                android:id="@+id/btn_show_hide_create"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_marginStart="5dp"
+                                android:padding="5dp"
+                                android:src="@{showPass?@drawable/ic_hidden:@drawable/ic_show}"
+                                app:tint="@color/text_color" />
+
+                        </LinearLayout>
+
+                        <com.retry.vuga.utils.MyEditText
+                            android:id="@+id/et_confirm_pass_create"
+                            android:layout_width="match_parent"
+                            style="@style/EditTextLocal"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:layout_marginTop="15dp"
+                            android:hint="@string/confirm_password"
+                            android:imeOptions="actionDone"
+                            android:background="@drawable/bg_for_edit_text_10"
+                            android:maxLines="1"
+                            android:paddingHorizontal="20dp"
+                            android:singleLine="true"
+                            android:inputType="@{showPass?InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD:InputType.TYPE_CLASS_TEXT|InputType.TYPE_TEXT_VARIATION_PASSWORD}"
+                            android:textSize="@dimen/_16sp"
+
+                            />
+
+
+                        <TextView
+                            android:id="@+id/btn_register"
+                            android:layout_width="match_parent"
+                            style="@style/TextViewLocal"
+                            android:layout_marginTop="20dp"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:backgroundTint="@color/app_color"
+                            android:gravity="center"
+                            android:background="@drawable/bg_round_rect_10"
+
+                            android:text="@string/sign_up"
+                            android:textSize="@dimen/_20sp" />
+
+                        <TextView
+                            android:id="@+id/btn_sign_in"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="15dp"
+                            android:fontFamily="@font/outfit_medium"
+                            android:paddingHorizontal="20dp"
+                            android:paddingVertical="5dp"
+                            android:text="@string/sign_in_"
+                            android:textSize="@dimen/_18sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_forget"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:layout_alignParentBottom="true"
+                        android:gravity="center_horizontal"
+                        android:orientation="vertical"
+                        android:visibility="gone"
+                        tools:visibility="gone">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="10dp"
+                            style="@style/TextViewLocal"
+                            android:text="@string/forgot_password"
+
+                            android:fontFamily="@font/outfit_medium"
+                            android:textSize="@dimen/_30sp" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="20dp"
+                            android:fontFamily="@font/outfit_medium"
+                            android:gravity="center"
+                            android:lineSpacingExtra="1dp"
+                            style="@style/TextViewLocal"
+                            android:text="@string/forgot_text"
+                            android:textColor="@color/text_color_light"
+                            android:textSize="@dimen/_14sp" />
+
+                        <com.retry.vuga.utils.MyEditText
+                            android:id="@+id/et_email_forget"
+                            android:layout_width="match_parent"
+                            style="@style/EditTextLocal"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:fontFamily="@font/outfit_medium"
+                            android:background="@drawable/bg_for_edit_text_10"
+                            android:hint="@string/email"
+                            android:imeOptions="actionDone"
+                            android:inputType="textEmailAddress"
+                            android:maxLines="1"
+                            android:paddingVertical="9dp"
+                            android:singleLine="true"
+                            android:paddingHorizontal="@dimen/edit_text_padding_h"
+                            />
+
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:id="@+id/btn_reset"
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/btn_login_height"
+                            android:layout_marginTop="30dp"
+                            android:backgroundTint="@color/app_color"
+                            android:background="@drawable/bg_round_rect_15"
+                            android:gravity="center"
+                            android:text="@string/reset"
+                            android:fontFamily="@font/outfit_medium"
+
+                            android:textSize="@dimen/_20sp" />
+
+
+                    </LinearLayout>
+
+
+                </RelativeLayout>
+
+            </ScrollView>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/lout_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <include layout="@layout/layout_loader" />
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</layout>

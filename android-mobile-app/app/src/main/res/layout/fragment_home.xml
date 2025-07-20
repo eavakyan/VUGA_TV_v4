@@ -1,0 +1,754 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="com.retry.vuga.utils.Global" />
+
+        <import type="android.view.View" />
+
+        <variable
+            name="content"
+            type="com.retry.vuga.model.ContentDetail.DataItem" />
+    </data>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/app_black"
+            android:orientation="vertical"
+            tools:context=".fragments.HomeFragment">
+
+            <!--     <com.google.android.material.appbar.AppBarLayout
+                     android:id="@+id/app_bar"
+                     android:layout_width="match_parent"
+                     android:layout_height="wrap_content"
+                     android:layout_marginBottom="10dp"
+                     android:background="@color/transparent"
+                     android:fitsSystemWindows="true">
+
+                     <com.google.android.material.appbar.CollapsingToolbarLayout
+                         android:layout_width="match_parent"
+                         android:layout_height="match_parent"
+                         app:contentScrim="@color/app_black_50"
+                         app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                         app:scrimAnimationDuration="200"
+                         app:scrimVisibleHeightTrigger="350dp"
+                         app:toolbarId="@id/tool_bar">
+
+     &lt;!&ndash;                    <LinearLayout&ndash;&gt;
+     &lt;!&ndash;                        android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                        android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                        android:orientation="vertical"&ndash;&gt;
+     &lt;!&ndash;                        app:layout_collapseMode="parallax">&ndash;&gt;
+
+     &lt;!&ndash;                        <androidx.constraintlayout.widget.ConstraintLayout&ndash;&gt;
+     &lt;!&ndash;                            android:id="@+id/root_lout"&ndash;&gt;
+     &lt;!&ndash;                            android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                            android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                            android:orientation="vertical">&ndash;&gt;
+
+
+     &lt;!&ndash;                            <RelativeLayout&ndash;&gt;
+     &lt;!&ndash;                                android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                android:layout_height="0dp"&ndash;&gt;
+     &lt;!&ndash;                                android:visibility="@{content==null?View.INVISIBLE:View.VISIBLE}"&ndash;&gt;
+     &lt;!&ndash;                                app:layout_constraintDimensionRatio="H,1:1.57"&ndash;&gt;
+     &lt;!&ndash;                                app:layout_constraintEnd_toEndOf="parent"&ndash;&gt;
+     &lt;!&ndash;                                app:layout_constraintStart_toStartOf="parent"&ndash;&gt;
+     &lt;!&ndash;                                app:layout_constraintTop_toTopOf="parent"&ndash;&gt;
+     &lt;!&ndash;                                tools:visibility="gone">&ndash;&gt;
+
+     &lt;!&ndash;                                <RelativeLayout&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_height="match_parent">&ndash;&gt;
+
+     &lt;!&ndash;                                    <ImageView&ndash;&gt;
+     &lt;!&ndash;                                        android:id="@+id/img"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_height="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                        android:scaleType="centerCrop"&ndash;&gt;
+     &lt;!&ndash;                                        tools:src="@tools:sample/backgrounds/scenic" />&ndash;&gt;
+
+     &lt;!&ndash;                                    &lt;!&ndash;                                <View&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                    &lt;!&ndash;                                    android:layout_width="match_parent"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                    &lt;!&ndash;                                    android:layout_height="match_parent"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                    &lt;!&ndash;                                    android:background="@color/app_black_30" />&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                    <eightbitlab.com.blurview.BlurView&ndash;&gt;
+     &lt;!&ndash;                                        android:id="@+id/blur_lout"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_height="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                        app:blurOverlayColor="@color/app_black_30">&ndash;&gt;
+
+     &lt;!&ndash;                                    </eightbitlab.com.blurview.BlurView>&ndash;&gt;
+     &lt;!&ndash;                                </RelativeLayout>&ndash;&gt;
+
+
+     &lt;!&ndash;                                <ImageView&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_height="150dp"&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_alignParentTop="true"&ndash;&gt;
+     &lt;!&ndash;                                    android:rotation="180"&ndash;&gt;
+     &lt;!&ndash;                                    android:src="@drawable/bg_gradient_linear_black" />&ndash;&gt;
+
+
+     &lt;!&ndash;                                <ImageView&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_height="300dp"&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_alignParentBottom="true"&ndash;&gt;
+     &lt;!&ndash;                                    android:src="@drawable/bg_gradient_linear_black" />&ndash;&gt;
+
+     &lt;!&ndash;                                <LinearLayout&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                    android:layout_height="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                    android:orientation="vertical">&ndash;&gt;
+
+     &lt;!&ndash;                                    <androidx.recyclerview.widget.RecyclerView&ndash;&gt;
+     &lt;!&ndash;                                        android:id="@+id/rv_featured"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                        android:orientation="horizontal"&ndash;&gt;
+     &lt;!&ndash;                                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"&ndash;&gt;
+     &lt;!&ndash;                                        tools:listitem="@layout/item_home_featured">&ndash;&gt;
+
+     &lt;!&ndash;                                    </androidx.recyclerview.widget.RecyclerView>&ndash;&gt;
+
+     &lt;!&ndash;                                    <LinearLayout&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_height="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                        android:layout_marginHorizontal="15dp"&ndash;&gt;
+
+     &lt;!&ndash;                                        android:gravity="center"&ndash;&gt;
+
+     &lt;!&ndash;                                        android:orientation="vertical">&ndash;&gt;
+
+     &lt;!&ndash;                                        <TextView&ndash;&gt;
+     &lt;!&ndash;                                            android:id="@+id/tv_MovieName"&ndash;&gt;
+     &lt;!&ndash;                                            style="@style/TextViewLocal"&ndash;&gt;
+     &lt;!&ndash;                                            android:layout_width="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                            android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                            android:fontFamily="@font/outfit_semi_bold"&ndash;&gt;
+     &lt;!&ndash;                                            android:gravity="center"&ndash;&gt;
+     &lt;!&ndash;                                            android:text="@{content.title}"&ndash;&gt;
+     &lt;!&ndash;                                            android:textSize="22sp"&ndash;&gt;
+     &lt;!&ndash;                                            tools:text="Captain America" />&ndash;&gt;
+
+
+     &lt;!&ndash;                                        <androidx.recyclerview.widget.RecyclerView&ndash;&gt;
+     &lt;!&ndash;                                            android:id="@+id/rv_genere"&ndash;&gt;
+     &lt;!&ndash;                                            android:layout_width="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                            android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                            android:layout_marginHorizontal="10dp"&ndash;&gt;
+     &lt;!&ndash;                                            android:gravity="center"&ndash;&gt;
+     &lt;!&ndash;                                            android:orientation="horizontal"&ndash;&gt;
+     &lt;!&ndash;                                            app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager"&ndash;&gt;
+     &lt;!&ndash;                                            tools:itemCount="2"&ndash;&gt;
+     &lt;!&ndash;                                            tools:listitem="@layout/item_genre_chips">&ndash;&gt;
+
+     &lt;!&ndash;                                        </androidx.recyclerview.widget.RecyclerView>&ndash;&gt;
+
+     &lt;!&ndash;                                        <LinearLayout&ndash;&gt;
+
+     &lt;!&ndash;                                            android:layout_width="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                            android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                            android:layout_marginTop="3dp"&ndash;&gt;
+     &lt;!&ndash;                                            android:gravity="center_vertical"&ndash;&gt;
+     &lt;!&ndash;                                            android:orientation="horizontal">&ndash;&gt;
+
+     &lt;!&ndash;                                            <LinearLayout&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_width="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                                android:gravity="center_vertical"&ndash;&gt;
+     &lt;!&ndash;                                                android:orientation="horizontal"&ndash;&gt;
+     &lt;!&ndash;                                                android:visibility="@{content==null?View.GONE:View.VISIBLE}">&ndash;&gt;
+
+     &lt;!&ndash;                                                <ImageView&ndash;&gt;
+     &lt;!&ndash;                                                    android:layout_width="12dp"&ndash;&gt;
+     &lt;!&ndash;                                                    android:layout_height="12dp"&ndash;&gt;
+     &lt;!&ndash;                                                    android:src="@drawable/ic_star"&ndash;&gt;
+     &lt;!&ndash;                                                    app:tint="@color/rating_yellow" />&ndash;&gt;
+
+     &lt;!&ndash;                                                <TextView&ndash;&gt;
+     &lt;!&ndash;                                                    android:id="@+id/tv_ratings"&ndash;&gt;
+     &lt;!&ndash;                                                    style="@style/TextViewLocal"&ndash;&gt;
+     &lt;!&ndash;                                                    android:layout_width="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                                    android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                                    android:layout_marginStart="5dp"&ndash;&gt;
+     &lt;!&ndash;                                                    android:fontFamily="@font/outfit_light"&ndash;&gt;
+     &lt;!&ndash;                                                    android:letterSpacing=".04"&ndash;&gt;
+     &lt;!&ndash;                                                    android:maxLines="1"&ndash;&gt;
+     &lt;!&ndash;                                                    android:text='@{String.format("%.1f",content.ratings)}'&ndash;&gt;
+
+     &lt;!&ndash;                                                    android:textColor="@color/rating_yellow"&ndash;&gt;
+
+     &lt;!&ndash;                                                    android:textSize="@dimen/_16sp"&ndash;&gt;
+     &lt;!&ndash;                                                    android:visibility="@{content==null?View.GONE:View.VISIBLE}"&ndash;&gt;
+     &lt;!&ndash;                                                    tools:text="8.5" />&ndash;&gt;
+     &lt;!&ndash;                                            </LinearLayout>&ndash;&gt;
+
+     &lt;!&ndash;                                            <View&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_width="1dp"&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_height="match_parent"&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_marginHorizontal="10dp"&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_marginVertical="2dp"&ndash;&gt;
+     &lt;!&ndash;                                                android:background="@color/text_color_light" />&ndash;&gt;
+
+     &lt;!&ndash;                                            <TextView&ndash;&gt;
+     &lt;!&ndash;                                                android:id="@+id/tv_year"&ndash;&gt;
+     &lt;!&ndash;                                                style="@style/TextViewLocal"&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_width="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                                android:layout_height="wrap_content"&ndash;&gt;
+     &lt;!&ndash;                                                android:fontFamily="@font/outfit_light"&ndash;&gt;
+     &lt;!&ndash;                                                android:letterSpacing=".04"&ndash;&gt;
+     &lt;!&ndash;                                                android:text="@{String.valueOf(content.releaseYear)}"&ndash;&gt;
+
+     &lt;!&ndash;                                                android:textColor="@color/text_color_light"&ndash;&gt;
+     &lt;!&ndash;                                                android:textSize="@dimen/_16sp"&ndash;&gt;
+     &lt;!&ndash;                                                android:visibility="@{content==null?View.GONE:View.VISIBLE}"&ndash;&gt;
+     &lt;!&ndash;                                                tools:text="2021" />&ndash;&gt;
+
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                    <View&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_width="1dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_height="match_parent"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_marginHorizontal="10dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_marginVertical="2dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:background="@color/text_color_light"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:visibility="@{content.duration.isEmpty?View.GONE:View.VISIBLE}" />&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                    <ImageView&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_width="10dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_height="10dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_marginEnd="5dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:src="@drawable/ic_time"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        app:tint="@color/text_color_light" />&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                    <TextView&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:id="@+id/tv_duration"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        style="@style/TextViewLocal"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_width="wrap_content"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_height="wrap_content"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:fontFamily="@font/outfit_light"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:letterSpacing=".04"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:text="@{content.duration}"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:textColor="@color/text_color_light"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:textSize="@dimen/_14sp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        tools:text="2 h 30 m" />&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                    <View&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_width="1dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_height="match_parent"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_marginHorizontal="10dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_marginVertical="2dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:background="@color/text_color_light" />&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                    <LinearLayout&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_width="wrap_content"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:layout_height="wrap_content"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:gravity="center_vertical"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                        android:orientation="horizontal"&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                        >&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                        <ImageView&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:layout_width="12dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:layout_height="12dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:src="@drawable/ic_show"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            app:tint="@color/app_color" />&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                        <TextView&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:id="@+id/tv_view"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            style="@style/TextViewLocal"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:layout_width="wrap_content"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:layout_height="wrap_content"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:layout_marginStart="5dp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:fontFamily="@font/outfit_light"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:letterSpacing=".04"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:maxLines="1"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:text='@{Global.prettyCount(content.totalView)}'&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:textColor="@color/app_color"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            android:textSize="@dimen/_14sp"&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                            tools:text="10k" />&ndash;&gt;&ndash;&gt;
+     &lt;!&ndash;                                            &lt;!&ndash;                                    </LinearLayout>&ndash;&gt;&ndash;&gt;
+
+     &lt;!&ndash;                                        </LinearLayout>&ndash;&gt;
+
+
+     &lt;!&ndash;                                    </LinearLayout>&ndash;&gt;
+     &lt;!&ndash;                                </LinearLayout>&ndash;&gt;
+
+
+     &lt;!&ndash;                            </RelativeLayout>&ndash;&gt;
+     &lt;!&ndash;                        </androidx.constraintlayout.widget.ConstraintLayout>&ndash;&gt;
+     &lt;!&ndash;                    </LinearLayout>&ndash;&gt;
+
+
+     &lt;!&ndash;                    <androidx.appcompat.widget.Toolbar&ndash;&gt;
+     &lt;!&ndash;                        android:id="@+id/tool_bar"&ndash;&gt;
+     &lt;!&ndash;                        android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                        android:layout_height="@dimen/top_size_of_appbar"&ndash;&gt;
+     &lt;!&ndash;                        app:layout_collapseMode="pin">&ndash;&gt;
+
+     &lt;!&ndash;                        <LinearLayout&ndash;&gt;
+     &lt;!&ndash;                            android:layout_width="match_parent"&ndash;&gt;
+     &lt;!&ndash;                            android:layout_height="match_parent"&ndash;&gt;
+     &lt;!&ndash;                            android:gravity="center_vertical"&ndash;&gt;
+     &lt;!&ndash;                            android:orientation="horizontal">&ndash;&gt;
+
+
+     &lt;!&ndash;                        </LinearLayout>&ndash;&gt;
+     &lt;!&ndash;                    </androidx.appcompat.widget.Toolbar>&ndash;&gt;
+
+                     </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+
+                 </com.google.android.material.appbar.AppBarLayout>
+     -->
+            <androidx.core.widget.NestedScrollView
+                android:id="@+id/nested_scroll_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:id="@+id/lout_main"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:orientation="vertical"
+                        android:visibility="visible"
+                        tools:context=".fragments.HomeFragment">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <androidx.constraintlayout.widget.ConstraintLayout
+                                android:id="@+id/root_lout"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="vertical">
+
+
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="0dp"
+                                    android:visibility="@{content==null?View.INVISIBLE:View.VISIBLE}"
+                                    app:layout_constraintDimensionRatio="1:1.6"
+                                    app:layout_constraintEnd_toEndOf="parent"
+                                    app:layout_constraintStart_toStartOf="parent"
+                                    app:layout_constraintTop_toTopOf="parent"
+                                    tools:visibility="visible">
+
+                                    <RelativeLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent">
+
+                                        <ImageView
+                                            android:id="@+id/img"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:scaleType="centerCrop"
+                                            tools:src="@tools:sample/backgrounds/scenic" />
+
+                                        <!--                                <View-->
+                                        <!--                                    android:layout_width="match_parent"-->
+                                        <!--                                    android:layout_height="match_parent"-->
+                                        <!--                                    android:background="@color/app_black_30" />-->
+
+                                        <eightbitlab.com.blurview.BlurView
+                                            android:id="@+id/blur_lout"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            app:blurOverlayColor="@color/app_black_30">
+
+                                        </eightbitlab.com.blurview.BlurView>
+                                    </RelativeLayout>
+
+
+                                    <ImageView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="150dp"
+                                        android:layout_alignParentTop="true"
+                                        android:rotation="180"
+                                        android:src="@drawable/bg_gradient_linear_black"
+                                        android:visibility="gone" />
+
+
+                                    <ImageView
+                                        android:layout_width="match_parent"
+                                        android:layout_height="300dp"
+                                        android:layout_alignParentBottom="true"
+                                        android:src="@drawable/bg_gradient_linear_black" />
+
+                                    <LinearLayout
+                                        android:layout_width="match_parent"
+                                        android:layout_height="match_parent"
+                                        android:orientation="vertical"
+                                        android:paddingTop="40dp">
+
+                                        <androidx.recyclerview.widget.RecyclerView
+                                            android:id="@+id/rv_featured"
+                                            android:layout_width="match_parent"
+                                            android:layout_height="wrap_content"
+                                            android:orientation="horizontal"
+                                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                            tools:listitem="@layout/item_home_featured">
+
+                                        </androidx.recyclerview.widget.RecyclerView>
+
+                                        <LinearLayout
+                                            android:layout_width="match_parent"
+                                            android:layout_height="match_parent"
+                                            android:layout_marginHorizontal="15dp"
+
+                                            android:gravity="center"
+
+                                            android:orientation="vertical">
+
+                                            <TextView
+                                                android:id="@+id/tv_MovieName"
+                                                style="@style/TextViewLocal"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/outfit_semi_bold"
+                                                android:gravity="center"
+                                                android:text="@{content.title}"
+                                                android:textSize="22sp"
+                                                tools:text="Captain America" />
+
+
+                                            <androidx.recyclerview.widget.RecyclerView
+                                                android:id="@+id/rv_genere"
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:layout_marginHorizontal="10dp"
+                                                android:gravity="center"
+                                                android:orientation="horizontal"
+                                                app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager"
+                                                tools:itemCount="2"
+                                                tools:listitem="@layout/item_genre_chips">
+
+                                            </androidx.recyclerview.widget.RecyclerView>
+
+                                            <LinearLayout
+
+                                                android:layout_width="wrap_content"
+                                                android:layout_height="wrap_content"
+                                                android:layout_marginTop="3dp"
+                                                android:gravity="center_vertical"
+                                                android:orientation="horizontal">
+
+                                                <LinearLayout
+                                                    android:layout_width="wrap_content"
+                                                    android:layout_height="wrap_content"
+                                                    android:gravity="center_vertical"
+                                                    android:orientation="horizontal"
+                                                    android:visibility="@{content==null?View.GONE:View.VISIBLE}">
+
+                                                    <ImageView
+                                                        android:layout_width="12dp"
+                                                        android:layout_height="12dp"
+                                                        android:src="@drawable/ic_star"
+                                                        app:tint="@color/rating_yellow" />
+
+                                                    <TextView
+                                                        android:id="@+id/tv_ratings"
+                                                        style="@style/TextViewLocal"
+                                                        android:layout_width="wrap_content"
+                                                        android:layout_height="wrap_content"
+                                                        android:layout_marginStart="5dp"
+                                                        android:fontFamily="@font/outfit_light"
+                                                        android:letterSpacing=".04"
+                                                        android:maxLines="1"
+                                                        android:text='@{String.format("%.1f",content.ratings)}'
+
+                                                        android:textColor="@color/rating_yellow"
+
+                                                        android:textSize="@dimen/_16sp"
+                                                        android:visibility="@{content==null?View.GONE:View.VISIBLE}"
+                                                        tools:text="8.5" />
+                                                </LinearLayout>
+
+                                                <View
+                                                    android:layout_width="1dp"
+                                                    android:layout_height="match_parent"
+                                                    android:layout_marginHorizontal="10dp"
+                                                    android:layout_marginVertical="2dp"
+                                                    android:background="@color/text_color_light" />
+
+                                                <TextView
+                                                    android:id="@+id/tv_year"
+                                                    style="@style/TextViewLocal"
+                                                    android:layout_width="wrap_content"
+                                                    android:layout_height="wrap_content"
+                                                    android:fontFamily="@font/outfit_light"
+                                                    android:letterSpacing=".04"
+                                                    android:text="@{String.valueOf(content.releaseYear)}"
+
+                                                    android:textColor="@color/text_color_light"
+                                                    android:textSize="@dimen/_16sp"
+                                                    android:visibility="@{content==null?View.GONE:View.VISIBLE}"
+                                                    tools:text="2021" />
+
+
+                                                <!--                                    <View-->
+                                                <!--                                        android:layout_width="1dp"-->
+                                                <!--                                        android:layout_height="match_parent"-->
+                                                <!--                                        android:layout_marginHorizontal="10dp"-->
+                                                <!--                                        android:layout_marginVertical="2dp"-->
+                                                <!--                                        android:background="@color/text_color_light"-->
+                                                <!--                                        android:visibility="@{content.duration.isEmpty?View.GONE:View.VISIBLE}" />-->
+
+                                                <!--                                    <ImageView-->
+                                                <!--                                        android:layout_width="10dp"-->
+                                                <!--                                        android:layout_height="10dp"-->
+                                                <!--                                        android:layout_marginEnd="5dp"-->
+                                                <!--                                        android:src="@drawable/ic_time"-->
+                                                <!--                                        app:tint="@color/text_color_light" />-->
+
+                                                <!--                                    <TextView-->
+                                                <!--                                        android:id="@+id/tv_duration"-->
+                                                <!--                                        style="@style/TextViewLocal"-->
+                                                <!--                                        android:layout_width="wrap_content"-->
+                                                <!--                                        android:layout_height="wrap_content"-->
+                                                <!--                                        android:fontFamily="@font/outfit_light"-->
+                                                <!--                                        android:letterSpacing=".04"-->
+                                                <!--                                        android:text="@{content.duration}"-->
+                                                <!--                                        android:textColor="@color/text_color_light"-->
+                                                <!--                                        android:textSize="@dimen/_14sp"-->
+                                                <!--                                        tools:text="2 h 30 m" />-->
+
+                                                <!--                                    <View-->
+                                                <!--                                        android:layout_width="1dp"-->
+                                                <!--                                        android:layout_height="match_parent"-->
+                                                <!--                                        android:layout_marginHorizontal="10dp"-->
+                                                <!--                                        android:layout_marginVertical="2dp"-->
+                                                <!--                                        android:background="@color/text_color_light" />-->
+
+                                                <!--                                    <LinearLayout-->
+                                                <!--                                        android:layout_width="wrap_content"-->
+                                                <!--                                        android:layout_height="wrap_content"-->
+                                                <!--                                        android:gravity="center_vertical"-->
+                                                <!--                                        android:orientation="horizontal"-->
+
+                                                <!--                                        >-->
+
+                                                <!--                                        <ImageView-->
+                                                <!--                                            android:layout_width="12dp"-->
+                                                <!--                                            android:layout_height="12dp"-->
+                                                <!--                                            android:src="@drawable/ic_show"-->
+                                                <!--                                            app:tint="@color/app_color" />-->
+
+                                                <!--                                        <TextView-->
+                                                <!--                                            android:id="@+id/tv_view"-->
+                                                <!--                                            style="@style/TextViewLocal"-->
+                                                <!--                                            android:layout_width="wrap_content"-->
+                                                <!--                                            android:layout_height="wrap_content"-->
+                                                <!--                                            android:layout_marginStart="5dp"-->
+                                                <!--                                            android:fontFamily="@font/outfit_light"-->
+                                                <!--                                            android:letterSpacing=".04"-->
+                                                <!--                                            android:maxLines="1"-->
+                                                <!--                                            android:text='@{Global.prettyCount(content.totalView)}'-->
+
+                                                <!--                                            android:textColor="@color/app_color"-->
+                                                <!--                                            android:textSize="@dimen/_14sp"-->
+                                                <!--                                            tools:text="10k" />-->
+                                                <!--                                    </LinearLayout>-->
+
+                                            </LinearLayout>
+
+
+                                        </LinearLayout>
+                                    </LinearLayout>
+
+
+                                </RelativeLayout>
+                            </androidx.constraintlayout.widget.ConstraintLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/lout_wathlist"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingBottom="10dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:layout_marginBottom="5dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    style="@style/TextViewLocal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/outfit_semi_bold"
+                                    android:text="@string/watchlist"
+
+                                    android:textSize="@dimen/_20sp" />
+
+                                <TextView
+                                    android:id="@+id/btn_watchlist_more"
+                                    style="@style/TextViewLocal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:fontFamily="@font/outfit_light"
+                                    android:text="@string/see_all"
+                                    android:textColor="@color/text_color_light"
+                                    android:textSize="@dimen/_16sp" />
+                            </LinearLayout>
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_Watchlist"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:nestedScrollingEnabled="false"
+                                android:orientation="horizontal"
+                                android:overScrollMode="never"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                tools:listitem="@layout/item_home_watchlist_item">
+
+                            </androidx.recyclerview.widget.RecyclerView>
+
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tv_history"
+                            style="@style/TextViewLocal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:fontFamily="@font/outfit_semi_bold"
+                            android:paddingHorizontal="10dp"
+                            android:text="@string/recently_watched"
+                            android:textSize="@dimen/_20sp" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_history"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:nestedScrollingEnabled="false"
+                            android:orientation="horizontal"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="0dp"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            tools:listitem="@layout/item_movie_history" />
+
+                        <LinearLayout
+                            android:id="@+id/lout_top"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:gravity="center_horizontal"
+                            android:orientation="vertical"
+                            android:paddingTop="10dp"
+                            android:paddingBottom="10dp">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginHorizontal="10dp"
+                                android:layout_marginBottom="5dp"
+                                android:gravity="center_vertical"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    style="@style/TextViewLocal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/outfit_semi_bold"
+                                    android:text="@string/top"
+                                    android:textSize="@dimen/_20sp" />
+
+
+                            </LinearLayout>
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_top_10"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:nestedScrollingEnabled="false"
+                                android:orientation="horizontal"
+
+                                android:overScrollMode="never"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                tools:listitem="@layout/item_home_top_ten">
+
+                            </androidx.recyclerview.widget.RecyclerView>
+
+                        </LinearLayout>
+
+
+                        <!--                    <com.retry.vuga.utils.adds.NativeAds-->
+                        <!--                        android:layout_width="match_parent"-->
+                        <!--                        android:layout_height="wrap_content"-->
+                        <!--                        app:type="small"-->
+                        <!--                        android:paddingTop="10dp"-->
+                        <!--                        android:paddingBottom="10dp"/>-->
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_cat"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_marginBottom="20dp"
+                            android:nestedScrollingEnabled="false"
+                            android:orientation="vertical"
+                            android:overScrollMode="never"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            tools:itemCount="4"
+                            tools:listitem="@layout/item_home_cat_name">
+
+                        </androidx.recyclerview.widget.RecyclerView>
+                    </LinearLayout>
+
+
+                </RelativeLayout>
+
+            </androidx.core.widget.NestedScrollView>
+
+            <LinearLayout
+                android:id="@+id/center_loader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:orientation="vertical"
+
+                android:visibility="gone"
+                tools:visibility="visible">
+
+
+                <include layout="@layout/layout_loader" />
+
+
+            </LinearLayout>
+
+        </FrameLayout>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</layout>

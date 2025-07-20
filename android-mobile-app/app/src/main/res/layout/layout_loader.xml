@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_black_50">
+
+
+        <!--            <LinearLayout-->
+        <!--                android:layout_width="60dp"-->
+        <!--                android:layout_height="60dp"-->
+        <!--                android:orientation="vertical"-->
+        <!--                android:layout_centerInParent="true"-->
+        <!--                android:background="@drawable/bg_rect_gradient_orange_round_corner_10_"-->
+        <!--                android:backgroundTint="@color/app_black">-->
+        <!--                <ProgressBar-->
+        <!--                    android:layout_width="match_parent"-->
+        <!--                    android:layout_height="match_parent"-->
+        <!--                    android:layout_margin="15dp"-->
+        <!--                    android:indeterminateTint="@color/app_color" />-->
+        <!--                -->
+        <!--            </LinearLayout>-->
+
+        <LinearLayout
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            android:orientation="vertical">
+            <ProgressBar
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="15dp"
+                android:indeterminateTint="@color/app_color" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+</layout>

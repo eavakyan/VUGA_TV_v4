@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="white">#FFFFFFFF</color>
+    <string name="add_to_favorites">Add to Favorites</string>
+    <string name="app_name">VUGA TV</string>
+    <string name="back">Back</string>
+    <string name="continue_watching">Continue Watching</string>
+    <string name="error_loading_content">Error loading content</string>
+    <string name="error_loading_favorites">Error loading favorites</string>
+    <string name="error_loading_history">Error loading history</string>
+    <string name="favorites">My Favorites</string>
+    <string name="featured">Featured</string>
+    <string name="new_releases">New Releases</string>
+    <string name="no_favorites">No favorites yet</string>
+    <string name="no_results_found">No results found</string>
+    <string name="no_watch_history">No watch history yet</string>
+    <string name="play">Play</string>
+    <string name="popular_searches">Popular Searches</string>
+    <string name="profile">Profile</string>
+    <string name="recommendations">Recommended for You</string>
+    <string name="retry">Retry</string>
+    <string name="search_hint">Search top movies and TV shows</string>
+    <string name="search_suggestions">Try searching for: Action, Comedy, Drama, Sci-Fi, Horror</string>
+    <string name="trending">Trending Now</string>
+    <string name="watch_history">Watch History</string>
+    <style name="Theme.AndroidTVStreaming" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        
+        <item name="android:windowBackground">@android:color/black</item>
+        <item name="android:colorBackground">@android:color/black</item>
+        <item name="android:statusBarColor">@android:color/black</item>
+        <item name="android:navigationBarColor">@android:color/black</item>
+    </style>
+</resources>

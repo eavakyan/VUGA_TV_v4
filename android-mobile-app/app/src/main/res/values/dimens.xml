@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<resources>
+    <dimen name="list_item_spacing">16dp</dimen>
+    <dimen name="list_item_spacing_half">8dp</dimen>
+
+
+    <dimen name="app_icon_big">140dp</dimen>
+
+
+    <dimen name="_35sp">35sp</dimen>
+    <dimen name="_16sp">16sp</dimen>
+    <dimen name="_18sp">18sp</dimen>
+    <dimen name="_8sp">8sp</dimen>
+    <dimen name="_14sp">14sp</dimen>
+    <dimen name="_24sp">24sp</dimen>
+    <dimen name="btn_height">60dp</dimen>
+    <dimen name="btn_login_height">50dp</dimen>
+    <dimen name="login_icon_size">22dp</dimen>
+    <dimen name="_30sp">30sp</dimen>
+    <dimen name="edit_text_padding_h">20dp</dimen>
+    <dimen name="_20sp">20sp</dimen>
+    <dimen name="_26sp">26sp</dimen>
+    <dimen name="top_margin_for_statusbar">32dp</dimen>
+    <dimen name="top_size_of_appbar">90dp</dimen>
+    <dimen name="stroke_width">1dp</dimen>
+    <dimen name="_12sp">12sp</dimen>
+    <dimen name="activity_margin_top">50dp</dimen>
+    <dimen name="back_btn_size">35dp</dimen>
+    <dimen name="_10sp">10sp</dimen>
+    <dimen name="logo_big_width">140dp</dimen>
+    <dimen name="logo_big_height">70dp</dimen>
+    <dimen name="hetght_of_bottombar">80dp</dimen>
+</resources>

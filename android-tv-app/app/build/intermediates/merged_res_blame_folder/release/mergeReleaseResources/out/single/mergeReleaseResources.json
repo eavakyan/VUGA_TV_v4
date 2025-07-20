@@ -1,0 +1,174 @@
+[
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_featured_slider_item.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/featured_slider_item.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_featured_slider_view.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/featured_slider_view.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_content_row_view.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/content_row_view.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable-xxhdpi_app_banner.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable-xxhdpi/app_banner.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_episode_normal_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/episode_normal_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_featured_gradient_overlay.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/featured_gradient_overlay.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/mipmap-hdpi_ic_launcher.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/mipmap-hdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/xml_backup_rules.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/xml/backup_rules.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/mipmap-xxxhdpi_ic_launcher.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/mipmap-xxxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_ic_play_arrow.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/ic_play_arrow.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_content_detail_view.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/content_detail_view.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/mipmap-xxhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_cast_member_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/cast_member_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_placeholder_image.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/placeholder_image.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_gradient_overlay.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/gradient_overlay.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_content_card.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/content_card.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_ic_launcher_foreground.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/ic_launcher_foreground.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_detail_gradient_overlay.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/detail_gradient_overlay.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_info_button_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/info_button_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_search_button_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/search_button_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_type_badge_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/type_badge_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_play_button_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/play_button_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable-xxxhdpi_app_banner.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable-xxxhdpi/app_banner.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_ic_back.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/ic_back.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_episode_number_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/episode_number_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_content_info_view.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/content_info_view.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_cast_member_item.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/cast_member_item.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/xml_data_extraction_rules.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/xml/data_extraction_rules.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_app_banner_backup.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/app_banner_backup.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable-xhdpi_app_banner.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable-xhdpi/app_banner.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_spinner_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/spinner_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_episode_focused_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/episode_focused_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_episode_card.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/episode_card.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_poster_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/poster_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_circular_image_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/circular_image_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/mipmap-mdpi_ic_launcher.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/mipmap-mdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/mipmap-xhdpi_ic_launcher.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/mipmap-xhdpi/ic_launcher.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_cast_detail_view.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/cast_detail_view.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/layout_home_screen_view.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/layout/home_screen_view.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/mipmap-anydpi-v26/ic_launcher.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable-hdpi_app_banner.png.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable-hdpi/app_banner.png"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_back_button_background.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/back_button_background.xml"
+    },
+    {
+        "merged": "com.vugaenterprises.androidtv.app-release-78:/drawable_ic_search.xml.flat",
+        "source": "com.vugaenterprises.androidtv.app-main-79:/drawable/ic_search.xml"
+    }
+]

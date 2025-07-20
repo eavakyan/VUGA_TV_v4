@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "561887003471",
+    "project_id": "iosdemo-tvapp",
+    "storage_bucket": "iosdemo-tvapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:561887003471:android:05f2c26ef21fda51f7fb3a",
+        "android_client_info": {
+          "package_name": "com.vugaenterprises.androiddev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "561887003471-40dbcna287qvk5nli4a151ks76jseuo5.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vugaenterprises.androiddev",
+            "certificate_hash": "0b1dc85b77ce27bf679a6332f36a4001cc284b97"
+          }
+        },
+        {
+          "client_id": "561887003471-pg4j8e8mq7ad7b38jt18jd5407f0ra0r.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDX06k9JaFQ2B0Z2SpIPACpQS43e31LF9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "561887003471-pg4j8e8mq7ad7b38jt18jd5407f0ra0r.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "561887003471-okjhtc4lg5flu8ao3iijhrldmlp3c7bl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.vugaenterprises.vuga"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

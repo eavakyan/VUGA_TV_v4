@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?><!DOCTYPE resources [<!ENTITY appname "Vuga">]>
+
+<resources>
+
+
+    <string name="branch_schema" translatable="false">vuganew</string>
+
+    <string name="branch_io_key" translatable="false">key_live_egWyAS7gGjbCdaUrtMSqqieaAsmmMVsN</string>
+
+    <string name="branch_app_link" translatable="false">vuga.app.link</string>
+
+    <string name="branch_app_alternative_link" translatable="false">vuga-alternate.app.link</string>
+
+    <string name="revenue_cat_google_api_key" translatable="false">goog_iSMPVNNQIlVFAHJKWBgOTVSqfzJ</string>
+
+    <string name="admob_app_id" translatable="false">ca-app-pub-3940256099942544~3347511713</string>
+
+
+    <string name="pro__" translatable="false">PRO?</string>
+    <string name="pro" translatable="false">pro</string>
+    <string name="app_name" translatable="false">VUGA</string>
+
+
+    <string name="sign_in_with_google">Sign in with google</string>
+    <string name="terms_of_use">Terms &amp; Use</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="home">Home</string>
+    <string name="watch_list">Watch List</string>
+    <string name="live_tv">Live Tv</string>
+    <string name="movie">Movie</string>
+    <string name="episodes">Episodes</string>
+    <string name="episode">Episode</string>
+
+    <string name="search">Search</string>
+    <string name="pro_description">After 3 day free trial, this subscription automatically renews as per the plan. Subscription will automatically renew unless cancelled with in 24 hours before the end of the current period. You can manage and  cancel your subscription anytime from your google play account settings</string>
+    <string name="access_to_premium_content_ad_free_experience_for_month">Access to premium content &amp; ad-free experience for month</string>
+    <string name="subscribe_to_pro_version_and_enjoy_nexclusive_benefits_listed_below">Subscribe to PRO version and enjoy exclusive benefits listed below</string>
+    <string name="why_go_with">Why go with</string>
+    <string name="fully_ad_free_experience">Fully Ad free experience</string>
+    <string name="access_to_all_the_premium_tracks">Access to all the premium tracks</string>
+    <string name="technical_support">Technical support</string>
+    <string name="cancel_anytime">Cancel anytime</string>
+
+
+    <string name="premium_pop_up_text">Enjoy access to all premium sources with ad-free experience.</string>
+    <string name="locked_pop_up_text">Enjoy access to this premium sources with video ad.</string>
+    <string name="monthly">Monthly</string>
+
+    <string name="enjoy_all_premium_features_for_a_full_year_and_best_price">Enjoy all premium features for a full year and best price</string>
+    <string name="yearly">Yearly</string>
+    <string name="are_you_sure">Are you Sure?</string>
+    <string name="do_you_really_want_to_log_out_from_this_app">Do you really want to log out from this app?</string>
+    <string name="delete_account_text">Do you really want to delete your account? You won’t be able to recover it later and data will be lost forever</string>
+    <string name="yes">Yes</string>
+    <string name="cancel">Cancel</string>
+    <string name="all">All</string>
+    <string name="movies">Movies</string>
+    <string name="series">Series</string>
+    <string name="genre">Genre</string>
+    <string name="search_here">Search here</string>
+    <string name="watchlist">Watchlist</string>
+    <string name="languages">Languages</string>
+    <string name="language">Language</string>
+    <string name="trailer">Trailer</string>
+    <string name="more_like_this">More Like This</string>
+    <string name="available_sources">Available sources</string>
+    <string name="no_data">No Data</string>
+    <string name="season">Season</string>
+    <string name="become_a">Become a</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="full_name">Full Name</string>
+    <string name="email">Email</string>
+    <string name="update">Update</string>
+    <string name="remove_from_watchlist">Are you sure you want to remove this content from your watchlist?</string>
+    <string name="something_went_wrong">Something went wrong !</string>
+    <string name="notification">Notification</string>
+    <string name="rate_this_app">Rate This App</string>
+    <string name="log_out">Log Out</string>
+    <string name="permission_denied">Permission Denied</string>
+    <string name="reject_message">If you reject permission,you can not download the images\n\nPlease turn on permissions at [Setting] > [Permission]</string>
+    <string name="profile_updated">Profile Updated</string>
+    <string name="user_name_cant_be_empty">Username can\'t be Empty</string>
+    <string name="email_cant_be_empty">Email can\'t be Empty</string>
+    <string name="share_movie_title">Watch this Amazing Content…</string>
+    <string name="downloading_please_wait">Downloading Please Wait…</string>
+    <string name="download_started">Download Started</string>
+    <string name="download_completed">Download Completed</string>
+    <string name="downloads">Downloads</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="downloading">Downloading…</string>
+    <string name="delete_from_downloads">This will permanently delete the downloaded content. Once deleted, it cannot be recovered. Do you wish to proceed?</string>
+    <string name="delete_from_downloads_all">This will permanently delete all the downloads. Once deleted, it cannot be recovered. Do you wish to proceed?</string>
+    <string name="no_downlods">No Downloads</string>
+    <string name="file_does_not_exist">File does not Exist</string>
+    <string name="no_connection">Network Unavailable</string>
+    <string name="no_connection_massage">No Internet connection.\nMake sure that Wi-Fi or mobile Data is turned on</string>
+    <string name="go_to_downloads">Go to Downloads</string>
+    <string name="sponsored">Sponsored</string>
+    <string name="unlock_with_video_ad">Unlock with video Ad</string>
+    <string name="no">No</string>
+    <string name="watch_add">Watch Ad</string>
+    <string name="watch_now">Watch Now</string>
+    <string name="subscribe_to">Subscribe to</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="you_are">You are</string>
+    <string name="subtitle">Subtitles</string>
+    <string name="expires_on">Expires on :\ </string>
+    <string name="another_contant_downloading">Another Content is pending for Download</string>
+    <string name="visit_store_now">Visit Store Now</string>
+    <string name="view_more">View More</string>
+    <string name="view_less">View Less</string>
+    <string name="delete_my_account">Delete my account</string>
+    <string name="sign_in_with_email">Sign in with Email</string>
+    <string name="show_password">Show password</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_">Sign in?</string>
+    <string name="or">or</string>
+    <string name="continue_">Continue</string>
+    <string name="don_t_have_an_account">Don\'t have an account?</string>
+    <string name="sign_up_">Sign up?</string>
+    <string name="sign_up">Sign up</string>
+    <string name="enter_email">Enter email</string>
+    <string name="password">Password</string>
+    <string name="enter_password_for_the_account_with_the_email_below">Enter password for the account with the Email below</string>
+    <string name="enter_valid_email">Enter valid email</string>
+    <string name="log_in">Log In</string>
+    <string name="enter_password">Enter Password</string>
+    <string name="register">Register</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="age">Age</string>
+    <string name="password_do_not_match">Passwords do not match</string>
+    <string name="verification_link_sent">A verification link sent to your email,verify your email and continue the registration process</string>
+    <string name="no_account_with_this_email">No account found with this email.Create an account</string>
+    <string name="reset">Reset</string>
+    <string name="link_to_reset_password_has_been_sent">A link to reset your password has been sent to this email.</string>
+    <string name="password_at_least_six_char">Password should be at least 6 characters</string>
+    <string name="email_is_in_by_another_account">The email address is already in use by another account.</string>
+    <string name="account_is_disabled_by_firebase">Your account has been disabled by firebase</string>
+    <string name="enter_new_password">Enter new password</string>
+    <string name="invalid_email_or_password">Invalid email or password</string>
+    <string name="invalid_password">Invalid password</string>
+    <string name="invalid_email">Invalid email</string>
+    <string name="please_sign_in_using_any_of_the_below_options_to_continue_using_this_app">Please sign in using any of the \n below options to continue using this app</string>
+    <string name="sign_in_to_continue">Sign in-to continue</string>
+    <string name="forgot_text">Oops! Forgot your password? No worries, we\'ve got you covered. Just enter the email address associated with your account below, and we\'ll send you a link to reset your password. Let\'s get you back on track!</string>
+    <string name="user_id_not_found">User id not found</string>
+    <string name="see_all">See all</string>
+    <string name="delete_all">Delete All</string>
+    <string name="profile">Profile</string>
+    <string name="story_line">Story Line</string>
+    <string name="star_cast">Star cast</string>
+    <string name="for_watching_amazing_content_like_this_install_app_now">\nfor watching Amazing Content Like this, install app now…</string>
+    <string name="restore">Restore</string>
+    <string name="remove">Remove</string>
+    <string name="type_something">Type something…</string>
+    <string name="couldn_t_download">Could\'t download</string>
+    <string name="not_enough_storage_space">Not Enough Storage space</string>
+    <string name="resume_download">Resume Download</string>
+    <string name="pause_download">Pause Download</string>
+    <string name="delete_download">Delete Download</string>
+    <string name="top">Top Contents</string>
+    <string name="no_data_found">No Data Found</string>
+    <string name="change">Change</string>
+    <string name="recently_watched">Recently Watched</string>
+    <string name="do_you_really_want_to_delete_this_from_history">Do you really want to delete this from history?</string>
+
+    <string name="featured">Featured</string>
+    <string name="categories">Categories</string>
+    <string name="recent">Recent</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="popular">Popular</string>
+    <string name="latest">Latest</string>
+    <string name="search_hint">Search for movies, shows, etc.</string>
+    <string name="genres">Genres</string>
+    <string name="search_results">Search Results</string>
+    <string name="popular_searches">Popular Searches</string>
+    <string name="trending">Trending</string>
+    <string name="live_tv_categories">Live TV Categories</string>
+    <string name="featured_live_tv">Featured Live TV</string>
+    <string name="popular_live_tv">Popular Live TV</string>
+    <string name="recent_live_tv">Recent Live TV</string>
+    <string name="watch_list_description">Your saved movies and shows appear here.</string>
+    <string name="tv_shows">TV Shows</string>
+
+</resources>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/root_lout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            tools:context=".activities.DownloadsActivity">
+
+            <RelativeLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_margin_top"
+                android:paddingHorizontal="15dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+
+                    >
+
+                    <RelativeLayout
+                        android:id="@+id/btn_back"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <include
+
+
+                            layout="@layout/lout_back_btn" />
+                    </RelativeLayout>
+
+
+                    <TextView
+                        android:id="@+id/tv_title"
+                        style="@style/TextViewLocal"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="20dp"
+                        android:layout_weight="1"
+                        android:ellipsize="end"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:maxLines="1"
+                        android:text="@string/downloads"
+                        android:textSize="@dimen/_20sp"
+                        tools:text="hdkshfdksjfhksjfhksdfhksskhfksdfhskskfhksdfhskfskfhk" />
+
+
+                    <TextView
+                        android:id="@+id/delete_all_btn"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_medium"
+                        android:text="@string/delete_all"
+                        android:textColor="@color/app_color"
+                        android:textSize="@dimen/_16sp"
+                        android:visibility="gone"
+                        tools:visibility="visible" />
+
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="vertical">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rv_downloads"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    app:reverseLayout="true"
+                    tools:itemCount="10"
+                    tools:listitem="@layout/item_download" />
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/tv_noDownloads"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+
+            <include layout="@layout/layout_no_data" />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/lout_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+
+            <include layout="@layout/layout_loader" />
+
+
+        </LinearLayout>
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/blur_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:blurOverlayColor="@color/app_black_2"
+            tools:visibility="gone">
+
+        </eightbitlab.com.blurview.BlurView>
+    </RelativeLayout>
+
+</layout>

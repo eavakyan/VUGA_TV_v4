@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="selected"
+            type="Boolean" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="10dp"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingHorizontal="4dp"
+        android:paddingVertical="7dp">
+
+        <TextView
+            style="@style/TextViewLocal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/outfit_regular"
+            android:text="@string/season"
+            android:textColor="@{selected?@color/text_color:@color/text_color_light}"
+            android:textSize="@dimen/_14sp" />
+
+        <TextView
+            android:id="@+id/tv_count"
+            style="@style/TextViewLocal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/outfit_regular"
+            android:textColor="@{selected?@color/text_color:@color/text_color_light}"
+            android:textSize="@dimen/_14sp"
+            tools:text="1" />
+
+    </LinearLayout>
+</layout>

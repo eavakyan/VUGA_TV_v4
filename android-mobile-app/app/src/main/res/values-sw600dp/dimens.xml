@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Tablet-specific dimensions -->
+    <dimen name="tablet_navigation_width">200dp</dimen>
+    <dimen name="tablet_content_padding">24dp</dimen>
+    <dimen name="tablet_text_size_large">18sp</dimen>
+    <dimen name="tablet_text_size_medium">16sp</dimen>
+    <dimen name="tablet_text_size_small">14sp</dimen>
+    <dimen name="tablet_icon_size">24dp</dimen>
+    <dimen name="tablet_navigation_item_height">56dp</dimen>
+    <dimen name="tablet_logo_width">120dp</dimen>
+    <dimen name="tablet_logo_height">34dp</dimen>
+</resources> 

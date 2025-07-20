@@ -1,0 +1,20 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-hdpi-v4/values-hdpi-v4.xml",
+            "map": [
+                {
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/52fd5ae79fb61fe4ab36101e0e05a77b/transformed/appcompat-1.6.1/res/values-hdpi-v4/values-hdpi-v4.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endLines": "6",
+                        "endColumns": "13",
+                        "endOffsets": "327"
+                    }
+                }
+            ]
+        }
+    ]
+}

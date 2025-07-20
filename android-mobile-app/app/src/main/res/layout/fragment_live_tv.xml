@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/root_lout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingTop="@dimen/top_size_of_appbar"
+
+        tools:context=".fragments.LiveTvFragment">
+
+        <LinearLayout
+            android:id="@+id/mainLout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/app_black"
+            android:orientation="vertical"
+            android:visibility="visible">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_Chips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:overScrollMode="never"
+                android:layout_marginVertical="10dp"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_livetv_chips">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_LiveTv"
+                android:layout_width="match_parent"
+                android:overScrollMode="never"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_live_tv_name">
+
+            </androidx.recyclerview.widget.RecyclerView>
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/center_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+
+            <include layout="@layout/layout_loader" />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/tv_noContent"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+
+            <include layout="@layout/layout_no_data" />
+
+
+        </LinearLayout>
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/blur_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:blurOverlayColor="@color/app_black_2"
+            tools:visibility="visible">
+
+        </eightbitlab.com.blurview.BlurView>
+
+    </RelativeLayout>
+
+</layout>

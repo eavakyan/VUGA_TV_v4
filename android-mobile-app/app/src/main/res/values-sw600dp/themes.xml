@@ -1,0 +1,37 @@
+<resources>
+    <!-- Tablet-specific theme -->
+    <style name="Theme.Vuga.Tablet" parent="Theme.Vuga">
+        <!-- Optimize for tablet screens -->
+        <item name="android:windowFullscreen">false</item>
+        <item name="android:windowContentOverlay">@null</item>
+        
+        <!-- Larger text sizes for tablets -->
+        <item name="android:textSize">16sp</item>
+        
+        <!-- Optimized status bar for tablets -->
+        <item name="android:statusBarColor">@color/app_black</item>
+        <item name="android:navigationBarColor">@color/app_black</item>
+        
+        <!-- Tablet-specific window animations -->
+        <item name="android:windowAnimationStyle">@style/TabletWindowAnimation</item>
+    </style>
+    
+    <!-- Tablet window animation style -->
+    <style name="TabletWindowAnimation">
+        <item name="android:windowEnterAnimation">@android:anim/fade_in</item>
+        <item name="android:windowExitAnimation">@android:anim/fade_out</item>
+    </style>
+    
+    <!-- Tablet-specific text styles -->
+    <style name="TextViewLocal.Tablet" parent="TextViewLocal">
+        <item name="android:textSize">16sp</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
+    </style>
+    
+    <!-- Tablet-specific edit text styles -->
+    <style name="EditTextLocal.Tablet" parent="EditTextLocal">
+        <item name="android:textSize">16sp</item>
+        <item name="android:minHeight">56dp</item>
+        <item name="android:padding">16dp</item>
+    </style>
+</resources> 

@@ -1,0 +1,72 @@
+
+/*# sourceMappingURL=data:application/json;charset=utf8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiY3VzdG9tLmNzcyIsInNvdXJjZXMiOlsiY3VzdG9tLnNjc3MiXSwibmFtZXMiOltdLCJtYXBwaW5ncyI6IiJ9 */
+
+/*# sourceMappingURL=custom.css.map */
+a{
+    cursor: pointer !important;
+}
+
+.error{
+    color: red !important;
+}
+
+.nav-item .badge {
+    background-color: #0A0A0A;
+    color: #fff;
+}
+
+.nav-item .active .badge {
+    background-color: rgba(255,255,255,0.25);
+    color: #0A0A0A;
+}
+
+.nav-pills .nav-item .nav-link {
+    background-color: #f6f7fe;
+}
+.nav-pills .nav-item .active .nav-link {
+    color: #fff !important;
+}
+.nav-pills .nav-item .nav-link {
+    color: #0A0A0A !important;
+}
+.nav-pills .nav-item .nav-link.active{
+    color: #fff !important;
+}
+.nav-pills .nav-item .nav-link:hover {
+    background-color: #0A0A0A;
+    color: #fff !important;
+}
+
+a[disabled], a[disabled]:hover {
+    pointer-events: none;
+    color: #e1e1e1;
+    cursor: pointer;
+}
+
+.card-stats .card-content {
+    text-align: right;
+    padding-top: 10px;
+    padding: 15px 20px;
+    padding-bottom: 0px !important;
+}
+.views-body {
+    position: absolute !important;
+    right: 0px !important;
+    top: -45px !important;
+}
+.btn-tab-movie ,.btn-tab-movie:hover{
+    background-color: white !important;
+    border: 2px solid black !important;
+    border-color: black !important;
+    color: black !important;
+    padding-left: 20px;
+    padding-right: 20px;
+    line-height: 20px;
+    margin: 10px 1px;
+}
+.btn .material-icons {
+    vertical-align: middle;
+    font-size: 17px;
+    top: -1px;
+    position: relative;
+}

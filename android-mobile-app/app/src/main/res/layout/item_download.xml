@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="content"
+            type="com.retry.vuga.model.Downloads" />
+
+
+        <import type="com.retry.vuga.utils.Const" />
+
+        <import type="com.retry.vuga.utils.Const.ItemType" />
+
+        <import type="com.retry.vuga.utils.Global" />
+
+        <import type="android.view.View" />
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:layout_marginStart="10dp">
+
+        <LinearLayout
+            android:id="@+id/lout_top"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="130dp"
+                android:layout_height="100dp">
+
+                <View
+                    android:id="@+id/view_sheet_series"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginHorizontal="5dp"
+                    android:layout_marginTop="3dp"
+                    android:background="@drawable/bg_stoke_10"
+                    android:backgroundTint="@color/trans_stroke_color"
+                    android:visibility="gone"
+                    tools:visibility="visible" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="5dp"
+                    app:cardBackgroundColor="@color/transparent"
+                    app:cardCornerRadius="10dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <androidx.constraintlayout.utils.widget.ImageFilterView
+                            android:id="@+id/img"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerInParent="true"
+                            android:layout_margin="@dimen/stroke_width"
+                            android:scaleType="centerCrop"
+                            app:image_url="@{content.contentImage}"
+                            app:round="10dp"
+                            tools:src="@tools:sample/backgrounds/scenic" />
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:background="@drawable/bg_stoke_10"
+                            android:backgroundTint="@color/trans_stroke_color" />
+
+                        <RelativeLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="22dp"
+                            android:layout_marginTop="15dp">
+
+                            <TextView
+                                android:id="@+id/type"
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="match_parent"
+                                android:layout_centerInParent="true"
+                                android:background="@drawable/bg_for_type_text"
+                                android:fontFamily="@font/outfit_regular"
+                                android:gravity="center"
+                                android:paddingHorizontal="10dp"
+                                android:text="@{content.type==1?@string/movie:@string/series}"
+                                android:textSize="@dimen/_10sp"
+                                tools:text="Series" />
+
+                            <View
+                                android:layout_width="1dp"
+                                android:layout_height="match_parent"
+                                android:layout_marginVertical="1dp"
+                                android:background="@color/app_black" />
+
+                        </RelativeLayout>
+
+                        <ProgressBar
+                            android:id="@+id/progress"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="3dp"
+                            android:layout_alignParentBottom="true"
+                            android:backgroundTint="@color/text_color"
+                            android:indeterminate="false"
+                            android:progressBackgroundTint="@color/text_color_light"
+                            android:progressTint="@color/app_color"
+                            tools:progress="30"
+                            tools:visibility="visible" />
+                    </RelativeLayout>
+                </androidx.cardview.widget.CardView>
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="5dp"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:id="@+id/tv_name"
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/outfit_medium"
+                    android:maxLines="1"
+
+                    android:textSize="@dimen/_16sp"
+                    tools:text="spider man c nv ncxxccxvzdv " />
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:gravity="center_vertical"
+
+
+                            android:orientation="horizontal">
+
+                            <TextView
+                                android:id="@+id/tv_season_and_episode"
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/outfit_light"
+                                android:maxLines="1"
+                                android:textColor="@color/text_color_light"
+                                android:textSize="@dimen/_14sp"
+                                android:visibility="gone"
+                                tools:text="S1 E2 *"
+                                tools:visibility="visible" />
+
+                            <TextView
+                                android:id="@+id/tv_duration"
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:ellipsize="end"
+                                android:fontFamily="@font/outfit_light"
+                                android:maxLines="1"
+                                android:textColor="@color/text_color_light"
+                                android:textSize="@dimen/_14sp"
+                                android:visibility="gone"
+                                tools:text="2h 30m"
+
+                                tools:visibility="visible" />
+                        </LinearLayout>
+
+
+                        <TextView
+                            android:id="@+id/tv_file_size"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="3dp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/outfit_light"
+                            android:maxLines="1"
+                            android:textColor="@color/text_color_light"
+                            android:textSize="@dimen/_14sp"
+
+
+                            tools:text="704 mb"
+                            tools:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/tv_episode_count"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+
+                            android:ellipsize="end"
+                            android:fontFamily="@font/outfit_light"
+                            android:maxLines="1"
+                            android:textColor="@color/text_color_light"
+                            android:textSize="@dimen/_14sp"
+                            android:visibility="gone"
+                            tools:text="2 Episodes"
+                            tools:visibility="visible" />
+
+                        <TextView
+                            android:id="@+id/tv_downloading"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/outfit_light"
+                            android:maxLines="1"
+                            android:text="@string/downloading"
+                            android:textColor="@color/app_color"
+                            android:textSize="@dimen/_12sp"
+                            android:visibility="gone"
+
+                            tools:visibility="visible" />
+
+                    </LinearLayout>
+
+
+                    <ImageView
+                        android:id="@+id/btn_remove"
+                        android:layout_width="35dp"
+                        android:layout_height="35dp"
+                        android:layout_gravity="bottom"
+                        android:background="@drawable/bg_for_view_round"
+                        android:padding="7dp"
+                        android:src="@drawable/ic_delete"
+                        android:visibility="gone"
+                        app:tint="@color/text_color"
+                        tools:visibility="gone" />
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+            <RelativeLayout
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_round_rect_500"
+                android:backgroundTint="@color/app_black_50">
+
+                <RelativeLayout
+                    android:id="@+id/btn_progress"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:visibility="gone"
+                    tools:visibility="visible">
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:indeterminate="false"
+                        android:padding="4dp"
+                        android:progress="30"
+                        android:progressDrawable="@drawable/bg_for_circular_progress_bar"
+                        android:progressTint="@color/app_color" />
+
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:padding="14dp"
+                        android:src="@drawable/ic_download"
+
+                        app:tint="@color/text_color" />
+
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/btn_download"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:padding="10dp"
+                    android:visibility="gone"
+                    tools:visibility="gone">
+
+                    <ImageView
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:layout_centerHorizontal="true"
+                        android:src="@drawable/ic_arrow_down"
+                        app:tint="@color/download_yellow" />
+
+                    <ProgressBar
+                        android:id="@+id/progressbar_mini"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginTop="5dp"
+                        android:indeterminate="false"
+                        android:padding="1dp"
+                        android:progress="0"
+                        android:progressBackgroundTint="@color/text_color_light"
+                        android:progressTint="@color/download_yellow"
+
+                        tools:progress="50" />
+
+
+                </RelativeLayout>
+
+
+                <ImageView
+                    android:id="@+id/btn_menu"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+
+                    android:padding="10dp"
+                    android:rotation="90"
+                    android:src="@drawable/ic_menu"
+                    android:visibility="gone"
+                    app:tint="@color/text_color"
+                    tools:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/btn_inside"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:padding="8dp"
+                    android:rotation="180"
+                    android:src="@drawable/ic_back"
+                    android:visibility="gone"
+                    app:tint="@color/text_color"
+                    tools:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/btn_queved"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:padding="8dp"
+                    android:rotation="180"
+                    android:src="@drawable/ic_pending"
+                    android:visibility="gone"
+                    app:tint="@color/text_color"
+                    tools:visibility="gone" />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</layout>

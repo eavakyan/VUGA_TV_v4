@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="200dp"
+    android:layout_height="220dp"
+    android:layout_margin="8dp"
+    app:cardCornerRadius="8dp"
+    app:cardBackgroundColor="#1AFFFFFF"
+    app:cardElevation="4dp"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:background="@drawable/episode_normal_background">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- Episode Image -->
+        <ImageView
+            android:id="@+id/episode_image"
+            android:layout_width="match_parent"
+            android:layout_height="120dp"
+            android:scaleType="centerCrop"
+            android:src="@drawable/placeholder_image" />
+
+        <!-- Play Icon Overlay -->
+        <ImageView
+            android:id="@+id/play_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_centerInParent="true"
+            android:src="@drawable/ic_play_arrow"
+            app:tint="#FFFFFF"
+            android:alpha="0.8" />
+
+
+
+        <!-- Episode Info -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/episode_image"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <TextView
+                android:id="@+id/episode_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Episode Title"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:maxLines="1"
+                android:ellipsize="end" />
+
+            <TextView
+                android:id="@+id/episode_duration"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:text="45 min"
+                android:textColor="#B3FFFFFF"
+                android:textSize="11sp" />
+
+            <TextView
+                android:id="@+id/episode_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:text="Episode description goes here..."
+                android:textColor="#CCFFFFFF"
+                android:textSize="11sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:lineSpacingExtra="1dp"
+                android:maxHeight="40dp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView> 

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_round_rect_500"
+            android:backgroundTint="@color/et_stroke_color" />
+
+        <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/stroke_width"
+            android:background="@drawable/bg_round_rect_500"
+            android:backgroundTint="@color/app_black"
+            android:orientation="vertical"
+            android:padding="13dp"
+            android:src="@drawable/ic_close"
+            android:tint="@color/app_color">
+
+
+        </androidx.constraintlayout.utils.widget.ImageFilterView>
+
+    </RelativeLayout>
+
+
+</layout>

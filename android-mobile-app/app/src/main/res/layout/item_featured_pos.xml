@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <data>
+
+    </data>
+
+
+    <ImageView
+        android:id="@+id/imgView"
+        android:layout_width="25px"
+        android:layout_height="25px"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/bg_round"
+        android:backgroundTint="@color/text_color"
+
+        />
+
+    <!--    </androidx.cardview.widget.CardView>-->
+</layout>

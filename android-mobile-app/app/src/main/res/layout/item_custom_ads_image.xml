@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="videoData"
+            type="com.retry.vuga.model.ads.CustomAds.Sources" />
+
+        <variable
+            name="model"
+            type="com.retry.vuga.model.ads.CustomAds.DataItem" />
+    </data>
+
+
+    <androidx.appcompat.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:weightSum="2">
+
+        <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:id="@+id/iv_ad_image"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:scaleType="centerCrop"
+            tools:src="@tools:sample/avatars" />
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@color/text_color"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="end"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginEnd="-3dp"
+                android:background="@drawable/bg_round_rect_5"
+                android:backgroundTint="#EAB326"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:paddingHorizontal="10dp"
+                android:paddingVertical="5dp"
+                android:text="Ad"
+
+                android:textSize="16sp" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="15dp">
+
+                    <androidx.constraintlayout.utils.widget.ImageFilterView
+                        android:id="@+id/ic_thumb_"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/bg_round_rect_10"
+                        android:backgroundTint="@color/text_color"
+                        android:elevation="5dp"
+                        android:scaleType="centerCrop"
+                        app:round="10dp"
+                        tools:src="@tools:sample/avatars" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:text="@{model.brandName}"
+                        android:textColor="@color/app_black"
+                        android:textSize="16sp"
+                        tools:text="Nike India." />
+
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="15dp"
+                    android:fontFamily="@font/outfit_bold"
+                    android:text="@{videoData.headline}"
+                    android:textColor="@color/app_black"
+                    android:textSize="18sp"
+                    tools:text="Nike : Miles To Run Miles To Go" />
+
+
+                <TextView
+                    android:id="@+id/tv_description"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/outfit_regular"
+                    android:text="@{videoData.description}"
+                    android:textColor="@color/app_black_50"
+                    android:textSize="16sp"
+                    tools:text="Watch All Type of Your Entertainment Content at one place: Movies, Live TV Channels, Series and lot more" />
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/btn_link"
+                    android:layout_width="175dp"
+                    android:layout_height="40dp"
+                    android:layout_marginStart="15dp"
+                    android:layout_marginTop="10dp"
+                    android:background="@drawable/bg_round_rect_10"
+                    android:backgroundTint="@color/app_black"
+                    android:fontFamily="@font/outfit_medium"
+                    android:text="@{model.buttonText}"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    tools:text="@string/visit_store_now" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ProgressBar
+                    android:id="@+id/progress_bar"
+                    style="?android:attr/progressBarStyleHorizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="3dp"
+                    android:layout_marginHorizontal="10dp"
+                    android:layout_marginVertical="5dp"
+                    android:background="@color/transparent"
+                    android:progress="10"
+                    android:progressDrawable="@drawable/bg_for_progress_bar"
+                    android:progressTint="@color/app_black"
+                    android:secondaryProgress="100"
+                    android:secondaryProgressTint="@color/text_color_light" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </FrameLayout>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
+</layout>

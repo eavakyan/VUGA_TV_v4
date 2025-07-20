@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_black"
+        tools:context=".activities.SignInActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginHorizontal="30dp"
+            android:layout_marginTop="100dp"
+            android:gravity="center_horizontal"
+            android:layout_marginBottom="60dp"
+            android:orientation="vertical">
+
+
+            <ImageView
+                android:layout_width="@dimen/logo_big_width"
+                android:layout_height="@dimen/logo_big_height"
+                android:src="@drawable/logo" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                style="@style/TextViewLocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/outfit_regular"
+                android:gravity="center"
+                android:text="@string/please_sign_in_using_any_of_the_below_options_to_continue_using_this_app"
+                android:textSize="@dimen/_14sp" />
+
+            <TextView
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="20dp"
+                android:fontFamily="@font/outfit_medium"
+                android:text="@string/sign_in_to_continue"
+
+                android:textSize="@dimen/_24sp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/btn_google"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_height"
+                    android:layout_marginBottom="15dp"
+                    android:background="@drawable/bg_for_edit_text_13"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+
+
+                    >
+
+                    <ImageView
+                        android:layout_width="@dimen/login_icon_size"
+                        android:layout_height="@dimen/login_icon_size"
+                        android:layout_marginEnd="15dp"
+                        android:src="@drawable/ic_google" />
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_medium"
+                        android:text="@string/sign_in_with_google"
+                        android:gravity="center_vertical"
+
+                        android:textSize="@dimen/_16sp" />
+
+                </LinearLayout>
+                <LinearLayout
+                    android:id="@+id/btn_email"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/btn_height"
+                    android:background="@drawable/bg_for_edit_text_13"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+
+
+                    >
+
+                    <ImageView
+                        android:layout_width="@dimen/login_icon_size"
+                        android:layout_height="@dimen/login_icon_size"
+                        android:layout_marginEnd="15dp"
+                        android:src="@drawable/ic_email"
+                        app:tint="@color/text_color" />
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_medium"
+                        android:text="@string/sign_in_with_email"
+                        android:gravity="center_vertical"
+
+                        android:textSize="@dimen/_16sp" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/progress"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <include layout="@layout/layout_loader" />
+        </LinearLayout>
+    </RelativeLayout>
+
+
+</layout>

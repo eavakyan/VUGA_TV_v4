@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="transparent">#00FFFFFF</color>
+
+
+    <!--black-->
+    <color name="app_black">#09090F</color>
+    <color name="app_black_70">#B309090F</color>
+    <color name="app_black_90">#E609090F</color>
+    <color name="app_black_50">#8009090F</color>
+    <color name="app_black_30">#4D09090F</color>
+    <color name="app_black_2">#0509090F</color>
+
+
+
+    <color name="app_color">#F64136</color>
+    <color name="stroke_color_red">#A9201C</color>
+    <color name="app_color_50">#80F64136</color>
+    <color name="app_color_30">#4DF64136</color>
+
+
+    <color name="nav_bar_blur">@color/app_black_30</color>
+
+
+    <color name="text_color">#DDDDDD</color>
+    <color name="text_color_10">#1ADDDDDD</color>
+    <color name="text_color_20">#33DDDDDD</color>
+    <color name="text_color_40">#66DDDDDD</color>
+    <color name="text_color_light">#7A7A7D</color>
+    <color name="text_color_hint">@color/text_color_20</color>
+    <color name="et_stroke_color">#3E3E43</color>
+    <color name="edit_text_bg_color">#16161D</color>
+    <color name="view_bg_color">#333338</color>
+    <color name="seek_background">#A5A5A5</color>
+    <color name="trans_stroke_color">@color/text_color_20</color>
+    <!--    <color name="view_bg_stroke_color">#555559</color>-->
+
+
+    <color name="rating_yellow">#F5C518</color>
+    <color name="download_yellow">#F69036</color>
+    <color name="rating_yellow_shadow">#FAC401</color>
+
+
+</resources>

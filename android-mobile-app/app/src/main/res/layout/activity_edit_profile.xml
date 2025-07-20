@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activities.EditProfileActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="15dp">
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_margin_top"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+
+                >
+
+                <RelativeLayout
+                    android:id="@+id/btn_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <include
+
+
+                        layout="@layout/lout_back_btn" />
+                </RelativeLayout>
+
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="40dp"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:text="@string/edit_profile"
+                    android:textSize="@dimen/_20sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content">
+
+                        <RelativeLayout
+                            android:layout_width="100dp"
+                            android:layout_height="100dp"
+
+                            >
+
+                            <androidx.constraintlayout.utils.widget.ImageFilterView
+                                android:id="@+id/img_profile"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_centerInParent="true"
+                                android:scaleType="centerCrop"
+                                app:roundPercent="1"
+                                android:src="@color/text_color_light" />
+
+
+                            <ImageView
+                                android:id="@+id/img_user"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:layout_centerInParent="true"
+                                android:layout_margin="20dp"
+                                android:src="@drawable/ic_user"
+                                app:tint="@color/text_color" />
+
+                            <androidx.constraintlayout.utils.widget.ImageFilterView
+                                android:id="@+id/img_edit"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"
+                                android:layout_alignParentEnd="true"
+                                android:layout_alignParentBottom="true"
+                                android:layout_gravity="top"
+                                android:layout_margin="1dp"
+                                android:background="@drawable/bg_for_select_pic"
+                                android:padding="8dp"
+                                android:src="@drawable/ic_camera"
+                                app:roundPercent="1"
+                                app:tint="@color/text_color" />
+
+                        </RelativeLayout>
+                    </RelativeLayout>
+
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+            <EditText
+                android:id="@+id/et_fullname"
+                style="@style/EditTextLocal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginTop="50dp"
+                android:autofillHints="name"
+                android:background="@drawable/bg_for_edit_text_13"
+                android:fontFamily="@font/outfit_medium"
+                android:hint="@string/full_name"
+                android:imeOptions="actionNext"
+                android:inputType="text"
+                android:maxLines="1"
+                android:paddingHorizontal="20dp"
+                android:singleLine="true"
+                android:textSize="@dimen/_16sp"
+
+                />
+
+            <!--            <EditText-->
+            <!--                android:id="@+id/et_email"-->
+            <!--                style="@style/EditTextLocal"-->
+            <!--                android:layout_width="match_parent"-->
+            <!--                android:layout_height="@dimen/btn_login_height"-->
+            <!--                android:layout_marginTop="15dp"-->
+            <!--                android:autofillHints="emailAddress"-->
+            <!--                android:background="@drawable/bg_for_edit_text"-->
+            <!--                android:hint="@string/email"-->
+
+            <!--                android:imeOptions="actionNext"-->
+            <!--                android:inputType="textEmailAddress"-->
+            <!--                android:maxLines="1"-->
+            <!--                android:paddingHorizontal="20dp"-->
+            <!--                android:singleLine="true"-->
+            <!--                android:textSize="@dimen/_16sp"-->
+
+            <!--                />-->
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                android:id="@+id/btn_update"
+                style="@style/TextViewLocal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="60dp"
+                android:background="@drawable/bg_round_rect_15"
+                android:gravity="center"
+                android:fontFamily="@font/outfit_medium"
+                android:backgroundTint="@color/app_color"
+                android:text="@string/update"
+                android:textSize="@dimen/_20sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/lout_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <include layout="@layout/layout_loader" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>

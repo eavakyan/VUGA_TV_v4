@@ -1,0 +1,28 @@
+<lint-module
+    format="1"
+    dir="/Users/gene/Documents/dev/Android_TV_App/android-tv-app/app"
+    name=":app"
+    type="APP"
+    maven="VUGA TV:app:unspecified"
+    agpVersion="8.11.1"
+    buildFolder="build"
+    bootClassPath="/Users/gene/Library/Android/sdk/platforms/android-34/android.jar:/Users/gene/Library/Android/sdk/build-tools/35.0.0/core-lambda-stubs.jar"
+    javaSourceLevel="17"
+    compileTarget="android-34">
+  <lintOptions
+      disable="FlowOperatorInvokedInComposition,StateFlowValueCalledInComposition"
+      abortOnError="true"
+      absolutePaths="true"
+      checkReleaseBuilds="true"
+      explainIssues="true">
+    <severities>
+      <severity
+        id="FlowOperatorInvokedInComposition"
+        severity="IGNORE" />
+      <severity
+        id="StateFlowValueCalledInComposition"
+        severity="IGNORE" />
+    </severities>
+  </lintOptions>
+  <variant name="debug"/>
+</lint-module>

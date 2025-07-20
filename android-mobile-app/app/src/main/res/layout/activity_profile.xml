@@ -1,0 +1,503 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/root_lout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/app_black"
+        tools:context=".activities.ProfileActivity">
+
+        <LinearLayout
+            android:id="@+id/main"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:paddingHorizontal="10dp"
+
+            >
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/activity_margin_top"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+
+                >
+
+                <LinearLayout
+                    android:id="@+id/btn_back"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <include
+
+                        layout="@layout/lout_back_btn" />
+                </LinearLayout>
+
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="40dp"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:text="@string/profile"
+                    android:textSize="@dimen/_20sp" />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="30dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="100dp"
+                        android:layout_height="100dp"
+
+                        >
+
+                        <androidx.constraintlayout.utils.widget.ImageFilterView
+                            android:id="@+id/img_profile"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerInParent="true"
+                            android:scaleType="centerCrop"
+                            app:roundPercent="1"
+                            android:src="@color/text_color_light" />
+
+
+                        <ImageView
+                            android:id="@+id/img_user"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerInParent="true"
+                            android:layout_margin="20dp"
+                            android:src="@drawable/ic_user"
+                            app:tint="@color/text_color" />
+                    </RelativeLayout>
+
+
+                    <TextView
+                        android:id="@+id/tv_full_ame"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:fontFamily="@font/outfit_medium"
+                        android:textSize="@dimen/_20sp"
+                        tools:text="@tools:sample/full_names" />
+
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/img_edit"
+                    android:layout_width="38dp"
+                    android:layout_height="38dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_gravity="top"
+                    android:padding="9dp"
+                    android:src="@drawable/ic_pencil"
+                    app:tint="@color/text_color" />
+
+            </RelativeLayout>
+
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="20dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp">
+
+                        <include
+                            layout="@layout/lout_pro_bg"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerInParent="true" />
+
+                        <LinearLayout
+                            android:id="@+id/lout_pro"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:layout_centerInParent="true"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+                            android:paddingHorizontal="15dp"
+                            android:paddingVertical="18dp">
+
+
+                            <ImageView
+                                android:layout_width="20dp"
+                                android:layout_height="20dp"
+                                android:src="@drawable/ic_premium"
+                                app:tint="@color/app_color" />
+
+                            <TextView
+                                android:id="@+id/tv_for_pro"
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:fontFamily="@font/outfit_regular"
+                                android:text="@string/become_a"
+                                android:textSize="@dimen/_14sp" />
+
+
+                            <TextView
+                                style="@style/TextViewLocal"
+
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:fontFamily="@font/outfit_semi_bold"
+                                android:text="@string/pro"
+                                android:textAllCaps="true"
+                                android:textColor="@color/app_color"
+                                android:textDirection="locale"
+                                android:textSize="@dimen/_14sp" />
+
+
+                        </LinearLayout>
+
+
+                    </RelativeLayout>
+
+
+                    <LinearLayout
+                        android:id="@+id/lout_notification"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_noti_solid"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/notification"
+                            android:textSize="@dimen/_14sp" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <androidx.appcompat.widget.SwitchCompat
+                            android:id="@+id/switch_noti"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            app:thumbTint="@color/white"
+                            app:track="@drawable/bg_for_custom_track"
+
+                            />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_downloads"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_download_box"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/downloads"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_language"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_language"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/language"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_Privacy"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_privacy"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/privacy_policy"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_tearms"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_tearms"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/terms_of_use"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_rate"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_rate"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/rate_this_app"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_logOut"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_logout"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/log_out"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_delete"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_delete"
+                            app:tint="@color/app_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/delete_my_account"
+                            android:textColor="@color/app_color"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="60dp" />
+
+
+                </LinearLayout>
+
+            </ScrollView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/center_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <include layout="@layout/layout_loader" />
+
+        </LinearLayout>
+
+        <eightbitlab.com.blurview.BlurView
+            android:id="@+id/blur_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            app:blurOverlayColor="@color/app_black_2"
+            tools:visibility="visible">
+
+        </eightbitlab.com.blurview.BlurView>
+
+    </RelativeLayout>
+
+
+</layout>

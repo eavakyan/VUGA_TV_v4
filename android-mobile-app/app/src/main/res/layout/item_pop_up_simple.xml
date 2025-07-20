@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="wrap_content">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_round_rect_20"
+            android:backgroundTint="@color/app_black">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_stoke_25"
+                android:backgroundTint="@color/et_stroke_color"
+
+
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="25dp">
+
+
+                <ImageView
+                    android:id="@+id/img"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/ic_delete"
+                    app:tint="@color/app_color" />
+
+                <TextView
+
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginHorizontal="15dp"
+                    android:layout_marginTop="20dp"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:gravity="center"
+                    android:text="@string/are_you_sure"
+                    android:textColor="@color/text_color"
+                    android:textSize="@dimen/_18sp" />
+
+                <TextView
+                    android:id="@+id/title"
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginHorizontal="20dp"
+                    android:layout_marginTop="10dp"
+                    android:alpha="0.7"
+
+                    android:fontFamily="@font/outfit_regular"
+                    android:gravity="center"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="@dimen/_14sp"
+                    tools:text="@string/remove_from_watchlist"
+
+                    />
+
+
+                <TextView
+                    android:id="@+id/btn_yes"
+                    style="@style/TextViewLocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/bg_for_edit_text_13"
+                    android:backgroundTint="@color/app_color"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:gravity="center"
+                    android:paddingVertical="15dp"
+                    android:text="@string/remove"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_14sp" />
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:id="@+id/btn_cancel"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true">
+
+            <include
+
+                layout="@layout/cancel_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</layout>

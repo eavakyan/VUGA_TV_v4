@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23231" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" usedWithCloudKit="YES" usedWithSwiftData="YES" userDefinedModelVersionIdentifier="">
+    <entity name="DownloadContent" representedClassName="DownloadContent" syncable="YES" codeGenerationType="class">
+        <attribute name="contentDuration" optional="YES" attributeType="String"/>
+        <attribute name="contentId" optional="YES" attributeType="String"/>
+        <attribute name="contentSourceId" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="contentSourceType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="contentType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="downloadId" optional="YES" attributeType="String"/>
+        <attribute name="downloadStatus" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="episodeDuration" optional="YES" attributeType="String"/>
+        <attribute name="episodeHorizontalPoster" optional="YES" attributeType="String"/>
+        <attribute name="episodeId" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="episodeNo" optional="YES" attributeType="String"/>
+        <attribute name="episodeTitle" optional="YES" attributeType="String"/>
+        <attribute name="genres" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="rating" optional="YES" attributeType="String"/>
+        <attribute name="releaseYear" optional="YES" attributeType="String"/>
+        <attribute name="seasonNo" optional="YES" attributeType="String"/>
+        <attribute name="sourceQuality" optional="YES" attributeType="String"/>
+        <attribute name="sourceSize" optional="YES" attributeType="String"/>
+        <attribute name="sourceUrl" optional="YES" attributeType="URI"/>
+        <attribute name="thumbnail" optional="YES" attributeType="String"/>
+        <attribute name="videoName" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="RecentlyWatched" representedClassName="RecentlyWatched" syncable="YES" codeGenerationType="class">
+        <attribute name="contentID" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="contentSourceId" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="contentSourceType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="contentType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="downloadId" optional="YES" attributeType="String"/>
+        <attribute name="episodeHorizontalPoster" optional="YES" attributeType="String"/>
+        <attribute name="episodeId" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="episodeName" optional="YES" attributeType="String"/>
+        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="isForDownload" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="progress" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="sourceUrl" optional="YES" attributeType="String"/>
+        <attribute name="thumbnail" optional="YES" attributeType="String"/>
+        <attribute name="totalDuration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+    </entity>
+</model>

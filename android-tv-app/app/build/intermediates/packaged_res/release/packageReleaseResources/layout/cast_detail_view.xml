@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- Background with gradient -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        android:background="@drawable/gradient_overlay" />
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="48dp">
+
+            <!-- Back Button -->
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginBottom="40dp"
+                android:background="@drawable/back_button_background"
+                android:src="@drawable/ic_back"
+                android:padding="16dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
+
+            <!-- Actor Info Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="48dp">
+
+                <!-- Actor Image -->
+                <ImageView
+                    android:id="@+id/actorImage"
+                    android:layout_width="200dp"
+                    android:layout_height="200dp"
+                    android:layout_marginEnd="48dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/circular_image_background"
+                    android:src="@drawable/placeholder_image" />
+
+                <!-- Actor Info -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <!-- Actor Name -->
+                    <TextView
+                        android:id="@+id/actorName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Actor Name"
+                        android:textColor="@android:color/white"
+                        android:textSize="42sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp"
+                        android:shadowColor="@android:color/black"
+                        android:shadowDx="2"
+                        android:shadowDy="2"
+                        android:shadowRadius="4" />
+
+                    <!-- Character Name -->
+                    <TextView
+                        android:id="@+id/characterName"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="as Character Name"
+                        android:textColor="@android:color/white"
+                        android:textSize="20sp"
+                        android:layout_marginBottom="24dp"
+                        android:alpha="0.8" />
+
+                    <!-- Biography -->
+                    <TextView
+                        android:id="@+id/actorBiography"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Actor biography information..."
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:lineSpacingMultiplier="1.4"
+                        android:maxLines="8"
+                        android:ellipsize="end" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Other Content Section -->
+            <LinearLayout
+                android:id="@+id/otherContentContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Also appears in"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="24dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/otherContentRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="380dp"
+                    android:clipToPadding="false"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout> 

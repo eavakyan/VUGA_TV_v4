@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="model"
+            type="com.retry.vuga.model.ContentDetail.CastItem" />
+    </data>
+
+    <RelativeLayout
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:layout_marginEnd="15dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="60dp"
+                android:layout_height="match_parent"
+
+                >
+
+                <androidx.constraintlayout.utils.widget.ImageFilterView
+                    android:id="@+id/img"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    app:image_url="@{model.actor.image}"
+                    app:round="15dp"
+                    tools:src="@tools:sample/avatars" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_stoke_15"
+                    android:backgroundTint="@color/trans_stroke_color" />
+
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="10dp"
+                android:gravity="center_vertical"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_ActorName"
+                    style="@style/TextViewLocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:letterSpacing="0.04"
+                    android:maxLines="1"
+                    android:text="@{model.actor.name}"
+
+
+                    android:textSize="@dimen/_16sp"
+                    tools:text="@tools:sample/full_names" />
+
+                <TextView
+                    android:id="@+id/tv_CharacterName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:fontFamily="@font/outfit_regular"
+                    android:letterSpacing="0.04"
+                    android:maxLines="1"
+                    android:text="@{model.charactorName}"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="@dimen/_14sp"
+                    tools:text="@tools:sample/full_names" />
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_stoke_15"
+            android:backgroundTint="@color/trans_stroke_color" />
+
+    </RelativeLayout>
+
+</layout>

@@ -1,0 +1,375 @@
+{
+  "originHash" : "9e4c4763aa006803ae1e6db40318a1380d486d6750a9b77a6808b744f0c22841",
+  "pins" : [
+    {
+      "identity" : "abseil-cpp-binary",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/abseil-cpp-binary.git",
+      "state" : {
+        "revision" : "748c7837511d0e6a507737353af268484e1745e2",
+        "version" : "1.2024011601.1"
+      }
+    },
+    {
+      "identity" : "alamofire",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Alamofire/Alamofire",
+      "state" : {
+        "revision" : "f455c2975872ccd2d9c81594c658af65716e9b9a",
+        "version" : "5.9.1"
+      }
+    },
+    {
+      "identity" : "app-check",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/app-check.git",
+      "state" : {
+        "revision" : "7d2688de038d5484866d835acb47b379722d610e",
+        "version" : "10.19.0"
+      }
+    },
+    {
+      "identity" : "appauth-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/openid/AppAuth-iOS.git",
+      "state" : {
+        "revision" : "c89ed571ae140f8eb1142735e6e23d7bb8c34cb2",
+        "version" : "1.7.5"
+      }
+    },
+    {
+      "identity" : "dsfregex",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dagronf/DSFRegex",
+      "state" : {
+        "revision" : "e0e64805519b23b08dcca9c83ca2d4a2b3de4c33",
+        "version" : "3.4.0"
+      }
+    },
+    {
+      "identity" : "expandabletext",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/n3d1117/ExpandableText",
+      "state" : {
+        "branch" : "main",
+        "revision" : "2b0dd2f3d2870fe933ffe5c2ee057d2e9fa647e2"
+      }
+    },
+    {
+      "identity" : "firebase-ios-sdk",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/firebase-ios-sdk.git",
+      "state" : {
+        "revision" : "9d17b500cd98d9a7009751ad62f802e152e97021",
+        "version" : "10.26.0"
+      }
+    },
+    {
+      "identity" : "googleappmeasurement",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleAppMeasurement.git",
+      "state" : {
+        "revision" : "16244d177c4e989f87b25e9db1012b382cfedc55",
+        "version" : "10.25.0"
+      }
+    },
+    {
+      "identity" : "googledatatransport",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleDataTransport.git",
+      "state" : {
+        "revision" : "a637d318ae7ae246b02d7305121275bc75ed5565",
+        "version" : "9.4.0"
+      }
+    },
+    {
+      "identity" : "googlesignin-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleSignIn-iOS",
+      "state" : {
+        "revision" : "a7965d134c5d3567026c523e0a8a583f73b62b0d",
+        "version" : "7.1.0"
+      }
+    },
+    {
+      "identity" : "googleutilities",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GoogleUtilities.git",
+      "state" : {
+        "revision" : "8e5d57ed87057cd7b0e4e8f474d9e78f73eb85f7",
+        "version" : "7.13.2"
+      }
+    },
+    {
+      "identity" : "grpc-binary",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/grpc-binary.git",
+      "state" : {
+        "revision" : "e9fad491d0673bdda7063a0341fb6b47a30c5359",
+        "version" : "1.62.2"
+      }
+    },
+    {
+      "identity" : "gsplayer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/wxxsw/GSPlayer.git",
+      "state" : {
+        "revision" : "706fc28fcc8e33607993903eca82d9f6c7c3f6d2",
+        "version" : "0.2.27"
+      }
+    },
+    {
+      "identity" : "gtm-session-fetcher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/gtm-session-fetcher.git",
+      "state" : {
+        "revision" : "0382ca27f22fb3494cf657d8dc356dc282cd1193",
+        "version" : "3.4.1"
+      }
+    },
+    {
+      "identity" : "gtmappauth",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/GTMAppAuth.git",
+      "state" : {
+        "revision" : "5d7d66f647400952b1758b230e019b07c0b4b22a",
+        "version" : "4.1.1"
+      }
+    },
+    {
+      "identity" : "interop-ios-for-google-sdks",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/interop-ios-for-google-sdks.git",
+      "state" : {
+        "revision" : "2d12673670417654f08f5f90fdd62926dc3a2648",
+        "version" : "100.0.0"
+      }
+    },
+    {
+      "identity" : "ios-branch-deep-linking",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/BranchMetrics/ios-branch-deep-linking",
+      "state" : {
+        "revision" : "3681750228b820a250eabb26495093a94b574404",
+        "version" : "3.6.5"
+      }
+    },
+    {
+      "identity" : "kingfisher",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/onevcat/Kingfisher",
+      "state" : {
+        "revision" : "5b92f029fab2cce44386d28588098b5be0824ef5",
+        "version" : "7.11.0"
+      }
+    },
+    {
+      "identity" : "leveldb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/leveldb.git",
+      "state" : {
+        "revision" : "a0bc79961d7be727d258d33d5a6b2f1023270ba1",
+        "version" : "1.22.5"
+      }
+    },
+    {
+      "identity" : "lottie-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-ios",
+      "state" : {
+        "revision" : "fe4c6fe3a0aa66cdeb51d549623c82ca9704b9a5",
+        "version" : "4.5.0"
+      }
+    },
+    {
+      "identity" : "marquee",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/stonko1994/Marquee",
+      "state" : {
+        "revision" : "35445eeadfd5965b3a52c4efc77e5eca93e2c40f",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "nanopb",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/firebase/nanopb.git",
+      "state" : {
+        "revision" : "b7e1104502eca3a213b46303391ca4d3bc8ddec1",
+        "version" : "2.30910.0"
+      }
+    },
+    {
+      "identity" : "promises",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/google/promises.git",
+      "state" : {
+        "revision" : "540318ecedd63d883069ae7f1ed811a2df00b6ac",
+        "version" : "2.4.0"
+      }
+    },
+    {
+      "identity" : "purchases-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/RevenueCat/purchases-ios.git",
+      "state" : {
+        "revision" : "1357d57a38d09e60f967d0e78a912254fe46137c",
+        "version" : "4.43.3"
+      }
+    },
+    {
+      "identity" : "scalingheaderscrollview",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/exyte/ScalingHeaderScrollView",
+      "state" : {
+        "revision" : "77274e1936b654322e736b43d63b548cea10eb30",
+        "version" : "1.1.3"
+      }
+    },
+    {
+      "identity" : "sdwebimage",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImage.git",
+      "state" : {
+        "revision" : "b8523c1642f3c142b06dd98443ea7c48343a4dfd",
+        "version" : "5.19.3"
+      }
+    },
+    {
+      "identity" : "sdwebimageswiftui",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SDWebImage/SDWebImageSwiftUI",
+      "state" : {
+        "revision" : "b7af5e6bd9c2987e41730400d1baad13d74a141a",
+        "version" : "3.0.4"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-mobile-ads",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-mobile-ads.git",
+      "state" : {
+        "revision" : "82c49f703da08f6c20715fd8bb8dfe5d94a2f187",
+        "version" : "11.12.0"
+      }
+    },
+    {
+      "identity" : "swift-package-manager-google-user-messaging-platform",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git",
+      "state" : {
+        "revision" : "708a282840c2171ee63bd93b87afa49fe507d70e",
+        "version" : "2.7.0"
+      }
+    },
+    {
+      "identity" : "swift-protobuf",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/apple/swift-protobuf.git",
+      "state" : {
+        "revision" : "9f0c76544701845ad98716f3f6a774a892152bcb",
+        "version" : "1.26.0"
+      }
+    },
+    {
+      "identity" : "swiftsubtitles?tab=readme-ov-file#limitations",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dagronf/SwiftSubtitles?tab=readme-ov-file#limitations",
+      "state" : {
+        "revision" : "42cae8baacbad363ee621107207829107ef3e6b2",
+        "version" : "1.8.1"
+      }
+    },
+    {
+      "identity" : "swiftui-flow",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/tevelee/SwiftUI-Flow",
+      "state" : {
+        "revision" : "733c317daaf900d1bb513bcdc70f463ccb9180ef",
+        "version" : "1.7.0"
+      }
+    },
+    {
+      "identity" : "swiftui-introspect",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/siteline/swiftui-introspect",
+      "state" : {
+        "revision" : "7dc5b287f8040e4ad5038739850b758e78f77808",
+        "version" : "1.1.4"
+      }
+    },
+    {
+      "identity" : "swiftui-shimmer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/markiv/SwiftUI-Shimmer",
+      "state" : {
+        "revision" : "5659a623567cefe258d1e3e67cb65585fbb6ecb6",
+        "version" : "1.4.2"
+      }
+    },
+    {
+      "identity" : "swiftui-sliders",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/spacenation/swiftui-sliders",
+      "state" : {
+        "revision" : "d5a7d856655d5c91f891c2b69d982c30fd5c7bdf",
+        "version" : "2.1.0"
+      }
+    },
+    {
+      "identity" : "swiftui-wrapping-stack",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/diniska/swiftui-wrapping-stack",
+      "state" : {
+        "revision" : "1e6b0fffe902cf3ffc102af5e7c0c4767cbc09e0",
+        "version" : "1.1.0"
+      }
+    },
+    {
+      "identity" : "tinycsv",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/dagronf/TinyCSV",
+      "state" : {
+        "revision" : "05d691ee7bab64f5ff075b97f47ef41d36a81f6f",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "videoplayer",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/wxxsw/VideoPlayer",
+      "state" : {
+        "revision" : "0a271928849292713daf471398a2a9185f28709c",
+        "version" : "1.2.4"
+      }
+    },
+    {
+      "identity" : "windowreader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/divadretlaw/WindowReader",
+      "state" : {
+        "revision" : "7e1f994df0ed26a7d7a139f1fce2537d2c931059",
+        "version" : "2.0.0"
+      }
+    },
+    {
+      "identity" : "windowscenereader",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/divadretlaw/WindowSceneReader.git",
+      "state" : {
+        "revision" : "0779fbf801a723570f90158aa5e618ff885b6c47",
+        "version" : "3.0.0"
+      }
+    },
+    {
+      "identity" : "youtubeplayerkit",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/SvenTiigi/YouTubePlayerKit.git",
+      "state" : {
+        "revision" : "fe1c1ec340f6d79866131432ecaa190fd6bbc4cb",
+        "version" : "1.9.0"
+      }
+    }
+  ],
+  "version" : 3
+}

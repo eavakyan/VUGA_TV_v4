@@ -1,0 +1,40 @@
+# Cursor Rules for Smart TV Streaming App
+
+## Technology Requirements
+- Apply TV-specific optimizations for all implementations
+- Ensure all text is minimum 24px for TV viewing 
+
+## Component Standards
+- Every component must support D-pad navigation 
+- Include focus states with visible borders (min 2px) 
+- Implement proper ARIA labels for accessibility 
+- Use semantic HTML elements
+- Export TypeScript interfaces for all props
+
+## Performance Guidelines
+- Lazy load all routes and heavy components
+- Implement virtual scrolling for long lists
+- Use GPU-accelerated CSS transforms
+- Debounce all resize and scroll events
+- Keep bundle size under 10MB
+
+## TV-Specific Requirements
+- Design for 1920x1080 base resolution 
+- Keep all UI elements within 90% safe area 
+- Support remote control key codes 
+- Implement smooth animations (0.3s standard)
+- Test on actual TV hardware or emulators
+
+## Code Quality
+- Write unit tests for all components
+- Include JSDoc comments for public APIs
+- Follow consistent naming conventions
+- Handle all error cases gracefully
+- Log performance metrics
+
+## Accessibility
+- Support platform screen readers 
+- Provide keyboard navigation alternatives 
+- Include high contrast mode support 
+- Announce dynamic content changes 
+- Test with accessibility tools

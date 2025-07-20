@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="350dp"
+        android:layout_height="wrap_content">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/bg_round_rect_20"
+            android:backgroundTint="@color/app_black">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_gravity="center"
+                android:background="@drawable/bg_stoke_25"
+                android:backgroundTint="@color/et_stroke_color"
+
+
+                android:gravity="center"
+                android:orientation="vertical"
+                android:padding="25dp">
+
+
+                <TextView
+                    android:id="@+id/tv_content_name"
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginHorizontal="15dp"
+                    android:layout_marginTop="10dp"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:gravity="center"
+                    android:textColor="@color/text_color"
+                    android:textSize="@dimen/_18sp"
+                    tools:text="@string/are_you_sure" />
+
+
+                <LinearLayout
+                    android:id="@+id/btn_watch_now"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp"
+                    android:background="@drawable/bg_for_edit_text_13"
+                    android:backgroundTint="@color/app_color"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="17dp"
+                        android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_play"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:gravity="center"
+                        android:paddingVertical="15dp"
+                        android:text="@string/watch_now"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_14sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btn_delete"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="10dp"
+                        android:src="@drawable/ic_delete"
+                        app:tint="@color/app_color" />
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:gravity="center"
+                        android:paddingVertical="15dp"
+                        android:text="@string/delete_download"
+                        android:textAllCaps="false"
+                        android:textColor="@color/app_color"
+                        android:textSize="@dimen/_14sp" />
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:id="@+id/btn_cancel"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentEnd="true">
+
+            <include
+
+                layout="@layout/cancel_btn"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+
+</layout>

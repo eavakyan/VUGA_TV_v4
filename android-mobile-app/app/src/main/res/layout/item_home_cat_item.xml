@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="content"
+            type="com.retry.vuga.model.ContentDetail.DataItem" />
+    </data>
+
+
+    <RelativeLayout
+        android:layout_width="125dp"
+        android:layout_height="180dp"
+        android:layout_marginEnd="15sp">
+
+
+        <androidx.constraintlayout.utils.widget.ImageFilterView
+            android:id="@+id/img"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="@dimen/stroke_width"
+            android:scaleType="centerCrop"
+            android:src="@color/edit_text_bg_color"
+            app:image_url="@{content.verticalPoster}"
+            app:round="5dp"
+            tools:src="@tools:sample/avatars" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/bg_stoke_5"
+            android:backgroundTint="@color/trans_stroke_color" />
+
+    </RelativeLayout>
+
+
+</layout>

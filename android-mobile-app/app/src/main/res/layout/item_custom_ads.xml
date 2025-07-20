@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="videoData"
+            type="com.retry.vuga.model.ads.CustomAds.Sources" />
+
+        <variable
+            name="model"
+            type="com.retry.vuga.model.ads.CustomAds.DataItem" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/exo_player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:resize_mode="fixed_width"
+            app:use_controller="false" />
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@color/app_black_30"
+            android:visibility="gone"
+            tools:visibility="visible" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="15dp"
+                android:gravity="center_vertical">
+
+                <androidx.constraintlayout.utils.widget.ImageFilterView
+                    android:id="@+id/ic_thumb_"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
+                    android:scaleType="centerCrop"
+                    app:round="10dp"
+                    tools:src="@tools:sample/avatars" />
+
+                <TextView
+                    style="@style/TextViewLocal"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:text="@{model.brandName}"
+
+                    android:textSize="16sp"
+                    tools:text="Nike India." />
+
+                <TextView
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="-3dp"
+                    android:background="@drawable/bg_round_rect_5"
+                    android:backgroundTint="#EAB326"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="5dp"
+                    android:text="Ad"
+
+                    android:textSize="16sp" />
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:orientation="horizontal">
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btn_open_link"
+                        android:layout_width="150dp"
+                        android:layout_height="45dp"
+                        android:background="@drawable/bg_round_rect_10"
+                        android:backgroundTint="@color/text_color"
+                        android:fontFamily="@font/outfit_medium"
+                        android:text="@{model.buttonText}"
+                        android:textAllCaps="false"
+                        android:textColor="@color/app_black"
+                        tools:text="@string/visit_store_now" />
+
+                    <androidx.appcompat.widget.LinearLayoutCompat
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/outfit_bold"
+                            android:text="@{videoData.headline}"
+                            style="@style/TextViewLocal"
+
+                            android:textSize="18sp"
+                            tools:text="Nike : Miles To Run Miles To Go" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:id="@+id/tv_view_more"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/view_more"
+
+                            android:textSize="16sp" />
+                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:id="@+id/tv_description"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="2dp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:isScrollContainer="true"
+                        android:maxLines="2"
+                        android:scrollbars="vertical"
+                        android:text="@{videoData.description}"
+
+                        android:textSize="16sp"
+                        android:visibility="gone"
+                        tools:text="Watch All Type of Your Entertainment Content at one place: Movies, Live TV Channels, Series and lot moreWatch All Type of Your Entertainment Content at one place: Movies, Live TV Channels, Series and lot more" />
+
+                </androidx.appcompat.widget.LinearLayoutCompat>
+
+                <androidx.appcompat.widget.LinearLayoutCompat
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:gravity="end"
+                    android:orientation="vertical">
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:id="@+id/tv_skip"
+                        android:layout_width="120dp"
+                        android:layout_height="45dp"
+                        android:layout_marginEnd="-3dp"
+                        android:background="@drawable/bg_round_rect_5"
+                        android:backgroundTint="@color/app_black_50"
+                        android:fontFamily="@font/outfit_medium"
+                        android:gravity="center"
+                        android:textAllCaps="false"
+                        android:visibility="@{videoData.type == 1 ? View.VISIBLE : View.GONE}"
+                        tools:text="Skip Ad : 08" />
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:id="@+id/tv_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginEnd="10dp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:gravity="end"
+
+                        android:textSize="16sp"
+                        tools:text="01:24" />
+                </androidx.appcompat.widget.LinearLayoutCompat>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+            <ProgressBar
+                android:id="@+id/progress_bar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:layout_marginHorizontal="10dp"
+                android:layout_marginVertical="5dp"
+                android:background="@color/transparent"
+                android:progressDrawable="@drawable/bg_for_progress_bar"
+                android:secondaryProgress="100" />
+        </androidx.appcompat.widget.LinearLayoutCompat>
+    </FrameLayout>
+</layout>

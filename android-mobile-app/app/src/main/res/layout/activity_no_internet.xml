@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_black"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        tools:context=".activities.NoInternetActivity">
+
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_margin="40dp"
+            android:layout_weight="1">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/no_internet" />
+
+
+        </RelativeLayout>
+
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="15dp"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:text="@string/no_connection"
+                android:textColor="@color/text_color"
+                android:textSize="25sp" />
+
+            <TextView
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="30dp"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/outfit_regular"
+                android:gravity="center"
+                android:text="@string/no_connection_massage"
+                android:textColor="@color/text_color_light"
+                android:textSize="@dimen/_16sp" />
+
+            <TextView
+                android:id="@+id/btn_go_to_downloads"
+                style="@style/TextViewLocal"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/btn_height"
+                android:layout_marginHorizontal="15dp"
+                android:layout_marginTop="30dp"
+                android:layout_marginBottom="30dp"
+                android:background="@drawable/bg_for_edit_text_13"
+                android:backgroundTint="@color/app_color"
+                android:fontFamily="@font/outfit_medium"
+                android:gravity="center"
+
+                android:text="@string/go_to_downloads"
+                android:textColor="@color/text_color"
+
+                android:textSize="@dimen/_20sp" />
+
+
+        </LinearLayout>
+
+
+    </LinearLayout>
+
+
+</layout>

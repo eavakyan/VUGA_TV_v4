@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/rl"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/vol_pogress_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/bg_for_edit_text_10"
+            android:backgroundTint="@color/app_black_50"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ProgressBar
+                android:id="@+id/vol_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="5dp"
+                android:layout_height="115dp"
+                android:layout_marginBottom="5dp"
+                android:indeterminate="false"
+                android:progressDrawable="@drawable/bg_for_verticle_progress_bar"
+                tools:progress="50"
+
+
+                />
+
+            <ImageView
+                android:id="@+id/vol_icon"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginTop="10dp"
+                android:padding="2dp"
+                android:src="@drawable/ic_unmute"
+                app:tint="@color/white" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/bright_pogress_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+            android:background="@drawable/bg_for_edit_text_10"
+            android:backgroundTint="@color/app_black_50"
+            android:gravity="center_horizontal"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ProgressBar
+                android:id="@+id/bright_progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="5dp"
+                android:layout_height="115dp"
+                android:layout_marginBottom="5dp"
+                android:indeterminate="false"
+                android:progressDrawable="@drawable/bg_for_verticle_progress_bar"
+                tools:progress="50"
+
+
+                />
+
+            <ImageView
+                android:id="@+id/bright_icon"
+                android:layout_width="23dp"
+                android:layout_height="23dp"
+                android:layout_marginTop="10dp"
+                android:src="@drawable/ic_brightness_medium"
+                app:tint="@color/white" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>

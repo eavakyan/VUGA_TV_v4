@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:apps="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="viewModel"
+            type="com.retry.vuga.viewmodel.PlayerViewModel" />
+    </data>
+
+    <RelativeLayout
+        android:id="@+id/main_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activities.PlayerNewActivity">
+
+
+        <com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView
+            android:id="@+id/youtube_player_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            app:autoPlay="false">
+
+        </com.pierfrancescosoffritti.androidyoutubeplayer.core.player.views.YouTubePlayerView>
+
+        <FrameLayout
+            android:id="@+id/fullscreenContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/black"
+            android:visibility="gone" />
+
+        <WebView
+            android:id="@+id/web_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:minHeight="250dp"
+            android:visibility="gone" />
+
+        <org.videolan.libvlc.util.VLCVideoLayout
+            android:id="@+id/vcl_lout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:clickable="true"
+            android:focusable="true"
+            tools:visibility="gone">
+
+            <RelativeLayout
+                android:id="@+id/exo_controller"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/transparent">
+
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="50dp"
+                    android:layout_centerInParent="true">
+
+                    <RelativeLayout
+                        android:id="@+id/btn_rewind"
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:layout_width="50dp"
+                            android:layout_height="match_parent"
+
+                            android:padding="10sp"
+                            android:src="@drawable/ic_reply"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_rewind"
+
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:fontFamily="@font/outfit_bold"
+                            android:paddingTop="4dp"
+                            android:textSize="@dimen/_10sp"
+                            tools:text="10" />
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="30dp">
+
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/exo_play_btn"
+                            android:layout_width="50dp"
+                            android:layout_height="match_parent"
+                            android:padding="9dp"
+                            android:src="@{viewModel.isPlay ? @drawable/ic_pause : @drawable/ic_play}"
+                            android:visibility="@{!viewModel.isLoading ? View.VISIBLE : View.GONE}"
+                            app:tint="@color/white"
+                            tools:visibility="visible" />
+
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+                        android:id="@+id/btn_forward"
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent">
+
+                        <ImageView
+                            android:layout_width="50dp"
+                            android:layout_height="match_parent"
+
+                            android:padding="10sp"
+                            android:src="@drawable/ic_forward"
+                            app:tint="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_forward"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerInParent="true"
+                            android:fontFamily="@font/outfit_bold"
+                            android:paddingTop="4dp"
+                            android:textSize="@dimen/_10sp"
+                            tools:text="10" />
+                    </RelativeLayout>
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_marginHorizontal="50dp"
+                    android:layout_marginBottom="10dp"
+                    android:background="@drawable/bg_round_rect_10"
+                    android:backgroundTint="@color/transparent"
+                    android:gravity="center_vertical"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="5dp"
+                    android:visibility="@{!viewModel.isLoading ? View.VISIBLE : View.GONE}">
+
+                    <SeekBar
+                        android:id="@+id/exo_progress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:progress="@{viewModel.progress}"
+                        android:progressBackgroundTint="@color/seek_background"
+                        android:progressTint="@color/app_color"
+                        android:splitTrack="false"
+                        android:thumbTint="@color/transparent"
+                        apps:OnSeekBarChangeListener="@{viewModel.onSeekBarChangeListener}"
+                        tools:progress="30" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="10dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+
+                        <TextView
+                            android:id="@+id/tv_position"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/outfit_medium"
+                            android:gravity="end"
+                            android:text="@{viewModel.remainTime}"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            tools:text="0:00" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="5dp"
+                            android:text="/"
+                            android:textColor="@color/white" />
+
+                        <TextView
+                            android:id="@+id/tv_duration"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/outfit_medium"
+                            android:gravity="start"
+                            android:text="@{viewModel.totalTime}"
+                            android:textColor="@color/white"
+                            android:textSize="12sp"
+                            tools:text="0:00" />
+
+                        <View
+                            android:layout_width="0dp"
+                            android:layout_height="0dp"
+                            android:layout_weight="1" />
+
+                        <ImageView
+                            android:id="@+id/btn_subtitle"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:background="@drawable/bg_round_rect_15"
+                            android:backgroundTint="@color/transparent"
+                            android:padding="6dp"
+                            android:src="@drawable/ic_subtitle"
+                            app:tint="@color/white"
+                            tools:visibility="visible" />
+
+                        <ImageView
+                            android:id="@+id/fullscreen_btn"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:paddingStart="20sp"
+                            android:src="@drawable/ic_fullscreen"
+                            app:tint="@color/white" />
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+        </org.videolan.libvlc.util.VLCVideoLayout>
+
+        <androidx.media3.ui.PlayerView
+            android:id="@+id/exo_player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            app:animation_enabled="false"
+            app:controller_layout_id="@layout/lout_exoplayer_contollers"
+            app:resize_mode="fit"
+            app:show_shuffle_button="false"
+            app:show_timeout="3000"
+            tools:visibility="gone" />
+
+
+        <LinearLayout
+            android:id="@+id/loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerInParent="true"
+            android:visibility="gone"
+            tools:visibility="gone">
+
+            <include layout="@layout/layout_loader" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="15dp"
+            android:layout_marginTop="20dp"
+            android:gravity="center_vertical"
+            tools:visibility="gone">
+
+            <!--            <ImageView-->
+            <!--                android:id="@+id/img_logo"-->
+            <!--                android:layout_width="45dp"-->
+            <!--                android:layout_height="25dp"-->
+            <!--                android:layout_marginEnd="10dp"-->
+            <!--                android:src="@drawable/logo" />-->
+            <ImageView
+                android:id="@+id/btn_back"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="10dp"
+                android:background="@drawable/bg_round_rect_15"
+                android:backgroundTint="@color/app_black_30"
+                android:padding="8dp"
+                android:src="@drawable/ic_back"
+                android:visibility="visible"
+                app:tint="@color/white"
+                tools:visibility="visible" />
+
+            <TextView
+                android:id="@+id/tv_title"
+                style="@style/TextViewLocal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:fontFamily="@font/outfit_regular"
+                android:maxLines="1"
+                android:textColor="@color/text_color"
+                android:textSize="@dimen/_16sp"
+                tools:text="Spiderman homecomming" />
+
+
+            <!--            <ImageView-->
+            <!--                android:id="@+id/btn_mute"-->
+            <!--                android:layout_width="35dp"-->
+            <!--                android:layout_height="35dp"-->
+
+            <!--                android:background="@drawable/bg_round_rect_15"-->
+            <!--                android:backgroundTint="@color/transparent"-->
+            <!--                android:padding="7dp"-->
+            <!--                android:src="@drawable/ic_unmute"-->
+            <!--                android:visibility="gone"-->
+            <!--                app:tint="@color/white"-->
+            <!--                tools:visibility="visible" />-->
+
+
+        </LinearLayout>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="20dp"
+            android:background="@color/app_black_30"
+            android:fontFamily="@font/outfit_medium"
+            android:paddingHorizontal="10dp"
+            android:shadowColor="@color/app_black"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="5"
+            android:textColor="@color/white"
+            tools:text="@tools:sample/full_names" />
+
+        <ProgressBar
+            android:id="@+id/rtl_loader"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true"
+            android:visibility="@{viewModel.isLoading ? View.VISIBLE : View.GONE}" />
+
+        <include
+            android:id="@+id/swipe_lout"
+            layout="@layout/swipe_zoom_design" />
+
+
+        <com.retry.vuga.utils.custom_view.CustomAdsView
+            android:id="@+id/custom_ads_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@color/white"
+            tools:visibility="gone" />
+    </RelativeLayout>
+</layout>

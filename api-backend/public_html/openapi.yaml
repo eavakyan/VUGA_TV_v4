@@ -1,0 +1,2104 @@
+openapi: 3.0.3
+info:
+  title: TV Streaming App API
+  description: |
+    Comprehensive API for a TV streaming application supporting movies, TV series, live TV channels, user management, watchlists, and analytics.
+    
+    ## Features
+    - 📱 User authentication and profile management
+    - 🎬 Content discovery (movies, series, live TV)
+    - 📺 Watchlist management
+    - 📊 Analytics and tracking
+    - 🎯 Personalized recommendations
+    - 📢 Notifications and settings
+    - 🎭 Cast and crew information
+    - 🎵 Multi-language support with subtitles
+    
+    ## Response Format
+    All API responses follow a consistent format:
+    ```json
+    {
+      "status": true,
+      "message": "Success message",
+      "data": { ... }
+    }
+    ```
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://example.com/support
+    email: support@example.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.yourapp.com/api
+    description: Production server
+  - url: https://staging-api.yourapp.com/api
+    description: Staging server
+  - url: http://localhost:8000/api
+    description: Development server
+
+tags:
+  - name: Authentication
+    description: User authentication and account management
+  - name: Content
+    description: Movies, series, and content discovery
+  - name: Content Details
+    description: Detailed content information and media
+  - name: Watchlist
+    description: User watchlist management
+  - name: Analytics
+    description: Content and episode tracking
+  - name: TV Channels
+    description: Live TV channels and categories
+  - name: Settings
+    description: App settings and notifications
+  - name: Advertisements
+    description: Ad management and tracking
+
+paths:
+  # Authentication Endpoints
+  /login:
+    get:
+      tags: [Authentication]
+      summary: Get login endpoint (alias for registration)
+      description: Alias endpoint that redirects to user registration
+      responses:
+        '200':
+          $ref: '#/components/responses/SuccessResponse'
+
+  /User/registration:
+    post:
+      tags: [Authentication]
+      summary: User registration/login
+      description: Register a new user or login existing user with social/device credentials
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identity
+                - email
+                - login_type
+                - device_type
+                - device_token
+              properties:
+                identity:
+                  type: string
+                  description: Unique identifier (social ID, device ID, etc.)
+                  example: "google_123456789"
+                email:
+                  type: string
+                  format: email
+                  description: User email address
+                  example: "user@example.com"
+                fullname:
+                  type: string
+                  description: User full name
+                  example: "John Doe"
+                login_type:
+                  type: integer
+                  description: Login method type (1=social, 2=guest, etc.)
+                  example: 1
+                device_type:
+                  type: integer
+                  description: Device type (1=Android, 2=iOS, 3=Web)
+                  example: 1
+                device_token:
+                  type: string
+                  description: Firebase/push notification token
+                  example: "fGhIjKlMnOpQrStUvWxYz"
+      responses:
+        '200':
+          description: Registration successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /User/getProfile:
+    post:
+      tags: [Authentication]
+      summary: Get user profile
+      description: Retrieve user profile information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID
+                  example: 123
+      responses:
+        '200':
+          description: Profile retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /User/updateProfile:
+    post:
+      tags: [Authentication]
+      summary: Update user profile
+      description: Update user profile information including optional profile image upload
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID
+                  example: 123
+                fullname:
+                  type: string
+                  description: Updated full name
+                  example: "John Smith"
+                email:
+                  type: string
+                  format: email
+                  description: Updated email address
+                  example: "johnsmith@example.com"
+                profile_image:
+                  type: string
+                  format: binary
+                  description: Profile image file
+                device_type:
+                  type: integer
+                  description: Device type
+                  example: 1
+                device_token:
+                  type: string
+                  description: Updated device token
+                  example: "new_token_123"
+      responses:
+        '200':
+          description: Profile updated successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+
+  /User/Logout:
+    post:
+      tags: [Authentication]
+      summary: User logout
+      description: Logout user and clear device token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID
+                  example: 123
+      responses:
+        '200':
+          description: Logout successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+
+  /User/deleteMyAccount:
+    post:
+      tags: [Authentication]
+      summary: Delete user account
+      description: Permanently delete user account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID
+                  example: 123
+      responses:
+        '200':
+          description: Account deleted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  # Content Discovery Endpoints
+  /Content/GetHomeContentList:
+    post:
+      tags: [Content]
+      summary: Get home page content
+      description: Retrieve featured content, user watchlist, top content, and genre-based content for home page
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID for personalization
+                  example: 123
+      responses:
+        '200':
+          description: Home page data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Home page data retrieved successfully"
+                  featured:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Content'
+                  watchlist:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Content'
+                  topContents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TopContent'
+                  genreContents:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GenreWithContent'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /Content/getAllContentList:
+    post:
+      tags: [Content]
+      summary: Get all content with pagination
+      description: Retrieve paginated list of all content with optional type filtering
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginationRequest'
+      responses:
+        '200':
+          description: Content list retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Content'
+
+  /Content/getMovieList:
+    post:
+      tags: [Content]
+      summary: Get movies list
+      description: Retrieve paginated list of movies only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginationRequest'
+      responses:
+        '200':
+          description: Movies list retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Content'
+
+  /Content/getSeriesList:
+    post:
+      tags: [Content]
+      summary: Get series list
+      description: Retrieve paginated list of TV series only
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginationRequest'
+      responses:
+        '200':
+          description: Series list retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Content'
+
+  /Content/getAllGenreList:
+    post:
+      tags: [Content]
+      summary: Get all genres
+      description: Retrieve list of all available genres
+      responses:
+        '200':
+          description: Genres retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Genre'
+
+  /Content/getAllLanguageList:
+    get:
+      tags: [Content Details]
+      summary: Get all languages
+      description: Retrieve list of all available languages
+      responses:
+        '200':
+          description: Languages retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Language'
+
+  /Content/getContentListByGenreID:
+    post:
+      tags: [Content]
+      summary: Get content by genre
+      description: Retrieve paginated content list filtered by specific genre
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/PaginationRequest'
+                - type: object
+                  required: [genre_id]
+                  properties:
+                    genre_id:
+                      type: integer
+                      description: Genre ID to filter by
+                      example: 1
+      responses:
+        '200':
+          description: Content by genre retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Content'
+
+  # Content Details Endpoints
+  /Content/getContentDetailsByID:
+    post:
+      tags: [Content Details]
+      summary: Get content details
+      description: Retrieve detailed information about specific content including cast, sources, seasons, and similar content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_id, user_id]
+              properties:
+                content_id:
+                  type: integer
+                  description: Content ID
+                  example: 456
+                user_id:
+                  type: integer
+                  description: User ID for personalization (watchlist status)
+                  example: 123
+      responses:
+        '200':
+          description: Content details retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/ContentDetails'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /Content/searchContent:
+    post:
+      tags: [Content Details]
+      summary: Search content
+      description: Search content with filters for type, genre, language, and keyword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/PaginationRequest'
+                - type: object
+                  properties:
+                    type:
+                      type: integer
+                      description: Content type (1=Movie, 2=Series)
+                      example: 1
+                    genre_id:
+                      type: integer
+                      description: Genre ID filter
+                      example: 1
+                    language_id:
+                      type: integer
+                      description: Language ID filter
+                      example: 1
+                    keyword:
+                      type: string
+                      description: Search keyword
+                      example: "batman"
+      responses:
+        '200':
+          description: Search results retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Content'
+
+  /Content/getSourceByContentID:
+    post:
+      tags: [Content Details]
+      summary: Get content sources
+      description: Retrieve streaming sources/links for specific content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_id]
+              properties:
+                content_id:
+                  type: integer
+                  description: Content ID
+                  example: 456
+      responses:
+        '200':
+          description: Content sources retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ContentSource'
+
+  /Content/getSubtitlesByContentID:
+    post:
+      tags: [Content Details]
+      summary: Get content subtitles
+      description: Retrieve subtitle files for specific content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_id]
+              properties:
+                content_id:
+                  type: integer
+                  description: Content ID
+                  example: 456
+      responses:
+        '200':
+          description: Content subtitles retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Subtitle'
+
+  /Content/getSeasonByContentID:
+    post:
+      tags: [Content Details]
+      summary: Get seasons by content ID
+      description: Retrieve seasons for a TV series
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_id]
+              properties:
+                content_id:
+                  type: integer
+                  description: Series content ID
+                  example: 456
+      responses:
+        '200':
+          description: Seasons retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Season'
+
+  /Content/getEpisodeBySeasonID:
+    post:
+      tags: [Content Details]
+      summary: Get episodes by season ID
+      description: Retrieve episodes for a specific season
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [season_id]
+              properties:
+                season_id:
+                  type: integer
+                  description: Season ID
+                  example: 789
+      responses:
+        '200':
+          description: Episodes retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Episode'
+
+  /Content/getSourceByEpisodeID:
+    post:
+      tags: [Content Details]
+      summary: Get episode sources
+      description: Retrieve streaming sources for a specific episode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [episode_id]
+              properties:
+                episode_id:
+                  type: integer
+                  description: Episode ID
+                  example: 101112
+      responses:
+        '200':
+          description: Episode sources retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EpisodeSource'
+
+  /Content/getSubtitlesByEpisodeID:
+    post:
+      tags: [Content Details]
+      summary: Get episode subtitles
+      description: Retrieve subtitle files for a specific episode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [episode_id]
+              properties:
+                episode_id:
+                  type: integer
+                  description: Episode ID
+                  example: 101112
+      responses:
+        '200':
+          description: Episode subtitles retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EpisodeSubtitle'
+
+  # Watchlist Endpoints
+  /Content/getWatchlist:
+    post:
+      tags: [Watchlist]
+      summary: Get user watchlist
+      description: Retrieve user's watchlist with pagination
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/PaginationRequest'
+                - type: object
+                  required: [user_id]
+                  properties:
+                    user_id:
+                      type: integer
+                      description: User ID
+                      example: 123
+      responses:
+        '200':
+          description: Watchlist retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Content'
+
+  /Content/addToWatchList:
+    post:
+      tags: [Watchlist]
+      summary: Add content to watchlist
+      description: Add content to user's watchlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, content_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID
+                  example: 123
+                content_id:
+                  type: integer
+                  description: Content ID to add
+                  example: 456
+      responses:
+        '200':
+          description: Content added to watchlist successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /Content/removeFromWatchList:
+    post:
+      tags: [Watchlist]
+      summary: Remove content from watchlist
+      description: Remove content from user's watchlist
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [user_id, content_id]
+              properties:
+                user_id:
+                  type: integer
+                  description: User ID
+                  example: 123
+                content_id:
+                  type: integer
+                  description: Content ID to remove
+                  example: 456
+      responses:
+        '200':
+          description: Content removed from watchlist successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+
+  # Analytics Endpoints
+  /Content/increaseContentView:
+    post:
+      tags: [Analytics]
+      summary: Track content view
+      description: Increment view count for content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_id]
+              properties:
+                content_id:
+                  type: integer
+                  description: Content ID
+                  example: 456
+      responses:
+        '200':
+          description: Content view tracked successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Content'
+
+  /Content/increaseContentDownload:
+    post:
+      tags: [Analytics]
+      summary: Track content download
+      description: Increment download count for content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_id]
+              properties:
+                content_id:
+                  type: integer
+                  description: Content ID
+                  example: 456
+      responses:
+        '200':
+          description: Content download tracked successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Content'
+
+  /Content/increaseContentShare:
+    post:
+      tags: [Analytics]
+      summary: Track content share
+      description: Increment share count for content
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content_id]
+              properties:
+                content_id:
+                  type: integer
+                  description: Content ID
+                  example: 456
+      responses:
+        '200':
+          description: Content share tracked successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Content'
+
+  /Content/increaseEpisodeView:
+    post:
+      tags: [Analytics]
+      summary: Track episode view
+      description: Increment view count for episode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [episode_id]
+              properties:
+                episode_id:
+                  type: integer
+                  description: Episode ID
+                  example: 101112
+      responses:
+        '200':
+          description: Episode view tracked successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Episode'
+
+  /Content/increaseEpisodeDownload:
+    post:
+      tags: [Analytics]
+      summary: Track episode download
+      description: Increment download count for episode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [episode_id]
+              properties:
+                episode_id:
+                  type: integer
+                  description: Episode ID
+                  example: 101112
+      responses:
+        '200':
+          description: Episode download tracked successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/Episode'
+
+  # TV Channel Endpoints
+  /TV/GetTvCategoryist:
+    post:
+      tags: [TV Channels]
+      summary: Get TV categories
+      description: Retrieve list of all TV channel categories
+      responses:
+        '200':
+          description: TV categories retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TVCategory'
+
+  /TV/getAllTvChannelList:
+    post:
+      tags: [TV Channels]
+      summary: Get all TV channels
+      description: Retrieve paginated list of all TV channels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginationRequest'
+      responses:
+        '200':
+          description: TV channels retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TVChannel'
+
+  /TV/getTvChannelListByCategoryID:
+    post:
+      tags: [TV Channels]
+      summary: Get TV channels by category
+      description: Retrieve paginated TV channels filtered by category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/PaginationRequest'
+                - type: object
+                  required: [category_id]
+                  properties:
+                    category_id:
+                      type: integer
+                      description: TV category ID
+                      example: 1
+      responses:
+        '200':
+          description: TV channels by category retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/TVChannel'
+
+  /TV/increaseTVChannelView:
+    post:
+      tags: [TV Channels]
+      summary: Track TV channel view
+      description: Increment view count for TV channel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channel_id]
+              properties:
+                channel_id:
+                  type: integer
+                  description: TV channel ID
+                  example: 789
+      responses:
+        '200':
+          description: TV channel view tracked successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TVChannel'
+
+  /TV/increaseTVChannelShare:
+    post:
+      tags: [TV Channels]
+      summary: Track TV channel share
+      description: Increment share count for TV channel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [channel_id]
+              properties:
+                channel_id:
+                  type: integer
+                  description: TV channel ID
+                  example: 789
+      responses:
+        '200':
+          description: TV channel share tracked successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/TVChannel'
+
+  # Settings & Notifications
+  /getSettings:
+    get:
+      tags: [Settings]
+      summary: Get app settings
+      description: Retrieve application settings and configuration
+      responses:
+        '200':
+          description: Settings retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        $ref: '#/components/schemas/AppSettings'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+
+  /getAllNotification:
+    post:
+      tags: [Settings]
+      summary: Get user notifications
+      description: Retrieve paginated list of user notifications
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaginationRequest'
+      responses:
+        '200':
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Notification'
+
+  /getSubscriptionPackage:
+    get:
+      tags: [Settings]
+      summary: Get subscription packages
+      description: Retrieve list of available subscription packages
+      responses:
+        '200':
+          description: Subscription packages retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/SubscriptionPackage'
+
+  # Advertisement Endpoints
+  /Ads/fetchCustomAds:
+    post:
+      tags: [Advertisements]
+      summary: Fetch custom ads
+      description: Retrieve custom advertisements for the app
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                device_type:
+                  type: integer
+                  description: Device type (1=Android, 2=iOS)
+                  example: 1
+                placement:
+                  type: string
+                  description: Ad placement location
+                  example: "banner"
+      responses:
+        '200':
+          description: Ads retrieved successfully
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ApiResponse'
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Advertisement'
+
+  /Ads/increaseAdView:
+    post:
+      tags: [Advertisements]
+      summary: Track ad view
+      description: Increment view count for advertisement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ad_id]
+              properties:
+                ad_id:
+                  type: integer
+                  description: Advertisement ID
+                  example: 123
+      responses:
+        '200':
+          description: Ad view tracked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+  /Ads/increaseAdClick:
+    post:
+      tags: [Advertisements]
+      summary: Track ad click
+      description: Increment click count for advertisement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ad_id]
+              properties:
+                ad_id:
+                  type: integer
+                  description: Advertisement ID
+                  example: 123
+      responses:
+        '200':
+          description: Ad click tracked successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiResponse'
+
+components:
+  schemas:
+    ApiResponse:
+      type: object
+      properties:
+        status:
+          type: boolean
+          description: Success/failure status
+          example: true
+        message:
+          type: string
+          description: Response message
+          example: "Operation successful"
+      required: [status, message]
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: User unique identifier
+          example: 123
+        fullname:
+          type: string
+          description: User full name
+          example: "John Doe"
+        email:
+          type: string
+          format: email
+          description: User email address
+          example: "john@example.com"
+        identity:
+          type: string
+          description: Unique identity (social/device ID)
+          example: "google_123456789"
+        login_type:
+          type: integer
+          description: Login method type
+          example: 1
+        device_type:
+          type: integer
+          description: Device type
+          example: 1
+        device_token:
+          type: string
+          description: Push notification token
+          example: "firebase_token_123"
+        profile_image:
+          type: string
+          nullable: true
+          description: Profile image URL
+          example: "https://example.com/images/profile.jpg"
+        watchlist_content_ids:
+          type: string
+          nullable: true
+          description: Comma-separated content IDs in watchlist
+          example: "1,5,12,34"
+        created_at:
+          type: string
+          format: date-time
+          description: Account creation timestamp
+          example: "2023-10-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2023-10-15T15:30:00Z"
+
+    Content:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Content unique identifier
+          example: 456
+        title:
+          type: string
+          description: Content title
+          example: "The Dark Knight"
+        description:
+          type: string
+          description: Content description
+          example: "Batman faces his greatest challenge yet..."
+        poster:
+          type: string
+          description: Poster image URL
+          example: "https://example.com/posters/dark-knight.jpg"
+        backdrop:
+          type: string
+          description: Backdrop image URL
+          example: "https://example.com/backdrops/dark-knight.jpg"
+        trailer_url:
+          type: string
+          nullable: true
+          description: Trailer video URL
+          example: "https://example.com/trailers/dark-knight.mp4"
+        type:
+          type: integer
+          description: Content type (1=Movie, 2=Series)
+          example: 1
+        type_name:
+          type: string
+          description: Human readable content type
+          example: "Movie"
+        release_date:
+          type: string
+          format: date
+          description: Release date
+          example: "2008-07-18"
+        rating:
+          type: number
+          format: float
+          description: Content rating (0-10)
+          example: 9.0
+        duration:
+          type: integer
+          nullable: true
+          description: Duration in minutes (for movies)
+          example: 152
+        year:
+          type: integer
+          description: Release year
+          example: 2008
+        language_id:
+          type: integer
+          description: Primary language ID
+          example: 1
+        genre_ids:
+          type: string
+          description: Comma-separated genre IDs
+          example: "1,3,7"
+        is_featured:
+          type: boolean
+          description: Whether content is featured
+          example: true
+        is_watchlist:
+          type: boolean
+          description: Whether content is in user's watchlist
+          example: false
+        total_view:
+          type: integer
+          description: Total view count
+          example: 1250000
+        total_download:
+          type: integer
+          description: Total download count
+          example: 45000
+        total_share:
+          type: integer
+          description: Total share count
+          example: 12000
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+          example: "2023-10-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+          example: "2023-10-15T15:30:00Z"
+
+    ContentDetails:
+      allOf:
+        - $ref: '#/components/schemas/Content'
+        - type: object
+          properties:
+            cast:
+              type: array
+              items:
+                $ref: '#/components/schemas/Actor'
+              description: Cast and crew information
+            sources:
+              type: array
+              items:
+                $ref: '#/components/schemas/ContentSource'
+              description: Streaming sources
+            subtitles:
+              type: array
+              items:
+                $ref: '#/components/schemas/Subtitle'
+              description: Available subtitles
+            seasons:
+              type: array
+              items:
+                $ref: '#/components/schemas/Season'
+              description: Seasons (for TV series)
+            more_like_this:
+              type: array
+              items:
+                $ref: '#/components/schemas/Content'
+              description: Similar content recommendations
+
+    Genre:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Genre unique identifier
+          example: 1
+        title:
+          type: string
+          description: Genre name
+          example: "Action"
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-10-15T15:30:00Z"
+
+    GenreWithContent:
+      allOf:
+        - $ref: '#/components/schemas/Genre'
+        - type: object
+          properties:
+            contents:
+              type: array
+              items:
+                $ref: '#/components/schemas/Content'
+              description: Content list for this genre
+
+    Language:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Language unique identifier
+          example: 1
+        title:
+          type: string
+          description: Language name
+          example: "English"
+        code:
+          type: string
+          description: Language code
+          example: "en"
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+        updated_at:
+          type: string
+          format: date-time
+          example: "2023-10-15T15:30:00Z"
+
+    Actor:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Actor unique identifier
+          example: 789
+        name:
+          type: string
+          description: Actor name
+          example: "Christian Bale"
+        image:
+          type: string
+          nullable: true
+          description: Actor image URL
+          example: "https://example.com/actors/christian-bale.jpg"
+        biography:
+          type: string
+          nullable: true
+          description: Actor biography
+          example: "Academy Award-winning actor..."
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+          description: Actor birth date
+          example: "1974-01-30"
+
+    ContentSource:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Source unique identifier
+          example: 101
+        content_id:
+          type: integer
+          description: Related content ID
+          example: 456
+        title:
+          type: string
+          description: Source title/quality
+          example: "HD 1080p"
+        source_url:
+          type: string
+          description: Streaming URL
+          example: "https://cdn.example.com/videos/dark-knight-hd.m3u8"
+        source_type:
+          type: string
+          description: Source type (e.g., 'hls', 'mp4')
+          example: "hls"
+        quality:
+          type: string
+          description: Video quality
+          example: "1080p"
+        size:
+          type: string
+          nullable: true
+          description: File size
+          example: "2.1 GB"
+
+    Subtitle:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Subtitle unique identifier
+          example: 201
+        content_id:
+          type: integer
+          description: Related content ID
+          example: 456
+        language_id:
+          type: integer
+          description: Subtitle language ID
+          example: 1
+        language:
+          $ref: '#/components/schemas/Language'
+        subtitle_url:
+          type: string
+          description: Subtitle file URL
+          example: "https://cdn.example.com/subtitles/dark-knight-en.vtt"
+        subtitle_type:
+          type: string
+          description: Subtitle format
+          example: "vtt"
+
+    Season:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Season unique identifier
+          example: 301
+        content_id:
+          type: integer
+          description: Related series content ID
+          example: 456
+        season_number:
+          type: integer
+          description: Season number
+          example: 1
+        title:
+          type: string
+          description: Season title
+          example: "Season 1"
+        poster:
+          type: string
+          nullable: true
+          description: Season poster URL
+          example: "https://example.com/seasons/s1-poster.jpg"
+        episodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Episode'
+          description: Episodes in this season
+
+    Episode:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Episode unique identifier
+          example: 401
+        season_id:
+          type: integer
+          description: Related season ID
+          example: 301
+        number:
+          type: integer
+          description: Episode number
+          example: 1
+        title:
+          type: string
+          description: Episode title
+          example: "Pilot"
+        description:
+          type: string
+          nullable: true
+          description: Episode description
+          example: "The beginning of an epic journey..."
+        duration:
+          type: integer
+          nullable: true
+          description: Episode duration in minutes
+          example: 45
+        release_date:
+          type: string
+          format: date
+          nullable: true
+          description: Episode release date
+          example: "2023-10-01"
+        poster:
+          type: string
+          nullable: true
+          description: Episode poster URL
+          example: "https://example.com/episodes/s1e1-poster.jpg"
+        total_view:
+          type: integer
+          description: Total view count
+          example: 50000
+        total_download:
+          type: integer
+          description: Total download count
+          example: 1500
+
+    EpisodeSource:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Episode source unique identifier
+          example: 501
+        episode_id:
+          type: integer
+          description: Related episode ID
+          example: 401
+        title:
+          type: string
+          description: Source title/quality
+          example: "HD 720p"
+        source_url:
+          type: string
+          description: Streaming URL
+          example: "https://cdn.example.com/episodes/s1e1-hd.m3u8"
+        source_type:
+          type: string
+          description: Source type
+          example: "hls"
+        quality:
+          type: string
+          description: Video quality
+          example: "720p"
+
+    EpisodeSubtitle:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Episode subtitle unique identifier
+          example: 601
+        episode_id:
+          type: integer
+          description: Related episode ID
+          example: 401
+        language_id:
+          type: integer
+          description: Subtitle language ID
+          example: 1
+        language:
+          $ref: '#/components/schemas/Language'
+        subtitle_url:
+          type: string
+          description: Subtitle file URL
+          example: "https://cdn.example.com/subtitles/s1e1-en.vtt"
+        subtitle_type:
+          type: string
+          description: Subtitle format
+          example: "vtt"
+
+    TVCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: TV category unique identifier
+          example: 1
+        title:
+          type: string
+          description: Category name
+          example: "Sports"
+        image:
+          type: string
+          nullable: true
+          description: Category image URL
+          example: "https://example.com/categories/sports.jpg"
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+
+    TVChannel:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: TV channel unique identifier
+          example: 701
+        tv_category_id:
+          type: integer
+          description: Related category ID
+          example: 1
+        title:
+          type: string
+          description: Channel name
+          example: "ESPN"
+        description:
+          type: string
+          nullable: true
+          description: Channel description
+          example: "The worldwide leader in sports"
+        poster:
+          type: string
+          description: Channel logo URL
+          example: "https://example.com/channels/espn-logo.jpg"
+        stream_url:
+          type: string
+          description: Live stream URL
+          example: "https://live.example.com/espn.m3u8"
+        is_show:
+          type: integer
+          description: Visibility status (1=visible, 0=hidden)
+          example: 1
+        total_view:
+          type: integer
+          description: Total view count
+          example: 75000
+        total_share:
+          type: integer
+          description: Total share count
+          example: 2500
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+
+    TopContent:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Top content entry ID
+          example: 801
+        content_id:
+          type: integer
+          description: Related content ID
+          example: 456
+        content_index:
+          type: integer
+          description: Display order
+          example: 1
+        content:
+          $ref: '#/components/schemas/Content'
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+
+    AppSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Settings ID
+          example: 1
+        app_name:
+          type: string
+          description: Application name
+          example: "StreamApp"
+        app_version:
+          type: string
+          description: Application version
+          example: "1.0.0"
+        privacy_policy:
+          type: string
+          description: Privacy policy text
+          example: "Our privacy policy states..."
+        terms_conditions:
+          type: string
+          description: Terms and conditions text
+          example: "By using this app, you agree..."
+        support_email:
+          type: string
+          format: email
+          description: Support email address
+          example: "support@streamapp.com"
+        android_app_url:
+          type: string
+          nullable: true
+          description: Android app store URL
+          example: "https://play.google.com/store/apps/details?id=com.streamapp"
+        ios_app_url:
+          type: string
+          nullable: true
+          description: iOS app store URL
+          example: "https://apps.apple.com/app/streamapp/id123456789"
+
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Notification unique identifier
+          example: 901
+        title:
+          type: string
+          description: Notification title
+          example: "New Content Available"
+        message:
+          type: string
+          description: Notification message
+          example: "Check out the latest movies added to your library!"
+        image:
+          type: string
+          nullable: true
+          description: Notification image URL
+          example: "https://example.com/notifications/new-content.jpg"
+        type:
+          type: string
+          description: Notification type
+          example: "content_update"
+        is_read:
+          type: integer
+          description: Read status (1=read, 0=unread)
+          example: 0
+        created_at:
+          type: string
+          format: date-time
+          example: "2023-10-01T12:00:00Z"
+
+    SubscriptionPackage:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Package unique identifier
+          example: 1001
+        name:
+          type: string
+          description: Package name
+          example: "Premium Monthly"
+        description:
+          type: string
+          description: Package description
+          example: "Unlimited access to all content"
+        price:
+          type: number
+          format: float
+          description: Package price
+          example: 9.99
+        currency:
+          type: string
+          description: Currency code
+          example: "USD"
+        duration_days:
+          type: integer
+          description: Package duration in days
+          example: 30
+        features:
+          type: string
+          description: Package features (JSON string)
+          example: '["HD Quality", "No Ads", "Offline Download"]'
+        is_active:
+          type: integer
+          description: Active status (1=active, 0=inactive)
+          example: 1
+        sort_order:
+          type: integer
+          description: Display order
+          example: 1
+
+    Advertisement:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Advertisement unique identifier
+          example: 1101
+        title:
+          type: string
+          description: Ad title
+          example: "Summer Sale"
+        description:
+          type: string
+          nullable: true
+          description: Ad description
+          example: "Save 50% on premium subscription"
+        image_url:
+          type: string
+          nullable: true
+          description: Ad image URL
+          example: "https://example.com/ads/summer-sale.jpg"
+        video_url:
+          type: string
+          nullable: true
+          description: Ad video URL
+          example: "https://example.com/ads/summer-sale.mp4"
+        link_url:
+          type: string
+          nullable: true
+          description: Click destination URL
+          example: "https://example.com/subscribe"
+        placement:
+          type: string
+          description: Ad placement location
+          example: "banner"
+        start_date:
+          type: string
+          format: date
+          description: Ad start date
+          example: "2023-10-01"
+        end_date:
+          type: string
+          format: date
+          description: Ad end date
+          example: "2023-10-31"
+        is_active:
+          type: integer
+          description: Active status (1=active, 0=inactive)
+          example: 1
+        total_views:
+          type: integer
+          description: Total view count
+          example: 25000
+        total_clicks:
+          type: integer
+          description: Total click count
+          example: 1200
+
+    PaginationRequest:
+      type: object
+      required: [start, limit]
+      properties:
+        start:
+          type: integer
+          minimum: 0
+          description: Starting offset for pagination
+          example: 0
+        limit:
+          type: integer
+          minimum: 1
+          maximum: 100
+          description: Number of items to return (max 100)
+          example: 20
+        type:
+          type: integer
+          description: Optional content type filter (1=Movie, 2=Series)
+          example: 1
+        genre_id:
+          type: integer
+          description: Optional genre ID filter
+          example: 1
+        language_id:
+          type: integer
+          description: Optional language ID filter
+          example: 1
+        keyword:
+          type: string
+          maxLength: 255
+          description: Optional search keyword
+          example: "batman"
+
+  responses:
+    SuccessResponse:
+      description: Generic success response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiResponse'
+
+    ErrorResponse:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            allOf:
+              - $ref: '#/components/schemas/ApiResponse'
+              - type: object
+                properties:
+                  status:
+                    type: boolean
+                    example: false
+                  errors:
+                    type: object
+                    nullable: true
+                    description: Detailed error information
+                    example:
+                      field_name: ["Field validation error message"]
+
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token authentication (if implemented)
+
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key authentication (if implemented)
+
+# Security (currently not implemented in the API)
+# security:
+#   - BearerAuth: []
+#   - ApiKey: []
+
+externalDocs:
+  description: Find more info about the TV Streaming App
+  url: https://example.com/docs 

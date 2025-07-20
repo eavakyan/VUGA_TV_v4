@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">VUGA TV</string>
+    <string name="search_hint">Search top movies and TV shows</string>
+    <string name="featured">Featured</string>
+    <string name="trending">Trending Now</string>
+    <string name="new_releases">New Releases</string>
+    <string name="recommendations">Recommended for You</string>
+    <string name="continue_watching">Continue Watching</string>
+    <string name="watch_history">Watch History</string>
+    <string name="favorites">My Favorites</string>
+    <string name="profile">Profile</string>
+    <string name="play">Play</string>
+    <string name="add_to_favorites">Add to Favorites</string>
+    <string name="back">Back</string>
+    <string name="retry">Retry</string>
+    <string name="error_loading_content">Error loading content</string>
+    <string name="error_loading_history">Error loading history</string>
+    <string name="error_loading_favorites">Error loading favorites</string>
+    <string name="no_watch_history">No watch history yet</string>
+    <string name="no_favorites">No favorites yet</string>
+    <string name="no_results_found">No results found</string>
+    <string name="popular_searches">Popular Searches</string>
+    <string name="search_suggestions">Try searching for: Action, Comedy, Drama, Sci-Fi, Horror</string>
+</resources> 

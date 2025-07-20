@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="android.view.View" />
+
+        <variable
+            name="currentPosition"
+            type="androidx.databinding.ObservableInt" />
+
+    </data>
+
+
+    <RelativeLayout
+        android:id="@+id/root_lout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".activities.MainActivity">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <androidx.viewpager2.widget.ViewPager2
+                android:id="@+id/viewPager"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <View
+                android:id="@+id/bottom_view"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/stroke_width"
+                android:layout_above="@id/bottomBar"
+                android:background="@color/view_bg_color" />
+
+            <LinearLayout
+                android:id="@+id/bottomBar"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/hetght_of_bottombar"
+                android:background="@color/app_black"
+                android:visibility="visible"
+
+                tools:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/btn_home"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/img_home"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_home"
+                        android:tint="@{currentPosition == 0 ? @color/app_color : @color/text_color_light}" />
+
+                    <TextView
+                        android:id="@+id/tv_home"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5sp"
+                        android:fontFamily="@font/outfit_regular"
+
+                        android:gravity="center"
+                        android:text="@string/home"
+                        android:textColor="@{currentPosition == 0 ? @color/app_color : @color/text_color_light}"
+                        android:textSize="@dimen/_12sp" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btn_discover"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/img_discover"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_search"
+                        android:tint="@{currentPosition == 1 ? @color/app_color : @color/text_color_light}" />
+
+                    <TextView
+                        android:id="@+id/tv_discover"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:gravity="center"
+                        android:text="@string/search"
+                        android:textColor="@{currentPosition == 1 ? @color/app_color : @color/text_color_light}"
+                        android:textSize="@dimen/_12sp"
+                        tools:text="vvndvjdbjvbdhvdbvjdzbu" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btn_tv"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/img_tv"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_tv"
+                        android:tint="@{currentPosition == 2 ? @color/app_color : @color/text_color_light}" />
+
+                    <TextView
+                        android:id="@+id/tv_tv"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+
+                        android:fontFamily="@font/outfit_regular"
+                        android:gravity="center"
+                        android:text="@string/live_tv"
+                        android:textColor="@{currentPosition == 2 ? @color/app_color : @color/text_color_light}"
+                        android:textSize="@dimen/_12sp" />
+
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/btn_watch"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/img_watch"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:src="@drawable/ic_bookmark_not"
+                        android:tint="@{currentPosition == 3 ? @color/app_color : @color/text_color_light}" />
+
+                    <TextView
+                        android:id="@+id/tv_watch"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:gravity="center"
+                        android:text="@string/watch_list"
+                        android:textColor="@{currentPosition == 3 ? @color/app_color : @color/text_color_light}"
+                        android:textSize="@dimen/_12sp" />
+
+
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/topBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginTop="@dimen/top_margin_for_statusbar"
+            android:layout_marginBottom="10dp"
+            android:background="@color/transparent"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:visibility="gone"
+            tools:visibility="visible">
+
+            <ImageView
+
+                android:layout_width="80dp"
+                android:layout_height="23dp"
+                android:src="@drawable/logo" />
+
+
+            <!--                    <TextView-->
+            <!--                        style="@style/TextViewLocal"-->
+            <!--                        android:layout_width="wrap_content"-->
+            <!--                        android:layout_height="wrap_content"-->
+            <!--                        android:layout_marginStart="10dp"-->
+            <!--                        android:fontFamily="@font/outfit_black"-->
+            <!--                        android:text="@string/app_name"-->
+            <!--                        android:textAllCaps="true"-->
+            <!--                        android:textSize="@dimen/_20sp" />-->
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+
+            <ImageView
+                android:id="@+id/btn_search"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:background="@drawable/bg_for_view_round"
+
+                android:padding="10dp"
+                android:src="@drawable/ic_search"
+                android:visibility="@{currentPosition == 2 ? View.VISIBLE : View.GONE}" />
+
+            <RelativeLayout
+                android:id="@+id/img_profile"
+                android:layout_width="33dp"
+                android:layout_height="33dp"
+                android:layout_marginStart="15dp">
+
+                <ImageView
+                    android:id="@+id/img_user"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:background="@drawable/bg_round"
+                    android:backgroundTint="@color/text_color_light"
+                    android:padding="7dp"
+                    android:src="@drawable/ic_user"
+                    app:tint="@color/text_color" />
+
+                <androidx.constraintlayout.utils.widget.ImageFilterView
+                    android:id="@+id/img_pic"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:scaleType="centerCrop"
+                    app:roundPercent="1"
+                    tools:src="@tools:sample/avatars" />
+
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+        <!--        <eightbitlab.com.blurview.BlurView-->
+        <!--            android:id="@+id/blurView"-->
+        <!--            android:visibility="gone"-->
+        <!--            android:layout_width="match_parent"-->
+        <!--            android:layout_height="@dimen/top_size_of_appbar"-->
+        <!--            app:blurOverlayColor="@color/nav_bar_blur">-->
+
+
+        <!--        </eightbitlab.com.blurview.BlurView>-->
+
+
+        <LinearLayout
+            android:id="@+id/progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone" />
+
+
+    </RelativeLayout>
+
+
+</layout>

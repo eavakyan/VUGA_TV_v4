@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="500dp"
+    android:layout_height="360dp"
+    android:layout_marginEnd="16dp"
+    android:background="@drawable/episode_normal_background"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <!-- Background Image -->
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/placeholder_image" />
+
+    <!-- Gradient Overlay -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/featured_gradient_overlay" />
+
+    <!-- Content Info -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/titleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Featured Content Title"
+            android:textColor="@android:color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:maxLines="2"
+            android:ellipsize="end" />
+
+        <!-- Description -->
+        <TextView
+            android:id="@+id/descriptionText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Content description goes here..."
+            android:textColor="@android:color/white"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"
+            android:maxLines="3"
+            android:ellipsize="end"
+            android:alpha="0.9" />
+
+        <!-- Rating and Details -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="12dp">
+
+            <TextView
+                android:id="@+id/ratingText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="★ 8.5"
+                android:textColor="#FFD700"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/detailsText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="2023 • 120 min"
+                android:textColor="@android:color/white"
+                android:textSize="14sp"
+                android:layout_marginStart="16dp"
+                android:alpha="0.8" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout> 

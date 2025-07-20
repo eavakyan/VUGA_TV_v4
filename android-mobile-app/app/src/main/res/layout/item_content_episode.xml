@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="content"
+            type="com.retry.vuga.model.ContentDetail.SeasonItem.EpisodesItem" />
+
+
+        <variable
+            name="type"
+            type="Integer" />
+
+        <import type="com.retry.vuga.utils.Const" />
+
+        <import type="com.retry.vuga.utils.Global" />
+
+        <import type="com.retry.vuga.utils.Const.ItemType" />
+
+        <import type="android.view.View" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="8dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="150dp"
+                android:layout_height="105dp">
+
+
+                <androidx.constraintlayout.utils.widget.ImageFilterView
+                    android:id="@+id/img"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="@dimen/stroke_width"
+                    android:scaleType="centerCrop"
+                    app:image_url="@{content.thumbnail}"
+                    app:round="15dp"
+                    tools:src="@tools:sample/backgrounds/scenic" />
+
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@drawable/bg_stoke_15"
+                    android:backgroundTint="@color/trans_stroke_color" />
+
+                <RelativeLayout
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:layout_centerInParent="true">
+
+                    <androidx.constraintlayout.utils.widget.ImageFilterView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+
+                        android:background="@color/app_black"
+                        android:padding="12dp"
+                        android:src="@drawable/ic_play"
+
+                        app:roundPercent="1" />
+
+                    <androidx.constraintlayout.utils.widget.ImageFilterView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+
+                        android:background="@drawable/bg_stoke_500"
+                        android:backgroundTint="@color/trans_stroke_color"
+
+                        app:roundPercent="1" />
+
+                </RelativeLayout>
+
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:id="@+id/tv_name"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:ellipsize="end"
+                            android:fontFamily="@font/outfit_semi_bold"
+                            android:maxLines="2"
+                            android:text="@{String.valueOf(content.title)}"
+
+                            android:textSize="@dimen/_18sp"
+                            tools:text="spiderman " />
+
+
+                        <TextView
+                            android:id="@+id/tv_year"
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:fontFamily="@font/outfit_light"
+                            android:letterSpacing=".04"
+                            android:text="@{String.valueOf(content.duration)}"
+                            android:textColor="@color/text_color_light"
+                            android:textSize="@dimen/_18sp"
+                            tools:text="2021" />
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal"
+
+                            >
+
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:src="@drawable/ic_show"
+                                app:tint="@color/app_color" />
+
+                            <TextView
+                                android:id="@+id/tv_view"
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="5dp"
+                                android:fontFamily="@font/outfit_light"
+                                android:letterSpacing=".04"
+                                android:maxLines="1"
+                                android:text='@{Global.prettyCount(content.totalView)}'
+
+                                android:textColor="@color/app_color"
+                                android:textSize="@dimen/_16sp"
+                                tools:text="10k" />
+                        </LinearLayout>
+
+
+                    </LinearLayout>
+
+
+                </LinearLayout>
+
+
+            </LinearLayout>
+
+
+        </LinearLayout>
+
+        <TextView
+
+            android:id="@+id/tv_des"
+            style="@style/TextViewLocal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="3dp"
+            android:layout_marginTop="5dp"
+            android:ellipsize="end"
+            android:fontFamily="@font/outfit_light"
+            android:letterSpacing=".04"
+            android:maxLines="3"
+            android:text="@{content.description}"
+            android:textColor="@color/text_color_light"
+            android:textSize="@dimen/_16sp"
+            tools:text="Chemistry teacher (Bryan Cranston) with\n cancer teams up with a former student \n(Aaron Paul) to cook meth on \nBreaking Bad" />
+
+    </LinearLayout>
+</layout>

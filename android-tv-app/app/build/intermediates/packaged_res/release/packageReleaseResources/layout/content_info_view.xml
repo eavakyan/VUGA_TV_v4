@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <!-- Background Image with Gradient -->
+    <ImageView
+        android:id="@+id/backgroundImage"
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:scaleType="centerCrop"
+        android:alpha="0.3"
+        android:src="@drawable/placeholder_image" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="600dp"
+        android:background="@drawable/gradient_overlay" />
+
+    <!-- Scrollable Content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="48dp">
+
+            <!-- Back Button -->
+            <ImageView
+                android:id="@+id/backButton"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_marginBottom="40dp"
+                android:background="@drawable/back_button_background"
+                android:src="@drawable/ic_back"
+                android:padding="16dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true" />
+
+            <!-- Hero Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="48dp">
+
+                <!-- Poster Image -->
+                <ImageView
+                    android:id="@+id/posterImage"
+                    android:layout_width="280dp"
+                    android:layout_height="420dp"
+                    android:layout_marginEnd="48dp"
+                    android:scaleType="centerCrop"
+                    android:background="@drawable/poster_background"
+                    android:src="@drawable/placeholder_image" />
+
+                <!-- Main Info -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <!-- Title -->
+                    <TextView
+                        android:id="@+id/titleText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Movie Title"
+                        android:textColor="@android:color/white"
+                        android:textSize="48sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="24dp"
+                        android:shadowColor="@android:color/black"
+                        android:shadowDx="2"
+                        android:shadowDy="2"
+                        android:shadowRadius="4" />
+
+                    <!-- Rating and Year Row -->
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginBottom="16dp">
+
+                        <TextView
+                            android:id="@+id/ratingText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="★ 8.5"
+                            android:textColor="#FFD700"
+                            android:textSize="24sp"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="24dp" />
+
+                        <TextView
+                            android:id="@+id/yearText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2023"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp"
+                            android:layout_marginEnd="24dp" />
+
+                        <TextView
+                            android:id="@+id/durationText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2h 15m"
+                            android:textColor="@android:color/white"
+                            android:textSize="20sp" />
+
+                    </LinearLayout>
+
+                    <!-- Type Badge -->
+                    <TextView
+                        android:id="@+id/typeText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Movie"
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:background="@drawable/type_badge_background"
+                        android:padding="8dp"
+                        android:layout_marginBottom="24dp" />
+
+                    <!-- Genres -->
+                    <TextView
+                        android:id="@+id/genreText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Action, Adventure, Thriller"
+                        android:textColor="@android:color/white"
+                        android:textSize="18sp"
+                        android:layout_marginBottom="32dp"
+                        android:alpha="0.9" />
+
+                    <!-- Description -->
+                    <TextView
+                        android:id="@+id/descriptionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Movie description goes here..."
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:lineSpacingMultiplier="1.4"
+                        android:maxLines="6"
+                        android:ellipsize="end" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Content Details Grid -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="48dp">
+
+                <!-- Left Column -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical"
+                    android:layout_marginEnd="32dp">
+
+                    <!-- Full Synopsis Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Synopsis"
+                        android:textColor="@android:color/white"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <TextView
+                        android:id="@+id/fullDescriptionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Full movie description goes here..."
+                        android:textColor="@android:color/white"
+                        android:textSize="16sp"
+                        android:lineSpacingMultiplier="1.4"
+                        android:layout_marginBottom="32dp" />
+
+                </LinearLayout>
+
+                <!-- Right Column -->
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <!-- Details Section -->
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Details"
+                        android:textColor="@android:color/white"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="16dp" />
+
+                    <!-- Detail Items -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <!-- Release Year -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="120dp"
+                                android:layout_height="wrap_content"
+                                android:text="Release Year"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp"
+                                android:alpha="0.7" />
+
+                            <TextView
+                                android:id="@+id/detailYearText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2023"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                        <!-- Rating -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="120dp"
+                                android:layout_height="wrap_content"
+                                android:text="Rating"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp"
+                                android:alpha="0.7" />
+
+                            <TextView
+                                android:id="@+id/detailRatingText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="8.5/10"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                        <!-- Duration -->
+                        <LinearLayout
+                            android:id="@+id/durationContainer"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="120dp"
+                                android:layout_height="wrap_content"
+                                android:text="Duration"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp"
+                                android:alpha="0.7" />
+
+                            <TextView
+                                android:id="@+id/detailDurationText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2h 15m"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                        <!-- Content ID -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_marginBottom="12dp">
+
+                            <TextView
+                                android:layout_width="120dp"
+                                android:layout_height="wrap_content"
+                                android:text="Content ID"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp"
+                                android:alpha="0.7" />
+
+                            <TextView
+                                android:id="@+id/contentIdText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="12345"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp" />
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Cast & Crew Section -->
+            <LinearLayout
+                android:id="@+id/castCrewContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="48dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Cast &amp; Crew"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/castRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="160dp"
+                    android:orientation="horizontal"
+                    android:clipToPadding="false"
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    android:paddingTop="16dp"
+                    android:paddingBottom="16dp" />
+
+            </LinearLayout>
+
+            <!-- Seasons Section (for TV Shows) -->
+            <LinearLayout
+                android:id="@+id/seasonsInfoContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="48dp"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Seasons &amp; Episodes"
+                    android:textColor="@android:color/white"
+                    android:textSize="24sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <TextView
+                    android:id="@+id/seasonsInfoText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Season information..."
+                    android:textColor="@android:color/white"
+                    android:textSize="16sp"
+                    android:lineSpacingMultiplier="1.4" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</RelativeLayout> 

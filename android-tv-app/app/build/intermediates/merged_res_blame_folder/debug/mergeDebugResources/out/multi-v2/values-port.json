@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-port/values-port.xml",
+            "map": [
+                {
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/52fd5ae79fb61fe4ab36101e0e05a77b/transformed/appcompat-1.6.1/res/values-port/values-port.xml",
+                    "from": {
+                        "startLines": "2",
+                        "startColumns": "4",
+                        "startOffsets": "55",
+                        "endColumns": "55",
+                        "endOffsets": "106"
+                    }
+                }
+            ]
+        }
+    ]
+}
