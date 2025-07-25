@@ -113,6 +113,7 @@ fun VideoPlayer(
     var duration by remember { mutableStateOf(0L) }
     var isSeeking by remember { mutableStateOf(false) }
     var seekDirection by remember { mutableStateOf(0) } // -1 for rewind, 1 for fast forward, 0 for none
+    var speedLevel by remember { mutableStateOf(0) } // 0 = no speed, 1 = 1x, 2 = 2x, 3 = 3x
     
     val exoPlayer = remember {
         ExoPlayer.Builder(context).build().apply {
@@ -149,8 +150,8 @@ fun VideoPlayer(
             
             while (seekDirection != 0) {
                 val seekAmount = when (seekDirection) {
-                    -1 -> -5000L // 5 seconds rewind
-                    1 -> 5000L   // 5 seconds fast forward
+                    -1 -> -5000L * speedLevel // 5 seconds * speed level rewind
+                    1 -> 5000L * speedLevel   // 5 seconds * speed level fast forward
                     else -> 0L
                 }
                 
@@ -179,52 +180,68 @@ fun VideoPlayer(
             .focusRequester(focusRequester)
             .onKeyEvent { keyEvent ->
                 when (keyEvent.key) {
-                    Key.DirectionLeft -> {
-                        when (keyEvent.type) {
-                            KeyEventType.KeyDown -> {
-                                if (seekDirection == 0) {
-                                    // Initial press - seek once
-                                    val newPosition = (exoPlayer.currentPosition - 10000).coerceAtLeast(0)
-                                    exoPlayer.seekTo(newPosition)
-                                    showTimeline = true
-                                    coroutineScope.launch {
-                                        delay(2000)
-                                        if (seekDirection == 0) {
-                                            showTimeline = false
-                                        }
-                                    }
-                                }
-                                seekDirection = -1
-                            }
-                            KeyEventType.KeyUp -> {
-                                seekDirection = 0
-                            }
-                        }
-                        true
-                    }
-                    Key.DirectionRight -> {
-                        when (keyEvent.type) {
-                            KeyEventType.KeyDown -> {
-                                if (seekDirection == 0) {
-                                    // Initial press - seek once
-                                    val newPosition = exoPlayer.currentPosition + 10000
-                                    exoPlayer.seekTo(newPosition)
-                                    showTimeline = true
-                                    coroutineScope.launch {
-                                        delay(2000)
-                                        if (seekDirection == 0) {
-                                            showTimeline = false
-                                        }
-                                    }
-                                }
-                                seekDirection = 1
-                            }
-                            KeyEventType.KeyUp -> {
-                                seekDirection = 0
-                            }
-                        }
-                        true
-                    }
+                                         Key.DirectionLeft -> {
+                         when (keyEvent.type) {
+                             KeyEventType.KeyDown -> {
+                                 if (seekDirection == 0) {
+                                     // Initial press - increase speed level and seek once
+                                     speedLevel = when (speedLevel) {
+                                         0 -> 1
+                                         1 -> 2
+                                         2 -> 3
+                                         3 -> 1
+                                         else -> 1
+                                     }
+                                     val seekAmount = 10000L * speedLevel
+                                     val newPosition = (exoPlayer.currentPosition - seekAmount).coerceAtLeast(0)
+                                     exoPlayer.seekTo(newPosition)
+                                     showTimeline = true
+                                     coroutineScope.launch {
+                                         delay(2000)
+                                         if (seekDirection == 0) {
+                                             showTimeline = false
+                                         }
+                                     }
+                                 }
+                                 seekDirection = -1
+                             }
+                             KeyEventType.KeyUp -> {
+                                 seekDirection = 0
+                             }
+                         }
+                         true
+                     }
+                                         Key.DirectionRight -> {
+                         when (keyEvent.type) {
+                             KeyEventType.KeyDown -> {
+                                 if (seekDirection == 0) {
+                                     // Initial press - increase speed level and seek once
+                                     speedLevel = when (speedLevel) {
+                                         0 -> 1
+                                         1 -> 2
+                                         2 -> 3
+                                         3 -> 1
+                                         else -> 1
+                                     }
+                                     val seekAmount = 10000L * speedLevel
+                                     val newPosition = exoPlayer.currentPosition + seekAmount
+                                     exoPlayer.seekTo(newPosition)
+                                     showTimeline = true
+                                     coroutineScope.launch {
+                                         delay(2000)
+                                         if (seekDirection == 0) {
+                                             showTimeline = false
+                                         }
+                                     }
+                                 }
+                                 seekDirection = 1
+                             }
+                             KeyEventType.KeyUp -> {
+                                 seekDirection = 0
+                             }
+                         }
+                         true
+                     }
                     Key.Back -> {
                         if (keyEvent.type == KeyEventType.KeyDown) {
                             onNavigateBack()
@@ -277,12 +294,13 @@ fun VideoPlayer(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 100.dp)
         ) {
-            TimelineOverlay(
-                currentPosition = currentPosition,
-                duration = duration,
-                isSeeking = isSeeking,
-                seekDirection = seekDirection
-            )
+                         TimelineOverlay(
+                 currentPosition = currentPosition,
+                 duration = duration,
+                 isSeeking = isSeeking,
+                 seekDirection = seekDirection,
+                 speedLevel = speedLevel
+             )
         }
     }
     
@@ -297,7 +315,8 @@ fun TimelineOverlay(
     currentPosition: Long,
     duration: Long,
     isSeeking: Boolean,
-    seekDirection: Int
+    seekDirection: Int,
+    speedLevel: Int
 ) {
     Card(
         modifier = Modifier
@@ -315,19 +334,19 @@ fun TimelineOverlay(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Seek direction indicator
-            if (isSeeking) {
-                Text(
-                    text = when (seekDirection) {
-                        -1 -> "⏪ REWINDING"
-                        1 -> "⏩ FAST FORWARDING"
-                        else -> ""
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold
-                )
-            }
+                         // Seek direction indicator
+             if (isSeeking) {
+                 Text(
+                     text = when (seekDirection) {
+                         -1 -> "⏪ REWINDING ${speedLevel}x"
+                         1 -> "⏩ FAST FORWARDING ${speedLevel}x"
+                         else -> ""
+                     },
+                     style = MaterialTheme.typography.bodyMedium,
+                     color = Color.White,
+                     fontWeight = FontWeight.Bold
+                 )
+             }
             
             // Progress bar
             Box(
