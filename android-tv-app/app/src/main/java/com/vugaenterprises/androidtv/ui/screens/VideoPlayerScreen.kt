@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalContext
@@ -26,6 +27,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.ui.PlayerView
 import com.vugaenterprises.androidtv.data.model.Content
 import com.vugaenterprises.androidtv.data.model.EpisodeItem
+import com.vugaenterprises.androidtv.MainActivity
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -104,6 +106,7 @@ fun VideoPlayer(
     onNavigateBack: () -> Unit
 ) {
     val context = LocalContext.current
+    val mainActivity = context as? MainActivity
     val focusRequester = remember { FocusRequester() }
     val coroutineScope = rememberCoroutineScope()
     
@@ -167,9 +170,29 @@ fun VideoPlayer(
         }
     }
     
+    // Register with MainActivity for key handling
+    LaunchedEffect(Unit) {
+        mainActivity?.onEnterKeyPressed = {
+            android.util.Log.d("VideoPlayer", "ENTER KEY CALLBACK TRIGGERED")
+            if (exoPlayer.isPlaying) {
+                exoPlayer.pause()
+                android.util.Log.d("VideoPlayer", "PAUSED via callback")
+            } else {
+                exoPlayer.play()
+                android.util.Log.d("VideoPlayer", "PLAYING via callback")
+            }
+        }
+    }
+    
+    // Request focus on the Box
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+    
     // Clean up player when leaving
     DisposableEffect(Unit) {
         onDispose {
+            mainActivity?.onEnterKeyPressed = null
             exoPlayer.release()
         }
     }
@@ -178,8 +201,10 @@ fun VideoPlayer(
         modifier = Modifier
             .fillMaxSize()
             .focusRequester(focusRequester)
+            .focusable()
             .onKeyEvent { keyEvent ->
-                when (keyEvent.key) {
+                 android.util.Log.d("VideoPlayer", "KEY EVENT: ${keyEvent.key} (${keyEvent.nativeKeyEvent.keyCode}) - ${keyEvent.type}")
+                 when (keyEvent.key) {
                                          Key.DirectionLeft -> {
                          when (keyEvent.type) {
                              KeyEventType.KeyDown -> {
@@ -242,25 +267,40 @@ fun VideoPlayer(
                          }
                          true
                      }
-                    Key.Back -> {
-                        if (keyEvent.type == KeyEventType.KeyDown) {
-                            onNavigateBack()
-                        }
-                        true
-                    }
-                    else -> false
+                                         Key.Enter, Key.DirectionCenter -> {
+                         if (keyEvent.type == KeyEventType.KeyDown) {
+                             android.util.Log.d("VideoPlayer", "ENTER KEY PRESSED - PAUSING/PLAYING")
+                             if (exoPlayer.isPlaying) {
+                                 exoPlayer.pause()
+                                 android.util.Log.d("VideoPlayer", "PAUSED")
+                             } else {
+                                 exoPlayer.play()
+                                 android.util.Log.d("VideoPlayer", "PLAYING")
+                             }
+                         }
+                         true
+                     }
+                     Key.Back -> {
+                         if (keyEvent.type == KeyEventType.KeyDown) {
+                             onNavigateBack()
+                         }
+                         true
+                     }
+                     else -> false
                 }
             }
     ) {
-        AndroidView(
-            factory = { context ->
-                PlayerView(context).apply {
-                    player = exoPlayer
-                    useController = true
-                }
-            },
-            modifier = Modifier.fillMaxSize()
-        )
+                    AndroidView(
+                factory = { context ->
+                    PlayerView(context).apply {
+                        player = exoPlayer
+                        useController = false // Disable ExoPlayer's default controls
+                        isFocusable = false
+                        isFocusableInTouchMode = false
+                    }
+                },
+                modifier = Modifier.fillMaxSize()
+            )
         
         // Back button overlay
         Button(

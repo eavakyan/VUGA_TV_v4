@@ -1,6 +1,7 @@
 package com.vugaenterprises.androidtv
 
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.*
@@ -33,6 +34,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var castDetailDataStore: CastDetailDataStore
     
+    // Callback for video player controls
+    var onEnterKeyPressed: (() -> Unit)? = null
+    
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -46,6 +50,21 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    
+    override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+        android.util.Log.d("MainActivity", "KEY DOWN: $keyCode")
+        
+        // Handle Enter/OK key (KEYCODE_DPAD_CENTER = 23, KEYCODE_ENTER = 66)
+        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
+            android.util.Log.d("MainActivity", "ENTER KEY INTERCEPTED - NOT EXITING")
+            onEnterKeyPressed?.let { callback ->
+                callback()
+                return true
+            }
+        }
+        
+        return super.onKeyDown(keyCode, event)
     }
 }
 
