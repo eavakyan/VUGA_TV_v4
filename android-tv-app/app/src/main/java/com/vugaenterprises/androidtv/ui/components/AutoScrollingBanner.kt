@@ -18,11 +18,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +44,7 @@ fun AutoScrollingBanner(
     
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     var currentFocusedIndex by remember { mutableStateOf(0) }
     var isUserInteracting by remember { mutableStateOf(false) }
@@ -96,7 +100,26 @@ fun AutoScrollingBanner(
             state = listState,
             contentPadding = PaddingValues(horizontal = 24.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .focusGroup()
+                .onKeyEvent { keyEvent ->
+                    if (keyEvent.type == KeyEventType.KeyDown) {
+                        when (keyEvent.key) {
+                            Key.DirectionRight -> {
+                                focusManager.moveFocus(FocusDirection.Right)
+                                true
+                            }
+                            Key.DirectionLeft -> {
+                                focusManager.moveFocus(FocusDirection.Left)
+                                true
+                            }
+                            else -> false
+                        }
+                    } else {
+                        false
+                    }
+                }
         ) {
             itemsIndexed(content) { index, item ->
                 BannerItem(
@@ -107,6 +130,9 @@ fun AutoScrollingBanner(
                         if (focused) {
                             currentFocusedIndex = index
                             isUserInteracting = true
+                            coroutineScope.launch {
+                                listState.animateScrollToItem(index)
+                            }
                             // Resume auto-scroll after user interaction
                             coroutineScope.launch {
                                 delay(5000) // Wait 5 seconds after user interaction

@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
     
     // Callback for video player controls
     var onEnterKeyPressed: (() -> Unit)? = null
+    var isVideoPlayerActive: Boolean = false
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,17 +54,13 @@ class MainActivity : ComponentActivity() {
     }
     
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
-        android.util.Log.d("MainActivity", "KEY DOWN: $keyCode")
-        
-        // Handle Enter/OK key (KEYCODE_DPAD_CENTER = 23, KEYCODE_ENTER = 66)
-        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
-            android.util.Log.d("MainActivity", "ENTER KEY INTERCEPTED - NOT EXITING")
-            onEnterKeyPressed?.let { callback ->
-                callback()
-                return true
-            }
+        // Only intercept Enter when a video player callback is registered
+        if (isVideoPlayerActive && (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) && onEnterKeyPressed != null) {
+            android.util.Log.d("MainActivity", "ENTER KEY INTERCEPTED - VIDEO CONTROLS")
+            onEnterKeyPressed?.invoke()
+            return true
         }
-        
+
         return super.onKeyDown(keyCode, event)
     }
 }

@@ -172,6 +172,7 @@ fun VideoPlayer(
     
     // Register with MainActivity for key handling
     LaunchedEffect(Unit) {
+        mainActivity?.isVideoPlayerActive = true
         mainActivity?.onEnterKeyPressed = {
             android.util.Log.d("VideoPlayer", "ENTER KEY CALLBACK TRIGGERED")
             if (exoPlayer.isPlaying) {
@@ -193,6 +194,7 @@ fun VideoPlayer(
     DisposableEffect(Unit) {
         onDispose {
             mainActivity?.onEnterKeyPressed = null
+            mainActivity?.isVideoPlayerActive = false
             exoPlayer.release()
         }
     }
