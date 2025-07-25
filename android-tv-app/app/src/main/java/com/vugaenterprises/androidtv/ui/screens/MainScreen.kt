@@ -1,0 +1,104 @@
+package com.vugaenterprises.androidtv.ui.screens
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.vugaenterprises.androidtv.ui.components.NavigationItem
+import com.vugaenterprises.androidtv.ui.components.NetflixNavigationBar
+import com.vugaenterprises.androidtv.ui.navigation.Screen
+
+@Composable
+fun MainScreen(
+    navController: NavHostController,
+    content: @Composable () -> Unit
+) {
+    var selectedNavItem by remember { mutableStateOf("watch") }
+    val focusManager = LocalFocusManager.current
+    
+    val navigationItems = remember {
+        listOf(
+            NavigationItem("watch", "Watch"),
+            NavigationItem("search", "Search"),
+            NavigationItem("tv", "TV"),
+            NavigationItem("login", "Log In")
+        )
+    }
+    
+    // Handle navigation item selection
+    LaunchedEffect(selectedNavItem) {
+        when (selectedNavItem) {
+            "watch" -> {
+                if (navController.currentDestination?.route != Screen.Home.route) {
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = true }
+                    }
+                }
+            }
+            "search" -> {
+                navController.navigate(Screen.Search.route) {
+                    popUpTo(Screen.Home.route)
+                }
+            }
+            "tv" -> {
+                // For now, navigate to home or create a TV-specific screen
+                navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Home.route) { inclusive = true }
+                }
+            }
+            "login" -> {
+                navController.navigate(Screen.Profile.route) {
+                    popUpTo(Screen.Home.route)
+                }
+            }
+        }
+    }
+    
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .onPreviewKeyEvent { keyEvent ->
+                when {
+                    keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionUp -> {
+                        // Focus navigation bar when pressing up
+                        focusManager.moveFocus(FocusDirection.Up)
+                        true
+                    }
+                    keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionDown -> {
+                        // Focus content when pressing down
+                        focusManager.moveFocus(FocusDirection.Down)
+                        true
+                    }
+                    else -> false
+                }
+            }
+    ) {
+        // Main content
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(top = 80.dp) // Space for navigation bar
+        ) {
+            content()
+        }
+        
+        // Netflix-style navigation bar (overlaid on top)
+        NetflixNavigationBar(
+            navigationItems = navigationItems,
+            selectedItemId = selectedNavItem,
+            onItemSelected = { item ->
+                selectedNavItem = item.id
+            },
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
+    }
+}
+
