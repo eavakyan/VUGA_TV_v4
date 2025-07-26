@@ -7,6 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
@@ -28,8 +31,14 @@ fun AppNavigation(
     castDetailDataStore: CastDetailDataStore,
     startDestination: String = Screen.Home.route
 ) {
+    var shouldFocusNavBar by remember { mutableStateOf(false) }
+    
     // Wrap the entire navigation in MainScreen for Netflix-style navigation
-    MainScreen(navController = navController) {
+    MainScreen(
+        navController = navController,
+        shouldFocusNavBar = shouldFocusNavBar,
+        onNavBarFocusHandled = { shouldFocusNavBar = false }
+    ) {
         NavHost(
             navController = navController,
             startDestination = startDestination
@@ -44,6 +53,10 @@ fun AppNavigation(
                     },
                     onNavigateToProfile = {
                         navController.navigate(Screen.Profile.route)
+                    },
+                    onRequestNavBarFocus = {
+                        android.util.Log.d("AppNavigation", "HomeScreen requested nav bar focus")
+                        shouldFocusNavBar = true
                     }
                 )
             }

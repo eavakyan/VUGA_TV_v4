@@ -71,6 +71,12 @@ fun NetflixNavigationBar(
                 .fillMaxWidth()
                 .height(80.dp)
                 .focusable()
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        // When the navigation bar gets focus, request focus on the first item
+                        focusRequester.requestFocus()
+                    }
+                }
         ) {
         Row(
             modifier = Modifier
@@ -91,7 +97,8 @@ fun NetflixNavigationBar(
             LazyRow(
                 modifier = Modifier
                     .weight(1f)
-                    .fillMaxHeight(),
+                    .fillMaxHeight()
+                    .focusable(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(24.dp)
             ) {
@@ -178,8 +185,19 @@ fun NetflixNavigationBar(
         }
     }
     
-    // Don't request initial focus - let the content have it first
-    // The navigation bar will receive focus when user presses UP
+    // Request initial focus on first navigation item when needed
+    LaunchedEffect(Unit) {
+        // Don't auto-focus, but make sure we can receive focus when requested
+    }
+    
+    // Request focus when the navigation bar itself is focused
+    DisposableEffect(Unit) {
+        val focusRequestListener = { _: Any ->
+            android.util.Log.d("NetflixNavigationBar", "Navigation bar requested focus")
+            focusRequester.requestFocus()
+        }
+        onDispose { }
+    }
 }
 
 @Composable

@@ -6,6 +6,9 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
@@ -18,10 +21,13 @@ import com.vugaenterprises.androidtv.ui.navigation.Screen
 @Composable
 fun MainScreen(
     navController: NavHostController,
+    shouldFocusNavBar: Boolean = false,
+    onNavBarFocusHandled: () -> Unit = {},
     content: @Composable () -> Unit
 ) {
     var selectedNavItem by remember { mutableStateOf("watch") }
     val focusManager = LocalFocusManager.current
+    val navBarFocusRequester = remember { FocusRequester() }
     
     val navigationItems = remember {
         listOf(
@@ -72,17 +78,21 @@ fun MainScreen(
         }
     }
     
+    // Handle focus request
+    LaunchedEffect(shouldFocusNavBar) {
+        if (shouldFocusNavBar) {
+            android.util.Log.d("MainScreen", "Requesting focus on navigation bar")
+            navBarFocusRequester.requestFocus()
+            onNavBarFocusHandled()
+        }
+    }
+    
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
             .onKeyEvent { keyEvent ->
                 when {
-                    keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionUp -> {
-                        // Focus navigation bar when pressing up
-                        focusManager.moveFocus(FocusDirection.Up)
-                        true
-                    }
                     keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionDown -> {
                         // Focus content when pressing down
                         focusManager.moveFocus(FocusDirection.Down)
@@ -108,7 +118,12 @@ fun MainScreen(
             onItemSelected = { item ->
                 selectedNavItem = item.id
             },
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .focusRequester(navBarFocusRequester)
+                .onFocusChanged { focusState ->
+                    android.util.Log.d("MainScreen", "Navigation bar focus changed: ${focusState.isFocused}")
+                }
         )
     }
 }

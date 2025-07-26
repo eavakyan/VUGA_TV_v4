@@ -30,6 +30,7 @@ fun HomeScreen(
     onContentClick: (Content) -> Unit,
     onNavigateToSearch: () -> Unit,
     onNavigateToProfile: () -> Unit,
+    onRequestNavBarFocus: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -102,7 +103,34 @@ fun HomeScreen(
             // Use Android View for better focus handling on Android TV
             AndroidView(
                 factory = { context ->
-                    HomeScreenView(context).apply {
+                    object : HomeScreenView(context) {
+                        override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+                            android.util.Log.d("HomeScreen", "AndroidView dispatchKeyEvent: keyCode=${event.keyCode}, action=${event.action}")
+                            
+                            if (event.keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP && 
+                                event.action == android.view.KeyEvent.ACTION_DOWN) {
+                                // Check if we're at the top of content
+                                val focusedChild = findFocus()
+                                if (focusedChild != null && contentContainer.childCount > 0) {
+                                    val firstChild = contentContainer.getChildAt(0)
+                                    // Check if focused element is within the first content (featured slider)
+                                    var parent = focusedChild.parent
+                                    while (parent != null && parent != this) {
+                                        if ((parent is FeaturedSliderView && firstChild is FeaturedSliderView) ||
+                                            (parent is ContentRowView && firstChild == parent)) {
+                                            android.util.Log.d("HomeScreen", "UP pressed on first content - calling onNavigateUp")
+                                            // Call the navigate up callback
+                                            onNavigateUpCallback?.invoke()
+                                            return true
+                                        }
+                                        parent = parent.parent
+                                    }
+                                }
+                            }
+                            
+                            return super.dispatchKeyEvent(event)
+                        }
+                    }.apply {
                         setOnContentClick { content ->
                             onContentClickRemembered(content)
                         }
@@ -111,6 +139,11 @@ fun HomeScreen(
                         }
                         setOnNavigateToProfile {
                             // Could add profile navigation here if needed
+                        }
+                        setOnNavigateUp {
+                            android.util.Log.d("HomeScreen", "onNavigateUp callback triggered")
+                            // Call the callback to request nav bar focus
+                            onRequestNavBarFocus()
                         }
                     }
                 },
@@ -135,6 +168,7 @@ fun HomeScreen(
                 },
                 modifier = Modifier
                     .fillMaxSize()
+                    .focusable()
                     .onKeyEvent { keyEvent ->
                         if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionUp) {
                             // When UP is pressed, move focus to the navigation bar

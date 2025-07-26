@@ -19,7 +19,7 @@ import com.vugaenterprises.androidtv.data.model.Content
 import com.vugaenterprises.androidtv.ui.components.ContentCardAdapter
 import com.vugaenterprises.androidtv.ui.components.FeaturedSliderAdapter
 
-class HomeScreenView @JvmOverloads constructor(
+open class HomeScreenView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0
@@ -27,11 +27,12 @@ class HomeScreenView @JvmOverloads constructor(
 
     private val loadingIndicator: ProgressBar
     private val errorText: TextView
-    private val contentContainer: LinearLayout
+    protected val contentContainer: LinearLayout
     
     private var onContentClick: ((Content) -> Unit)? = null
     private var onNavigateToSearch: (() -> Unit)? = null
     private var onNavigateToProfile: (() -> Unit)? = null
+    protected var onNavigateUpCallback: (() -> Unit)? = null
 
     init {
         orientation = VERTICAL
@@ -41,12 +42,44 @@ class HomeScreenView @JvmOverloads constructor(
         errorText = findViewById(R.id.errorText)
         contentContainer = findViewById(R.id.contentContainer)
         
-        // Don't make the HomeScreenView itself focusable - let children handle focus
-        isFocusable = false
+        // Make sure we can intercept key events
+        isFocusable = true
+        isFocusableInTouchMode = false
+    }
+    
+    override fun dispatchKeyEvent(event: android.view.KeyEvent): Boolean {
+        android.util.Log.d("HomeScreenView", "dispatchKeyEvent: keyCode=${event.keyCode}, action=${event.action}")
         
-        // Find the NestedScrollView and make sure it doesn't interfere with focus
-        val scrollView = findViewById<androidx.core.widget.NestedScrollView>(android.R.id.content)?.parent as? androidx.core.widget.NestedScrollView
-        scrollView?.isFocusable = false
+        if (event.keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP && 
+            event.action == android.view.KeyEvent.ACTION_DOWN) {
+            
+            // Check if any child has focus
+            val focusedChild = findFocus()
+            android.util.Log.d("HomeScreenView", "Focused child: $focusedChild")
+            
+            if (focusedChild != null) {
+                // Check if we're at the top of content
+                // First check if there's a featured slider as the first child
+                if (contentContainer.childCount > 0) {
+                    val firstChild = contentContainer.getChildAt(0)
+                    android.util.Log.d("HomeScreenView", "First child in container: ${firstChild.javaClass.simpleName}")
+                    
+                    // Check if focused element is within the first content
+                    var parent = focusedChild.parent
+                    while (parent != null && parent != this) {
+                        if ((parent is FeaturedSliderView && firstChild is FeaturedSliderView) ||
+                            (parent is ContentRowView && firstChild == parent)) {
+                            android.util.Log.d("HomeScreenView", "UP pressed on first content - navigating to nav bar")
+                            onNavigateUpCallback?.invoke()
+                            return true
+                        }
+                        parent = parent.parent
+                    }
+                }
+            }
+        }
+        
+        return super.dispatchKeyEvent(event)
     }
     
     fun setOnContentClick(listener: (Content) -> Unit) {
@@ -59,6 +92,10 @@ class HomeScreenView @JvmOverloads constructor(
     
     fun setOnNavigateToProfile(listener: () -> Unit) {
         this.onNavigateToProfile = listener
+    }
+    
+    fun setOnNavigateUp(listener: () -> Unit) {
+        this.onNavigateUpCallback = listener
     }
     
     fun showLoading() {
@@ -218,6 +255,18 @@ class FeaturedSliderView @JvmOverloads constructor(
         // Enable focus for Android TV but don't force touch mode
         recyclerView.isFocusable = true
         recyclerView.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
+        
+        // Override dispatchKeyEvent to handle UP navigation
+        recyclerView.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP && 
+                event.action == android.view.KeyEvent.ACTION_DOWN) {
+                android.util.Log.d("FeaturedSlider", "UP key detected in RecyclerView - bubbling up")
+                // Return false to let the event bubble up to parent
+                false
+            } else {
+                false
+            }
+        }
         
         adapter.setOnContentClickListener { content ->
             android.util.Log.d("FeaturedSlider", "Content click callback received: ${content.title}")
