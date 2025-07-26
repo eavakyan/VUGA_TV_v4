@@ -3,3 +3,5 @@ ios-mobile-app/Pods/
 android-tv-app/app/build/
 android-tv-app/.gradle/
 android-tv-app/build/
+android-tv-app/app/build/
+

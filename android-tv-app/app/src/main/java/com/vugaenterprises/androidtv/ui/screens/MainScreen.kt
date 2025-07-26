@@ -25,7 +25,18 @@ fun MainScreen(
     
     val navigationItems = remember {
         listOf(
-            NavigationItem("watch", "Watch"),
+            NavigationItem(
+                id = "watch", 
+                title = "Watch",
+                subItems = listOf(
+                    NavigationItem("movies", "Movies"),
+                    NavigationItem("tv_shows", "TV Shows"),
+                    NavigationItem("cartoons", "Cartoons"),
+                    NavigationItem("anime", "Anime"),
+                    NavigationItem("hbo", "HBO"),
+                    NavigationItem("cinemax", "Cinemax")
+                )
+            ),
             NavigationItem("search", "Search"),
             NavigationItem("tv", "TV"),
             NavigationItem("login", "Log In")
@@ -65,7 +76,7 @@ fun MainScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black)
-            .onPreviewKeyEvent { keyEvent ->
+            .onKeyEvent { keyEvent ->
                 when {
                     keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionUp -> {
                         // Focus navigation bar when pressing up

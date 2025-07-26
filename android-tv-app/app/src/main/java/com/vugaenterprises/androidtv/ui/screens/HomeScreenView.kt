@@ -25,8 +25,6 @@ class HomeScreenView @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : LinearLayout(context, attrs, defStyleAttr) {
 
-    private val titleText: TextView
-    private val searchButton: ImageView
     private val loadingIndicator: ProgressBar
     private val errorText: TextView
     private val contentContainer: LinearLayout
@@ -39,33 +37,16 @@ class HomeScreenView @JvmOverloads constructor(
         orientation = VERTICAL
         LayoutInflater.from(context).inflate(R.layout.home_screen_view, this, true)
         
-        titleText = findViewById(R.id.titleText)
-        searchButton = findViewById(R.id.searchButton)
         loadingIndicator = findViewById(R.id.loadingIndicator)
         errorText = findViewById(R.id.errorText)
         contentContainer = findViewById(R.id.contentContainer)
         
-        // Setup click listeners
-        searchButton.setOnClickListener {
-            onNavigateToSearch?.invoke()
-        }
+        // Don't make the HomeScreenView itself focusable - let children handle focus
+        isFocusable = false
         
-        // Make search button focusable
-        searchButton.isFocusable = true
-        searchButton.isFocusableInTouchMode = true
-        
-        // Setup focus listener for search button
-        searchButton.setOnFocusChangeListener { _, hasFocus ->
-            if (hasFocus) {
-                searchButton.scaleX = 1.1f
-                searchButton.scaleY = 1.1f
-                searchButton.alpha = 1.0f
-            } else {
-                searchButton.scaleX = 1.0f
-                searchButton.scaleY = 1.0f
-                searchButton.alpha = 0.7f
-            }
-        }
+        // Find the NestedScrollView and make sure it doesn't interfere with focus
+        val scrollView = findViewById<androidx.core.widget.NestedScrollView>(android.R.id.content)?.parent as? androidx.core.widget.NestedScrollView
+        scrollView?.isFocusable = false
     }
     
     fun setOnContentClick(listener: (Content) -> Unit) {
@@ -138,18 +119,7 @@ class HomeScreenView @JvmOverloads constructor(
         }
         contentContainer.addView(featuredView)
         
-        // Ensure the featured section gets focus when it's the first element
-        featuredView.post {
-            // Request focus on the RecyclerView specifically, not the container
-            val recyclerView = featuredView.findViewById<RecyclerView>(R.id.featuredRecyclerView)
-            if (recyclerView != null) {
-                recyclerView.requestFocus()
-                android.util.Log.d("HomeScreenView", "Requested focus on featured RecyclerView")
-            } else {
-                featuredView.requestFocus()
-                android.util.Log.d("HomeScreenView", "Requested focus on featured section")
-            }
-        }
+        // Don't force focus - let natural focus flow work
     }
     
     private fun addContentRow(title: String, content: List<Content>) {
@@ -187,9 +157,9 @@ class ContentRowView @JvmOverloads constructor(
         adapter = ContentCardAdapter()
         recyclerView.adapter = adapter
         
-        // Enable focus for Android TV
+        // Enable focus for Android TV but don't force touch mode
         recyclerView.isFocusable = true
-        recyclerView.isFocusableInTouchMode = true
+        recyclerView.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
         
         adapter.setOnContentClickListener { content ->
             onContentClick?.invoke(content)
@@ -221,7 +191,6 @@ class FeaturedSliderView @JvmOverloads constructor(
     private var autoSlideRunnable: Runnable? = null
     private var currentPosition = 0
     private var isAutoSliding = true
-    private var isProgrammaticFocusChange = false
     
     private var onContentClick: ((Content) -> Unit)? = null
     
@@ -246,9 +215,9 @@ class FeaturedSliderView @JvmOverloads constructor(
         adapter = FeaturedSliderAdapter()
         recyclerView.adapter = adapter
         
-        // Enable focus for Android TV
+        // Enable focus for Android TV but don't force touch mode
         recyclerView.isFocusable = true
-        recyclerView.isFocusableInTouchMode = true
+        recyclerView.descendantFocusability = android.view.ViewGroup.FOCUS_AFTER_DESCENDANTS
         
         adapter.setOnContentClickListener { content ->
             android.util.Log.d("FeaturedSlider", "Content click callback received: ${content.title}")
@@ -284,88 +253,21 @@ class FeaturedSliderView @JvmOverloads constructor(
         
         // Add focus listener to control auto slide based on focus state
         recyclerView.setOnFocusChangeListener { _, hasFocus ->
-            if (!isProgrammaticFocusChange) {
-                if (hasFocus) {
-                    android.util.Log.d("FeaturedSlider", "RecyclerView gained focus (user) - enabling auto-slide")
-                    // Start auto-slide after a short delay to allow focus to settle
-                    autoSlideHandler.postDelayed({
-                        if (recyclerView.hasFocus()) {
-                            resumeAutoSlide()
-                        }
-                    }, 1000L)
-                } else {
-                    android.util.Log.d("FeaturedSlider", "RecyclerView lost focus (user) - pausing auto-slide")
-                    pauseAutoSlide()
-                }
+            if (hasFocus) {
+                android.util.Log.d("FeaturedSlider", "RecyclerView gained focus - enabling auto-slide")
+                // Start auto-slide after a short delay to allow focus to settle
+                autoSlideHandler.postDelayed({
+                    if (recyclerView.hasFocus()) {
+                        resumeAutoSlide()
+                    }
+                }, 1000L)
             } else {
-                android.util.Log.d("FeaturedSlider", "RecyclerView focus changed (programmatic) - ignoring")
+                android.util.Log.d("FeaturedSlider", "RecyclerView lost focus - pausing auto-slide")
+                pauseAutoSlide()
             }
         }
         
-        // Add key listener to RecyclerView to handle navigation and clicks
-        recyclerView.setOnKeyListener { _, keyCode, event ->
-            android.util.Log.d("FeaturedSlider", "RecyclerView key event: keyCode=$keyCode, action=${event.action}")
-            
-            if (event.action == android.view.KeyEvent.ACTION_DOWN) {
-                when (keyCode) {
-                    android.view.KeyEvent.KEYCODE_DPAD_CENTER,
-                    android.view.KeyEvent.KEYCODE_ENTER -> {
-                        // Handle click on current item
-                        val focusedChild = recyclerView.focusedChild
-                        if (focusedChild != null) {
-                            android.util.Log.d("FeaturedSlider", "RecyclerView triggering click on focused child")
-                            focusedChild.performClick()
-                            return@setOnKeyListener true
-                        }
-                    }
-                    
-                    android.view.KeyEvent.KEYCODE_DPAD_LEFT -> {
-                        // Navigate to previous item or loop to end
-                        android.util.Log.d("FeaturedSlider", "LEFT pressed - navigating to previous item")
-                        if (currentPosition > 0) {
-                            currentPosition--
-                        } else {
-                            // Loop to last item when at the beginning
-                            currentPosition = adapter.itemCount - 1
-                        }
-                        recyclerView.smoothScrollToPosition(currentPosition)
-                        pauseAutoSlide()
-                        // Resume auto-slide after user interaction
-                        autoSlideHandler.postDelayed({
-                            if (recyclerView.hasFocus()) {
-                                resumeAutoSlide()
-                            }
-                        }, 3000L)
-                        return@setOnKeyListener true
-                    }
-                    
-                    android.view.KeyEvent.KEYCODE_DPAD_RIGHT -> {
-                        // Navigate to next item or loop to beginning
-                        android.util.Log.d("FeaturedSlider", "RIGHT pressed - navigating to next item")
-                        if (currentPosition < adapter.itemCount - 1) {
-                            currentPosition++
-                        } else {
-                            // Loop back to first item when at the end
-                            currentPosition = 0
-                        }
-                        recyclerView.smoothScrollToPosition(currentPosition)
-                        pauseAutoSlide()
-                        // Resume auto-slide after user interaction
-                        autoSlideHandler.postDelayed({
-                            if (recyclerView.hasFocus()) {
-                                resumeAutoSlide()
-                            }
-                        }, 3000L)
-                        return@setOnKeyListener true
-                    }
-                }
-            }
-            false
-        }
-        
-        // Make the entire FeaturedSliderView focusable
-        isFocusable = true
-        isFocusableInTouchMode = true
+        // Don't override key handling at RecyclerView level - let items handle their own events
     }
     
     fun setContent(content: List<Content>) {
@@ -373,15 +275,10 @@ class FeaturedSliderView @JvmOverloads constructor(
         currentPosition = 0
         android.util.Log.d("FeaturedSlider", "Setting ${content.size} featured items")
         if (content.isNotEmpty()) {
-            // Request focus on the first item to make it immediately clickable
-            post {
-                transferFocusToCurrentPosition()
-                android.util.Log.d("FeaturedSlider", "Initial focus set on position $currentPosition")
-                // Start auto-slide after initial setup
-                autoSlideHandler.postDelayed({
-                    startAutoSlide()
-                }, 2000L) // 2 second delay for initial auto-slide
-            }
+            // Start auto-slide after initial setup
+            autoSlideHandler.postDelayed({
+                startAutoSlide()
+            }, 2000L) // 2 second delay for initial auto-slide
         }
     }
     
@@ -421,10 +318,7 @@ class FeaturedSliderView @JvmOverloads constructor(
             
             override fun onTargetFound(targetView: android.view.View, state: RecyclerView.State, action: RecyclerView.SmoothScroller.Action) {
                 super.onTargetFound(targetView, state, action)
-                // After scrolling completes, transfer focus to the new visible item
-                targetView.post {
-                    transferFocusToCurrentPosition()
-                }
+                // Don't force focus transfer - let natural focus flow work
             }
         }
         smoothScroller.targetPosition = currentPosition
@@ -464,35 +358,11 @@ class FeaturedSliderView @JvmOverloads constructor(
     private fun updateCurrentPosition() {
         val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
         layoutManager?.let {
-            val oldPosition = currentPosition
             currentPosition = it.findFirstVisibleItemPosition()
             if (currentPosition == RecyclerView.NO_POSITION) {
                 currentPosition = 0
             }
-            
-            // If position changed during manual scroll, transfer focus
-            if (oldPosition != currentPosition) {
-                android.util.Log.d("FeaturedSlider", "Position changed from $oldPosition to $currentPosition, transferring focus")
-                transferFocusToCurrentPosition()
-            }
-        }
-    }
-    
-    private fun transferFocusToCurrentPosition() {
-        val layoutManager = recyclerView.layoutManager as? LinearLayoutManager
-        layoutManager?.let {
-            val viewAtPosition = it.findViewByPosition(currentPosition)
-            if (viewAtPosition != null && viewAtPosition.isFocusable) {
-                isProgrammaticFocusChange = true
-                viewAtPosition.requestFocus()
-                android.util.Log.d("FeaturedSlider", "Transferred focus to position $currentPosition")
-                // Reset flag after a short delay
-                post {
-                    isProgrammaticFocusChange = false
-                }
-            } else {
-                android.util.Log.d("FeaturedSlider", "Could not find focusable view at position $currentPosition")
-            }
+            android.util.Log.d("FeaturedSlider", "Position updated to $currentPosition")
         }
     }
     

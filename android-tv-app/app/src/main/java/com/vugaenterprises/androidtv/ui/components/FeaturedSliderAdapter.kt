@@ -71,16 +71,25 @@ class FeaturedSliderAdapter : RecyclerView.Adapter<FeaturedSliderAdapter.Feature
             onContentClickListener?.invoke(item)
         }
         
-        // Add key event listener for Android TV remote ENTER/SELECT
-        holder.itemView.setOnKeyListener { _, keyCode, event ->
-            if ((keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER || 
+        // Add key event listener for Android TV remote
+        holder.itemView.setOnKeyListener { view, keyCode, event ->
+            when {
+                // Handle ENTER/SELECT for clicking
+                (keyCode == android.view.KeyEvent.KEYCODE_DPAD_CENTER || 
                  keyCode == android.view.KeyEvent.KEYCODE_ENTER) && 
-                 event.action == android.view.KeyEvent.ACTION_DOWN) {
-                android.util.Log.d("FeaturedSliderAdapter", "Featured item ENTER pressed: ${item.title}")
-                onContentClickListener?.invoke(item)
-                true
-            } else {
-                false
+                 event.action == android.view.KeyEvent.ACTION_DOWN -> {
+                    android.util.Log.d("FeaturedSliderAdapter", "Featured item ENTER pressed: ${item.title}")
+                    onContentClickListener?.invoke(item)
+                    true
+                }
+                // Handle UP navigation - let it bubble up to parent
+                keyCode == android.view.KeyEvent.KEYCODE_DPAD_UP && 
+                event.action == android.view.KeyEvent.ACTION_DOWN -> {
+                    android.util.Log.d("FeaturedSliderAdapter", "UP pressed on featured item - bubbling up")
+                    // Return false to let the event bubble up to the parent
+                    false
+                }
+                else -> false
             }
         }
         
@@ -107,6 +116,9 @@ class FeaturedSliderAdapter : RecyclerView.Adapter<FeaturedSliderAdapter.Feature
         // Make focusable for Android TV
         holder.itemView.isFocusable = true
         holder.itemView.isFocusableInTouchMode = true
+        
+        // Override default padding/margins if needed
+        holder.itemView.nextFocusUpId = View.NO_ID // Allow UP navigation to bubble up
     }
     
     override fun getItemCount(): Int = content.size
