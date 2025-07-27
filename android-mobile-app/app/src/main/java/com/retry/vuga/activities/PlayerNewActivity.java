@@ -95,6 +95,16 @@ public class PlayerNewActivity extends BaseActivity {
     int device_width, device_height;
     private int maxGestureLength = 0;
     Runnable showRunnable = () -> setControllerVisibility(View.GONE);
+    
+    // Runnable to periodically save playback progress
+    Runnable progressSaveRunnable = new Runnable() {
+        @Override
+        public void run() {
+            saveCurrentProgress();
+            // Schedule next save in 10 seconds
+            handler.postDelayed(this, 10000);
+        }
+    };
     Handler handler = new Handler();
 
     LibVLC libvlc;
@@ -148,6 +158,21 @@ public class PlayerNewActivity extends BaseActivity {
                 isSetProgress = true;
             }
             Player.Listener.super.onPlaybackStateChanged(playbackState);
+        }
+        
+        @Override
+        public void onIsPlayingChanged(boolean isPlaying) {
+            if (isPlaying) {
+                // Start periodic progress saving when playing
+                handler.removeCallbacks(progressSaveRunnable);
+                handler.postDelayed(progressSaveRunnable, 10000);
+            } else {
+                // Stop periodic saves when not playing
+                handler.removeCallbacks(progressSaveRunnable);
+                // Save current progress when stopping
+                saveCurrentProgress();
+            }
+            Player.Listener.super.onIsPlayingChanged(isPlaying);
         }
     };
 
@@ -474,12 +499,18 @@ public class PlayerNewActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
+        // Cancel periodic saves when pausing
+        handler.removeCallbacks(progressSaveRunnable);
+        
         if (simpleExoPlayer != null) {
             simpleExoPlayer.pause();
-            viewModel.progress.set((int) (simpleExoPlayer.getCurrentPosition() * 100 / simpleExoPlayer.getDuration()));
         } else {
             viewModel.onPause();
         }
+        
+        // Save progress when pausing
+        saveCurrentProgress();
+        
         binding.customAdsView.onPause();
     }
 
@@ -494,17 +525,39 @@ public class PlayerNewActivity extends BaseActivity {
         binding.customAdsView.onResume();
     }
 
+    private void saveCurrentProgress() {
+        int currentProgress = 0;
+        
+        // Get current progress based on player type
+        if (simpleExoPlayer != null && simpleExoPlayer.getDuration() > 0) {
+            currentProgress = (int) (simpleExoPlayer.getCurrentPosition() * 100 / simpleExoPlayer.getDuration());
+        } else if (viewModel.mMediaPlayer != null && viewModel.mMediaPlayer.getLength() > 0) {
+            currentProgress = (int) (viewModel.mMediaPlayer.getTime() * 100 / viewModel.mMediaPlayer.getLength());
+        }
+        
+        // Save progress to local storage
+        if (currentProgress > 0) {
+            viewModel.progress.set(currentProgress);
+            if (modelDownload != null) {
+                sessionManager.editDownloads(modelDownload, currentProgress);
+            } else if (modelSource != null) {
+                modelSource.setContent_id(getIntent().getIntExtra(Const.DataKey.CONTENT_ID, -1));
+                sessionManager.updateMovieHistory(modelSource, currentProgress, 
+                    getIntent().getStringExtra(Const.DataKey.CONTENT_NAME), 
+                    getIntent().getStringExtra(Const.DataKey.THUMBNAIL));
+            }
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (modelSource != null) {
-            modelSource.setContent_id(getIntent().getIntExtra(Const.DataKey.CONTENT_ID, -1));
-        }
-        if (modelDownload != null) {
-            sessionManager.editDownloads(modelDownload, viewModel.progress.get());
-        } else {
-            sessionManager.updateMovieHistory(modelSource, viewModel.progress.get(), getIntent().getStringExtra(Const.DataKey.CONTENT_NAME), getIntent().getStringExtra(Const.DataKey.THUMBNAIL));
-        }
+        // Cancel the periodic progress save
+        handler.removeCallbacks(progressSaveRunnable);
+        
+        // Save final progress
+        saveCurrentProgress();
+        
         if (simpleExoPlayer != null) {
             simpleExoPlayer.removeListener(playerListener);
             simpleExoPlayer.release();
@@ -538,8 +591,13 @@ public class PlayerNewActivity extends BaseActivity {
                     viewModel.mMediaPlayer.setTime((modelDownload.getPlayProgress() * viewModel.mMediaPlayer.getLength()) / 100);
                 }
                 isSetProgress = true;
+                
+                // Start periodic progress saving for VLC player
+                if (viewModel.mMediaPlayer != null && viewModel.mMediaPlayer.isPlaying()) {
+                    handler.removeCallbacks(progressSaveRunnable);
+                    handler.postDelayed(progressSaveRunnable, 10000);
+                }
             }
-
         });
         viewModel.removeCallback.observe(this, isRemoved -> {
             if (isRemoved) {
