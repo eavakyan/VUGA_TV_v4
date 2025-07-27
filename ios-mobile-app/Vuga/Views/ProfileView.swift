@@ -45,7 +45,7 @@ struct ProfileView: View {
                                 Navigation.pushToSwiftUiView(EditProfileVIew())
                             }
                     }
-                    Text(vm.myUser?.fullname ?? "Anderson coper")
+                    Text(vm.myUser?.fullname ?? "")
                         .outfitMedium(20)
                         .padding(.vertical,10)
                     if !isPro {
@@ -61,8 +61,10 @@ struct ProfileView: View {
                     ProfileFieldCard(icon: .language, title: .language){
                         Navigation.pushToSwiftUiView(LanguageView())
                     }
-                    ProfileFieldCard(icon: .tv, title: "Connect TV"){
-                        Navigation.pushToSwiftUiView(QRScannerView())
+                    if vm.myUser != nil {
+                        ProfileFieldCard(icon: .tv, title: "Connect TV"){
+                            Navigation.pushToSwiftUiView(QRScannerView())
+                        }
                     }
                     ProfileFieldCard(icon: .privacy, title: .privacyPolicy){
                         vm.isPrivacyURLSheet = true
@@ -75,11 +77,17 @@ struct ProfileView: View {
                             UIApplication.shared.open(url)
                         }
                     }
-                    ProfileFieldCard(icon: .logout, title: .logout){
-                        vm.isLogoutDialogShow = true
-                    }
-                    ProfileFieldCard(icon: .delete, title: .deleteMyAccount,titleColor: .base){
-                        vm.isDeleteDialogShow = true
+                    if vm.myUser != nil {
+                        ProfileFieldCard(icon: .logout, title: .logout){
+                            vm.isLogoutDialogShow = true
+                        }
+                        ProfileFieldCard(icon: .delete, title: .deleteMyAccount,titleColor: .base){
+                            vm.isDeleteDialogShow = true
+                        }
+                    } else {
+                        ProfileFieldCard(icon: .person, title: "Login"){
+                            Navigation.pushToSwiftUiView(LoginView())
+                        }
                     }
                 }
                 .padding(.vertical,10)

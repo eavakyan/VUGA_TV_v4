@@ -23,6 +23,8 @@ class ProfileViewModel : BaseViewModel {
             if obj.status == true {
                 self.isDeleteDialogShow = false
                 SessionManager.shared.clear()
+                // Explicitly clear the user data
+                self.myUser = nil
             }
             self.stopLoading()
         }
@@ -35,6 +37,8 @@ class ProfileViewModel : BaseViewModel {
             if obj.status == true {
                 self.isLogoutDialogShow = false
                 SessionManager.shared.clear()
+                // Explicitly clear the user data
+                self.myUser = nil
             }
             self.stopLoading()
         }

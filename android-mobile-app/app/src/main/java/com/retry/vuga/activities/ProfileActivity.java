@@ -321,6 +321,14 @@ public class ProfileActivity extends BaseActivity {
         }
 
         binding.tvFullAme.setText(sessionManager.getUser().getFullname());
+        
+        // Hide Connect TV if user is not logged in
+        if (sessionManager.getUser() == null || sessionManager.getUser().getId() == 0) {
+            binding.loutTvConnect.setVisibility(View.GONE);
+        } else {
+            binding.loutTvConnect.setVisibility(View.VISIBLE);
+        }
+        
         setPremiumlayout();
 
 
