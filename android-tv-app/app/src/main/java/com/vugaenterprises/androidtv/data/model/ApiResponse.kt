@@ -1,6 +1,7 @@
 package com.vugaenterprises.androidtv.data.model
 
 import com.google.gson.annotations.SerializedName
+import kotlinx.serialization.Serializable
 
 data class ApiResponse<T>(
     @SerializedName("status")
@@ -215,6 +216,7 @@ data class UserRegistrationResponse(
     val data: UserData = UserData()
 )
 
+@Serializable
 data class UserData(
     @SerializedName("id")
     val id: Int = 0,

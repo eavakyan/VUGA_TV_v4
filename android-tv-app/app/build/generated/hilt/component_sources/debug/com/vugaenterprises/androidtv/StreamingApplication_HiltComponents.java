@@ -1,11 +1,13 @@
 package com.vugaenterprises.androidtv;
 
+import com.vugaenterprises.androidtv.di.ErrorModule;
 import com.vugaenterprises.androidtv.di.NetworkModule;
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.FavoritesViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.HistoryViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel_HiltModules;
+import com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.SearchViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
@@ -131,6 +133,7 @@ public final class StreamingApplication_HiltComponents {
   @Component(
       modules = {
           ApplicationContextModule.class,
+          ErrorModule.class,
           HiltWrapper_FragmentGetContextFix_FragmentGetContextFixModule.class,
           NetworkModule.class,
           ActivityRetainedCBuilderModule.class,
@@ -163,6 +166,7 @@ public final class StreamingApplication_HiltComponents {
           HistoryViewModel_HiltModules.KeyModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
           ProfileViewModel_HiltModules.KeyModule.class,
+          QRCodeAuthViewModel_HiltModules.KeyModule.class,
           SearchViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
           ViewModelCBuilderModule.class
@@ -207,6 +211,7 @@ public final class StreamingApplication_HiltComponents {
           HistoryViewModel_HiltModules.BindsModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
           ProfileViewModel_HiltModules.BindsModule.class,
+          QRCodeAuthViewModel_HiltModules.BindsModule.class,
           SearchViewModel_HiltModules.BindsModule.class
       }
   )

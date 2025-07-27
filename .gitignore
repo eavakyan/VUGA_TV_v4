@@ -5,3 +5,7 @@ android-tv-app/.gradle/
 android-tv-app/build/
 android-tv-app/app/build/
 
+/android-mobile-app/.gradle
+/android-tv-app/app/build
+/android-tv-app/app/build
+/api-backend/public_html/old_app

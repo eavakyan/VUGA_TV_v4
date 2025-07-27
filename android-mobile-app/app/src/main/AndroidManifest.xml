@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.CAMERA" />
 
     <!-- Tablet support -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
@@ -112,6 +113,19 @@
         <activity
             android:name=".activities.LanguageActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.QRScannerActivity"
+            android:screenOrientation="portrait"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="vuga"
+                      android:host="auth"
+                      android:pathPrefix="/tv/" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".activities.SplashActivity"
             android:exported="true"

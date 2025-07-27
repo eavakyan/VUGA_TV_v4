@@ -9,6 +9,11 @@ import com.vugaenterprises.androidtv.data.model.CustomAdsResponse
 import com.vugaenterprises.androidtv.data.model.HomePageResponse
 import com.vugaenterprises.androidtv.data.model.RestResponse
 import com.vugaenterprises.androidtv.data.model.UserRegistrationResponse
+import com.vugaenterprises.androidtv.data.model.TVAuthSessionRequest
+import com.vugaenterprises.androidtv.data.model.TVAuthSessionResponse
+import com.vugaenterprises.androidtv.data.model.TVAuthStatusRequest
+import com.vugaenterprises.androidtv.data.model.TVAuthStatusResponse
+import com.vugaenterprises.androidtv.data.model.TVAuthCompleteRequest
 import retrofit2.http.*
 
 interface ApiService {
@@ -126,6 +131,16 @@ interface ApiService {
         @Field("custom_ad_id") customAdId: Long,
         @Field("metric") metric: String
     ): RestResponse
+    
+    // TV Authentication
+    @POST("TV/generateAuthSession")
+    suspend fun generateAuthSession(@Body request: TVAuthSessionRequest): TVAuthSessionResponse
+    
+    @POST("TV/checkAuthStatus")
+    suspend fun checkAuthStatus(@Body request: TVAuthStatusRequest): TVAuthStatusResponse
+    
+    @POST("TV/completeAuth")
+    suspend fun completeAuth(@Body request: TVAuthCompleteRequest): UserRegistrationResponse
 }
 
 // Constants for API field names

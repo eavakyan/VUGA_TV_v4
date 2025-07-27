@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-fr-rCA/values-fr-rCA.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-fr-rCA/values-fr-rCA.xml",
             "map": [
                 {
                     "source": "/Users/gene/.gradle/caches/8.13/transforms/951f48ae0f3aa19465c19b587053c5f0/transformed/media3-exoplayer-1.2.0/res/values-fr-rCA/values-fr-rCA.xml",

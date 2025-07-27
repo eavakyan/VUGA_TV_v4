@@ -1,7 +1,15 @@
 {
   "permissions": {
     "allow": [
-      "Bash(./gradlew:*)"
+      "Bash(./gradlew:*)",
+      "Bash(ls:*)",
+      "Bash(grep:*)",
+      "Bash(rm:*)",
+      "Bash(adb -s R5CY61Q3J4Y install -r app/build/outputs/apk/debug/Vuga-debug.apk)",
+      "Bash(adb:*)",
+      "Bash(mkdir:*)",
+      "Bash(pod install:*)",
+      "Bash(pod deintegrate:*)"
     ],
     "deny": []
   }

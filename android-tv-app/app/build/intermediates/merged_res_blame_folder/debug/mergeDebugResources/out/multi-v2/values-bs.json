@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-bs/values-bs.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-bs/values-bs.xml",
             "map": [
                 {
                     "source": "/Users/gene/.gradle/caches/8.13/transforms/951f48ae0f3aa19465c19b587053c5f0/transformed/media3-exoplayer-1.2.0/res/values-bs/values-bs.xml",

@@ -61,6 +61,9 @@ struct ProfileView: View {
                     ProfileFieldCard(icon: .language, title: .language){
                         Navigation.pushToSwiftUiView(LanguageView())
                     }
+                    ProfileFieldCard(icon: .tv, title: "Connect TV"){
+                        Navigation.pushToSwiftUiView(QRScannerView())
+                    }
                     ProfileFieldCard(icon: .privacy, title: .privacyPolicy){
                         vm.isPrivacyURLSheet = true
                     }

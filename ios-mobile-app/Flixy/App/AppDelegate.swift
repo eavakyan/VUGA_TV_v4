@@ -45,6 +45,16 @@ class AppDelegate : NSObject,UIApplicationDelegate, PurchasesDelegate {
 
 extension AppDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        // Handle TV authentication deep links
+        if url.scheme == "vuga" && url.host == "auth" && url.pathComponents.count >= 3 && url.pathComponents[1] == "tv" {
+            let sessionToken = url.pathComponents[2]
+            // Navigate to QR scanner with the session token
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                Navigation.pushToSwiftUiView(QRScannerView(sessionToken: sessionToken))
+            }
+            return true
+        }
+        
         Branch.getInstance().application(app, open: url, options: options)
         return true
     }

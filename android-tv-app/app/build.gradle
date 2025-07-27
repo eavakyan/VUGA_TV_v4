@@ -4,6 +4,7 @@ plugins {
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
     id 'kotlin-parcelize'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.9.10'
 }
 
 android {
@@ -120,6 +121,13 @@ dependencies {
     // Paging for pagination
     implementation 'androidx.paging:paging-runtime-ktx:3.2.1'
     implementation 'androidx.paging:paging-compose:3.2.1'
+    
+    // QR Code Generation
+    implementation 'com.google.zxing:core:3.5.2'
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+    
+    // Kotlinx Serialization
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0'
     
     // Testing dependencies
     testImplementation 'junit:junit:4.13.2'

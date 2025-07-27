@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-sl/values-sl.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-sl/values-sl.xml",
             "map": [
                 {
                     "source": "/Users/gene/.gradle/caches/8.13/transforms/fcd4c423c5ff3168fa7d3f59ef7458a5/transformed/material3-release/res/values-sl/values-sl.xml",
@@ -35,6 +35,23 @@
                         "startOffsets": "22760,22850",
                         "endColumns": "89,90",
                         "endOffsets": "22845,22936"
+                    }
+                },
+                {
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/a679a8a6a93d596d9f540f0715fda609/transformed/zxing-android-embedded-4.3.0/res/values-sl/values-sl.xml",
+                    "from": {
+                        "startLines": "2,3,4,5",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "55,114,165,318",
+                        "endColumns": "58,50,152,99",
+                        "endOffsets": "109,160,313,413"
+                    },
+                    "to": {
+                        "startLines": "267,268,269,270",
+                        "startColumns": "4,4,4,4",
+                        "startOffsets": "22941,23000,23051,23204",
+                        "endColumns": "58,50,152,99",
+                        "endOffsets": "22995,23046,23199,23299"
                     }
                 },
                 {

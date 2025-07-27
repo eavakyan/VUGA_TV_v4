@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-w400dp-port-v13/values-w400dp-port-v13.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-w400dp-port-v13/values-w400dp-port-v13.xml",
             "map": [
                 {
                     "source": "/Users/gene/.gradle/caches/8.13/transforms/91dc24240c0300cb12cafe4d20fac8c8/transformed/material-1.11.0/res/values-w400dp-port-v13/values-w400dp-port-v13.xml",

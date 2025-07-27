@@ -1,158 +1,149 @@
 package com.vugaenterprises.androidtv.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.vugaenterprises.androidtv.data.model.Content
-import com.vugaenterprises.androidtv.ui.components.ContentCard
+import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(
     onContentClick: (Content) -> Unit,
     onNavigateBack: () -> Unit,
+    userDataStore: UserDataStore,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-
-    when {
-        uiState.isLoading -> {
+    val userData by userDataStore.getUserData().collectAsState(initial = null)
+    val scope = rememberCoroutineScope()
+    
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .padding(48.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // Profile Icon
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        }
-        
-        uiState.error != null -> {
-            Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape)
+                    .background(Color(0xFF333333)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = uiState.error ?: "Unknown error",
-                    color = MaterialTheme.colorScheme.error
+                    text = userData?.fullname?.firstOrNull()?.toString() ?: "U",
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
                 )
             }
-        }
-        
-        else -> {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
+            
+            // User Name
+            Text(
+                text = userData?.fullname ?: "User",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            
+            // User Email
+            Text(
+                text = userData?.email ?: "",
+                fontSize = 20.sp,
+                color = Color.White.copy(alpha = 0.7f)
+            )
+            
+            // Premium Badge
+            if (userData?.isPremium == true) {
+                Card(
+                    modifier = Modifier.padding(top = 8.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFFFD700).copy(alpha = 0.2f)
+                    ),
+                    shape = RoundedCornerShape(20.dp)
+                ) {
+                    Text(
+                        text = "PREMIUM",
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFFFFD700)
+                    )
+                }
+            }
+            
+            Spacer(modifier = Modifier.height(48.dp))
+            
+            // Action Buttons
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
-                // Profile Header
-                item {
-                    Column(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Profile",
-                            style = MaterialTheme.typography.headlineLarge
-                        )
-                        
-                        Spacer(modifier = Modifier.height(16.dp))
-                        
-                        // Profile info
-                        uiState.userProfile?.let { profile ->
-                            Text(
-                                text = profile.username,
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            
-                            if (profile.firstName != null && profile.lastName != null) {
-                                Text(
-                                    text = "${profile.firstName} ${profile.lastName}",
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
+                Button(
+                    onClick = {
+                        scope.launch {
+                            userDataStore.clearUserData()
+                            onNavigateBack()
                         }
-                        
-                        // Stats
-                        uiState.userStats?.let { stats ->
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "Total Watch Time: ${stats.totalWatchTime} minutes",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = "Watched Content: ${stats.totalContentWatched}",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                text = "Favorites: ${stats.totalFavorites}",
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+                    },
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(64.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFFE50914)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Sign Out",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
                 }
                 
-                // Watch History
-                uiState.userStats?.watchHistory?.let { watchHistory ->
-                    if (watchHistory.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "Recently Watched",
-                                style = MaterialTheme.typography.headlineSmall
-                            )
-                        }
-                        
-                        items(watchHistory.take(10)) { historyItem ->
-                            historyItem.content?.let { content ->
-                                ContentCard(
-                                    content = content,
-                                    onClick = { onContentClick(content) }
-                                )
-                            }
-                        }
-                    }
-                }
-                
-                // Favorites
-                uiState.userStats?.favorites?.let { favorites ->
-                    if (favorites.isNotEmpty()) {
-                        item {
-                            Text(
-                                text = "My Favorites",
-                                style = MaterialTheme.typography.headlineSmall
-                            )
-                        }
-                        
-                        items(favorites.take(10)) { content ->
-                            ContentCard(
-                                content = content,
-                                onClick = { onContentClick(content) }
-                            )
-                        }
-                    }
-                }
-                
-                // Settings
-                item {
-                    Column {
-                        Text(
-                            text = "Settings",
-                            style = MaterialTheme.typography.headlineSmall
-                        )
-                        
-                        Spacer(modifier = Modifier.height(8.dp))
-                        
-                        Button(
-                            onClick = { /* Handle logout */ }
-                        ) {
-                            Text("Logout")
-                        }
-                    }
+                OutlinedButton(
+                    onClick = onNavigateBack,
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(64.dp),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = Color.White
+                    ),
+                    border = ButtonDefaults.outlinedButtonBorder.copy(
+                        brush = androidx.compose.ui.graphics.SolidColor(Color.White.copy(alpha = 0.5f))
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Back",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
                 }
             }
         }
     }
-} 
+}

@@ -187,5 +187,8 @@ dependencies {
     implementation 'org.videolan.android:libvlc-all:3.1.12'
     implementation 'com.facebook.infer.annotation:infer-annotation:0.18.0'
 
+    // QR Code Scanning
+    implementation 'com.google.zxing:core:3.5.2'
+    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
 
 }

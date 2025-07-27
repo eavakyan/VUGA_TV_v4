@@ -2,6 +2,7 @@ package com.vugaenterprises.androidtv;
 
 import com.vugaenterprises.androidtv.data.CastDetailDataStore;
 import com.vugaenterprises.androidtv.data.EpisodeDataStore;
+import com.vugaenterprises.androidtv.data.UserDataStore;
 import com.vugaenterprises.androidtv.data.VideoPlayerDataStore;
 import dagger.MembersInjector;
 import dagger.internal.DaggerGenerated;
@@ -29,19 +30,24 @@ public final class MainActivity_MembersInjector implements MembersInjector<MainA
 
   private final Provider<CastDetailDataStore> castDetailDataStoreProvider;
 
+  private final Provider<UserDataStore> userDataStoreProvider;
+
   public MainActivity_MembersInjector(Provider<VideoPlayerDataStore> videoPlayerDataStoreProvider,
       Provider<EpisodeDataStore> episodeDataStoreProvider,
-      Provider<CastDetailDataStore> castDetailDataStoreProvider) {
+      Provider<CastDetailDataStore> castDetailDataStoreProvider,
+      Provider<UserDataStore> userDataStoreProvider) {
     this.videoPlayerDataStoreProvider = videoPlayerDataStoreProvider;
     this.episodeDataStoreProvider = episodeDataStoreProvider;
     this.castDetailDataStoreProvider = castDetailDataStoreProvider;
+    this.userDataStoreProvider = userDataStoreProvider;
   }
 
   public static MembersInjector<MainActivity> create(
       Provider<VideoPlayerDataStore> videoPlayerDataStoreProvider,
       Provider<EpisodeDataStore> episodeDataStoreProvider,
-      Provider<CastDetailDataStore> castDetailDataStoreProvider) {
-    return new MainActivity_MembersInjector(videoPlayerDataStoreProvider, episodeDataStoreProvider, castDetailDataStoreProvider);
+      Provider<CastDetailDataStore> castDetailDataStoreProvider,
+      Provider<UserDataStore> userDataStoreProvider) {
+    return new MainActivity_MembersInjector(videoPlayerDataStoreProvider, episodeDataStoreProvider, castDetailDataStoreProvider, userDataStoreProvider);
   }
 
   @Override
@@ -49,6 +55,7 @@ public final class MainActivity_MembersInjector implements MembersInjector<MainA
     injectVideoPlayerDataStore(instance, videoPlayerDataStoreProvider.get());
     injectEpisodeDataStore(instance, episodeDataStoreProvider.get());
     injectCastDetailDataStore(instance, castDetailDataStoreProvider.get());
+    injectUserDataStore(instance, userDataStoreProvider.get());
   }
 
   @InjectedFieldSignature("com.vugaenterprises.androidtv.MainActivity.videoPlayerDataStore")
@@ -67,5 +74,10 @@ public final class MainActivity_MembersInjector implements MembersInjector<MainA
   public static void injectCastDetailDataStore(MainActivity instance,
       CastDetailDataStore castDetailDataStore) {
     instance.castDetailDataStore = castDetailDataStore;
+  }
+
+  @InjectedFieldSignature("com.vugaenterprises.androidtv.MainActivity.userDataStore")
+  public static void injectUserDataStore(MainActivity instance, UserDataStore userDataStore) {
+    instance.userDataStore = userDataStore;
   }
 }

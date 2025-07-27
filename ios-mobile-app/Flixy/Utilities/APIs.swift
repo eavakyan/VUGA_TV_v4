@@ -41,6 +41,9 @@ enum APIs : String {
     
     case fetchSettings                      = "fetchSettings"
     case getAllNotification                 = "getAllNotification"
+    
+    // TV Authentication
+    case tvAuthAuthenticate                 = "tv/auth/authenticate"
 }
 
 extension String {

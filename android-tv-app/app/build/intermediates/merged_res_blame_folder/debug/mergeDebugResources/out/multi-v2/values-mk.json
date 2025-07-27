@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-mk/values-mk.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-mk/values-mk.xml",
             "map": [
                 {
                     "source": "/Users/gene/.gradle/caches/8.13/transforms/82c8ce41e0b308e7c6c171fab2440dec/transformed/ui-release/res/values-mk/values-mk.xml",

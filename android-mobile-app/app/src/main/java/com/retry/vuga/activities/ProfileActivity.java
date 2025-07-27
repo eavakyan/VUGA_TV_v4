@@ -99,6 +99,10 @@ public class ProfileActivity extends BaseActivity {
 
         });
 
+        binding.loutTvConnect.setOnClickListener(v -> {
+            startActivity(new Intent(this, QRScannerActivity.class));
+        });
+
         binding.imgEdit.setOnClickListener(v -> {
 
             startActivity(new Intent(this, EditProfileActivity.class));

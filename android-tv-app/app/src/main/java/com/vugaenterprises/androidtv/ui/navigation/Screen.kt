@@ -57,4 +57,8 @@ sealed class Screen(val route: String) {
         
         fun createRoute(actorId: Int, characterName: String = "") = "cast_detail/$actorId/$characterName"
     }
+    
+    object QRCodeAuth : Screen("qr_code_auth") {
+        fun createRoute() = "qr_code_auth"
+    }
 } 

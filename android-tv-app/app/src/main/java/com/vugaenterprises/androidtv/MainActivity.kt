@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.vugaenterprises.androidtv.data.VideoPlayerDataStore
 import com.vugaenterprises.androidtv.data.EpisodeDataStore
 import com.vugaenterprises.androidtv.data.CastDetailDataStore
+import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.ui.theme.AndroidTVStreamingTheme
 import com.vugaenterprises.androidtv.ui.navigation.AppNavigation
 import com.vugaenterprises.androidtv.ui.screens.SplashScreen
@@ -34,6 +35,9 @@ class MainActivity : ComponentActivity() {
     @Inject
     lateinit var castDetailDataStore: CastDetailDataStore
     
+    @Inject
+    lateinit var userDataStore: UserDataStore
+    
     // Callback for video player controls
     var onEnterKeyPressed: (() -> Unit)? = null
     var isVideoPlayerActive: Boolean = false
@@ -47,7 +51,7 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .background(Color.Black)
                 ) {
-                    AndroidTVStreamingApp(videoPlayerDataStore, episodeDataStore, castDetailDataStore)
+                    AndroidTVStreamingApp(videoPlayerDataStore, episodeDataStore, castDetailDataStore, userDataStore)
                 }
             }
         }
@@ -69,9 +73,11 @@ class MainActivity : ComponentActivity() {
 fun AndroidTVStreamingApp(
     videoPlayerDataStore: VideoPlayerDataStore,
     episodeDataStore: EpisodeDataStore,
-    castDetailDataStore: CastDetailDataStore
+    castDetailDataStore: CastDetailDataStore,
+    userDataStore: UserDataStore
 ) {
     var showSplash by remember { mutableStateOf(true) }
+    val isLoggedIn by userDataStore.isLoggedIn().collectAsState(initial = false)
     
     AnimatedVisibility(
         visible = showSplash,
@@ -92,11 +98,22 @@ fun AndroidTVStreamingApp(
     ) {
         val navController = rememberNavController()
         
+        // Check if coming from authentication
+        LaunchedEffect(isLoggedIn) {
+            // This will handle navigation after successful QR authentication
+            if (isLoggedIn && navController.currentDestination?.route == "qr_auth") {
+                navController.navigate("home") {
+                    popUpTo("qr_auth") { inclusive = true }
+                }
+            }
+        }
+        
         AppNavigation(
             navController = navController,
             videoPlayerDataStore = videoPlayerDataStore,
             episodeDataStore = episodeDataStore,
-            castDetailDataStore = castDetailDataStore
+            castDetailDataStore = castDetailDataStore,
+            userDataStore = userDataStore
         )
     }
 } 

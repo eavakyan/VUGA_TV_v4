@@ -1,7 +1,7 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-80:/values-en-rAU/values-en-rAU.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-en-rAU/values-en-rAU.xml",
             "map": [
                 {
                     "source": "/Users/gene/.gradle/caches/8.13/transforms/9409608474781643266d819e3147070c/transformed/media3-ui-1.2.0/res/values-en-rAU/values-en-rAU.xml",

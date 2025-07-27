@@ -14,6 +14,7 @@ import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.ui.components.NavigationItem
 import com.vugaenterprises.androidtv.ui.components.NetflixNavigationBar
 import com.vugaenterprises.androidtv.ui.navigation.Screen
@@ -21,6 +22,7 @@ import com.vugaenterprises.androidtv.ui.navigation.Screen
 @Composable
 fun MainScreen(
     navController: NavHostController,
+    userDataStore: UserDataStore,
     shouldFocusNavBar: Boolean = false,
     onNavBarFocusHandled: () -> Unit = {},
     content: @Composable () -> Unit
@@ -29,7 +31,11 @@ fun MainScreen(
     val focusManager = LocalFocusManager.current
     val navBarFocusRequester = remember { FocusRequester() }
     
-    val navigationItems = remember {
+    // Observe login state
+    val isLoggedIn by userDataStore.isLoggedIn().collectAsState(initial = false)
+    val userData by userDataStore.getUserData().collectAsState(initial = null)
+    
+    val navigationItems = remember(isLoggedIn, userData) {
         listOf(
             NavigationItem(
                 id = "watch", 
@@ -45,7 +51,10 @@ fun MainScreen(
             ),
             NavigationItem("search", "Search"),
             NavigationItem("tv", "TV"),
-            NavigationItem("login", "Log In")
+            NavigationItem(
+                id = if (isLoggedIn) "profile" else "login",
+                title = if (isLoggedIn) userData?.fullname?.split(" ")?.firstOrNull() ?: "Profile" else "Log In"
+            )
         )
     }
     
@@ -71,6 +80,13 @@ fun MainScreen(
                 }
             }
             "login" -> {
+                // Navigate to QR code authentication screen
+                navController.navigate(Screen.QRCodeAuth.route) {
+                    popUpTo(Screen.Home.route)
+                }
+            }
+            "profile" -> {
+                // Navigate to profile screen when logged in
                 navController.navigate(Screen.Profile.route) {
                     popUpTo(Screen.Home.route)
                 }

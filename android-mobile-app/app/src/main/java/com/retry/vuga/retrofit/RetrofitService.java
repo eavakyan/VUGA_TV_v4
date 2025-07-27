@@ -143,4 +143,9 @@ public interface RetrofitService {
     Single<RestResponse> increaseAdMetric(@Field(Const.ApiKey.custom_ad_id) Long custom_ad_id,
                                           @Field(Const.ApiKey.metric) String metric);
 
+    @FormUrlEncoded
+    @POST("TV/authenticateSession")
+    Single<RestResponse> authenticateTVSession(@Field("session_token") String sessionToken,
+                                               @Field("user_id") int userId);
+
 }

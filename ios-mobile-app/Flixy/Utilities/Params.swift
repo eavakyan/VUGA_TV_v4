@@ -31,4 +31,5 @@ enum Params: String {
     case customAdId = "custom_ad_id"
     case metric = "metric"
     case actorId = "actor_id"
+    case sessionToken = "session_token"
 }

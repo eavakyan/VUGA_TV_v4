@@ -20,6 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.vugaenterprises.androidtv.data.VideoPlayerDataStore
 import com.vugaenterprises.androidtv.data.EpisodeDataStore
 import com.vugaenterprises.androidtv.data.CastDetailDataStore
+import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.ui.screens.*
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel
 
@@ -29,6 +30,7 @@ fun AppNavigation(
     videoPlayerDataStore: VideoPlayerDataStore,
     episodeDataStore: EpisodeDataStore,
     castDetailDataStore: CastDetailDataStore,
+    userDataStore: UserDataStore,
     startDestination: String = Screen.Home.route
 ) {
     var shouldFocusNavBar by remember { mutableStateOf(false) }
@@ -36,6 +38,7 @@ fun AppNavigation(
     // Wrap the entire navigation in MainScreen for Netflix-style navigation
     MainScreen(
         navController = navController,
+        userDataStore = userDataStore,
         shouldFocusNavBar = shouldFocusNavBar,
         onNavBarFocusHandled = { shouldFocusNavBar = false }
     ) {
@@ -80,7 +83,8 @@ fun AppNavigation(
                     },
                     onNavigateBack = {
                         navController.popBackStack()
-                    }
+                    },
+                    userDataStore = userDataStore
                 )
             }
             
@@ -255,6 +259,20 @@ fun AppNavigation(
                         castMember?.let { member ->
                             castDetailView.setCastMember(member, relatedContent)
                         }
+                    }
+                )
+            }
+            
+            composable(Screen.QRCodeAuth.route) {
+                QRCodeAuthScreen(
+                    onAuthenticationSuccess = {
+                        // Navigate to home after successful authentication
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.QRCodeAuth.route) { inclusive = true }
+                        }
+                    },
+                    onNavigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }

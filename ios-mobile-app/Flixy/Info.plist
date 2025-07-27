@@ -73,5 +73,7 @@
 	<true/>
 	<key>UIRequiresFullScreen~ipad</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>VUGA needs camera access to scan QR codes for TV authentication</string>
 </dict>
 </plist>
