@@ -9,7 +9,8 @@
       "Bash(adb:*)",
       "Bash(mkdir:*)",
       "Bash(pod install:*)",
-      "Bash(pod deintegrate:*)"
+      "Bash(pod deintegrate:*)",
+      "Bash(cp:*)"
     ],
     "deny": []
   }
