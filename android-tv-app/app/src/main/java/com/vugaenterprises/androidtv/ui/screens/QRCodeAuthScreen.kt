@@ -95,14 +95,14 @@ private fun QRCodeContent(
     Column(
         modifier = modifier
             .fillMaxWidth(0.6f)
-            .padding(32.dp),
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Title
         Text(
             text = "Scan to Sign In",
-            fontSize = 32.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = Color.White
         )
@@ -110,10 +110,10 @@ private fun QRCodeContent(
         // QR Code Container
         Box(
             modifier = Modifier
-                .size(300.dp)
+                .size(250.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(Color.White)
-                .padding(24.dp)
+                .padding(20.dp)
         ) {
             val qrBitmap = remember(qrCodeData) {
                 QRCodeGenerator.generateQRCode(qrCodeData, 250)
@@ -136,17 +136,17 @@ private fun QRCodeContent(
         ) {
             Text(
                 text = "1. Open the VUGA app on your phone",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 color = Color.White.copy(alpha = 0.8f)
             )
             Text(
                 text = "2. Tap the TV icon or scan button",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 color = Color.White.copy(alpha = 0.8f)
             )
             Text(
                 text = "3. Point your camera at this QR code",
-                fontSize = 18.sp,
+                fontSize = 16.sp,
                 color = Color.White.copy(alpha = 0.8f)
             )
         }

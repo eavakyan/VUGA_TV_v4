@@ -161,21 +161,32 @@ struct QRScannerView: View {
     }
     
     private func authenticateTVSession(sessionToken: String) {
+        print("QRScanner: Starting authentication with session token: \(sessionToken)")
+        
         let profileViewModel = ProfileViewModel()
         
         guard profileViewModel.myUser != nil else {
+            print("QRScanner: User not logged in")
             isProcessing = false
             alertMessage = "Please log in to your account first"
             showingAlert = true
             return
         }
         
+        print("QRScanner: User is logged in, calling API...")
+        
         APIClient.shared.authenticateTVSession(sessionToken: sessionToken) { success, message in
+            print("QRScanner: API response received - success: \(success), message: \(message ?? "nil")")
+            
             DispatchQueue.main.async {
                 isProcessing = false
                 if success {
                     alertMessage = "Success! Your TV has been authenticated."
                     showingAlert = true
+                    // Dismiss the view after a short delay
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }
                 } else {
                     alertMessage = message ?? "Failed to authenticate TV. Please try again."
                     showingAlert = true
@@ -267,20 +278,26 @@ extension QRScannerViewModel: AVCaptureMetadataOutputObjectsDelegate {
 struct CameraPreview: UIViewRepresentable {
     let session: AVCaptureSession
     
-    func makeUIView(context: Context) -> UIView {
-        let view = UIView(frame: UIScreen.main.bounds)
-        
-        let previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer.frame = view.bounds
-        previewLayer.videoGravity = .resizeAspectFill
-        view.layer.addSublayer(previewLayer)
-        
+    func makeUIView(context: Context) -> VideoPreviewView {
+        let view = VideoPreviewView()
+        view.backgroundColor = .black
+        view.videoPreviewLayer.session = session
+        view.videoPreviewLayer.videoGravity = .resizeAspectFill
+        view.videoPreviewLayer.connection?.videoOrientation = .portrait
         return view
     }
     
-    func updateUIView(_ uiView: UIView, context: Context) {
-        if let previewLayer = uiView.layer.sublayers?.first as? AVCaptureVideoPreviewLayer {
-            previewLayer.frame = uiView.bounds
+    func updateUIView(_ uiView: VideoPreviewView, context: Context) {
+        // Update if needed
+    }
+    
+    class VideoPreviewView: UIView {
+        override class var layerClass: AnyClass {
+            AVCaptureVideoPreviewLayer.self
+        }
+        
+        var videoPreviewLayer: AVCaptureVideoPreviewLayer {
+            return layer as! AVCaptureVideoPreviewLayer
         }
     }
 }
