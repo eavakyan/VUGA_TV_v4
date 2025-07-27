@@ -10,7 +10,11 @@
       "Bash(mkdir:*)",
       "Bash(pod install:*)",
       "Bash(pod deintegrate:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(mv:*)",
+      "Bash(chmod:*)",
+      "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/replace_flixy.sh)",
+      "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/update_project.sh)"
     ],
     "deny": []
   }
