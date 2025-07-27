@@ -14,7 +14,9 @@
       "Bash(mv:*)",
       "Bash(chmod:*)",
       "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/replace_flixy.sh)",
-      "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/update_project.sh)"
+      "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/update_project.sh)",
+      "Bash(xcodebuild:*)",
+      "Bash(open:*)"
     ],
     "deny": []
   }

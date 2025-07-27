@@ -6,6 +6,9 @@
 //
 
 import Foundation
+import SwiftUI
+import RevenueCat
+import UIKit
 
 class ProfileViewModel : BaseViewModel {
     
@@ -14,6 +17,7 @@ class ProfileViewModel : BaseViewModel {
     @Published var isTermsURLSheet = false
     @Published var isRatingAppSheet = false
     @Published var isPrivacyURLSheet = false
+    @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
 
     
     func deleteMyAc() {
@@ -23,8 +27,18 @@ class ProfileViewModel : BaseViewModel {
             if obj.status == true {
                 self.isDeleteDialogShow = false
                 SessionManager.shared.clear()
-                // Explicitly clear the user data
-                self.myUser = nil
+                // Force app restart by dispatching to main queue
+                DispatchQueue.main.async {
+                    // Clear RevenueCat
+                    Purchases.shared.logOut { (customerInfo, error) in
+                        // Force navigation to root and restart app flow
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                           let window = windowScene.windows.first {
+                            window.rootViewController = UIHostingController(rootView: ContentView())
+                            window.makeKeyAndVisible()
+                        }
+                    }
+                }
             }
             self.stopLoading()
         }
@@ -37,8 +51,18 @@ class ProfileViewModel : BaseViewModel {
             if obj.status == true {
                 self.isLogoutDialogShow = false
                 SessionManager.shared.clear()
-                // Explicitly clear the user data
-                self.myUser = nil
+                // Force app restart by dispatching to main queue
+                DispatchQueue.main.async {
+                    // Clear RevenueCat
+                    Purchases.shared.logOut { (customerInfo, error) in
+                        // Force navigation to root and restart app flow
+                        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+                           let window = windowScene.windows.first {
+                            window.rootViewController = UIHostingController(rootView: ContentView())
+                            window.makeKeyAndVisible()
+                        }
+                    }
+                }
             }
             self.stopLoading()
         }

@@ -103,9 +103,6 @@ struct ProfileView: View {
                 deleteDownloadData()
                 vm.isLogoutDialogShow = false
                 vm.logOutMyAc()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    Navigation.pop(false)
-                }
             })
             .animation(.default, value: vm.isLogoutDialogShow)
         }
@@ -118,9 +115,6 @@ struct ProfileView: View {
                 deleteDownloadData()
                 vm.isDeleteDialogShow = false
                 vm.deleteMyAc()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                    Navigation.pop(false)
-                }
             })
         }
         .onAppear(perform: {
