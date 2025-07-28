@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class User extends Model
 {
     use HasFactory;
-    protected $table = 'users';    
+    protected $table = 'users';
+    // No need to specify primary key as 'id' is the default
 }

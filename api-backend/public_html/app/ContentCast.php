@@ -10,6 +10,7 @@ class ContentCast extends Model
     use HasFactory;
 
     protected $table = 'content_cast';
+    protected $primaryKey = 'content_cast_id';
 
     public function actor()
     {

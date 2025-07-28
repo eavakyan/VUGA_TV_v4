@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Admob extends Model
 {
     use HasFactory;
-    protected $table = 'admob';
+    protected $table = 'admob_config';
+    protected $primaryKey = 'admob_config_id';
 }

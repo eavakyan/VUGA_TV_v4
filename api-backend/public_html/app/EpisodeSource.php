@@ -13,7 +13,7 @@ class EpisodeSource extends Model
 
     public function media()
     {
-        return $this->hasOne(MediaGallery::class, 'id', 'source');
+        return $this->hasOne(MediaGallery::class, 'media_gallery_id', 'source');
     }
 
 }

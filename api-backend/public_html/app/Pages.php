@@ -8,5 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class Pages extends Model
 {
     use HasFactory;
-    public $table = "tbl_pages";
+    protected $table = 'cms_page';
+    protected $primaryKey = 'cms_page_id';
 }

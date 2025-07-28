@@ -8,7 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class TopContent extends Model
 {
     use HasFactory;
-    protected $table = 'top_contents';
+    protected $table = 'top_content';
+    protected $primaryKey = 'top_content_id';
 
     public function content()
     {
