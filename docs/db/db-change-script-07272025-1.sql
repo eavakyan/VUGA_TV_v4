@@ -136,7 +136,7 @@ FOREIGN KEY (content_id) REFERENCES content(content_id) ON DELETE CASCADE;
   ADD CONSTRAINT fk_custom_ad_source_custom_ad
   FOREIGN KEY (custom_ad_id) REFERENCES custom_ad(custom_ad_id) ON DELETE CASCADE;
 
-  3. Missing Indexes for Performance
+--  3. Missing Indexes for Performance
 
   -- Critical performance indexes
   CREATE INDEX idx_content_type_featured_show ON content(type, is_featured, is_show);
@@ -157,8 +157,8 @@ FOREIGN KEY (content_id) REFERENCES content(content_id) ON DELETE CASCADE;
 
   CREATE INDEX idx_custom_ad_dates ON custom_ad(start_date, end_date, status);
 
-  4. Schema Design Issues
-
+--  4. Schema Design Issues
+  -- !!! will require code changes to populate these new tables and modify existing queries
   -- Normalize genre_ids (currently comma-separated string)
   CREATE TABLE content_genre (
       content_id INT(11) NOT NULL,
@@ -189,7 +189,7 @@ FOREIGN KEY (content_id) REFERENCES content(content_id) ON DELETE CASCADE;
       FOREIGN KEY (tv_category_id) REFERENCES tv_category(tv_category_id) ON DELETE CASCADE
   );
 
-  5. Data Type Optimizations
+--  5. Data Type Optimizations
 
   -- Change duration from VARCHAR to INT (seconds)
   ALTER TABLE content MODIFY COLUMN duration INT(11) COMMENT 'Duration in seconds';

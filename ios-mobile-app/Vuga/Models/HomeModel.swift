@@ -17,7 +17,8 @@ struct Genre: Codable {
     let contents: [FlixyContent]?
 
     enum CodingKeys: String, CodingKey {
-        case id, title
+        case id = "genre_id"
+        case title
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case contents
@@ -42,7 +43,7 @@ struct TopContent: Codable {
     let content: FlixyContent?
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "top_content_id"
         case contentIndex = "content_index"
         case contentID = "content_id"
         case createdAt = "created_at"

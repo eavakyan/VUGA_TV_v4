@@ -2,7 +2,7 @@
 --As a DBA, here are my recommendations for improving this schema:
 
  -- 1. Add Missing Indexes
-
+    -- ! add this after renaming tables and columns
   -- High-impact indexes for query performance
   CREATE INDEX idx_contents_genre_ids ON contents(genre_ids);
   CREATE INDEX idx_contents_language_id ON contents(language_id);
@@ -24,7 +24,7 @@
   CREATE INDEX idx_tv_channels_category_ids ON tv_channels(category_ids(255));
 
 --  2. Add Missing Foreign Key Constraints
-
+-- ! maybe....
   ALTER TABLE content_sources
   ADD CONSTRAINT fk_content_sources_content
   FOREIGN KEY (content_id) REFERENCES contents(id) ON DELETE CASCADE;
@@ -65,7 +65,7 @@
   ADD CONSTRAINT fk_episode_subtitles_language
   FOREIGN KEY (language_id) REFERENCES languages(id);
 
-  3. Data Type and Structure Improvements
+--  3. Data Type and Structure Improvements
 
   -- Fix inconsistent ID types
   ALTER TABLE content_cast MODIFY content_id INT(11) NOT NULL;
@@ -100,8 +100,8 @@
       FOREIGN KEY (category_id) REFERENCES tv_categories(id) ON DELETE CASCADE
   );
 
-  4. Add User Activity Tracking Tables
-
+--  4. Add User Activity Tracking Tables
+-- ! implies code change to track user activity
   CREATE TABLE user_watch_history (
       id INT(11) NOT NULL AUTO_INCREMENT,
       user_id INT(10) UNSIGNED NOT NULL,
@@ -131,13 +131,13 @@
       FOREIGN KEY (content_id) REFERENCES contents(id) ON DELETE CASCADE
   );
 
-  5. Security and Data Validation Improvements
+--  5. Security and Data Validation Improvements
 
   -- Add constraints for better data integrity
-  ALTER TABLE users ADD CONSTRAINT chk_login_type CHECK (login_type IN (0, 1, 2, 3, 4));
-  ALTER TABLE contents ADD CONSTRAINT chk_content_type CHECK (type IN (0, 1, 2));
-  ALTER TABLE contents ADD CONSTRAINT chk_ratings CHECK (ratings >= 0 AND ratings <= 10);
-  ALTER TABLE content_sources ADD CONSTRAINT chk_source_type CHECK (type IN (0, 1, 2, 3, 4, 5, 6, 7));
+  --ALTER TABLE users ADD CONSTRAINT chk_login_type CHECK (login_type IN (0, 1, 2, 3, 4));
+  --ALTER TABLE contents ADD CONSTRAINT chk_content_type CHECK (type IN (0, 1, 2));
+  --ALTER TABLE contents ADD CONSTRAINT chk_ratings CHECK (ratings >= 0 AND ratings <= 10);
+  --ALTER TABLE content_sources ADD CONSTRAINT chk_source_type CHECK (type IN (0, 1, 2, 3, 4, 5, 6, 7));
 
   -- Add unique constraints where needed
   ALTER TABLE users ADD UNIQUE KEY uk_email_login_type (email, login_type);

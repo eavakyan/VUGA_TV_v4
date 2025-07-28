@@ -41,7 +41,7 @@ public class CustomAds {
     }
 
     public static class DataItem {
-        @SerializedName("id")
+        @SerializedName("custom_ad_id")
         private Long id;
         @SerializedName("title")
         private String title;

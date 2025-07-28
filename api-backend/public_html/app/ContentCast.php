@@ -14,6 +14,12 @@ class ContentCast extends Model
 
     public function actor()
     {
-        return $this->hasOne(Actor::class, 'id', 'actor_id');
+        return $this->hasOne(Actor::class, 'actor_id', 'actor_id');
+    }
+    
+    // Add accessor for backward compatibility with 'id' field
+    public function getIdAttribute()
+    {
+        return $this->content_cast_id;
     }
 }

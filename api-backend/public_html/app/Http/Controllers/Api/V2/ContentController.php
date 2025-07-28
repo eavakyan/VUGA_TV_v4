@@ -9,12 +9,169 @@ use App\Models\V2\Genre;
 use App\Models\V2\AppLanguage;
 use App\Models\V2\TopContent;
 use App\Models\V2\AppUserWatchHistory;
+use App\Models\V2\Episode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 
 class ContentController extends Controller
 {
+    /**
+     * V1 Compatible: Fetch home page data
+     */
+    public function fetchHomePageData(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        $userId = $request->user_id;
+        $user = null;
+        $watchlistIds = [];
+        
+        // Only fetch user if user_id is not 0
+        if ($userId > 0) {
+            $user = DB::table('app_user')->where('app_user_id', $userId)->first();
+            // Get user's watchlist
+            $watchlistIds = $user && $user->watchlist_content_ids ? explode(',', $user->watchlist_content_ids) : [];
+        }
+        
+        $watchlistContent = [];
+        
+        if (!empty($watchlistIds)) {
+            $watchlistContent = Content::with(['language', 'genres'])
+                ->whereIn('content_id', $watchlistIds)
+                ->visible()
+                ->limit(5)
+                ->get();
+        }
+
+        // Featured content
+        $featuredContent = Content::with(['language', 'genres'])
+            ->featured()
+            ->visible()
+            ->get();
+
+        // Top content
+        $topContents = TopContent::with(['content.language', 'content.genres'])
+            ->join('content', 'top_content.content_id', '=', 'content.content_id')
+            ->where('content.is_show', 1)
+            ->orderBy('top_content.content_index')
+            ->get()
+            ->map(function ($topContent) {
+                return [
+                    'top_content_id' => $topContent->top_content_id,
+                    'content_index' => $topContent->content_index,
+                    'content_id' => $topContent->content_id,
+                    'content' => $this->formatContent($topContent->content)
+                ];
+            });
+
+        // Genre content
+        $genres = Genre::all();
+        $genreContents = [];
+        
+        foreach ($genres as $genre) {
+            $contents = DB::table('content')
+                ->where('is_show', 1)
+                ->whereRaw('FIND_IN_SET(?, genre_ids)', [$genre->genre_id])
+                ->inRandomOrder()
+                ->limit(10)
+                ->get();
+                
+            if ($contents->isNotEmpty()) {
+                $contentModels = Content::whereIn('content_id', $contents->pluck('content_id'))->get();
+                $genre->contents = $this->formatContentList($contentModels);
+                $genreContents[] = $genre;
+            }
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Fetch Home Page Data Successfully',
+            'featured' => $this->formatContentList($featuredContent),
+            'watchlist' => $this->formatContentList($watchlistContent),
+            'topContents' => $topContents,
+            'genreContents' => $genreContents
+        ]);
+    }
+
+    /**
+     * V1 Compatible: Fetch content details
+     */
+    public function fetchContentDetail(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'content_id' => 'required|integer|exists:content,content_id',
+            'user_id' => 'required|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        $content = Content::with([
+            'language',
+            'genres',
+            'sources',
+            'casts.actor',
+            'subtitles',
+            'seasons.episodes.sources',
+            'seasons.episodes.subtitles'
+        ])->find($request->content_id);
+
+        if (!$content || !$content->is_show) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Content not found'
+            ]);
+        }
+
+        // Format content for V1 compatibility
+        $formattedContent = $this->formatContentDetail($content);
+        
+        // Check if content is in user's watchlist
+        $watchlistIds = [];
+        $formattedContent['is_watchlist'] = false;
+        
+        if ($request->user_id > 0) {
+            $user = DB::table('app_user')->where('app_user_id', $request->user_id)->first();
+            if ($user) {
+                $watchlistIds = $user->watchlist_content_ids ? explode(',', $user->watchlist_content_ids) : [];
+                $formattedContent['is_watchlist'] = in_array($request->content_id, $watchlistIds);
+            }
+        }
+        
+        // Get more like this
+        $genreIds = $content->genres->pluck('genre_id');
+        $moreLikeThis = Content::with(['language', 'genres'])
+            ->visible()
+            ->where('content_id', '!=', $content->content_id)
+            ->whereHas('genres', function($q) use ($genreIds) {
+                $q->whereIn('genre.genre_id', $genreIds);
+            })
+            ->limit(10)
+            ->get();
+        
+        $formattedContent['more_like_this'] = $this->formatContentList($moreLikeThis);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Fetch Content Details Successfully',
+            'data' => $formattedContent
+        ]);
+    }
+
     /**
      * Get home page data
      */
@@ -566,6 +723,49 @@ class ContentController extends Controller
     }
 
     /**
+     * V1 Compatible: Fetch contents by genre
+     */
+    public function fetchContentsByGenre(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'genre_id' => 'required|integer|exists:genre,genre_id',
+            'start' => 'required|integer',
+            'limit' => 'required|integer',
+            'type' => 'nullable|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        $query = DB::table('content')
+            ->where('is_show', 1)
+            ->whereRaw('FIND_IN_SET(?, genre_ids)', [$request->genre_id]);
+        
+        // Filter by type if provided
+        if ($request->has('type') && $request->type != 0) {
+            $query->where('type', $request->type);
+        }
+        
+        // Apply pagination
+        $contents = $query->offset($request->start)
+            ->limit($request->limit)
+            ->get();
+        
+        // Get content models
+        $contentModels = Content::whereIn('content_id', $contents->pluck('content_id'))->get();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Fetch Contents By Genre Successfully',
+            'data' => $this->formatContentList($contentModels)
+        ]);
+    }
+
+    /**
      * Format single content for response
      */
     private function formatContent($content)
@@ -583,6 +783,14 @@ class ContentController extends Controller
         if (isset($data['duration']) && is_numeric($data['duration'])) {
             $data['duration_seconds'] = $data['duration'];
             $data['duration'] = (string) $data['duration'];
+        }
+        
+        // Convert boolean fields to integers for backward compatibility
+        if (isset($data['is_featured'])) {
+            $data['is_featured'] = (int) $data['is_featured'];
+        }
+        if (isset($data['is_show'])) {
+            $data['is_show'] = (int) $data['is_show'];
         }
         
         return $data;
@@ -605,6 +813,23 @@ class ContentController extends Controller
                     'actor' => $cast->actor
                 ];
             });
+        }
+        
+        // Rename sources to content_sources for V1 compatibility
+        if (isset($data['sources'])) {
+            $data['content_sources'] = $data['sources'];
+            unset($data['sources']);
+        }
+        
+        // Rename subtitles to content_subtitles for V1 compatibility
+        if (isset($data['subtitles'])) {
+            $data['content_subtitles'] = $data['subtitles'];
+            unset($data['subtitles']);
+        }
+        
+        // Format cast to contentCast for V1 compatibility
+        if (isset($data['cast'])) {
+            $data['contentCast'] = $data['cast'];
         }
         
         return $data;

@@ -21,7 +21,8 @@ struct ActorDetail: Codable {
     let actorContent: [FlixyContent]?
 
     enum CodingKeys: String, CodingKey {
-        case id, fullname, dob, bio
+        case id = "actor_id"
+        case fullname, dob, bio
         case profileImage = "profile_image"
         case createdAt = "created_at"
         case updatedAt = "updated_at"

@@ -148,7 +148,7 @@ data class HomePageResponse(
 )
 
 data class TopContentItem(
-    @SerializedName("id")
+    @SerializedName("top_content_id")
     val id: Int = 0,
     
     @SerializedName("content_index")
@@ -165,7 +165,7 @@ data class GenreContents(
     @SerializedName("title")
     val title: String = "",
     
-    @SerializedName("id")
+    @SerializedName("genre_id")
     val id: Int = 0,
     
     @SerializedName("contents")
@@ -218,7 +218,7 @@ data class UserRegistrationResponse(
 
 @Serializable
 data class UserData(
-    @SerializedName("id")
+    @SerializedName("app_user_id")
     val id: Int = 0,
     
     @SerializedName("fullname")
@@ -306,7 +306,7 @@ data class ActorDataResponse(
 )
 
 data class ActorData(
-    @SerializedName("id")
+    @SerializedName("actor_id")
     val id: Int = 0,
     
     @SerializedName("fullname")
@@ -346,7 +346,7 @@ data class CustomAdsResponse(
 )
 
 data class CustomAds(
-    @SerializedName("id")
+    @SerializedName("custom_ad_id")
     val id: Long = 0,
     
     @SerializedName("title")

@@ -11,22 +11,24 @@ import Firebase
 import GoogleMobileAds
 
 import SwiftUI
-import RevenueCat
+// import RevenueCat - Disabled temporarily
 import BranchSDK
 import ActivityKit
 
-class AppDelegate : NSObject,UIApplicationDelegate, PurchasesDelegate {
+class AppDelegate : NSObject,UIApplicationDelegate { // PurchasesDelegate {
     @AppStorage(SessionKeys.isNotificationOn) var isNotificationOn = true
     @AppStorage(SessionKeys.myUser) var myUser : User? = nil
     static let shared = AppDelegate()
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
         FirebaseApp.configure()
-        GADMobileAds.sharedInstance().start(completionHandler: nil)
+        // AdMob disabled - not initializing
+        // GADMobileAds.sharedInstance().start(completionHandler: nil)
 
-        Purchases.logLevel = .debug
-        Purchases.configure(withAPIKey: RevenueCatApiKey, appUserID: "\(myUser?.id ?? 0)")
-        Purchases.shared.delegate = self
+        // Temporarily disabled RevenueCat - configure valid API key in Const.swift
+        // Purchases.logLevel = .debug
+        // Purchases.configure(withAPIKey: RevenueCatApiKey, appUserID: "\(myUser?.id ?? 0)")
+        // Purchases.shared.delegate = self
         self.registerForPushNotifications()
         Branch.getInstance().checkPasteboardOnInstall()
         
@@ -38,9 +40,9 @@ class AppDelegate : NSObject,UIApplicationDelegate, PurchasesDelegate {
         return true
     }
     
-    func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
-        BaseViewModel.shared.checkUserIsPro(customerInfo: customerInfo)
-    }
+    // func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {
+    //     BaseViewModel.shared.checkUserIsPro(customerInfo: customerInfo)
+    // }
 }
 
 extension AppDelegate {

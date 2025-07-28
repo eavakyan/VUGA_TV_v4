@@ -41,7 +41,7 @@ public class UserRegistration {
 
     public static class Data {
 
-        @SerializedName("id")
+        @SerializedName("app_user_id")
         private int id;
 
         @SerializedName("fullname")

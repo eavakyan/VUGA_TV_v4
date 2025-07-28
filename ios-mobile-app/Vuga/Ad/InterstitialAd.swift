@@ -19,22 +19,31 @@ class Interstitial: NSObject, GADFullScreenContentDelegate {
     }
     override init() {
         super.init()
-        loadInterstitial()
+        // AdMob disabled - not loading interstitial ads
+        // loadInterstitial()
     }
     
     func loadInterstitial() {
+        // AdMob disabled - not loading ads
+        return
+        /*
         let request = GADRequest()
         GADInterstitialAd.load(withAdUnitID: adId, request: request, completionHandler: { [self] ad, error in
             if ad != nil { interstitial = ad }
             interstitial?.fullScreenContentDelegate = self
         }
         )
+        */
     }
     
     func showInterstitialAds() {
+        // AdMob disabled - not showing ads
+        return
+        /*
         if interstitial != nil, let root = rootController {
             interstitial?.present(fromRootViewController: root)
         }
+        */
     }
     
     func adDidDismissFullScreenContent(_ ad: GADFullScreenPresentingAd) {

@@ -34,10 +34,19 @@ class HomeViewModel : BaseViewModel {
              startLoading()
          }
         let params: [Params: Any] = [.userId : myUser?.id ?? 0]
-        NetworkManager.callWebService(url: .fetchHomePageData, params: params) { [weak self] (obj: HomeModel) in
+        NetworkManager.callWebService(url: .fetchHomePageData, params: params, callbackSuccess: { [weak self] (obj: HomeModel) in
             guard let self = self else { return }
             
             self.stopLoading()
+            
+            print("HomeModel Response:")
+            print("Status: \(obj.status ?? false)")
+            print("Message: \(obj.message ?? "")")
+            print("Featured count: \(obj.featured?.count ?? 0)")
+            print("Watchlist count: \(obj.watchlist?.count ?? 0)")
+            print("GenreContents count: \(obj.genreContents?.count ?? 0)")
+            print("TopContents count: \(obj.topContents?.count ?? 0)")
+            
             self.featured = obj.featured ?? []
             
 //            self.topContents = obj.topContents ?? []
@@ -56,7 +65,10 @@ class HomeViewModel : BaseViewModel {
             self.wishlists = obj.watchlist ?? []
             self.genres = obj.genreContents ?? []
             self.topContents = obj.topContents ?? []
-        }
+        }, callbackFailure: { error in
+            self.stopLoading()
+            print("HomeViewModel fetchData error: \(error)")
+        })
     }
 }
 

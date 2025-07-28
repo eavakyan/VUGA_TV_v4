@@ -13,6 +13,6 @@ class TopContent extends Model
 
     public function content()
     {
-        return $this->hasOne(Content::class, 'id', 'content_id');
+        return $this->hasOne(Content::class, 'content_id', 'content_id');
     }
 }

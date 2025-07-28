@@ -35,7 +35,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('app_user_id', $request->user_id)->first();
         if ($user == null) {
             return response()->json([
                 'status' => false,
@@ -50,7 +50,7 @@ class ContentController extends Controller
 
         if (!empty($userWatchListContentIds)) {
             $userWatchListContentsArray = explode(',', $userWatchListContentIds);
-            $userWatchListContent = Content::where('is_show', Constants::showContent)->whereIn('id', $userWatchListContentsArray)->limit(5)->get();
+            $userWatchListContent = Content::where('is_show', Constants::showContent)->whereIn('content_id', $userWatchListContentsArray)->limit(5)->get();
         }
 
         $topContents = TopContent::whereHas('content',  function ($query){
@@ -62,7 +62,7 @@ class ContentController extends Controller
 
         foreach ($genres as $genre) {
             $genreContent = Content::where('is_show', Constants::showContent)
-                                    ->whereRaw('FIND_IN_SET(?, genre_ids)', [$genre->id])
+                                    ->whereRaw('FIND_IN_SET(?, genre_ids)', [$genre->genre_id])
                                     ->inRandomOrder()
                                     ->limit(env('HOME_PAGE_GENRE_CONTENTS_LIMIT'))
                                     ->get();
@@ -99,7 +99,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('app_user_id', $request->user_id)->first();
         if ($user == null) {
             return response()->json([
                 'status' => false,
@@ -114,7 +114,7 @@ class ContentController extends Controller
         if (!empty($userWatchListContentIds)) {
             $userWatchListContentsArray = explode(',', $userWatchListContentIds);
 
-            $query = Content::where('is_show', Constants::showContent)->whereIn('id', $userWatchListContentsArray);
+            $query = Content::where('is_show', Constants::showContent)->whereIn('content_id', $userWatchListContentsArray);
 
             if ($request->has('type') && $request->type != 0) {
                 $query->where('type', $request->type);
@@ -181,7 +181,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('app_user_id', $request->user_id)->first();
         if (!$user) {
             return response()->json([
                 'status' => false,
@@ -318,7 +318,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         $content->total_view += 1;
         $content->save();
 
@@ -342,7 +342,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         $content->total_download += 1;
         $content->save();
 
@@ -365,7 +365,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         $content->total_share += 1;
         $content->save();
 
@@ -561,7 +561,7 @@ class ContentController extends Controller
 
     public function unfeatured(Request $request)
     {
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         $content->is_featured = Constants::unfeatured;
         $content->save();
 
@@ -573,7 +573,7 @@ class ContentController extends Controller
 
     public function featured(Request $request)
     {
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         $content->is_featured = Constants::featured;
         $content->save();
 
@@ -585,7 +585,7 @@ class ContentController extends Controller
 
     public function hideContent(Request $request)
     {
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         $content->is_show = Constants::hideContent;
         $content->save();
 
@@ -597,7 +597,7 @@ class ContentController extends Controller
 
     public function showContent(Request $request)
     {
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         $content->is_show = Constants::showContent;
         $content->save();
 
@@ -653,7 +653,7 @@ class ContentController extends Controller
 
     public function updateContent(Request $request)
     {
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
         if ($content == null) {
             return response()->json([
                 'status' => false,
@@ -695,7 +695,7 @@ class ContentController extends Controller
 
     public function deleteContent(Request $request)
     {
-        $content = Content::where('id', $request->content_id)->first();
+        $content = Content::where('content_id', $request->content_id)->first();
 
         if (!$content) {
             return response()->json([
@@ -762,7 +762,7 @@ class ContentController extends Controller
 
     public function contentDetailView(Request $request)
     {
-        $content = Content::where('id', $request->id)->where('type', Constants::movie)->first();
+        $content = Content::where('content_id', $request->id)->where('type', Constants::movie)->first();
         if ($content == null) {
             return response()->json([
                 'status' => false,
@@ -1293,7 +1293,7 @@ class ContentController extends Controller
 
     public function seriesDetailView(Request $request)
     {
-        $content = Content::where('id', $request->id)->where('type', Constants::series)->first();
+        $content = Content::where('content_id', $request->id)->where('type', Constants::series)->first();
         if ($content == null) {
             return response()->json([
                 'status' => false,
@@ -1909,7 +1909,7 @@ class ContentController extends Controller
         $order = $request->order;
 
         foreach ($order as $index => $id) {
-            TopContent::where('id', $id)->update(['content_index' => $index + 1]);
+            TopContent::where('top_content_id', $id)->update(['content_index' => $index + 1]);
         }
 
         return response()->json(['success' => true]);
@@ -1917,7 +1917,7 @@ class ContentController extends Controller
 
     public function removeFromTopContent(Request $request)
     {
-        $topContent = TopContent::where('id', $request->top_content_id)->first();
+        $topContent = TopContent::where('top_content_id', $request->top_content_id)->first();
 
         if ($topContent == null) {
             return response()->json([

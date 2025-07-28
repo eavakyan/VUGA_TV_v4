@@ -79,7 +79,7 @@ public class HomePage {
     public static class TopContentItem {
 
 
-        @SerializedName("id")
+        @SerializedName("top_content_id")
         private int id;
 
         @SerializedName("content_index")
@@ -130,7 +130,7 @@ public class HomePage {
         @SerializedName("title")
         private String title;
 
-        @SerializedName("id")
+        @SerializedName("genre_id")
         private int id;
 
         @SerializedName("contents")

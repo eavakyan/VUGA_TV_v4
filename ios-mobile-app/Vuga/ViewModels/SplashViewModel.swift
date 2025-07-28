@@ -12,18 +12,30 @@ class SplashViewModel : BaseViewModel {
     @Published var isConnectedToInternet = false
 
     func fetchSettings(){
-        NetworkManager.callWebService(url: .fetchSettings) { (obj: SettingModel) in
-            if let data = obj.setting {
-                SessionManager.shared.setSetting(data: data)
+        NetworkManager.callWebService(url: .fetchSettings, 
+            callbackSuccess: { (obj: SettingModel) in
+                if let data = obj.setting {
+                    SessionManager.shared.setSetting(data: data)
+                }
+                SessionManager.shared.setGenres(data: obj.genres ?? [])
+                SessionManager.shared.setLanguages(data: obj.languages ?? [])
+                SessionManager.shared.setAds(data: obj.admob ?? [])
+                // Temporarily disabled - configure valid AdMob IDs
+                // RewardedAdManager.shared.loadRewardAd()
+                
+                // Mark as loaded even if some data is missing
+                DispatchQueue.main.async {
+                    self.isSettingDataLoaded = true
+                }
+            },
+            callbackFailure: { error in
+                print("Failed to fetch settings: \(error)")
+                // Still mark as loaded to allow app to continue
                 DispatchQueue.main.async {
                     self.isSettingDataLoaded = true
                 }
             }
-            SessionManager.shared.setGenres(data: obj.genres ?? [])
-            SessionManager.shared.setLanguages(data: obj.languages ?? [])
-            SessionManager.shared.setAds(data: obj.admob ?? [])
-            RewardedAdManager.shared.loadRewardAd()
-        }
+        )
         fetchAds()
     }
     
@@ -38,7 +50,12 @@ class SplashViewModel : BaseViewModel {
     }
     
     func fetchProfile() {
-        let params : [Params: Any] = [.userId : myUser?.id ?? 0]
+        // Only fetch profile if user is logged in
+        guard let userId = myUser?.id, userId > 0 else {
+            return
+        }
+        
+        let params : [Params: Any] = [.userId : userId]
         NetworkManager.callWebService(url: .fetchProfile,params: params){(obj: UserModel) in
             if let user = obj.data {
                 DispatchQueue.main.async {

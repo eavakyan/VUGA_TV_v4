@@ -29,14 +29,16 @@ class UserController extends Controller
         $emailUser = User::where('email', $request->email)->first();
 
         if ($user != null || $emailUser != null) {
-            $user->login_type = (int) $request->login_type;
-            $user->device_type = (int) $request->device_type;
-            $user->device_token = $request->device_token;
-            $user->save();
+            // Use the existing user object if found by identity, otherwise use the one found by email
+            $existingUser = $user ?: $emailUser;
+            $existingUser->login_type = (int) $request->login_type;
+            $existingUser->device_type = (int) $request->device_type;
+            $existingUser->device_token = $request->device_token;
+            $existingUser->save();
             return response()->json([
                 'status' => false,
                 'message' => 'User is Already Exist',
-                'data' => $user,
+                'data' => $existingUser,
             ]);
         }
 
@@ -68,7 +70,7 @@ class UserController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('app_user_id', $request->user_id)->first();
         if ($user == null) {
             return response()->json([
                 'status' => false,
@@ -122,7 +124,7 @@ class UserController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('app_user_id', $request->user_id)->first();
         if ($user == null) {
             return response()->json([
                 'status' => false,
@@ -149,7 +151,7 @@ class UserController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('app_user_id', $request->user_id)->first();
         if ($user == null) {
             return response()->json([
                 'status' => false,
@@ -178,7 +180,7 @@ class UserController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $user = User::where('id', $request->user_id)->first();
+        $user = User::where('app_user_id', $request->user_id)->first();
         if ($user == null) {
             return response()->json([
                 'status' => false,

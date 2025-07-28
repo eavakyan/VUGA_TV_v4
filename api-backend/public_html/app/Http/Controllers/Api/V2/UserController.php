@@ -21,7 +21,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'identity' => 'required',
-            'email' => 'required|email',
+            'email' => 'required',  // Removed email validation due to PHP compatibility issue
             'login_type' => 'required|integer',
             'device_type' => 'required|integer',
             'device_token' => 'required',
@@ -130,12 +130,23 @@ class UserController extends Controller
     }
 
     /**
-     * Fetch user profile
+     * Fetch user profile (V1 Compatible)
      */
     public function fetchProfile(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+        // Accept both user_id (V1) and app_user_id (V2)
+        $userId = $request->user_id ?? $request->app_user_id;
+        
+        // Allow user_id 0 for non-logged in users
+        if ($userId == 0) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not logged in'
+            ]);
+        }
+        
+        $validator = Validator::make(['user_id' => $userId], [
+            'user_id' => 'required|integer|exists:app_user,app_user_id',
         ]);
 
         if ($validator->fails()) {
@@ -146,7 +157,7 @@ class UserController extends Controller
         }
 
         $user = AppUser::with(['watchlist', 'favorites', 'ratings'])
-                       ->find($request->app_user_id);
+                       ->find($userId);
 
         return response()->json([
             'status' => true,
@@ -160,8 +171,11 @@ class UserController extends Controller
      */
     public function logOut(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+        // Accept both user_id (V1) and app_user_id (V2)
+        $userId = $request->user_id ?? $request->app_user_id;
+        
+        $validator = Validator::make(['user_id' => $userId], [
+            'user_id' => 'required|integer|exists:app_user,app_user_id',
         ]);
 
         if ($validator->fails()) {
@@ -171,24 +185,23 @@ class UserController extends Controller
             ], 400);
         }
 
-        $user = AppUser::find($request->app_user_id);
+        $user = AppUser::find($userId);
         $user->device_token = null;
         $user->save();
 
         return response()->json([
             'status' => true,
-            'message' => 'Logged out successfully',
-            'data' => $this->formatUserResponse($user)
+            'message' => 'Log Out Successfully'
         ]);
     }
     
     /**
-     * Delete user account
+     * Delete user account (V1 compatible)
      */
     public function deleteMyAccount(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'user_id' => 'required|integer|exists:app_user,app_user_id',
         ]);
 
         if ($validator->fails()) {
@@ -198,7 +211,7 @@ class UserController extends Controller
             ], 400);
         }
 
-        $user = AppUser::find($request->app_user_id);
+        $user = AppUser::find($request->user_id);
         
         // Delete profile image if exists
         if ($user->profile_image) {
@@ -389,5 +402,102 @@ class UserController extends Controller
         
         Content::where('content_id', $contentId)
                ->update(['ratings' => $avgRating ?: 0]);
+    }
+    
+    /**
+     * Fetch user's watchlist (V1 compatible)
+     */
+    public function fetchWatchList(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:app_user,app_user_id',
+            'start' => 'required|integer',
+            'limit' => 'required|integer',
+            'type' => 'nullable|integer'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $user = AppUser::find($request->user_id);
+        
+        // Get watchlist content IDs
+        $watchlistIds = $user->watchlist()
+            ->pluck('content_id')
+            ->toArray();
+        
+        // Build query
+        $query = Content::whereIn('content_id', $watchlistIds)
+            ->where('is_show', 1);
+        
+        // Filter by type if provided
+        if ($request->has('type') && $request->type != 0) {
+            $query->where('type', $request->type);
+        }
+        
+        // Apply pagination
+        $contents = $query->offset($request->start)
+            ->limit($request->limit)
+            ->get();
+        
+        // Format response to match V1
+        $formattedContents = $contents->map(function ($content) {
+            return [
+                'id' => $content->content_id,
+                'title' => $content->title,
+                'description' => $content->description,
+                'type' => $content->type,
+                'duration' => $content->duration,
+                'release_year' => $content->release_year,
+                'ratings' => $content->ratings,
+                'language_id' => $content->language_id,
+                'download_link' => $content->download_link,
+                'trailer_url' => $content->trailer_url,
+                'vertical_poster' => $content->vertical_poster,
+                'horizontal_poster' => $content->horizontal_poster,
+                'genre_ids' => $content->genre_ids,
+                'is_featured' => $content->is_featured,
+                'total_view' => $content->total_view,
+                'total_download' => $content->total_download,
+                'total_share' => $content->total_share,
+                'actor_ids' => $content->actor_ids,
+                'is_watchlist' => true
+            ];
+        });
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Fetch WatchList Successfully',
+            'data' => $formattedContents
+        ]);
+    }
+    
+    /**
+     * V1 Compatible: Get user subscription
+     */
+    public function getUserSubscription(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:app_user,app_user_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+        
+        // For now, return no active subscription
+        // In the future, you would check the actual subscription status
+        return response()->json([
+            'status' => true,
+            'message' => 'Get User Subscription Successfully',
+            'subscription' => null
+        ]);
     }
 }

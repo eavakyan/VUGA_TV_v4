@@ -42,7 +42,7 @@ public class ContentDetail {
 
     public static class DataItem {
 
-        @SerializedName("id")
+        @SerializedName("content_id")
         private int id;
 
         @SerializedName("title")
@@ -325,7 +325,7 @@ public class ContentDetail {
         public long time = 0;
 
 
-        @SerializedName("id")
+        @SerializedName("content_source_id")
         private int id;
 
         @SerializedName("content_id")
@@ -474,7 +474,7 @@ public class ContentDetail {
         public static class MediaItem {
 
 
-            @SerializedName("id")
+            @SerializedName("media_gallery_id")
             private int id;
 
             @SerializedName("file")
@@ -512,7 +512,7 @@ public class ContentDetail {
 
     public static class SubtitlesItem {
 
-        @SerializedName("id")
+        @SerializedName("subtitle_id")
         private int id;
 
         @SerializedName("episode_id")
@@ -550,7 +550,7 @@ public class ContentDetail {
 
     public static class SeasonItem {
 
-        @SerializedName("id")
+        @SerializedName("season_id")
         private int id;
 
         @SerializedName("content_id")
@@ -610,7 +610,7 @@ public class ContentDetail {
 
         public static class EpisodesItem {
 
-            @SerializedName("id")
+            @SerializedName("episode_id")
             private int id;
 
             @SerializedName("season_id")
@@ -752,7 +752,7 @@ public class ContentDetail {
 
     public static class CastItem {
 
-        @SerializedName("id")
+        @SerializedName("content_cast_id")
         private int id;
 
         @SerializedName("content_id")
@@ -811,7 +811,7 @@ public class ContentDetail {
 
     public static class ActorItem {
 
-        @SerializedName("id")
+        @SerializedName("actor_id")
         private int id;
 
         @SerializedName("fullname")

@@ -231,4 +231,99 @@ class CustomAdController extends Controller
             'data' => $ads
         ]);
     }
+
+    /**
+     * V1 Compatible: Fetch custom ads
+     */
+    public function fetchCustomAds(Request $request)
+    {
+        $ads = CustomAd::where('status', 1)->get();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Fetch Custom Ads Successfully',
+            'data' => $ads
+        ]);
+    }
+
+    /**
+     * V1 Compatible: Increase ad metric
+     */
+    public function increaseAdMetric(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'custom_ad_id' => 'required|integer|exists:custom_ad,custom_ad_id',
+            'metric_type' => 'required|in:total_views,total_clicks'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $ad = CustomAd::find($request->custom_ad_id);
+        
+        if ($request->metric_type === 'total_views') {
+            $ad->increment('total_views');
+        } else {
+            $ad->increment('total_clicks');
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Ad metric increased successfully'
+        ]);
+    }
+
+    /**
+     * V1 Compatible: Increase ad view
+     */
+    public function increaseAdView(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'custom_ad_id' => 'required|integer|exists:custom_ad,custom_ad_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        CustomAd::where('custom_ad_id', $request->custom_ad_id)
+            ->increment('total_views');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Increase Ad View Successfully'
+        ]);
+    }
+
+    /**
+     * V1 Compatible: Increase ad click
+     */
+    public function increaseAdClick(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'custom_ad_id' => 'required|integer|exists:custom_ad,custom_ad_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        CustomAd::where('custom_ad_id', $request->custom_ad_id)
+            ->increment('total_clicks');
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Increase Ad Click Successfully'
+        ]);
+    }
 }

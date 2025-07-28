@@ -6,56 +6,31 @@
 //
 
 import Foundation
-import RevenueCat
+// import RevenueCat - Disabled temporarily
 import SwiftUI
 
 class ProViewModel: BaseViewModel {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
-    @Published var selectedPackage : Package?
-    @Published var allPackages = [Package]()
+    @Published var selectedPackage : Any? // Changed from Package
+    @Published var allPackages = [Any]() // Changed from [Package]
 
     func getOffering() {
-        startLoading()
-        Purchases.shared.getOfferings { (offerings, error) in
-            self.stopLoading()
-            if let offering = offerings?.current , error == nil {
-                self.allPackages = offering.availablePackages
-                self.selectedPackage = self.allPackages.first
-            }
-        }
+        // RevenueCat disabled - no packages available
+        stopLoading()
     }
     
     func makePurchases() {
-        startLoading()
-        if let package = selectedPackage {
-            Purchases.shared.purchase(package: package) { (transaction, customerInfo, error, userCancelled) in
-                self.stopLoading()
-                self.checkUserIsPro(customerInfo: customerInfo)
-                if self.isPro {
-                    Navigation.popToRootView()
-//                    makeToast(title: .youHaveSuccessfullyBecomePro.localized(self.language))
-                }
-            }
-        }
+        // RevenueCat disabled - cannot make purchases
+        stopLoading()
     }
     
     func restorePurchases() {
-        startLoading()
-        Purchases.shared.restorePurchases { customerInfo, error in
-            self.stopLoading()
-            self.checkUserIsPro(customerInfo: customerInfo)
-            if self.isPro {
-                Navigation.popToRootView()
-//                makeToast(title: .youHaveSuccessfullyBecomePro.localized(self.language))
-            }
-        }
+        // RevenueCat disabled - cannot restore purchases
+        stopLoading()
     }
     
     func passUserIdToRevenueCat() {
-        startLoading()
-        Purchases.shared.logIn("\(myUser?.id ?? 0)") { (customerInfo, created, error) in
-            self.stopLoading()
-            self.checkUserIsPro(customerInfo: customerInfo)
-        }
+        // RevenueCat disabled
+        stopLoading()
     }
 }

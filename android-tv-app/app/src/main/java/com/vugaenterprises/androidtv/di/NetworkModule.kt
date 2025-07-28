@@ -18,7 +18,7 @@ import javax.inject.Singleton
 object NetworkModule {
 
     // Use the same base URL as the mobile apps
-    private const val BASE_URL = "https://iosdev.gossip-stone.com/api/"
+    private const val BASE_URL = "https://iosdev.gossip-stone.com/api/v2/"
     private const val API_KEY = "jpwc3pny"
 
     @Provides

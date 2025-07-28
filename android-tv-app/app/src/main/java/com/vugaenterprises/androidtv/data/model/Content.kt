@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
 @Entity(tableName = "content")
 data class Content(
     @PrimaryKey
-    @SerializedName("id")
+    @SerializedName("content_id")
     val contentId: Int = 0,
 
     @SerializedName("title")
@@ -96,7 +96,7 @@ data class Content(
 }
 
 data class CastItem(
-    @SerializedName("id")
+    @SerializedName("content_cast_id")
     val id: Int = 0,
     
     @SerializedName("content_id")
@@ -113,7 +113,7 @@ data class CastItem(
 )
 
 data class ActorItem(
-    @SerializedName("id")
+    @SerializedName("actor_id")
     val id: Int = 0,
     
     @SerializedName("fullname")
@@ -124,7 +124,7 @@ data class ActorItem(
 )
 
 data class SourceItem(
-    @SerializedName("id")
+    @SerializedName("content_source_id")
     val id: Int = 0,
     
     @SerializedName("content_id")
@@ -165,7 +165,7 @@ data class SourceItem(
 }
 
 data class MediaItem(
-    @SerializedName("id")
+    @SerializedName("media_gallery_id")
     val id: Int = 0,
     
     @SerializedName("file")
@@ -176,7 +176,7 @@ data class MediaItem(
 )
 
 data class SubtitlesItem(
-    @SerializedName("id")
+    @SerializedName("subtitle_id")
     val id: Int = 0,
     
     @SerializedName("episode_id")
@@ -193,7 +193,7 @@ data class SubtitlesItem(
 )
 
 data class SeasonItem(
-    @SerializedName("id")
+    @SerializedName("season_id")
     val id: Int = 0,
     
     @SerializedName("content_id")
@@ -210,7 +210,7 @@ data class SeasonItem(
 )
 
 data class EpisodeItem(
-    @SerializedName("id")
+    @SerializedName("episode_id")
     val id: Int = 0,
 
     @SerializedName("season_id")

@@ -74,4 +74,18 @@ class NotificationController extends Controller
             'data' => $notification
         ]);
     }
+    
+    /**
+     * V1 Compatible: Get all notifications
+     */
+    public function getAllNotification(Request $request)
+    {
+        $notifications = Notification::orderBy('created_at', 'desc')->get();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Get All Notification Successfully',
+            'data' => $notifications
+        ]);
+    }
 }

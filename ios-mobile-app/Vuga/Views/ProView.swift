@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import RevenueCat
+// import RevenueCat - Disabled temporarily
 
 struct ProView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
@@ -66,12 +66,11 @@ struct ProView: View {
                     .padding(.bottom)
                     .padding(.horizontal,20)
                     VStack(spacing: 4) {
-                        ForEach(vm.allPackages, id: \.self) { package in
-                            PurchaseOptionCard(package: package, isSelected: package.identifier == vm.selectedPackage?.identifier,isMonthlyCard: package.storeProduct.productIdentifier == "rc_Flixy_month_3")
-                                .onTap {
-                                    vm.selectedPackage = package
-                                }
-                        }
+                        // RevenueCat disabled - no packages to display
+                        Text("In-app purchases are currently disabled")
+                            .outfitRegular(14)
+                            .foregroundColor(.textLight)
+                            .padding()
                     }
                     Text(String.proDes.localized(language))
                         .outfitRegular(10)
@@ -116,6 +115,8 @@ struct PurchaseBenefitsField: View {
     }
 }
 
+// RevenueCat disabled - PurchaseOptionCard commented out
+/*
 struct PurchaseOptionCard: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     var package : Package
@@ -153,3 +154,4 @@ struct PurchaseOptionCard: View {
         .padding(.horizontal,5)
     }
 }
+*/

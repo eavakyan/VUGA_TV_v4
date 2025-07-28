@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-import RevenueCat
+// import RevenueCat - Disabled temporarily
 
 class BaseViewModel : NSObject, ObservableObject {
     @AppStorage(SessionKeys.myUser) var myUser : User? = nil
@@ -52,13 +52,10 @@ class BaseViewModel : NSObject, ObservableObject {
         NotificationCenter.default.post(name: .showTabbar, object: nil)
     }
     
-    func checkUserIsPro(customerInfo: CustomerInfo?) {
-        //        self.isPro = customerInfo?.entitlements.all["Pro"]?.isActive == true
-        if let date = customerInfo?.latestExpirationDate, date >= Date() {
-            isPro = true
-        } else {
-            isPro =  false
-        }
+    func checkUserIsPro(customerInfo: Any? = nil) {
+        // RevenueCat disabled - always return free user for now
+        // To enable premium features without RevenueCat, set isPro = true
+        isPro = false
     }
 }
 

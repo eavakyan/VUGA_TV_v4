@@ -14,11 +14,15 @@ struct BannerAd : View {
     @AppStorage(SessionKeys.isPro) var isPro = false
 
     var body: some View {
+        // AdMob disabled - not showing banner ads
+        EmptyView()
+        /*
         if !isPro {
             BannerView(vm: vm)
                 .frame(height: 50, alignment: .center)
                 .frame(height:vm.isAdLoaded ? 50 : 1, alignment: .center)
         }
+        */
     }
 }
 

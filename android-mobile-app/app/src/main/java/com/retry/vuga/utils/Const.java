@@ -12,7 +12,7 @@ public class Const {
 
     public static final String BASE = "https://iosdev.gossip-stone.com/";
     public static final String API_KEY = "jpwc3pny";
-    public static final String BASE_URL = BASE + "api/";
+    public static final String BASE_URL = BASE + "api/v2/";
     public static final String IMAGE_URL = ""; //BASE + "public/storage/"
     public static final String PREF_NAME = BuildConfig.APPLICATION_ID;
     //do not change "_android"

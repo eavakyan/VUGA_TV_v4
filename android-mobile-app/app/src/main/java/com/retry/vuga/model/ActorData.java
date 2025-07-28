@@ -49,7 +49,7 @@ public class ActorData {
         @SerializedName("created_at")
         private String createdAt;
 
-        @SerializedName("id")
+        @SerializedName("actor_id")
         private int id;
 
         @SerializedName("fullname")

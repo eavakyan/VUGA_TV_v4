@@ -37,7 +37,8 @@ struct FlixyContent: Codable {
     let moreLikeThis: [FlixyContent]?
     
     enum CodingKeys: String, CodingKey {
-        case id, title, description, type, duration
+        case id = "content_id"
+        case title, description, type, duration
         case releaseYear = "release_year"
         case ratings
         case languageID = "language_id"
@@ -85,7 +86,7 @@ struct Subtitle: Codable, Identifiable {
     let file, createdAt, updatedAt: String?
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "subtitle_id"
         case contentID = "content_id"
         case languageID = "language_id"
         case file
@@ -108,7 +109,7 @@ struct Source: Codable,Identifiable {
     let media: Media?
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "content_source_id"
         case contentID = "content_id"
         case title, quality, size
         case isDownload = "is_download"
@@ -143,7 +144,8 @@ struct Media: Codable {
     let title, file, createdAt, updatedAt: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, title, file
+        case id = "media_gallery_id"
+        case title, file
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
@@ -184,7 +186,7 @@ struct Cast: Codable {
     let actor: Actor?
     
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "content_cast_id"
         case contentID = "content_id"
         case actorID = "actor_id"
         case charactorName = "character_name"
@@ -201,7 +203,8 @@ struct Actor: Codable {
     let updatedAt: String?
     
     enum CodingKeys: String, CodingKey {
-        case id, fullname, profile_image
+        case id = "actor_id"
+        case fullname, profile_image
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
@@ -221,7 +224,7 @@ struct Season: Codable,Equatable {
     let episodes: [Episode]?
     
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "season_id"
         case contentID = "content_id"
         case title
         case trailerURL = "trailer_url"
@@ -243,7 +246,7 @@ struct Episode: Codable {
 
     
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "episode_id"
         case seasonID = "season_id"
         case number, thumbnail, title, description, duration
         case accessType = "access_type"

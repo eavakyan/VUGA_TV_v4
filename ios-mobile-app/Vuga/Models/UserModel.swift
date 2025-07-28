@@ -26,7 +26,8 @@ struct User: Codable {
     let timezone, createdAt, updatedAt: String?
 
     enum CodingKeys: String, CodingKey {
-        case id, fullname, email
+        case id = "app_user_id"
+        case fullname, email
         case loginType = "login_type"
         case identity
         case profileImage = "profile_image"

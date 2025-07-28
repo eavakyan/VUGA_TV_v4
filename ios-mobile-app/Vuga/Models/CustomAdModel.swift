@@ -25,7 +25,8 @@ struct CustomAd: Codable {
     let sources: [AdSource]?
 
     enum CodingKeys: String, CodingKey {
-        case id, title
+        case id = "custom_ad_id"
+        case title
         case brandName = "brand_name"
         case brandLogo = "brand_logo"
         case buttonText = "button_text"
@@ -51,7 +52,7 @@ struct AdSource: Codable {
     let createdAt, updatedAt: String?
 
     enum CodingKeys: String, CodingKey {
-        case id
+        case id = "custom_ad_source_id"
         case customAdID = "custom_ad_id"
         case type, content, headline, description
         case showTime = "show_time"

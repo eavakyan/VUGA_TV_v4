@@ -31,9 +31,16 @@ class ContentDetailViewModel : BaseViewModel {
     func fetchContest(contentId: Int) {
         let params: [Params: Any] = [.userId : myUser?.id ?? 0,
                                      .contentId: contentId]
+        print("ContentDetailViewModel fetchContest - contentId: \(contentId), userId: \(myUser?.id ?? 0)")
         startLoading()
-        NetworkManager.callWebService(url: .fetchContentDetails, params: params) { [weak self] (obj: ContentModel) in
+        NetworkManager.callWebService(url: .fetchContentDetails, params: params, callbackSuccess: { [weak self] (obj: ContentModel) in
             self?.stopLoading()
+            print("ContentDetail Response:")
+            print("Status: \(obj.status ?? false)")
+            print("Message: \(obj.message ?? "")")
+            print("Content title: \(obj.data?.title ?? "nil")")
+            print("Content id: \(obj.data?.id ?? 0)")
+            
             self?.content = obj.data
             self?.selectedSeason = self?.content?.seasons?.first
             if let selectedSeason = self?.selectedSeason {
@@ -43,7 +50,11 @@ class ContentDetailViewModel : BaseViewModel {
 
             self?.isBookmarked = self?.myUser?.checkIsAddedToWatchList(contentId: self?.content?.id ?? 0) ?? false
             self?.isDataLoaded = true
-        }
+        }, callbackFailure: { error in
+            self.stopLoading()
+            print("ContentDetailViewModel fetchContest error: \(error)")
+            self.isDataLoaded = true
+        })
     }
     
     func increaseContentView(contentId: Int){
