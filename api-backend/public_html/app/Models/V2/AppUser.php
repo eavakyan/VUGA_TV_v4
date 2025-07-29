@@ -67,4 +67,20 @@ class AppUser extends BaseModel
     {
         return $this->hasMany(TvAuthSession::class, 'app_user_id');
     }
+    
+    /**
+     * Get the user's profiles
+     */
+    public function profiles()
+    {
+        return $this->hasMany(AppUserProfile::class, 'app_user_id', 'app_user_id');
+    }
+    
+    /**
+     * Get the user's last active profile
+     */
+    public function lastActiveProfile()
+    {
+        return $this->belongsTo(AppUserProfile::class, 'last_active_profile_id', 'profile_id');
+    }
 }

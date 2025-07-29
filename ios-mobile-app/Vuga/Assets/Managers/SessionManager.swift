@@ -17,8 +17,29 @@ struct DownloadData: Hashable,Codable {
 //    var downloadStatus: DownloadStatus
 }
 
-class SessionManager {
+class SessionManager: ObservableObject {
     static var shared = SessionManager()
+    
+    @Published var currentUser: User? {
+        didSet {
+            if let user = currentUser {
+                saveUser(user)
+            }
+        }
+    }
+    
+    @Published var currentProfile: Profile? {
+        didSet {
+            if let profile = currentProfile {
+                saveProfile(profile)
+            }
+        }
+    }
+    
+    init() {
+        loadUser()
+        loadProfile()
+    }
     
     func setSetting(data: Setting){
         do {
@@ -180,5 +201,50 @@ class SessionManager {
         let domain = Bundle.main.bundleIdentifier!
         UserDefaults.standard.removePersistentDomain(forName: domain)
         UserDefaults.standard.synchronize()
+    }
+    
+    // MARK: - User Management
+    func saveUser(_ user: User) {
+        do {
+            let data = try JSONEncoder().encode(user)
+            UserDefaults.standard.set(data, forKey: "currentUser")
+        } catch {
+            print("Failed to save user: \(error)")
+        }
+    }
+    
+    func loadUser() {
+        if let data = UserDefaults.standard.data(forKey: "currentUser") {
+            do {
+                currentUser = try JSONDecoder().decode(User.self, from: data)
+            } catch {
+                print("Failed to load user: \(error)")
+            }
+        }
+    }
+    
+    // MARK: - Profile Management
+    func saveProfile(_ profile: Profile) {
+        do {
+            let data = try JSONEncoder().encode(profile)
+            UserDefaults.standard.set(data, forKey: "currentProfile")
+        } catch {
+            print("Failed to save profile: \(error)")
+        }
+    }
+    
+    func loadProfile() {
+        if let data = UserDefaults.standard.data(forKey: "currentProfile") {
+            do {
+                currentProfile = try JSONDecoder().decode(Profile.self, from: data)
+            } catch {
+                print("Failed to load profile: \(error)")
+            }
+        }
+    }
+    
+    func clearProfile() {
+        currentProfile = nil
+        UserDefaults.standard.removeObject(forKey: "currentProfile")
     }
 }

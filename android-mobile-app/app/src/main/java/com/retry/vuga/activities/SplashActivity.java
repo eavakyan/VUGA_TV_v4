@@ -134,7 +134,8 @@ public class SplashActivity extends BaseActivity {
 
                                 fetchRevenueData();
 
-                                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                                // Always show profile selection
+                                startActivity(new Intent(SplashActivity.this, ProfileSelectionActivity.class));
                             } else {
                                 startActivity(new Intent(SplashActivity.this, SignInActivity.class));
                             }

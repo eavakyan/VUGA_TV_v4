@@ -65,6 +65,9 @@ struct ProfileView: View {
                         ProfileFieldCard(icon: .tv, title: "Connect TV"){
                             Navigation.pushToSwiftUiView(QRScannerView())
                         }
+                        ProfileFieldCard(icon: .person, title: "Switch Profile"){
+                            vm.showProfileSelection = true
+                        }
                     }
                     ProfileFieldCard(icon: .privacy, title: .privacyPolicy){
                         vm.isPrivacyURLSheet = true
@@ -137,6 +140,10 @@ struct ProfileView: View {
                 vm.isTermsURLSheet = false
             }
             .ignoresSafeArea()
+        }
+        .sheet(isPresented: $vm.showProfileSelection) {
+            ProfileSelectionView()
+                .environmentObject(SessionManager.shared)
         }
         .loaderView(vm.isLoading)
         .addBackground()

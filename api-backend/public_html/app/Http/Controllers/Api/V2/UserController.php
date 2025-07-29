@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\V2\AppUser;
+use App\Models\V2\AppUserProfile;
 use App\Models\V2\AppUserWatchlist;
 use App\Models\V2\AppUserFavorite;
 use App\Models\V2\Content;
@@ -61,6 +62,19 @@ class UserController extends Controller
         $user->identity = $request->identity;
         $user->device_token = $request->device_token;
         $user->device_type = (int) $request->device_type;
+        $user->save();
+        
+        // Create default profile for new user
+        $profile = \App\Models\V2\AppUserProfile::create([
+            'app_user_id' => $user->app_user_id,
+            'name' => $user->fullname ?? 'Profile 1',
+            'avatar_type' => 'default',
+            'avatar_id' => 1,
+            'is_kids' => false
+        ]);
+        
+        // Set as last active profile
+        $user->last_active_profile_id = $profile->profile_id;
         $user->save();
 
         return response()->json([
@@ -234,6 +248,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
             'content_id' => 'required|integer|exists:content,content_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -244,21 +259,49 @@ class UserController extends Controller
         }
 
         $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
         
-        if ($user->watchlist()->where('content_id', $request->content_id)->exists()) {
-            // Remove from watchlist
-            $user->watchlist()->detach($request->content_id);
-            $message = 'Removed from watchlist';
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Use profile-specific watchlist if profile exists
+        if ($profileId) {
+            $profile = AppUserProfile::find($profileId);
+            if ($profile && $profile->app_user_id == $request->app_user_id) {
+                if ($profile->watchlist()->where('content_id', $request->content_id)->exists()) {
+                    // Remove from watchlist
+                    $profile->watchlist()->detach($request->content_id);
+                    $message = 'Removed from watchlist';
+                } else {
+                    // Add to watchlist
+                    $profile->watchlist()->attach($request->content_id);
+                    $message = 'Added to watchlist';
+                }
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Profile not found or unauthorized'
+                ], 404);
+            }
         } else {
-            // Add to watchlist
-            $user->watchlist()->attach($request->content_id);
-            $message = 'Added to watchlist';
+            // Fallback to user-level watchlist for backward compatibility
+            if ($user->watchlist()->where('content_id', $request->content_id)->exists()) {
+                // Remove from watchlist
+                $user->watchlist()->detach($request->content_id);
+                $message = 'Removed from watchlist';
+            } else {
+                // Add to watchlist
+                $user->watchlist()->attach($request->content_id);
+                $message = 'Added to watchlist';
+            }
         }
 
         return response()->json([
             'status' => true,
             'message' => $message,
-            'data' => $this->formatUserResponse($user->fresh(['watchlist']))
+            'data' => $this->formatUserResponse($user->fresh(['watchlist', 'profiles']))
         ]);
     }
 
@@ -270,6 +313,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
             'content_id' => 'required|integer|exists:content,content_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -280,21 +324,49 @@ class UserController extends Controller
         }
 
         $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
         
-        if ($user->favorites()->where('content_id', $request->content_id)->exists()) {
-            // Remove from favorites
-            $user->favorites()->detach($request->content_id);
-            $message = 'Removed from favorites';
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Use profile-specific favorites if profile exists
+        if ($profileId) {
+            $profile = AppUserProfile::find($profileId);
+            if ($profile && $profile->app_user_id == $request->app_user_id) {
+                if ($profile->favorites()->where('content_id', $request->content_id)->exists()) {
+                    // Remove from favorites
+                    $profile->favorites()->detach($request->content_id);
+                    $message = 'Removed from favorites';
+                } else {
+                    // Add to favorites
+                    $profile->favorites()->attach($request->content_id);
+                    $message = 'Added to favorites';
+                }
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Profile not found or unauthorized'
+                ], 404);
+            }
         } else {
-            // Add to favorites
-            $user->favorites()->attach($request->content_id);
-            $message = 'Added to favorites';
+            // Fallback to user-level favorites for backward compatibility
+            if ($user->favorites()->where('content_id', $request->content_id)->exists()) {
+                // Remove from favorites
+                $user->favorites()->detach($request->content_id);
+                $message = 'Removed from favorites';
+            } else {
+                // Add to favorites
+                $user->favorites()->attach($request->content_id);
+                $message = 'Added to favorites';
+            }
         }
 
         return response()->json([
             'status' => true,
             'message' => $message,
-            'data' => $this->formatUserResponse($user->fresh(['favorites']))
+            'data' => $this->formatUserResponse($user->fresh(['favorites', 'profiles']))
         ]);
     }
 
@@ -372,6 +444,31 @@ class UserController extends Controller
             $data['watchlist_content_ids'] = $user->watchlist->pluck('content_id')->implode(',');
         }
         
+        // Include profile information
+        $user->load(['profiles' => function($query) {
+            $query->where('is_active', 1)->with('defaultAvatar');
+        }, 'lastActiveProfile.defaultAvatar']);
+        
+        $data['profiles'] = $user->profiles->map(function ($profile) {
+            return [
+                'profile_id' => $profile->profile_id,
+                'name' => $profile->name,
+                'avatar_type' => $profile->avatar_type,
+                'avatar_url' => $profile->avatar_url,
+                'avatar_color' => $profile->avatar_color,
+                'is_kids' => (bool) $profile->is_kids
+            ];
+        });
+        
+        $data['last_active_profile'] = $user->lastActiveProfile ? [
+            'profile_id' => $user->lastActiveProfile->profile_id,
+            'name' => $user->lastActiveProfile->name,
+            'avatar_type' => $user->lastActiveProfile->avatar_type,
+            'avatar_url' => $user->lastActiveProfile->avatar_url,
+            'avatar_color' => $user->lastActiveProfile->avatar_color,
+            'is_kids' => (bool) $user->lastActiveProfile->is_kids
+        ] : null;
+        
         return $data;
     }
 
@@ -413,7 +510,8 @@ class UserController extends Controller
             'user_id' => 'required|integer|exists:app_user,app_user_id',
             'start' => 'required|integer',
             'limit' => 'required|integer',
-            'type' => 'nullable|integer'
+            'type' => 'nullable|integer',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -424,11 +522,28 @@ class UserController extends Controller
         }
 
         $user = AppUser::find($request->user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
         
         // Get watchlist content IDs
-        $watchlistIds = $user->watchlist()
-            ->pluck('content_id')
-            ->toArray();
+        $watchlistIds = [];
+        if ($profileId) {
+            $profile = AppUserProfile::find($profileId);
+            if ($profile && $profile->app_user_id == $request->user_id) {
+                $watchlistIds = $profile->watchlist()
+                    ->pluck('content_id')
+                    ->toArray();
+            }
+        } else {
+            // Fallback to user-level watchlist for backward compatibility
+            $watchlistIds = $user->watchlist()
+                ->pluck('content_id')
+                ->toArray();
+        }
         
         // Build query
         $query = Content::whereIn('content_id', $watchlistIds)

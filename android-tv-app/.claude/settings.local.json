@@ -20,7 +20,13 @@
       "Bash(php artisan:*)",
       "Bash(aapt dump badging:*)",
       "Bash(curl:*)",
-      "Bash(php:*)"
+      "Bash(php:*)",
+      "Bash(rsync:*)",
+      "Bash(./deploy-backend.sh:*)",
+      "Bash(./deploy-controller.sh)",
+      "Bash(keytool:*)",
+      "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/test-profile-api.sh:*)",
+      "Bash(xcrun swift:*)"
     ],
     "deny": []
   }

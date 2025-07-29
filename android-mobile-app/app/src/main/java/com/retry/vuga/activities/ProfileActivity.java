@@ -103,6 +103,13 @@ public class ProfileActivity extends BaseActivity {
             startActivity(new Intent(this, QRScannerActivity.class));
         });
 
+        binding.loutSwitchProfile.setOnClickListener(v -> {
+            Intent intent = new Intent(this, ProfileSelectionActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
+        });
+
         binding.imgEdit.setOnClickListener(v -> {
 
             startActivity(new Intent(this, EditProfileActivity.class));

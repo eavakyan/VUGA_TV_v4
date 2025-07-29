@@ -1,0 +1,191 @@
+import SwiftUI
+
+struct CreateProfileView: View {
+    @StateObject private var viewModel = CreateProfileViewModel()
+    @Environment(\.presentationMode) var presentationMode
+    @State private var profileName = ""
+    @State private var selectedColor = "#FF5252"
+    @State private var isKidsProfile = false
+    
+    let profile: Profile?
+    let onComplete: () -> Void
+    
+    let avatarColors = [
+        "#FF5252", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4",
+        "#FECA57", "#48DBFB", "#FF9FF3", "#54A0FF", "#FD79A8",
+        "#A29BFE", "#6C5CE7", "#2E86AB", "#A23B72", "#F18F01"
+    ]
+    
+    init(profile: Profile? = nil, onComplete: @escaping () -> Void) {
+        self.profile = profile
+        self.onComplete = onComplete
+    }
+    
+    var body: some View {
+        ZStack {
+            Color.black.ignoresSafeArea()
+            
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Button(action: {
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 20))
+                            .foregroundColor(.white)
+                    }
+                    
+                    Spacer()
+                    
+                    Text(profile == nil ? "Create Profile" : "Edit Profile")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.white)
+                    
+                    Spacer()
+                    
+                    // Placeholder for alignment
+                    Image(systemName: "xmark")
+                        .font(.system(size: 20))
+                        .foregroundColor(.clear)
+                }
+                .padding()
+                
+                ScrollView {
+                    VStack(spacing: 30) {
+                        // Profile Preview
+                        ZStack {
+                            Circle()
+                                .fill(Color(hexString: selectedColor))
+                                .frame(width: 120, height: 120)
+                            
+                            Text(profileName.isEmpty ? "P" : String(profileName.prefix(1)).uppercased())
+                                .font(.system(size: 48, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .padding(.top, 20)
+                        
+                        // Profile Name
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Profile Name")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                            
+                            TextField("", text: $profileName)
+                                .placeholder(when: profileName.isEmpty) {
+                                    Text("Enter profile name")
+                                        .foregroundColor(Color.white.opacity(0.3))
+                                }
+                                .foregroundColor(.white)
+                                .padding()
+                                .background(Color.white.opacity(0.1))
+                                .cornerRadius(8)
+                        }
+                        .padding(.horizontal)
+                        
+                        // Avatar Colors
+                        VStack(alignment: .leading, spacing: 10) {
+                            Text("Choose Avatar Color")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .padding(.horizontal)
+                            
+                            LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 5), spacing: 15) {
+                                ForEach(avatarColors, id: \.self) { color in
+                                    Circle()
+                                        .fill(Color(hexString: color))
+                                        .frame(width: 50, height: 50)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: selectedColor == color ? 3 : 0)
+                                        )
+                                        .onTapGesture {
+                                            selectedColor = color
+                                        }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                        
+                        // Kids Profile Toggle
+                        HStack {
+                            Text("Kids Profile")
+                                .font(.system(size: 16))
+                                .foregroundColor(.white)
+                            
+                            Spacer()
+                            
+                            Toggle("", isOn: $isKidsProfile)
+                                .labelsHidden()
+                        }
+                        .padding(.horizontal)
+                        
+                        Text("Kids profiles only show content rated for children")
+                            .font(.system(size: 12))
+                            .foregroundColor(.white.opacity(0.5))
+                            .padding(.horizontal)
+                        
+                        // Create/Update Button
+                        Button(action: {
+                            if profile == nil {
+                                viewModel.createProfile(name: profileName, color: selectedColor, isKids: isKidsProfile) {
+                                    onComplete()
+                                    presentationMode.wrappedValue.dismiss()
+                                }
+                            } else {
+                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile) {
+                                    onComplete()
+                                    presentationMode.wrappedValue.dismiss()
+                                }
+                            }
+                        }) {
+                            Text(profile == nil ? "Create Profile" : "Update Profile")
+                                .font(.system(size: 16, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.red)
+                                .cornerRadius(25)
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 40)
+                        .disabled(profileName.isEmpty || viewModel.isLoading)
+                    }
+                }
+            }
+            
+            if viewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
+            }
+        }
+        .onAppear {
+            if let profile = profile {
+                profileName = profile.name
+                selectedColor = profile.avatarColor
+                isKidsProfile = profile.isKids
+            }
+        }
+        .alert(isPresented: $viewModel.showError) {
+            Alert(
+                title: Text("Error"),
+                message: Text(viewModel.errorMessage),
+                dismissButton: .default(Text("OK"))
+            )
+        }
+    }
+}
+
+extension View {
+    func placeholder<Content: View>(
+        when shouldShow: Bool,
+        alignment: Alignment = .leading,
+        @ViewBuilder placeholder: () -> Content) -> some View {
+        
+        ZStack(alignment: alignment) {
+            placeholder().opacity(shouldShow ? 1 : 0)
+            self
+        }
+    }
+}

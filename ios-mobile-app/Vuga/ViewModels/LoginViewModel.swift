@@ -32,13 +32,23 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
         ]
         
         NetworkManager.callWebService(url: .userRegistration, params: params) { (obj: UserModel) in
+            print("LoginViewModel: User registration response - status: \(obj.status ?? false)")
+            print("LoginViewModel: Response message: \(obj.message ?? "")")
+            
+            // Handle both new registration and existing user cases
+            // API returns status=false with "User already exists" but still provides user data
             if let user = obj.data {
                 DispatchQueue.main.async {
+                    print("LoginViewModel: Setting user and login state - userId: \(user.id ?? 0), shouldLogin: \(shouldLogin)")
+                    print("LoginViewModel: User has \(user.profiles?.count ?? 0) profiles")
                     self.myUser = user
                     self.isLoggedIn = shouldLogin
                     completion(user)
                     self.proModel.passUserIdToRevenueCat()
                 }
+            } else {
+                print("LoginViewModel: No user data in response - message: \(obj.message ?? "no message")")
+                self.stopLoading()
             }
         }
     }

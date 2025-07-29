@@ -24,6 +24,9 @@ struct User: Codable {
     let deviceToken: String?
     let status, isPremium: Int?
     let timezone, createdAt, updatedAt: String?
+    let profiles: [Profile]?
+    let lastActiveProfileId: Int?
+    let lastActiveProfile: Profile?
 
     enum CodingKeys: String, CodingKey {
         case id = "app_user_id"
@@ -39,6 +42,9 @@ struct User: Codable {
         case timezone
         case createdAt = "created_at"
         case updatedAt = "updated_at"
+        case profiles
+        case lastActiveProfileId = "last_active_profile_id"
+        case lastActiveProfile = "last_active_profile"
     }
     
     var watchlistIds : [Int] {

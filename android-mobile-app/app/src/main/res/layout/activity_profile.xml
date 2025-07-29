@@ -277,6 +277,35 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/lout_switch_profile"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_switch_profile"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="Switch Profile"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:id="@+id/lout_language"
                         android:layout_width="match_parent"
                         android:layout_height="65dp"

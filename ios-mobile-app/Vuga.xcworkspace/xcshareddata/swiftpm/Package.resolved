@@ -254,9 +254,9 @@
       }
     },
     {
-      "identity" : "swiftsubtitles?tab=readme-ov-file#limitations",
+      "identity" : "swiftsubtitles",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/dagronf/SwiftSubtitles?tab=readme-ov-file#limitations",
+      "location" : "https://github.com/dagronf/SwiftSubtitles",
       "state" : {
         "revision" : "751866f632ccf438025472eb1c1dccffbc5176a3",
         "version" : "1.5.2"

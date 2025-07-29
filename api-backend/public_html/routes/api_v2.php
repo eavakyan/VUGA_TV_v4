@@ -143,6 +143,24 @@ Route::prefix('v2')->group(function () {
         Route::post('/increase-share', [V2\LiveTvController::class, 'increaseChannelShare']);
     });
     
+    // Profile Management (V1 Compatible routes)
+    Route::post('/getUserProfiles', [V2\ProfileController::class, 'getUserProfiles']);
+    Route::post('/createProfile', [V2\ProfileController::class, 'createProfile']);
+    Route::post('/updateProfile', [V2\ProfileController::class, 'updateProfile']);
+    Route::post('/deleteProfile', [V2\ProfileController::class, 'deleteProfile']);
+    Route::post('/selectProfile', [V2\ProfileController::class, 'selectProfile']);
+    Route::post('/getDefaultAvatars', [V2\ProfileController::class, 'getDefaultAvatars']);
+    
+    // Profile Management
+    Route::prefix('profile')->group(function () {
+        Route::post('/list', [V2\ProfileController::class, 'getUserProfiles']);
+        Route::post('/create', [V2\ProfileController::class, 'createProfile']);
+        Route::post('/update', [V2\ProfileController::class, 'updateProfile']);
+        Route::post('/delete', [V2\ProfileController::class, 'deleteProfile']);
+        Route::post('/select', [V2\ProfileController::class, 'selectProfile']);
+        Route::post('/avatars', [V2\ProfileController::class, 'getDefaultAvatars']);
+    });
+    
     // Test endpoint to verify V2 API is working
     Route::get('/test', function () {
         return response()->json([

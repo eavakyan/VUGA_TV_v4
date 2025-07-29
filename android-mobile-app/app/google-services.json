@@ -14,11 +14,19 @@
       },
       "oauth_client": [
         {
-          "client_id": "561887003471-40dbcna287qvk5nli4a151ks76jseuo5.apps.googleusercontent.com",
+          "client_id": "561887003471-a1n00uli1mvloas37vprj8imtc5ocdkl.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.vugaenterprises.androiddev",
-            "certificate_hash": "0b1dc85b77ce27bf679a6332f36a4001cc284b97"
+            "certificate_hash": "4eb5a639bb961cbe8305694224f9539f043a5c5c"
+          }
+        },
+        {
+          "client_id": "561887003471-eu0s45vl9dp6o9ndtm4gttkukaehtedn.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vugaenterprises.androiddev",
+            "certificate_hash": "e9b7684170ea35201d54e3c1d6b584ab81aca970"
           }
         },
         {

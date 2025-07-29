@@ -8,6 +8,7 @@ import com.retry.vuga.model.ContentByGenre;
 import com.retry.vuga.model.ContentDetail;
 import com.retry.vuga.model.HomePage;
 import com.retry.vuga.model.LiveTv;
+import com.retry.vuga.model.ProfileResponse;
 import com.retry.vuga.model.RestResponse;
 import com.retry.vuga.model.SearchChannel;
 import com.retry.vuga.model.UserRegistration;
@@ -147,5 +148,36 @@ public interface RetrofitService {
     @POST("TV/authenticateSession")
     Single<RestResponse> authenticateTVSession(@Field("session_token") String sessionToken,
                                                @Field("user_id") int userId);
+
+    @FormUrlEncoded
+    @POST("getUserProfiles")
+    Single<ProfileResponse> getUserProfiles(@Field(Const.ApiKey.user_id) int userId);
+
+    @FormUrlEncoded
+    @POST("createProfile")
+    Single<ProfileResponse> createProfile(@Field(Const.ApiKey.user_id) int userId,
+                                        @Field("name") String name,
+                                        @Field("avatar_type") String avatarType,
+                                        @Field("avatar_url") String avatarUrl,
+                                        @Field("avatar_color") String avatarColor,
+                                        @Field("is_kids") int isKids);
+
+    @FormUrlEncoded
+    @POST("updateProfile")
+    Single<ProfileResponse> updateProfile(@Field("profile_id") int profileId,
+                                        @Field("name") String name,
+                                        @Field("avatar_type") String avatarType,
+                                        @Field("avatar_url") String avatarUrl,
+                                        @Field("avatar_color") String avatarColor,
+                                        @Field("is_kids") int isKids);
+
+    @FormUrlEncoded
+    @POST("deleteProfile")
+    Single<RestResponse> deleteProfile(@Field("profile_id") int profileId);
+
+    @FormUrlEncoded
+    @POST("selectProfile")
+    Single<RestResponse> selectProfile(@Field(Const.ApiKey.user_id) int userId,
+                                     @Field("profile_id") int profileId);
 
 }

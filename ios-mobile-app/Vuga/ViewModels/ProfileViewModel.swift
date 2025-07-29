@@ -17,6 +17,7 @@ class ProfileViewModel : BaseViewModel {
     @Published var isTermsURLSheet = false
     @Published var isRatingAppSheet = false
     @Published var isPrivacyURLSheet = false
+    @Published var showProfileSelection = false
     @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
 
     

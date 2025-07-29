@@ -3,11 +3,15 @@
 namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
+use App\Models\V2\AppUser;
+use App\Models\V2\AppUserProfile;
+use App\Models\V2\ProfileWatchHistory;
 use App\Models\V2\AppUserWatchHistory;
 use App\Models\V2\Content;
 use App\Models\V2\Episode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class WatchHistoryController extends Controller
 {
@@ -18,6 +22,7 @@ class WatchHistoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id',
             'content_id' => 'required_without:episode_id|integer|exists:content,content_id',
             'episode_id' => 'required_without:content_id|integer|exists:episode,episode_id',
             'last_watched_position' => 'required|integer|min:0',
@@ -32,26 +37,60 @@ class WatchHistoryController extends Controller
             ], 400);
         }
 
+        $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+
         // Determine if content is completed
         $completed = false;
         if ($request->total_duration > 0) {
             $percentageWatched = ($request->last_watched_position / $request->total_duration) * 100;
             $completed = $percentageWatched >= 90; // Mark as completed if 90% watched
         }
-
-        $watchHistory = AppUserWatchHistory::updateOrCreate(
-            [
-                'app_user_id' => $request->app_user_id,
-                'content_id' => $request->content_id,
-                'episode_id' => $request->episode_id,
-            ],
-            [
-                'last_watched_position' => $request->last_watched_position,
-                'total_duration' => $request->total_duration,
-                'completed' => $completed,
-                'device_type' => $request->device_type ?? 0,
-            ]
-        );
+        
+        // Use profile-specific watch history if profile exists
+        if ($profileId) {
+            $profile = AppUserProfile::find($profileId);
+            if ($profile && $profile->app_user_id == $request->app_user_id) {
+                $watchHistory = ProfileWatchHistory::updateOrCreate(
+                    [
+                        'profile_id' => $profileId,
+                        'content_id' => $request->content_id,
+                        'episode_id' => $request->episode_id,
+                    ],
+                    [
+                        'last_position' => $request->last_watched_position,
+                        'duration' => $request->total_duration,
+                        'completed' => $completed,
+                        'updated_at' => Carbon::now()
+                    ]
+                );
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Profile not found or unauthorized'
+                ], 404);
+            }
+        } else {
+            // Fallback to user-level watch history for backward compatibility
+            $watchHistory = AppUserWatchHistory::updateOrCreate(
+                [
+                    'app_user_id' => $request->app_user_id,
+                    'content_id' => $request->content_id,
+                    'episode_id' => $request->episode_id,
+                ],
+                [
+                    'last_watched_position' => $request->last_watched_position,
+                    'total_duration' => $request->total_duration,
+                    'completed' => $completed,
+                    'device_type' => $request->device_type ?? 0,
+                ]
+            );
+        }
 
         // Update view count if newly completed
         if ($completed && $watchHistory->wasRecentlyCreated) {
@@ -77,6 +116,7 @@ class WatchHistoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id',
             'limit' => 'nullable|integer|min:1|max:50',
         ]);
 
@@ -87,47 +127,106 @@ class WatchHistoryController extends Controller
             ], 400);
         }
 
+        $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
         $limit = $request->limit ?? 20;
         
-        $watchHistory = AppUserWatchHistory::with([
-                'content.language', 
-                'content.genres',
-                'episode.season.content'
-            ])
-            ->where('app_user_id', $request->app_user_id)
-            ->where('completed', 0)
-            ->where('last_watched_position', '>', 0)
-            ->orderBy('updated_at', 'desc')
-            ->limit($limit)
-            ->get();
-
-        $formattedData = $watchHistory->map(function($history) {
-            $contentData = null;
-            
-            if ($history->content) {
-                $contentData = $history->content->toArray();
-                $contentData['genre_ids'] = $history->content->genres->pluck('genre_id')->implode(',');
-            } elseif ($history->episode && $history->episode->season && $history->episode->season->content) {
-                $contentData = $history->episode->season->content->toArray();
-                $contentData['genre_ids'] = $history->episode->season->content->genres->pluck('genre_id')->implode(',');
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Get profile-specific continue watching
+        if ($profileId) {
+            $profile = AppUserProfile::find($profileId);
+            if ($profile && $profile->app_user_id == $request->app_user_id) {
+                $watchHistory = ProfileWatchHistory::with([
+                        'content.language', 
+                        'content.genres',
+                        'episode.season.content'
+                    ])
+                    ->where('profile_id', $profileId)
+                    ->where('completed', 0)
+                    ->where('last_position', '>', 0)
+                    ->orderBy('updated_at', 'desc')
+                    ->limit($limit)
+                    ->get();
+                    
+                $formattedData = $watchHistory->map(function($history) {
+                    $contentData = null;
+                    
+                    if ($history->content) {
+                        $contentData = $history->content->toArray();
+                        $contentData['genre_ids'] = $history->content->genres->pluck('genre_id')->implode(',');
+                    } elseif ($history->episode && $history->episode->season && $history->episode->season->content) {
+                        $contentData = $history->episode->season->content->toArray();
+                        $contentData['genre_ids'] = $history->episode->season->content->genres->pluck('genre_id')->implode(',');
+                    }
+                    
+                    return [
+                        'watch_history_id' => $history->history_id,
+                        'content' => $contentData,
+                        'episode' => $history->episode ? [
+                            'episode_id' => $history->episode->episode_id,
+                            'title' => $history->episode->title,
+                            'number' => $history->episode->number,
+                            'season_id' => $history->episode->season_id,
+                            'season_title' => $history->episode->season->title
+                        ] : null,
+                        'last_watched_position' => $history->last_position,
+                        'total_duration' => $history->duration,
+                        'percentage_watched' => round(($history->last_position / $history->duration) * 100, 2),
+                        'updated_at' => $history->updated_at
+                    ];
+                });
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Profile not found or unauthorized'
+                ], 404);
             }
-            
-            return [
-                'watch_history_id' => $history->watch_history_id,
-                'content' => $contentData,
-                'episode' => $history->episode ? [
-                    'episode_id' => $history->episode->episode_id,
-                    'title' => $history->episode->title,
-                    'number' => $history->episode->number,
-                    'season_id' => $history->episode->season_id,
-                    'season_title' => $history->episode->season->title
-                ] : null,
-                'last_watched_position' => $history->last_watched_position,
-                'total_duration' => $history->total_duration,
-                'percentage_watched' => round(($history->last_watched_position / $history->total_duration) * 100, 2),
-                'updated_at' => $history->updated_at
-            ];
-        });
+        } else {
+            // Fallback to user-level watch history
+            $watchHistory = AppUserWatchHistory::with([
+                    'content.language', 
+                    'content.genres',
+                    'episode.season.content'
+                ])
+                ->where('app_user_id', $request->app_user_id)
+                ->where('completed', 0)
+                ->where('last_watched_position', '>', 0)
+                ->orderBy('updated_at', 'desc')
+                ->limit($limit)
+                ->get();
+
+            $formattedData = $watchHistory->map(function($history) {
+                $contentData = null;
+                
+                if ($history->content) {
+                    $contentData = $history->content->toArray();
+                    $contentData['genre_ids'] = $history->content->genres->pluck('genre_id')->implode(',');
+                } elseif ($history->episode && $history->episode->season && $history->episode->season->content) {
+                    $contentData = $history->episode->season->content->toArray();
+                    $contentData['genre_ids'] = $history->episode->season->content->genres->pluck('genre_id')->implode(',');
+                }
+                
+                return [
+                    'watch_history_id' => $history->watch_history_id,
+                    'content' => $contentData,
+                    'episode' => $history->episode ? [
+                        'episode_id' => $history->episode->episode_id,
+                        'title' => $history->episode->title,
+                        'number' => $history->episode->number,
+                        'season_id' => $history->episode->season_id,
+                        'season_title' => $history->episode->season->title
+                    ] : null,
+                    'last_watched_position' => $history->last_watched_position,
+                    'total_duration' => $history->total_duration,
+                    'percentage_watched' => round(($history->last_watched_position / $history->total_duration) * 100, 2),
+                    'updated_at' => $history->updated_at
+                ];
+            });
+        }
 
         return response()->json([
             'status' => true,
@@ -143,6 +242,7 @@ class WatchHistoryController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id',
             'content_id' => 'required_without:episode_id|integer|exists:content,content_id',
             'episode_id' => 'required_without:content_id|integer|exists:episode,episode_id',
         ]);
@@ -154,14 +254,39 @@ class WatchHistoryController extends Controller
             ], 400);
         }
 
-        $watchHistory = AppUserWatchHistory::where('app_user_id', $request->app_user_id)
-            ->where('content_id', $request->content_id)
-            ->where('episode_id', $request->episode_id)
-            ->first();
+        $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Update profile-specific watch history
+        if ($profileId) {
+            $profile = AppUserProfile::find($profileId);
+            if ($profile && $profile->app_user_id == $request->app_user_id) {
+                ProfileWatchHistory::where('profile_id', $profileId)
+                    ->where('content_id', $request->content_id)
+                    ->where('episode_id', $request->episode_id)
+                    ->update(['completed' => 1]);
+            } else {
+                return response()->json([
+                    'status' => false,
+                    'message' => 'Profile not found or unauthorized'
+                ], 404);
+            }
+        } else {
+            // Fallback to user-level watch history
+            $watchHistory = AppUserWatchHistory::where('app_user_id', $request->app_user_id)
+                ->where('content_id', $request->content_id)
+                ->where('episode_id', $request->episode_id)
+                ->first();
 
-        if ($watchHistory) {
-            $watchHistory->completed = 1;
-            $watchHistory->save();
+            if ($watchHistory) {
+                $watchHistory->completed = 1;
+                $watchHistory->save();
+            }
         }
 
         return response()->json([

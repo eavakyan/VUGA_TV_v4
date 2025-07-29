@@ -44,6 +44,12 @@ enum APIs : String {
     
     // TV Authentication
     case tvAuthAuthenticate                 = "TV/authenticateSession"
+    
+    // Profile Management
+    case getUserProfiles                    = "getUserProfiles"
+    case createProfile                      = "createProfile"
+    case deleteProfile                      = "deleteProfile"
+    case selectProfile                      = "selectProfile"
 }
 
 extension String {

@@ -428,7 +428,9 @@ public class EmailLoginActivity extends BaseActivity {
                 if (goNext) {
                     sessionManager.saveUser(data);
                     loginRevenueCat();
-                    startActivity(new Intent(EmailLoginActivity.this, MainActivity.class));
+                    
+                    // Always show profile selection after login
+                    startActivity(new Intent(EmailLoginActivity.this, ProfileSelectionActivity.class));
                     finish();
                 }
 

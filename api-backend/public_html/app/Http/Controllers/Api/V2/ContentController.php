@@ -23,6 +23,7 @@ class ContentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -33,14 +34,29 @@ class ContentController extends Controller
         }
 
         $userId = $request->user_id;
+        $profileId = $request->profile_id;
         $user = null;
         $watchlistIds = [];
         
         // Only fetch user if user_id is not 0
         if ($userId > 0) {
-            $user = DB::table('app_user')->where('app_user_id', $userId)->first();
-            // Get user's watchlist
-            $watchlistIds = $user && $user->watchlist_content_ids ? explode(',', $user->watchlist_content_ids) : [];
+            $user = \App\Models\V2\AppUser::find($userId);
+            
+            // If no profile_id provided, use last active profile
+            if ($user && !$profileId) {
+                $profileId = $user->last_active_profile_id;
+            }
+            
+            // Get profile's watchlist
+            if ($profileId) {
+                $profile = \App\Models\V2\AppUserProfile::find($profileId);
+                if ($profile && $profile->app_user_id == $userId) {
+                    $watchlistIds = $profile->watchlist()->pluck('content.content_id')->toArray();
+                }
+            } else {
+                // Fallback to user-level watchlist for backward compatibility
+                $watchlistIds = $user && $user->watchlist_content_ids ? explode(',', $user->watchlist_content_ids) : [];
+            }
         }
         
         $watchlistContent = [];
@@ -110,7 +126,8 @@ class ContentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'content_id' => 'required|integer|exists:content,content_id',
-            'user_id' => 'required|integer'
+            'user_id' => 'required|integer',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -141,12 +158,26 @@ class ContentController extends Controller
         $formattedContent = $this->formatContentDetail($content);
         
         // Check if content is in user's watchlist
-        $watchlistIds = [];
         $formattedContent['is_watchlist'] = false;
+        $formattedContent['is_favorite'] = false;
         
         if ($request->user_id > 0) {
-            $user = DB::table('app_user')->where('app_user_id', $request->user_id)->first();
-            if ($user) {
+            $user = \App\Models\V2\AppUser::find($request->user_id);
+            $profileId = $request->profile_id;
+            
+            // If no profile_id provided, use last active profile
+            if ($user && !$profileId) {
+                $profileId = $user->last_active_profile_id;
+            }
+            
+            if ($user && $profileId) {
+                $profile = \App\Models\V2\AppUserProfile::find($profileId);
+                if ($profile && $profile->app_user_id == $request->user_id) {
+                    $formattedContent['is_watchlist'] = $profile->watchlist()->where('profile_watchlist.content_id', $request->content_id)->exists();
+                    $formattedContent['is_favorite'] = $profile->favorites()->where('profile_favorite.content_id', $request->content_id)->exists();
+                }
+            } else if ($user) {
+                // Fallback to user-level watchlist for backward compatibility
                 $watchlistIds = $user->watchlist_content_ids ? explode(',', $user->watchlist_content_ids) : [];
                 $formattedContent['is_watchlist'] = in_array($request->content_id, $watchlistIds);
             }
@@ -208,7 +239,7 @@ class ContentController extends Controller
         // Continue watching (if user is logged in)
         $continueWatching = [];
         if ($request->app_user_id) {
-            $continueWatching = $this->getContinueWatching($request->app_user_id);
+            $continueWatching = $this->getContinueWatching($request->app_user_id, $request->profile_id ?? null);
         }
 
         // New releases
@@ -645,31 +676,67 @@ class ContentController extends Controller
     /**
      * Get continue watching content for user
      */
-    private function getContinueWatching($userId)
+    private function getContinueWatching($userId, $profileId = null)
     {
-        $watchHistory = AppUserWatchHistory::with(['content.language', 'content.genres', 'episode.season'])
-            ->where('app_user_id', $userId)
-            ->where('completed', 0)
-            ->where('last_watched_position', '>', 0)
-            ->orderBy('updated_at', 'desc')
-            ->limit(10)
-            ->get();
+        // If no profile ID provided, get last active profile
+        if (!$profileId) {
+            $user = \App\Models\V2\AppUser::find($userId);
+            if ($user) {
+                $profileId = $user->last_active_profile_id;
+            }
+        }
+        
+        // If we have a profile, use profile-specific watch history
+        if ($profileId) {
+            $watchHistory = \App\Models\V2\ProfileWatchHistory::with(['content.language', 'content.genres', 'episode.season'])
+                ->where('profile_id', $profileId)
+                ->where('completed', 0)
+                ->where('last_position', '>', 0)
+                ->orderBy('updated_at', 'desc')
+                ->limit(10)
+                ->get();
+                
+            return $watchHistory->map(function($history) {
+                $data = $this->formatContent($history->content);
+                $data['watch_history'] = [
+                    'last_watched_position' => $history->last_position,
+                    'total_duration' => $history->duration,
+                    'episode_id' => $history->episode_id,
+                    'episode' => $history->episode ? [
+                        'episode_id' => $history->episode->episode_id,
+                        'title' => $history->episode->title,
+                        'season_title' => $history->episode->season->title,
+                        'number' => $history->episode->number
+                    ] : null
+                ];
+                return $data;
+            });
+        } else {
+            // Fallback to user-level watch history for backward compatibility
+            $watchHistory = AppUserWatchHistory::with(['content.language', 'content.genres', 'episode.season'])
+                ->where('app_user_id', $userId)
+                ->where('completed', 0)
+                ->where('last_watched_position', '>', 0)
+                ->orderBy('updated_at', 'desc')
+                ->limit(10)
+                ->get();
 
-        return $watchHistory->map(function($history) {
-            $data = $this->formatContent($history->content);
-            $data['watch_history'] = [
-                'last_watched_position' => $history->last_watched_position,
-                'total_duration' => $history->total_duration,
-                'episode_id' => $history->episode_id,
-                'episode' => $history->episode ? [
-                    'episode_id' => $history->episode->episode_id,
-                    'title' => $history->episode->title,
-                    'season_title' => $history->episode->season->title,
-                    'number' => $history->episode->number
-                ] : null
-            ];
-            return $data;
-        });
+            return $watchHistory->map(function($history) {
+                $data = $this->formatContent($history->content);
+                $data['watch_history'] = [
+                    'last_watched_position' => $history->last_watched_position,
+                    'total_duration' => $history->total_duration,
+                    'episode_id' => $history->episode_id,
+                    'episode' => $history->episode ? [
+                        'episode_id' => $history->episode->episode_id,
+                        'title' => $history->episode->title,
+                        'season_title' => $history->episode->season->title,
+                        'number' => $history->episode->number
+                    ] : null
+                ];
+                return $data;
+            });
+        }
     }
 
     /**

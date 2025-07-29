@@ -61,7 +61,7 @@ public class UserRegistration {
 
 
         @SerializedName("watchlist_content_ids")
-        private String watchlist_content_ids;
+        private String watchlist_content_ids = "";
 
         @SerializedName("device_type")
         private int deviceType;
@@ -74,6 +74,15 @@ public class UserRegistration {
 
         @SerializedName("is_premium")
         private int isPremium;
+        
+        @SerializedName("profiles")
+        private java.util.List<Profile> profiles;
+        
+        @SerializedName("last_active_profile")
+        private Profile lastActiveProfile;
+        
+        @SerializedName("last_active_profile_id")
+        private Integer lastActiveProfileId;
 
         public String getWatchlist_content_ids() {
             return watchlist_content_ids == null ? "" : watchlist_content_ids;
@@ -165,6 +174,98 @@ public class UserRegistration {
 
         public void setStatus(int status) {
             this.status = status;
+        }
+        
+        public java.util.List<Profile> getProfiles() {
+            return profiles;
+        }
+        
+        public void setProfiles(java.util.List<Profile> profiles) {
+            this.profiles = profiles;
+        }
+        
+        public Profile getLastActiveProfile() {
+            return lastActiveProfile;
+        }
+        
+        public void setLastActiveProfile(Profile lastActiveProfile) {
+            this.lastActiveProfile = lastActiveProfile;
+        }
+        
+        public Integer getLastActiveProfileId() {
+            return lastActiveProfileId;
+        }
+        
+        public void setLastActiveProfileId(Integer lastActiveProfileId) {
+            this.lastActiveProfileId = lastActiveProfileId;
+        }
+    }
+    
+    public static class Profile {
+        @SerializedName("profile_id")
+        private int profileId;
+        
+        @SerializedName("name")
+        private String name;
+        
+        @SerializedName("avatar_type")
+        private String avatarType;
+        
+        @SerializedName("avatar_url")
+        private String avatarUrl;
+        
+        @SerializedName("avatar_color")
+        private String avatarColor;
+        
+        @SerializedName("is_kids")
+        private boolean isKids;
+        
+        public int getProfileId() {
+            return profileId;
+        }
+        
+        public void setProfileId(int profileId) {
+            this.profileId = profileId;
+        }
+        
+        public String getName() {
+            return name == null ? "" : name;
+        }
+        
+        public void setName(String name) {
+            this.name = name;
+        }
+        
+        public String getAvatarType() {
+            return avatarType;
+        }
+        
+        public void setAvatarType(String avatarType) {
+            this.avatarType = avatarType;
+        }
+        
+        public String getAvatarUrl() {
+            return avatarUrl == null ? "" : avatarUrl;
+        }
+        
+        public void setAvatarUrl(String avatarUrl) {
+            this.avatarUrl = avatarUrl;
+        }
+        
+        public String getAvatarColor() {
+            return avatarColor;
+        }
+        
+        public void setAvatarColor(String avatarColor) {
+            this.avatarColor = avatarColor;
+        }
+        
+        public boolean isKids() {
+            return isKids;
+        }
+        
+        public void setKids(boolean kids) {
+            isKids = kids;
         }
     }
 

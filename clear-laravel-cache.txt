@@ -1,0 +1,19 @@
+To fix the 404 error for the profile endpoints, you may need to run these commands on the server:
+
+1. Clear route cache:
+   php artisan route:clear
+   php artisan route:cache
+
+2. Clear configuration cache:
+   php artisan config:clear
+   php artisan config:cache
+
+3. Clear application cache:
+   php artisan cache:clear
+
+4. If using OPcache, you may also need to restart the web server or clear OPcache.
+
+Make sure the ProfileController.php file is uploaded to:
+/app/Http/Controllers/Api/V2/ProfileController.php
+
+And that the routes/api_v2.php file is also uploaded and includes the profile routes.

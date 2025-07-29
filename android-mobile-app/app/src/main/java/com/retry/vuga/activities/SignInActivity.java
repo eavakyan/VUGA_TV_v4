@@ -137,7 +137,9 @@ public class SignInActivity extends BaseActivity {
                 binding.progress.setVisibility(View.GONE);
                 sessionManager.saveUser(data);
                 loginRevenueCat();
-                startActivity(new Intent(SignInActivity.this, MainActivity.class));
+                
+                // Always show profile selection after login
+                startActivity(new Intent(SignInActivity.this, ProfileSelectionActivity.class));
                 finish();
             }
         });
