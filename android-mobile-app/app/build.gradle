@@ -17,14 +17,14 @@ android {
 
     buildFeatures.dataBinding = true
 
-    compileSdk 36
+    compileSdk 35
 
     defaultConfig {
         applicationId "com.vugaenterprises.androiddev"
         minSdk 24
-        targetSdk 36
-        versionCode 2
-        versionName "1.2"
+        targetSdk 35
+        versionCode 3
+        versionName "1.3"
         multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "Vuga")

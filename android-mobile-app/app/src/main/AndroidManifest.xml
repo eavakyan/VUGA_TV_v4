@@ -18,6 +18,8 @@
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
     <!-- Tablet support -->
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
@@ -31,7 +33,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Vuga"
-        android:usesCleartextTraffic="true">
+        android:networkSecurityConfig="@xml/network_security_config">
         <activity
             android:name=".activities.ActorDetailActivity"
             android:screenOrientation="portrait"
@@ -79,9 +81,12 @@
         <service
             android:name=".utils.DownloadService"
             android:enabled="true"
-            android:exported="true"
+            android:exported="false"
             android:foregroundServiceType="specialUse"
             android:stopWithTask="true">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Download service for offline content viewing" />
             <intent-filter>
                 <category android:name="android.intent.category.APP_MUSIC" />
             </intent-filter>
