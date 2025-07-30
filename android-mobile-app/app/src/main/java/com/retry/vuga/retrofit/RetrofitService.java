@@ -174,7 +174,8 @@ public interface RetrofitService {
 
     @FormUrlEncoded
     @POST("deleteProfile")
-    Single<RestResponse> deleteProfile(@Field("profile_id") int profileId);
+    Single<RestResponse> deleteProfile(@Field("profile_id") int profileId,
+                                     @Field(Const.ApiKey.user_id) int userId);
 
     @FormUrlEncoded
     @POST("selectProfile")

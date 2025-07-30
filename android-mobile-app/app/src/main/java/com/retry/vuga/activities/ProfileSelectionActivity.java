@@ -121,7 +121,7 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
         if (profileList.size() > 1) {
             deleteProfile(profile);
         } else {
-            Toast.makeText(this, "Cannot delete the last profile", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "You must keep at least one profile", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -162,16 +162,20 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
     private void deleteProfile(Profile profile) {
         binding.progressBar.setVisibility(View.VISIBLE);
         
+        int userId = sessionManager.getUser().getId();
+        
         disposable.add(RetrofitClient.getService()
-                .deleteProfile(profile.getProfileId())
+                .deleteProfile(profile.getProfileId(), userId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(() -> binding.progressBar.setVisibility(View.GONE))
                 .subscribe((response, throwable) -> {
                     if (response != null && response.getStatus()) {
+                        Toast.makeText(this, "Profile deleted successfully", Toast.LENGTH_SHORT).show();
                         loadProfiles();
                     } else {
-                        Toast.makeText(this, "Failed to delete profile", Toast.LENGTH_SHORT).show();
+                        String message = response != null ? response.getMessage() : "Failed to delete profile";
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
                     }
                 }));
     }
