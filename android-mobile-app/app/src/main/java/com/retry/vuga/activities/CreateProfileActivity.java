@@ -123,8 +123,10 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         binding.progressBar.setVisibility(View.VISIBLE);
         binding.btnCreate.setEnabled(false);
 
+        int userId = sessionManager.getUser().getId();
+
         disposable.add(RetrofitClient.getService()
-                .updateProfile(profileId, profileName, "color", "", selectedColor, isKidsProfile ? 1 : 0)
+                .updateProfile(profileId, userId, profileName, "color", "", selectedColor, isKidsProfile ? 1 : 0)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(() -> {

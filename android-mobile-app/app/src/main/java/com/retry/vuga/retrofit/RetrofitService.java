@@ -165,6 +165,7 @@ public interface RetrofitService {
     @FormUrlEncoded
     @POST("updateProfile")
     Single<ProfileResponse> updateProfile(@Field("profile_id") int profileId,
+                                        @Field(Const.ApiKey.user_id) int userId,
                                         @Field("name") String name,
                                         @Field("avatar_type") String avatarType,
                                         @Field("avatar_url") String avatarUrl,
