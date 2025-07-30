@@ -157,9 +157,7 @@ public interface RetrofitService {
     @POST("createProfile")
     Single<ProfileResponse> createProfile(@Field(Const.ApiKey.user_id) int userId,
                                         @Field("name") String name,
-                                        @Field("avatar_type") String avatarType,
-                                        @Field("avatar_url") String avatarUrl,
-                                        @Field("avatar_color") String avatarColor,
+                                        @Field("avatar_id") int avatarId,
                                         @Field("is_kids") int isKids);
 
     @FormUrlEncoded
@@ -167,9 +165,7 @@ public interface RetrofitService {
     Single<ProfileResponse> updateProfile(@Field("profile_id") int profileId,
                                         @Field(Const.ApiKey.user_id) int userId,
                                         @Field("name") String name,
-                                        @Field("avatar_type") String avatarType,
-                                        @Field("avatar_url") String avatarUrl,
-                                        @Field("avatar_color") String avatarColor,
+                                        @Field("avatar_id") int avatarId,
                                         @Field("is_kids") int isKids);
 
     @FormUrlEncoded

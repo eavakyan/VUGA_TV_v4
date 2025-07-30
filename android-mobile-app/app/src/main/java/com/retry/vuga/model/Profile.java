@@ -21,6 +21,9 @@ public class Profile {
     @SerializedName("avatar_color")
     private String avatarColor;
     
+    @SerializedName("avatar_id")
+    private Integer avatarId;
+    
     @SerializedName("is_kids")
     private boolean isKids;
     
@@ -80,6 +83,14 @@ public class Profile {
 
     public void setAvatarColor(String avatarColor) {
         this.avatarColor = avatarColor;
+    }
+
+    public Integer getAvatarId() {
+        return avatarId == null ? 1 : avatarId;
+    }
+
+    public void setAvatarId(Integer avatarId) {
+        this.avatarId = avatarId;
     }
 
     public boolean isKids() {

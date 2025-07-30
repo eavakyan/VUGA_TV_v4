@@ -28,6 +28,7 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
     private boolean isKidsProfile = false;
     private int profileId = -1;
     private boolean isEditMode = false;
+    private int selectedAvatarId = 1; // Default avatar ID
 
     private List<String> avatarColors = Arrays.asList(
             "#FF5252", "#E91E63", "#9C27B0", "#673AB7",
@@ -48,12 +49,26 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             profileId = getIntent().getIntExtra("profile_id", -1);
             String profileName = getIntent().getStringExtra("profile_name");
             selectedColor = getIntent().getStringExtra("profile_color");
+            selectedAvatarId = getIntent().getIntExtra("avatar_id", 1);
             isKidsProfile = getIntent().getBooleanExtra("is_kids", false);
 
             binding.etProfileName.setText(profileName);
             binding.switchKidsProfile.setChecked(isKidsProfile);
             binding.tvTitle.setText("Edit Profile");
             binding.btnCreate.setText("Update Profile");
+            
+            // Set the color adapter to show the current selection
+            if (selectedColor != null && selectedColor.startsWith("#")) {
+                // If we don't have the exact color in our list, use the avatar ID to determine which color to highlight
+                int colorIndex = avatarColors.indexOf(selectedColor);
+                if (colorIndex == -1 && selectedAvatarId > 0 && selectedAvatarId <= 8) {
+                    // Use avatar ID to determine which color in our palette to select
+                    colorIndex = (selectedAvatarId - 1) % avatarColors.size();
+                    if (colorIndex >= 0 && colorIndex < avatarColors.size()) {
+                        selectedColor = avatarColors.get(colorIndex);
+                    }
+                }
+            }
         }
 
         setupViews();
@@ -100,7 +115,7 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         int userId = sessionManager.getUser().getId();
 
         disposable.add(RetrofitClient.getService()
-                .createProfile(userId, profileName, "color", "", selectedColor, isKidsProfile ? 1 : 0)
+                .createProfile(userId, profileName, selectedAvatarId, isKidsProfile ? 1 : 0)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(() -> {
@@ -126,7 +141,7 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         int userId = sessionManager.getUser().getId();
 
         disposable.add(RetrofitClient.getService()
-                .updateProfile(profileId, userId, profileName, "color", "", selectedColor, isKidsProfile ? 1 : 0)
+                .updateProfile(profileId, userId, profileName, selectedAvatarId, isKidsProfile ? 1 : 0)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(() -> {
@@ -163,6 +178,13 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
     @Override
     public void onColorSelected(String color) {
         selectedColor = color;
+        // Map color to avatar ID (1-based index)
+        // Limit to 1-8 range as backend might only have 8 default avatars
+        int colorIndex = avatarColors.indexOf(color);
+        if (colorIndex >= 0) {
+            // Use modulo to wrap around if we have more colors than avatars
+            selectedAvatarId = (colorIndex % 8) + 1;
+        }
         updatePreview();
     }
 

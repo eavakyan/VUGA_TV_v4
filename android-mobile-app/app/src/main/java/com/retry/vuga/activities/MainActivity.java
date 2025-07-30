@@ -3,6 +3,7 @@ package com.retry.vuga.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -24,6 +25,7 @@ import com.retry.vuga.R;
 import com.retry.vuga.adapters.ViewPagerAdapter;
 import com.retry.vuga.databinding.ActivityMainBinding;
 import com.retry.vuga.model.Downloads;
+import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.utils.BindingAdapters;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.DeviceUtils;
@@ -380,19 +382,70 @@ public class MainActivity extends BaseActivity {
         }
 
         if (binding.imgPic != null && binding.imgUser != null) {
-            if (sessionManager.getUser() != null && !sessionManager.getUser().getProfileImage().isEmpty()) {
-                binding.imgPic.setVisibility(View.VISIBLE);
-                binding.imgUser.setVisibility(View.GONE);
-                BindingAdapters.loadImage(binding.imgPic, sessionManager.getUser().getProfileImage());
-
-            } else {
-                binding.imgPic.setVisibility(View.GONE);
-                binding.imgUser.setVisibility(View.VISIBLE);
-            }
+            updateProfileAvatar();
         }
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh profile avatar in case it changed
+        if (binding != null && binding.imgPic != null && binding.imgUser != null) {
+            updateProfileAvatar();
+        }
+    }
+
+    private void updateProfileAvatar() {
+        UserRegistration.Data userData = sessionManager.getUser();
+        if (userData != null && userData.getLastActiveProfile() != null) {
+            UserRegistration.Profile currentProfile = userData.getLastActiveProfile();
+            
+            if ("default".equals(currentProfile.getAvatarType()) || "color".equals(currentProfile.getAvatarType())) {
+                // Show color avatar
+                binding.imgPic.setVisibility(View.GONE);
+                binding.imgUser.setVisibility(View.GONE);
+                binding.viewColorAvatar.setVisibility(View.VISIBLE);
+                binding.tvProfileInitial.setVisibility(View.VISIBLE);
+                
+                try {
+                    binding.viewColorAvatar.setCardBackgroundColor(Color.parseColor(currentProfile.getAvatarColor()));
+                } catch (Exception e) {
+                    binding.viewColorAvatar.setCardBackgroundColor(Color.parseColor("#FF5252"));
+                }
+                
+                // Set initial
+                String name = currentProfile.getName();
+                if (name != null && !name.isEmpty()) {
+                    binding.tvProfileInitial.setText(name.substring(0, 1).toUpperCase());
+                }
+            } else if ("custom".equals(currentProfile.getAvatarType()) && currentProfile.getAvatarUrl() != null && !currentProfile.getAvatarUrl().isEmpty()) {
+                // Show custom uploaded image avatar
+                binding.imgPic.setVisibility(View.VISIBLE);
+                binding.imgUser.setVisibility(View.GONE);
+                binding.viewColorAvatar.setVisibility(View.GONE);
+                binding.tvProfileInitial.setVisibility(View.GONE);
+                
+                String avatarUrl = currentProfile.getAvatarUrl();
+                if (!avatarUrl.startsWith("http")) {
+                    avatarUrl = Const.IMAGE_URL + avatarUrl;
+                }
+                BindingAdapters.loadImage(binding.imgPic, avatarUrl);
+            } else {
+                // Show default user icon
+                binding.imgPic.setVisibility(View.GONE);
+                binding.imgUser.setVisibility(View.VISIBLE);
+                binding.viewColorAvatar.setVisibility(View.GONE);
+                binding.tvProfileInitial.setVisibility(View.GONE);
+            }
+        } else {
+            // No profile, show default user icon
+            binding.imgPic.setVisibility(View.GONE);
+            binding.imgUser.setVisibility(View.VISIBLE);
+            binding.viewColorAvatar.setVisibility(View.GONE);
+            binding.tvProfileInitial.setVisibility(View.GONE);
+        }
+    }
 
     @Override
     protected void onDestroy() {

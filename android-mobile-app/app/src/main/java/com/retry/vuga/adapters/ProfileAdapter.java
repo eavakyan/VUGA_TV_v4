@@ -56,7 +56,9 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
         holder.tvProfileName.setText(profile.getName());
         
         // Set avatar based on type
-        if ("color".equals(profile.getAvatarType())) {
+        // Backend returns "default" for color avatars, "custom" for uploaded images
+        if ("default".equals(profile.getAvatarType()) || "color".equals(profile.getAvatarType())) {
+            // Color avatar
             holder.imgProfile.setVisibility(View.GONE);
             holder.viewColorAvatar.setVisibility(View.VISIBLE);
             holder.tvInitial.setVisibility(View.VISIBLE);
@@ -70,18 +72,25 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
             // Set initial
             String initial = profile.getName().substring(0, 1).toUpperCase();
             holder.tvInitial.setText(initial);
-        } else {
-            // Image avatar
+        } else if ("custom".equals(profile.getAvatarType()) && !profile.getAvatarUrl().isEmpty()) {
+            // Custom uploaded image
             holder.imgProfile.setVisibility(View.VISIBLE);
             holder.viewColorAvatar.setVisibility(View.GONE);
             holder.tvInitial.setVisibility(View.GONE);
             
-            if (!profile.getAvatarUrl().isEmpty()) {
-                Glide.with(context)
-                    .load(Const.IMAGE_URL + profile.getAvatarUrl())
-                    .placeholder(R.drawable.ic_profile_placeholder)
-                    .into(holder.imgProfile);
-            }
+            Glide.with(context)
+                .load(profile.getAvatarUrl()) // Already has full URL for custom avatars
+                .placeholder(R.drawable.ic_profile_placeholder)
+                .into(holder.imgProfile);
+        } else {
+            // Fallback to color avatar
+            holder.imgProfile.setVisibility(View.GONE);
+            holder.viewColorAvatar.setVisibility(View.VISIBLE);
+            holder.tvInitial.setVisibility(View.VISIBLE);
+            
+            holder.viewColorAvatar.setCardBackgroundColor(Color.parseColor("#FF5252"));
+            String initial = profile.getName().substring(0, 1).toUpperCase();
+            holder.tvInitial.setText(initial);
         }
         
         // Show/hide delete button based on edit mode

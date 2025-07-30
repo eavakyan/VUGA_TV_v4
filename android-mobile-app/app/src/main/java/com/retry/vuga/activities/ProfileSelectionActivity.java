@@ -90,6 +90,27 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
                         }
                         profileAdapter.notifyDataSetChanged();
                         
+                        // Update current profile in session if it was edited
+                        UserRegistration.Data userData = sessionManager.getUser();
+                        if (userData != null && userData.getLastActiveProfile() != null) {
+                            int currentProfileId = userData.getLastActiveProfile().getProfileId();
+                            for (Profile profile : profileList) {
+                                if (profile.getProfileId() == currentProfileId) {
+                                    // Update the session with latest profile data
+                                    UserRegistration.Profile updatedProfile = new UserRegistration.Profile();
+                                    updatedProfile.setProfileId(profile.getProfileId());
+                                    updatedProfile.setName(profile.getName());
+                                    updatedProfile.setAvatarType(profile.getAvatarType());
+                                    updatedProfile.setAvatarUrl(profile.getAvatarUrl());
+                                    updatedProfile.setAvatarColor(profile.getAvatarColor());
+                                    updatedProfile.setKids(profile.isKids());
+                                    userData.setLastActiveProfile(updatedProfile);
+                                    sessionManager.saveUser(userData);
+                                    break;
+                                }
+                            }
+                        }
+                        
                         // Show/hide add profile button
                         binding.btnAddProfile.setVisibility(profileList.size() < 4 ? View.VISIBLE : View.GONE);
                     } else {
@@ -108,6 +129,7 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
             intent.putExtra("profile_id", profile.getProfileId());
             intent.putExtra("profile_name", profile.getName());
             intent.putExtra("profile_color", profile.getAvatarColor());
+            intent.putExtra("avatar_id", profile.getAvatarId());
             intent.putExtra("is_kids", profile.isKids());
             startActivityForResult(intent, 100);
         } else {
@@ -142,6 +164,8 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
                         UserRegistration.Profile selectedProfile = new UserRegistration.Profile();
                         selectedProfile.setProfileId(profile.getProfileId());
                         selectedProfile.setName(profile.getName());
+                        selectedProfile.setAvatarType(profile.getAvatarType());
+                        selectedProfile.setAvatarUrl(profile.getAvatarUrl());
                         selectedProfile.setAvatarColor(profile.getAvatarColor());
                         selectedProfile.setKids(profile.isKids());
                         userData.setLastActiveProfile(selectedProfile);

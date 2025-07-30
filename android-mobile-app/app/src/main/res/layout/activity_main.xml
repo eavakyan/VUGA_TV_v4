@@ -245,6 +245,24 @@
                     app:roundPercent="1"
                     tools:src="@tools:sample/avatars" />
 
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/viewColorAvatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:cardCornerRadius="17dp"
+                    app:cardElevation="0dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/tvProfileInitial"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                </androidx.cardview.widget.CardView>
 
             </RelativeLayout>
 
