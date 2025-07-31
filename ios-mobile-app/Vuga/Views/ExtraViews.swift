@@ -154,6 +154,7 @@ struct CommonIcon: View {
 
 struct TopBar: View {
     @AppStorage(SessionKeys.myUser) var myUser : User? = nil
+    @ObservedObject private var sessionManager = SessionManager.shared
     var shouldShowColor = true
     var isBlur = false
     var isLiveTvView = false
@@ -170,7 +171,45 @@ struct TopBar: View {
                 .padding(.trailing, 10)
             }
             ZStack {
-                if myUser?.profileImage != nil && myUser?.profileImage != "" {
+                // Check for current profile's avatar first
+                if let currentProfile = sessionManager.currentProfile {
+                    if currentProfile.avatarType == "default" || currentProfile.avatarType == "color" {
+                        // Show color avatar
+                        ZStack {
+                            Circle()
+                                .fill(Color(hexString: currentProfile.avatarColor))
+                                .frame(width: 35, height: 35)
+                            
+                            Text(currentProfile.initial)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .addStroke(radius: 50, lineWidth: 1)
+                    } else if currentProfile.avatarType == "custom", 
+                              let avatarUrl = currentProfile.avatarUrl, 
+                              !avatarUrl.isEmpty {
+                        // Show custom image avatar
+                        KFImage(URL(string: avatarUrl))
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 35, height: 35)
+                            .clipShape(.circle)
+                            .addStroke(radius: 50, lineWidth: 1)
+                    } else {
+                        // Fallback to color avatar
+                        ZStack {
+                            Circle()
+                                .fill(Color(hexString: currentProfile.avatarColor))
+                                .frame(width: 35, height: 35)
+                            
+                            Text(currentProfile.initial)
+                                .font(.system(size: 16, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                        .addStroke(radius: 50, lineWidth: 1)
+                    }
+                } else if myUser?.profileImage != nil && myUser?.profileImage != "" {
+                    // Fallback to user's profile image if no current profile
                     KFImage(myUser?.profileImage?.addBaseURL())
                         .resizable()
                         .aspectRatio(contentMode: .fill)
@@ -178,10 +217,10 @@ struct TopBar: View {
                         .clipShape(.circle)
                         .addStroke(radius: 50,lineWidth: 1)
                 } else {
+                    // Default person icon
                     Image.person
                         .resizeFitTo(size: 35, renderingMode: .template)
                         .foregroundColor(.text)
-                        
                 }
             }
             .onTap {

@@ -6,14 +6,17 @@ struct CreateProfileView: View {
     @State private var profileName = ""
     @State private var selectedColor = "#FF5252"
     @State private var isKidsProfile = false
+    @State private var selectedAvatarId = 1
     
     let profile: Profile?
     let onComplete: () -> Void
     
+    // Use the same colors as defined in CreateProfileViewModel
     let avatarColors = [
-        "#FF5252", "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4",
-        "#FECA57", "#48DBFB", "#FF9FF3", "#54A0FF", "#FD79A8",
-        "#A29BFE", "#6C5CE7", "#2E86AB", "#A23B72", "#F18F01"
+        "#FF5252", "#E91E63", "#9C27B0", "#673AB7",
+        "#3F51B5", "#2196F3", "#03A9F4", "#00BCD4",
+        "#009688", "#4CAF50", "#8BC34A", "#CDDC39",
+        "#FFEB3B", "#FFC107", "#FF9800", "#FF5722"
     ]
     
     init(profile: Profile? = nil, onComplete: @escaping () -> Void) {
@@ -101,6 +104,10 @@ struct CreateProfileView: View {
                                         )
                                         .onTapGesture {
                                             selectedColor = color
+                                            // Map color to avatar ID (1-based index, limited to 1-8 range)
+                                            if let colorIndex = avatarColors.firstIndex(of: color) {
+                                                selectedAvatarId = (colorIndex % 8) + 1
+                                            }
                                         }
                                 }
                             }
@@ -133,7 +140,7 @@ struct CreateProfileView: View {
                                     presentationMode.wrappedValue.dismiss()
                                 }
                             } else {
-                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile) {
+                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId) {
                                     onComplete()
                                     presentationMode.wrappedValue.dismiss()
                                 }
@@ -165,6 +172,15 @@ struct CreateProfileView: View {
                 profileName = profile.name
                 selectedColor = profile.avatarColor
                 isKidsProfile = profile.isKids
+                selectedAvatarId = profile.avatarId ?? 1
+                
+                // If we don't have the exact color in our list, use the avatar ID to determine which color to select
+                if !avatarColors.contains(selectedColor) && selectedAvatarId > 0 && selectedAvatarId <= 8 {
+                    let colorIndex = (selectedAvatarId - 1) % avatarColors.count
+                    if colorIndex >= 0 && colorIndex < avatarColors.count {
+                        selectedColor = avatarColors[colorIndex]
+                    }
+                }
             }
         }
         .alert(isPresented: $viewModel.showError) {

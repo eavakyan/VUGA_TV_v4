@@ -37,5 +37,6 @@ enum Params: String {
     case avatarType = "avatar_type"
     case avatarUrl = "avatar_url"
     case avatarColor = "avatar_color"
+    case avatarId = "avatar_id"
     case isKids = "is_kids"
 }

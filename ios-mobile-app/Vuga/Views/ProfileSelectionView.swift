@@ -89,10 +89,8 @@ struct ProfileSelectionView: View {
             }
         }
         .onChange(of: viewModel.selectedProfile) { profile in
-            if let profile = profile {
-                // Update session manager with selected profile
-                sessionManager.saveProfile(profile)
-                // Dismiss profile selection
+            if profile != nil {
+                // Dismiss profile selection after profile is selected
                 dismiss()
             }
         }
@@ -116,14 +114,48 @@ struct ProfileItem: View {
         VStack(spacing: 10) {
             ZStack(alignment: .topTrailing) {
                 // Profile Avatar
-                ZStack {
-                    Circle()
-                        .fill(Color(profile.color))
-                        .frame(width: 100, height: 100)
-                    
-                    Text(profile.initial)
-                        .font(.system(size: 40, weight: .bold))
-                        .foregroundColor(.white)
+                if profile.avatarType == "default" || profile.avatarType == "color" {
+                    // Color avatar
+                    ZStack {
+                        Circle()
+                            .fill(Color(profile.color))
+                            .frame(width: 100, height: 100)
+                        
+                        Text(profile.initial)
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                } else if profile.avatarType == "custom", let avatarUrl = profile.avatarUrl, !avatarUrl.isEmpty {
+                    // Custom image avatar
+                    AsyncImage(url: URL(string: avatarUrl)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 100, height: 100)
+                            .clipShape(Circle())
+                    } placeholder: {
+                        // Fallback to color avatar while loading
+                        ZStack {
+                            Circle()
+                                .fill(Color(profile.color))
+                                .frame(width: 100, height: 100)
+                            
+                            Text(profile.initial)
+                                .font(.system(size: 40, weight: .bold))
+                                .foregroundColor(.white)
+                        }
+                    }
+                } else {
+                    // Fallback to color avatar
+                    ZStack {
+                        Circle()
+                            .fill(Color(profile.color))
+                            .frame(width: 100, height: 100)
+                        
+                        Text(profile.initial)
+                            .font(.system(size: 40, weight: .bold))
+                            .foregroundColor(.white)
+                    }
                 }
                 
                 // Delete button

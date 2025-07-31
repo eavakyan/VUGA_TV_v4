@@ -47,6 +47,8 @@ class ProfileSelectionViewModel: BaseViewModel {
             self?.stopLoading()
             
             if obj.status {
+                // Update SessionManager's current profile immediately
+                SessionManager.shared.currentProfile = profile
                 self?.selectedProfile = profile
             } else {
                 self?.showError = true
@@ -56,7 +58,12 @@ class ProfileSelectionViewModel: BaseViewModel {
     }
     
     func deleteProfile(_ profile: Profile) {
-        let params: [Params: Any] = [.profileId: profile.profileId]
+        guard let userId = myUser?.id else { return }
+        
+        let params: [Params: Any] = [
+            .profileId: profile.profileId,
+            .userId: userId
+        ]
         
         startLoading()
         NetworkManager.callWebService(url: .deleteProfile, params: params) { [weak self] (obj: StatusAndMessageModel) in

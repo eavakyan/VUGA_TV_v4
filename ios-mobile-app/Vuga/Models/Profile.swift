@@ -8,6 +8,7 @@ struct Profile: Codable, Equatable {
     let avatarType: String
     let avatarUrl: String?
     let avatarColor: String
+    let avatarId: Int?
     let isKids: Bool
     let isActive: Bool?
     let createdAt: String?
@@ -20,6 +21,7 @@ struct Profile: Codable, Equatable {
         case avatarType = "avatar_type"
         case avatarUrl = "avatar_url"
         case avatarColor = "avatar_color"
+        case avatarId = "avatar_id"
         case isKids = "is_kids"
         case isActive = "is_active"
         case createdAt = "created_at"
@@ -36,6 +38,7 @@ struct Profile: Codable, Equatable {
         avatarType = try container.decode(String.self, forKey: .avatarType)
         avatarUrl = try container.decodeIfPresent(String.self, forKey: .avatarUrl)
         avatarColor = try container.decode(String.self, forKey: .avatarColor)
+        avatarId = try container.decodeIfPresent(Int.self, forKey: .avatarId)
         
         // Handle isKids as either Bool or Int
         if let isKidsBool = try? container.decode(Bool.self, forKey: .isKids) {
@@ -61,6 +64,7 @@ struct Profile: Codable, Equatable {
         try container.encode(avatarType, forKey: .avatarType)
         try container.encodeIfPresent(avatarUrl, forKey: .avatarUrl)
         try container.encode(avatarColor, forKey: .avatarColor)
+        try container.encodeIfPresent(avatarId, forKey: .avatarId)
         try container.encode(isKids ? 1 : 0, forKey: .isKids) // Encode as Int
         try container.encodeIfPresent(isActive, forKey: .isActive)
         try container.encodeIfPresent(createdAt, forKey: .createdAt)
