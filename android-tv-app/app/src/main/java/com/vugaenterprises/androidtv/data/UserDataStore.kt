@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.google.gson.Gson
+import com.vugaenterprises.androidtv.data.model.Profile
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -30,6 +31,8 @@ class UserDataStore @Inject constructor(
         val USER_TOKEN = stringPreferencesKey("user_token")
         val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
         val USER_DATA_JSON = stringPreferencesKey("user_data_json")
+        val SELECTED_PROFILE_JSON = stringPreferencesKey("selected_profile_json")
+        val SELECTED_PROFILE_ID = intPreferencesKey("selected_profile_id")
     }
 
     // Save user data after successful authentication
@@ -77,6 +80,43 @@ class UserDataStore @Inject constructor(
             preferences.clear()
         }
     }
+    
+    // Save selected profile
+    suspend fun saveSelectedProfile(profile: Profile) {
+        context.userDataStore.edit { preferences ->
+            preferences[SELECTED_PROFILE_JSON] = gson.toJson(profile)
+            preferences[SELECTED_PROFILE_ID] = profile.profileId
+        }
+    }
+    
+    // Get selected profile
+    fun getSelectedProfile(): Flow<Profile?> = context.userDataStore.data
+        .map { preferences ->
+            val profileJson = preferences[SELECTED_PROFILE_JSON]
+            if (profileJson != null) {
+                try {
+                    gson.fromJson(profileJson, Profile::class.java)
+                } catch (e: Exception) {
+                    null
+                }
+            } else {
+                null
+            }
+        }
+    
+    // Clear selected profile (for profile switching)
+    suspend fun clearSelectedProfile() {
+        context.userDataStore.edit { preferences ->
+            preferences.remove(SELECTED_PROFILE_JSON)
+            preferences.remove(SELECTED_PROFILE_ID)
+        }
+    }
+    
+    // Check if profile is selected
+    fun hasSelectedProfile(): Flow<Boolean> = context.userDataStore.data
+        .map { preferences ->
+            preferences[SELECTED_PROFILE_ID] != null
+        }
 }
 
 // User data model

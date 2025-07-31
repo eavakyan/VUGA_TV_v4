@@ -61,4 +61,8 @@ sealed class Screen(val route: String) {
     object QRCodeAuth : Screen("qr_code_auth") {
         fun createRoute() = "qr_code_auth"
     }
+    
+    object ProfileSelection : Screen("profile_selection") {
+        fun createRoute() = "profile_selection"
+    }
 } 

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.vugaenterprises.androidtv.data.model.Content
+import com.vugaenterprises.androidtv.data.model.ProfileColors
 import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel
 import kotlinx.coroutines.launch
@@ -24,10 +25,12 @@ import kotlinx.coroutines.launch
 fun ProfileScreen(
     onContentClick: (Content) -> Unit,
     onNavigateBack: () -> Unit,
+    onSwitchProfile: () -> Unit = {},
     userDataStore: UserDataStore,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
     val userData by userDataStore.getUserData().collectAsState(initial = null)
+    val selectedProfile by userDataStore.getSelectedProfile().collectAsState(initial = null)
     val scope = rememberCoroutineScope()
     
     Box(
@@ -44,24 +47,33 @@ fun ProfileScreen(
             verticalArrangement = Arrangement.Center
         ) {
             // Profile Icon
+            val currentProfile = selectedProfile
             Box(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF333333)),
+                    .background(
+                        if (currentProfile != null) {
+                            val colorHex = ProfileColors.getColorForId(currentProfile.avatarId ?: 1)
+                            val cleanHex = colorHex.removePrefix("#")
+                            Color(android.graphics.Color.parseColor("#$cleanHex"))
+                        } else {
+                            Color(0xFF333333)
+                        }
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = userData?.fullname?.firstOrNull()?.toString() ?: "U",
+                    text = currentProfile?.initial ?: userData?.fullname?.firstOrNull()?.toString() ?: "U",
                     fontSize = 48.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color.White
                 )
             }
             
-            // User Name
+            // Profile Name
             Text(
-                text = userData?.fullname ?: "User",
+                text = selectedProfile?.name ?: userData?.fullname ?: "User",
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White
@@ -100,6 +112,25 @@ fun ProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(24.dp)
             ) {
+                // Switch Profile Button
+                Button(
+                    onClick = onSwitchProfile,
+                    modifier = Modifier
+                        .width(240.dp)
+                        .height(64.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF464646)
+                    ),
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(
+                        text = "Switch Profile",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+                
                 Button(
                     onClick = {
                         scope.launch {

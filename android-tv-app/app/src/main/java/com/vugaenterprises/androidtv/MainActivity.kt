@@ -20,6 +20,7 @@ import com.vugaenterprises.androidtv.data.CastDetailDataStore
 import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.ui.theme.AndroidTVStreamingTheme
 import com.vugaenterprises.androidtv.ui.navigation.AppNavigation
+import com.vugaenterprises.androidtv.ui.navigation.Screen
 import com.vugaenterprises.androidtv.ui.screens.SplashScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -97,15 +98,13 @@ fun AndroidTVStreamingApp(
         exit = fadeOut(animationSpec = tween(500))
     ) {
         val navController = rememberNavController()
+        val hasSelectedProfile by userDataStore.hasSelectedProfile().collectAsState(initial = false)
         
-        // Check if coming from authentication
-        LaunchedEffect(isLoggedIn) {
-            // This will handle navigation after successful QR authentication
-            if (isLoggedIn && navController.currentDestination?.route == "qr_auth") {
-                navController.navigate("home") {
-                    popUpTo("qr_auth") { inclusive = true }
-                }
-            }
+        // Determine start destination based on login and profile state
+        val startDestination = when {
+            !isLoggedIn -> Screen.QRCodeAuth.route
+            isLoggedIn && !hasSelectedProfile -> Screen.ProfileSelection.route
+            else -> Screen.Home.route
         }
         
         AppNavigation(
@@ -113,7 +112,8 @@ fun AndroidTVStreamingApp(
             videoPlayerDataStore = videoPlayerDataStore,
             episodeDataStore = episodeDataStore,
             castDetailDataStore = castDetailDataStore,
-            userDataStore = userDataStore
+            userDataStore = userDataStore,
+            startDestination = startDestination
         )
     }
 } 

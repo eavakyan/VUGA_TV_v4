@@ -1,0 +1,25 @@
+Cued up CLAUDE CODE Instructions: 
+
+
+Handle young viewers in iOS, Android mobile, and Android TV apps. Children accessing content will be handled in this manner: their profiles will not just be flagged as 'is-kids' but separated by age group. Here are the groups: 0-6 years, 7-12 years, 13-16 years, 17-18 years. Age groups cascade down - so a 15-year-old can watch all the content for younger viewers, but cannot watch content for older viewers. Anyone over 18 years is an adult and is not restricted. Also design the db to handle this. Overall, use best design practices from the dba world to change the datamodel, giving me the sql to run to make all db changes, then work on API backend, and then the client app changes in that order or in parallel, as you see fit. The latest db schema DDL is located here: /Users/gene/Documents/dev/VUGA_TV_v4/docs/db/tv-project-full-schema-dump-07302025.sql
+
+
+
+All profile photos need to be stored in Digital Ocean S3, and the connection settings are all located in the .env file at /Users/gene/Documents/dev/VUGA_TV_v4/api-backend/public_html/.env . Here is a copy of that .env information: DO_SPACE_ACCESS_KEY_ID=DO00HJ7VDBGDEDJQL7PK
+DO_SPACE_SECRET_ACCESS_KEY=f54WYKGP6HY8hL9ov0tK2C+iYhIFFuFK6hA5Ox25lhQ
+DO_SPACE_ENDPOINT=https://nyc3.digitaloceanspaces.com
+DO_SPACE_REGION=nyc3
+DO_SPACE_BUCKET=vuga-tv-app
+DO_SPACE_URL=https://vuga-tv-app.nyc3.digitaloceanspaces.com/
+The mobile apps need new functionality to allow users to use their phone to take a picture or upload one from their local storage to use as their avatar image. This means changing the profile management. Make changes you think are necessary to stay in tune with latest UI/UX and Netflix style.
+
+
+
+Mobile app users need to have the option to download videos to their devices to view when they are offline. When on the content detail page, offer a download icon at best place for good UI/UX. Set download space limits based on how much free local storage the user has available. Users can watch their downloaded videos by going to the Profile screen, then pressing Downloads button.
+
+
+
+
+Right now when user selects a video to watch from home view, they go to the content detail page. If they press Play there, they are taken to an unnecessary page that shows multiple sources for the content (multiple different video files). Remove this interstitial page between content detail page and the video player. Only one copy of content (source vide) will be available per title.
+
+Offer screen-casting from mobile devices to send video to TV near them. Use standard UI/UX to handle this, and do this from all content detail pages.

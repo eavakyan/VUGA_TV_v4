@@ -84,6 +84,12 @@ fun AppNavigation(
                     onNavigateBack = {
                         navController.popBackStack()
                     },
+                    onSwitchProfile = {
+                        // Navigate to profile selection
+                        navController.navigate(Screen.ProfileSelection.route) {
+                            popUpTo(Screen.Home.route)
+                        }
+                    },
                     userDataStore = userDataStore
                 )
             }
@@ -266,13 +272,24 @@ fun AppNavigation(
             composable(Screen.QRCodeAuth.route) {
                 QRCodeAuthScreen(
                     onAuthenticationSuccess = {
-                        // Navigate to home after successful authentication
-                        navController.navigate(Screen.Home.route) {
+                        // Navigate to profile selection after successful authentication
+                        navController.navigate(Screen.ProfileSelection.route) {
                             popUpTo(Screen.QRCodeAuth.route) { inclusive = true }
                         }
                     },
                     onNavigateBack = {
                         navController.popBackStack()
+                    }
+                )
+            }
+            
+            composable(Screen.ProfileSelection.route) {
+                ProfileSelectionScreen(
+                    onProfileSelected = {
+                        // Navigate to home after profile selection
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.ProfileSelection.route) { inclusive = true }
+                        }
                     }
                 )
             }

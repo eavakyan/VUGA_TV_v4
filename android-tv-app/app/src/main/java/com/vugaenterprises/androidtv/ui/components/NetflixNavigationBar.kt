@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -15,10 +16,12 @@ import androidx.compose.foundation.interaction.collectIsFocusedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.focus.*
 import androidx.compose.ui.graphics.Brush
@@ -29,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
+import com.vugaenterprises.androidtv.data.model.Profile
+import com.vugaenterprises.androidtv.data.model.ProfileColors
 
 data class NavigationItem(
     val id: String,
@@ -42,6 +47,7 @@ fun NetflixNavigationBar(
     navigationItems: List<NavigationItem>,
     selectedItemId: String,
     onItemSelected: (NavigationItem) -> Unit,
+    currentProfile: Profile? = null,
     modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
@@ -141,6 +147,22 @@ fun NetflixNavigationBar(
                             }
                     )
                 }
+            }
+            
+            // Profile Avatar (if logged in and profile selected)
+            currentProfile?.let { profile ->
+                Spacer(modifier = Modifier.width(24.dp))
+                
+                ProfileAvatar(
+                    profile = profile,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .focusable()
+                        .clickable { 
+                            // Navigate to profile when clicked
+                            onItemSelected(NavigationItem("profile", "Profile"))
+                        }
+                )
             }
         }
         }
@@ -311,5 +333,43 @@ fun NetflixSubmenuItem(
             .scale(scale)
             .padding(horizontal = 12.dp, vertical = 8.dp)
     )
+}
+
+@Composable
+fun ProfileAvatar(
+    profile: Profile,
+    modifier: Modifier = Modifier
+) {
+    var isFocused by remember { mutableStateOf(false) }
+    
+    Box(
+        modifier = modifier
+            .clip(CircleShape)
+            .background(
+                Color(android.graphics.Color.parseColor(
+                    ProfileColors.getColorForId(profile.avatarId ?: 1).let { hex ->
+                        if (hex.startsWith("#")) hex else "#$hex"
+                    }
+                ))
+            )
+            .onFocusChanged { isFocused = it.isFocused }
+            .then(
+                if (isFocused) {
+                    Modifier.border(
+                        width = 2.dp,
+                        color = Color.White,
+                        shape = CircleShape
+                    )
+                } else Modifier
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = profile.initial,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+            color = Color.White
+        )
+    }
 }
 

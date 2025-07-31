@@ -14,6 +14,9 @@ import com.vugaenterprises.androidtv.data.model.TVAuthSessionResponse
 import com.vugaenterprises.androidtv.data.model.TVAuthStatusRequest
 import com.vugaenterprises.androidtv.data.model.TVAuthStatusResponse
 import com.vugaenterprises.androidtv.data.model.TVAuthCompleteRequest
+import com.vugaenterprises.androidtv.data.model.ProfilesResponse
+import com.vugaenterprises.androidtv.data.model.CreateProfileRequest
+import com.vugaenterprises.androidtv.data.model.SelectProfileRequest
 import retrofit2.http.*
 
 interface ApiService {
@@ -141,6 +144,26 @@ interface ApiService {
     
     @POST("TV/completeAuth")
     suspend fun completeAuth(@Body request: TVAuthCompleteRequest): UserRegistrationResponse
+    
+    // Profile Management
+    @FormUrlEncoded
+    @POST("getUserProfiles")
+    suspend fun getUserProfiles(
+        @Field("user_id") userId: Int
+    ): ProfilesResponse
+    
+    @POST("createProfile")
+    suspend fun createProfile(@Body request: CreateProfileRequest): ProfilesResponse
+    
+    @FormUrlEncoded
+    @POST("deleteProfile")
+    suspend fun deleteProfile(
+        @Field("user_id") userId: Int,
+        @Field("profile_id") profileId: Int
+    ): ProfilesResponse
+    
+    @POST("selectProfile")
+    suspend fun selectProfile(@Body request: SelectProfileRequest): ProfilesResponse
 }
 
 // Constants for API field names

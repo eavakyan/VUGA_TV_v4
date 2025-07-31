@@ -31,9 +31,10 @@ fun MainScreen(
     val focusManager = LocalFocusManager.current
     val navBarFocusRequester = remember { FocusRequester() }
     
-    // Observe login state
+    // Observe login state and profile
     val isLoggedIn by userDataStore.isLoggedIn().collectAsState(initial = false)
     val userData by userDataStore.getUserData().collectAsState(initial = null)
+    val selectedProfile by userDataStore.getSelectedProfile().collectAsState(initial = null)
     
     val navigationItems = remember(isLoggedIn, userData) {
         listOf(
@@ -134,6 +135,7 @@ fun MainScreen(
             onItemSelected = { item ->
                 selectedNavItem = item.id
             },
+            currentProfile = selectedProfile,
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .focusRequester(navBarFocusRequester)
