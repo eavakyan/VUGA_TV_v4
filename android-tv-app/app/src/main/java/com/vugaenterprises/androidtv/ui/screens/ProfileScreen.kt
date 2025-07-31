@@ -26,6 +26,7 @@ fun ProfileScreen(
     onContentClick: (Content) -> Unit,
     onNavigateBack: () -> Unit,
     onSwitchProfile: () -> Unit = {},
+    onLogout: () -> Unit = {},
     userDataStore: UserDataStore,
     viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -42,9 +43,9 @@ fun ProfileScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 40.dp),
+                .padding(vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
         ) {
             // Profile Icon
             val currentProfile = selectedProfile
@@ -105,19 +106,19 @@ fun ProfileScreen(
                 }
             }
             
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             
-            // Action Buttons
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(24.dp)
+            // Action Buttons - Horizontal Layout
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 // Switch Profile Button
                 Button(
                     onClick = onSwitchProfile,
                     modifier = Modifier
-                        .width(240.dp)
-                        .height(64.dp),
+                        .width(200.dp)
+                        .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF464646)
                     ),
@@ -125,22 +126,23 @@ fun ProfileScreen(
                 ) {
                     Text(
                         text = "Switch Profile",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
                 
+                // Sign Out Button
                 Button(
                     onClick = {
                         scope.launch {
                             userDataStore.clearUserData()
-                            onNavigateBack()
+                            userDataStore.clearSelectedProfile()
+                            onLogout()
                         }
                     },
                     modifier = Modifier
-                        .width(240.dp)
-                        .height(64.dp),
+                        .width(200.dp)
+                        .height(56.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFE50914)
                     ),
@@ -148,32 +150,33 @@ fun ProfileScreen(
                 ) {
                     Text(
                         text = "Sign Out",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(vertical = 4.dp)
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Medium
                     )
                 }
-                
-                OutlinedButton(
-                    onClick = onNavigateBack,
-                    modifier = Modifier
-                        .width(240.dp)
-                        .height(64.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
-                    ),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = androidx.compose.ui.graphics.SolidColor(Color.White.copy(alpha = 0.5f))
-                    ),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        text = "Back",
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(vertical = 4.dp)
-                    )
-                }
+            }
+            
+            Spacer(modifier = Modifier.height(16.dp))
+            
+            // Back Button - Below the other buttons
+            OutlinedButton(
+                onClick = onNavigateBack,
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(56.dp),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color.White
+                ),
+                border = ButtonDefaults.outlinedButtonBorder.copy(
+                    brush = androidx.compose.ui.graphics.SolidColor(Color.White.copy(alpha = 0.5f))
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    text = "Back",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium
+                )
             }
         }
     }

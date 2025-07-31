@@ -90,6 +90,12 @@ fun AppNavigation(
                             popUpTo(Screen.Home.route)
                         }
                     },
+                    onLogout = {
+                        // Navigate to login screen and clear back stack
+                        navController.navigate(Screen.QRCodeAuth.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
+                    },
                     userDataStore = userDataStore
                 )
             }
