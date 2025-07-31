@@ -15,6 +15,7 @@ import com.vugaenterprises.androidtv.data.UserDataStore;
 import com.vugaenterprises.androidtv.data.VideoPlayerDataStore;
 import com.vugaenterprises.androidtv.data.api.ApiService;
 import com.vugaenterprises.androidtv.data.repository.ContentRepository;
+import com.vugaenterprises.androidtv.data.repository.ProfileRepository;
 import com.vugaenterprises.androidtv.data.repository.TVAuthRepository;
 import com.vugaenterprises.androidtv.di.ErrorModule;
 import com.vugaenterprises.androidtv.di.ErrorModule_ProvideErrorLoggerFactory;
@@ -22,6 +23,8 @@ import com.vugaenterprises.androidtv.di.NetworkModule;
 import com.vugaenterprises.androidtv.di.NetworkModule_ProvideApiServiceFactory;
 import com.vugaenterprises.androidtv.di.NetworkModule_ProvideOkHttpClientFactory;
 import com.vugaenterprises.androidtv.di.NetworkModule_ProvideRetrofitFactory;
+import com.vugaenterprises.androidtv.ui.screens.TVAuthDebugViewModel;
+import com.vugaenterprises.androidtv.ui.screens.TVAuthDebugViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel;
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.vugaenterprises.androidtv.ui.viewmodels.FavoritesViewModel;
@@ -30,6 +33,8 @@ import com.vugaenterprises.androidtv.ui.viewmodels.HistoryViewModel;
 import com.vugaenterprises.androidtv.ui.viewmodels.HistoryViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel;
 import com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel_HiltModules_KeyModule_ProvideFactory;
+import com.vugaenterprises.androidtv.ui.viewmodels.ProfileSelectionViewModel;
+import com.vugaenterprises.androidtv.ui.viewmodels.ProfileSelectionViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel;
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel_HiltModules_KeyModule_ProvideFactory;
 import com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel;
@@ -412,7 +417,7 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
 
     @Override
     public Set<String> getViewModelKeys() {
-      return ImmutableSet.<String>of(ContentDetailViewModel_HiltModules_KeyModule_ProvideFactory.provide(), FavoritesViewModel_HiltModules_KeyModule_ProvideFactory.provide(), HistoryViewModel_HiltModules_KeyModule_ProvideFactory.provide(), HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide(), ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide(), QRCodeAuthViewModel_HiltModules_KeyModule_ProvideFactory.provide(), SearchViewModel_HiltModules_KeyModule_ProvideFactory.provide());
+      return ImmutableSet.<String>of(ContentDetailViewModel_HiltModules_KeyModule_ProvideFactory.provide(), FavoritesViewModel_HiltModules_KeyModule_ProvideFactory.provide(), HistoryViewModel_HiltModules_KeyModule_ProvideFactory.provide(), HomeViewModel_HiltModules_KeyModule_ProvideFactory.provide(), ProfileSelectionViewModel_HiltModules_KeyModule_ProvideFactory.provide(), ProfileViewModel_HiltModules_KeyModule_ProvideFactory.provide(), QRCodeAuthViewModel_HiltModules_KeyModule_ProvideFactory.provide(), SearchViewModel_HiltModules_KeyModule_ProvideFactory.provide(), TVAuthDebugViewModel_HiltModules_KeyModule_ProvideFactory.provide());
     }
 
     @Override
@@ -455,11 +460,15 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
 
     private Provider<HomeViewModel> homeViewModelProvider;
 
+    private Provider<ProfileSelectionViewModel> profileSelectionViewModelProvider;
+
     private Provider<ProfileViewModel> profileViewModelProvider;
 
     private Provider<QRCodeAuthViewModel> qRCodeAuthViewModelProvider;
 
     private Provider<SearchViewModel> searchViewModelProvider;
+
+    private Provider<TVAuthDebugViewModel> tVAuthDebugViewModelProvider;
 
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
@@ -478,14 +487,16 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
       this.favoritesViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
       this.historyViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
       this.homeViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
-      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
-      this.qRCodeAuthViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
-      this.searchViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
+      this.profileSelectionViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
+      this.profileViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 5);
+      this.qRCodeAuthViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 6);
+      this.searchViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 7);
+      this.tVAuthDebugViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 8);
     }
 
     @Override
     public Map<String, Provider<ViewModel>> getHiltViewModelMap() {
-      return ImmutableMap.<String, Provider<ViewModel>>builderWithExpectedSize(7).put("com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel", ((Provider) contentDetailViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.FavoritesViewModel", ((Provider) favoritesViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.HistoryViewModel", ((Provider) historyViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel", ((Provider) profileViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel", ((Provider) qRCodeAuthViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.SearchViewModel", ((Provider) searchViewModelProvider)).build();
+      return ImmutableMap.<String, Provider<ViewModel>>builderWithExpectedSize(9).put("com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel", ((Provider) contentDetailViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.FavoritesViewModel", ((Provider) favoritesViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.HistoryViewModel", ((Provider) historyViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel", ((Provider) homeViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.ProfileSelectionViewModel", ((Provider) profileSelectionViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel", ((Provider) profileViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel", ((Provider) qRCodeAuthViewModelProvider)).put("com.vugaenterprises.androidtv.ui.viewmodels.SearchViewModel", ((Provider) searchViewModelProvider)).put("com.vugaenterprises.androidtv.ui.screens.TVAuthDebugViewModel", ((Provider) tVAuthDebugViewModelProvider)).build();
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
@@ -521,14 +532,20 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
           case 3: // com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel 
           return (T) new HomeViewModel(singletonCImpl.contentRepositoryProvider.get());
 
-          case 4: // com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel 
+          case 4: // com.vugaenterprises.androidtv.ui.viewmodels.ProfileSelectionViewModel 
+          return (T) new ProfileSelectionViewModel(singletonCImpl.profileRepositoryProvider.get(), singletonCImpl.provideErrorLoggerProvider.get());
+
+          case 5: // com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel 
           return (T) new ProfileViewModel(singletonCImpl.provideApiServiceProvider.get());
 
-          case 5: // com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel 
+          case 6: // com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel 
           return (T) new QRCodeAuthViewModel(singletonCImpl.tVAuthRepositoryProvider.get(), singletonCImpl.provideErrorLoggerProvider.get(), singletonCImpl.userDataStoreProvider.get());
 
-          case 6: // com.vugaenterprises.androidtv.ui.viewmodels.SearchViewModel 
+          case 7: // com.vugaenterprises.androidtv.ui.viewmodels.SearchViewModel 
           return (T) new SearchViewModel(singletonCImpl.contentRepositoryProvider.get());
+
+          case 8: // com.vugaenterprises.androidtv.ui.screens.TVAuthDebugViewModel 
+          return (T) new TVAuthDebugViewModel();
 
           default: throw new AssertionError(id);
         }
@@ -625,9 +642,11 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
 
     private Provider<ContentRepository> contentRepositoryProvider;
 
-    private Provider<TVAuthRepository> tVAuthRepositoryProvider;
+    private Provider<ProfileRepository> profileRepositoryProvider;
 
     private Provider<ErrorLogger> provideErrorLoggerProvider;
+
+    private Provider<TVAuthRepository> tVAuthRepositoryProvider;
 
     private SingletonCImpl(ApplicationContextModule applicationContextModuleParam) {
       this.applicationContextModule = applicationContextModuleParam;
@@ -645,8 +664,9 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
       this.provideRetrofitProvider = DoubleCheck.provider(new SwitchingProvider<Retrofit>(singletonCImpl, 6));
       this.provideApiServiceProvider = DoubleCheck.provider(new SwitchingProvider<ApiService>(singletonCImpl, 5));
       this.contentRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ContentRepository>(singletonCImpl, 4));
-      this.tVAuthRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<TVAuthRepository>(singletonCImpl, 8));
+      this.profileRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ProfileRepository>(singletonCImpl, 8));
       this.provideErrorLoggerProvider = DoubleCheck.provider(new SwitchingProvider<ErrorLogger>(singletonCImpl, 9));
+      this.tVAuthRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<TVAuthRepository>(singletonCImpl, 10));
     }
 
     @Override
@@ -706,11 +726,14 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
           case 7: // okhttp3.OkHttpClient 
           return (T) NetworkModule_ProvideOkHttpClientFactory.provideOkHttpClient();
 
-          case 8: // com.vugaenterprises.androidtv.data.repository.TVAuthRepository 
-          return (T) new TVAuthRepository(singletonCImpl.provideApiServiceProvider.get(), ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
+          case 8: // com.vugaenterprises.androidtv.data.repository.ProfileRepository 
+          return (T) new ProfileRepository(singletonCImpl.provideApiServiceProvider.get(), singletonCImpl.userDataStoreProvider.get());
 
           case 9: // com.vugaenterprises.androidtv.utils.ErrorLogger 
           return (T) ErrorModule_ProvideErrorLoggerFactory.provideErrorLogger(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule), singletonCImpl.provideApiServiceProvider.get());
+
+          case 10: // com.vugaenterprises.androidtv.data.repository.TVAuthRepository 
+          return (T) new TVAuthRepository(singletonCImpl.provideApiServiceProvider.get(), ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
           default: throw new AssertionError(id);
         }

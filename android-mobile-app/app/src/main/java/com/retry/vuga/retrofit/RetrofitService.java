@@ -145,9 +145,9 @@ public interface RetrofitService {
                                           @Field(Const.ApiKey.metric) String metric);
 
     @FormUrlEncoded
-    @POST("TV/authenticateSession")
+    @POST("tv-auth/authenticate")
     Single<RestResponse> authenticateTVSession(@Field("session_token") String sessionToken,
-                                               @Field("user_id") int userId);
+                                               @Field("app_user_id") int userId);
 
     @FormUrlEncoded
     @POST("getUserProfiles")

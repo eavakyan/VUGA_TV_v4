@@ -22,8 +22,8 @@ import retrofit2.http.*
 interface ApiService {
     
     // Simple test endpoint
-    @GET(".")
-    suspend fun testConnection(): String
+    @GET("test")
+    suspend fun testConnection(): RestResponse
     
     // App settings
     @POST("fetchSettings")
@@ -135,15 +135,14 @@ interface ApiService {
         @Field("metric") metric: String
     ): RestResponse
     
-    // TV Authentication
-    @POST("TV/generateAuthSession")
+    // TV Authentication - V2 endpoints
+    @POST("tv-auth/generate-session")
     suspend fun generateAuthSession(@Body request: TVAuthSessionRequest): TVAuthSessionResponse
     
-    @POST("TV/checkAuthStatus")
+    @POST("tv-auth/check-status")
     suspend fun checkAuthStatus(@Body request: TVAuthStatusRequest): TVAuthStatusResponse
     
-    @POST("TV/completeAuth")
-    suspend fun completeAuth(@Body request: TVAuthCompleteRequest): UserRegistrationResponse
+    // Note: tv-auth/authenticate is called by mobile app, not TV app
     
     // Profile Management
     @FormUrlEncoded

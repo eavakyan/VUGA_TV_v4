@@ -30,8 +30,8 @@ class TvAuthController extends Controller
         // Generate unique session token
         $sessionToken = Str::random(64);
         
-        // Generate QR code URL (you can customize this)
-        $qrCode = url('/api/v2/tv-auth/authenticate?token=' . $sessionToken);
+        // Generate QR code content (deep link URL matching mobile app format)
+        $qrCode = "vuga://auth/tv/" . $sessionToken;
 
         // Create new session
         $session = new TvAuthSession;
@@ -48,7 +48,8 @@ class TvAuthController extends Controller
             'data' => [
                 'session_token' => $sessionToken,
                 'qr_code' => $qrCode,
-                'expires_at' => $session->expires_at
+                'expires_at' => $session->expires_at,
+                'expires_in_seconds' => 300 // 5 minutes
             ]
         ]);
     }

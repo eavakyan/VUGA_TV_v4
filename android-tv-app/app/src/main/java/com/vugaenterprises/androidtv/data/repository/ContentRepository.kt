@@ -17,8 +17,8 @@ class ContentRepository @Inject constructor(
         return try {
             Log.d("ContentRepository", "Testing basic API connection...")
             val response = apiService.testConnection()
-            Log.d("ContentRepository", "Basic connection test successful: $response")
-            response
+            Log.d("ContentRepository", "Basic connection test successful: status=${response.status}, message=${response.message}")
+            "Connection successful: ${response.message}"
         } catch (e: Exception) {
             Log.e("ContentRepository", "Basic connection test failed", e)
             "Connection failed: ${e.message}"

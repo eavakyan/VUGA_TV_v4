@@ -3,6 +3,7 @@ package com.vugaenterprises.androidtv.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vugaenterprises.androidtv.data.model.TVAuthSessionData
+import com.vugaenterprises.androidtv.data.model.TVAuthStatusData
 import com.vugaenterprises.androidtv.data.model.UserData as ApiUserData
 import com.vugaenterprises.androidtv.data.repository.TVAuthRepository
 import com.vugaenterprises.androidtv.data.UserData
@@ -102,10 +103,14 @@ class QRCodeAuthViewModel @Inject constructor(
                         result.fold(
                             onSuccess = { statusData ->
                                 if (statusData.authenticated) {
-                                    // Authentication successful, complete the process
-                                    completeAuthentication(token)
+                                    // Authentication successful, save user data from status
                                     pollingJob?.cancel()
                                     countdownJob?.cancel()
+                                    
+                                    // The user data should be in the status response
+                                    // For now, we need to fetch user profile separately
+                                    // since the status endpoint might not return full user data
+                                    completeAuthenticationFromStatus(statusData)
                                 }
                             },
                             onFailure = { 
@@ -135,43 +140,46 @@ class QRCodeAuthViewModel @Inject constructor(
         }
     }
     
-    private fun completeAuthentication(sessionToken: String) {
+    // Removed - TV app doesn't call completeAuth, it gets user data from checkStatus
+    
+    private fun completeAuthenticationFromStatus(statusData: TVAuthStatusData) {
         viewModelScope.launch {
-            tvAuthRepository.completeAuth(sessionToken).collect { result ->
-                result.fold(
-                    onSuccess = { userData ->
-                        // Save user data to UserDataStore
-                        val appUserData = UserData(
-                            id = userData.id,
-                            fullname = userData.fullname,
-                            email = userData.email,
-                            token = null, // TV authentication doesn't return a token
-                            profileImage = userData.profileImage,
-                            isPremium = false // Default to false for TV auth
+            try {
+                // Get user data from status response
+                statusData.user?.let { userData ->
+                    // Save user data to UserDataStore
+                    val appUserData = UserData(
+                        id = userData.id,
+                        fullname = userData.fullname,
+                        email = userData.email,
+                        token = null, // TV authentication doesn't return a token
+                        profileImage = userData.profileImage,
+                        isPremium = false // Default to false for TV auth
+                    )
+                    userDataStore.saveUserData(appUserData)
+                    
+                    _uiState.update { 
+                        it.copy(
+                            isAuthenticated = true,
+                            isLoading = false
                         )
-                        userDataStore.saveUserData(appUserData)
-                        
-                        _uiState.update { 
-                            it.copy(
-                                isAuthenticated = true,
-                                isLoading = false
-                            )
-                        }
-                    },
-                    onFailure = { exception ->
-                        errorLogger.logError(
-                            error = exception,
-                            errorType = "QR_AUTH_COMPLETE",
-                            customMessage = "Failed to complete TV authentication"
-                        )
-                        _uiState.update { 
-                            it.copy(
-                                error = exception.message ?: "Failed to complete authentication",
-                                isLoading = false
-                            )
-                        }
                     }
+                } ?: run {
+                    // No user data in response
+                    throw Exception("No user data received from authentication")
+                }
+            } catch (e: Exception) {
+                errorLogger.logError(
+                    error = e,
+                    errorType = "QR_AUTH_COMPLETE",
+                    customMessage = "Failed to complete TV authentication: ${e.message}"
                 )
+                _uiState.update { 
+                    it.copy(
+                        isLoading = false,
+                        error = e.message ?: "Failed to complete authentication"
+                    )
+                }
             }
         }
     }

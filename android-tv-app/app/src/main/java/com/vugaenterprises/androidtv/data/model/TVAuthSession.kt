@@ -24,7 +24,7 @@ data class TVAuthSessionData(
     @SerializedName("expires_at")
     val expiresAt: String,
     @SerializedName("expires_in_seconds")
-    val expiresInSeconds: Int
+    val expiresInSeconds: Int = 300 // Default to 5 minutes if not provided
 )
 
 data class TVAuthStatusRequest(
@@ -42,10 +42,12 @@ data class TVAuthStatusResponse(
 )
 
 data class TVAuthStatusData(
-    @SerializedName("auth_status")
+    @SerializedName("session_status")
     val authStatus: String,
     @SerializedName("authenticated")
-    val authenticated: Boolean
+    val authenticated: Boolean,
+    @SerializedName("user")
+    val user: UserData? = null
 )
 
 data class TVAuthCompleteRequest(

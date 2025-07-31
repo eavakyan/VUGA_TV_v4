@@ -24,7 +24,9 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(): OkHttpClient {
-        val loggingInterceptor = HttpLoggingInterceptor().apply {
+        val loggingInterceptor = HttpLoggingInterceptor { message ->
+            android.util.Log.d("OkHttp", message)
+        }.apply {
             level = HttpLoggingInterceptor.Level.BODY
         }
 

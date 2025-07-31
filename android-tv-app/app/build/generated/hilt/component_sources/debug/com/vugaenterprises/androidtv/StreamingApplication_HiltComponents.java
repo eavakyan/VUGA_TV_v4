@@ -2,10 +2,12 @@ package com.vugaenterprises.androidtv;
 
 import com.vugaenterprises.androidtv.di.ErrorModule;
 import com.vugaenterprises.androidtv.di.NetworkModule;
+import com.vugaenterprises.androidtv.ui.screens.TVAuthDebugViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.FavoritesViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.HistoryViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel_HiltModules;
+import com.vugaenterprises.androidtv.ui.viewmodels.ProfileSelectionViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.SearchViewModel_HiltModules;
@@ -165,11 +167,13 @@ public final class StreamingApplication_HiltComponents {
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HistoryViewModel_HiltModules.KeyModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
+          ProfileSelectionViewModel_HiltModules.KeyModule.class,
           ProfileViewModel_HiltModules.KeyModule.class,
           QRCodeAuthViewModel_HiltModules.KeyModule.class,
           SearchViewModel_HiltModules.KeyModule.class,
           ActivityCBuilderModule.class,
-          ViewModelCBuilderModule.class
+          ViewModelCBuilderModule.class,
+          TVAuthDebugViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -210,9 +214,11 @@ public final class StreamingApplication_HiltComponents {
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HistoryViewModel_HiltModules.BindsModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
+          ProfileSelectionViewModel_HiltModules.BindsModule.class,
           ProfileViewModel_HiltModules.BindsModule.class,
           QRCodeAuthViewModel_HiltModules.BindsModule.class,
-          SearchViewModel_HiltModules.BindsModule.class
+          SearchViewModel_HiltModules.BindsModule.class,
+          TVAuthDebugViewModel_HiltModules.BindsModule.class
       }
   )
   @ViewModelScoped

@@ -27,15 +27,30 @@ class TVAuthRepository @Inject constructor(
     // Generate a new QR code session
     suspend fun generateAuthSession(): Flow<Result<TVAuthSessionData>> = flow {
         try {
-            val request = TVAuthSessionRequest(tvDeviceId = getDeviceId())
+            val deviceId = getDeviceId()
+            android.util.Log.d("TVAuthRepository", "Generating auth session with device ID: $deviceId")
+            
+            val request = TVAuthSessionRequest(tvDeviceId = deviceId)
+            android.util.Log.d("TVAuthRepository", "Request: $request")
+            
             val response = apiService.generateAuthSession(request)
+            android.util.Log.d("TVAuthRepository", "Response received: status=${response.status}, message=${response.message}")
             
             if (response.status && response.data != null) {
+                android.util.Log.d("TVAuthRepository", "Session data: ${response.data}")
                 emit(Result.success(response.data))
             } else {
+                android.util.Log.e("TVAuthRepository", "API returned error: ${response.message}")
                 emit(Result.failure(Exception(response.message)))
             }
         } catch (e: Exception) {
+            android.util.Log.e("TVAuthRepository", "Exception in generateAuthSession: ${e.message}", e)
+            android.util.Log.e("TVAuthRepository", "Full exception: $e")
+            if (e is retrofit2.HttpException) {
+                val errorBody = e.response()?.errorBody()?.string()
+                android.util.Log.e("TVAuthRepository", "HTTP Error body: $errorBody")
+                android.util.Log.e("TVAuthRepository", "HTTP Status code: ${e.code()}")
+            }
             emit(Result.failure(e))
         }
     }
@@ -56,22 +71,7 @@ class TVAuthRepository @Inject constructor(
         }
     }
     
-    // Complete authentication and get user data
-    suspend fun completeAuth(sessionToken: String): Flow<Result<UserData>> = flow {
-        try {
-            val request = TVAuthCompleteRequest(
-                sessionToken = sessionToken,
-                tvDeviceId = getDeviceId()
-            )
-            val response = apiService.completeAuth(request)
-            
-            if (response.status && response.data != null) {
-                emit(Result.success(response.data))
-            } else {
-                emit(Result.failure(Exception(response.message)))
-            }
-        } catch (e: Exception) {
-            emit(Result.failure(e))
-        }
-    }
+    // Note: TV app doesn't need to call completeAuth
+    // The mobile app calls authenticate endpoint
+    // TV app just polls checkAuthStatus until authenticated
 }

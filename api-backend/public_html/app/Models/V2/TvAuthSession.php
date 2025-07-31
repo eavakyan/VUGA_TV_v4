@@ -7,6 +7,9 @@ class TvAuthSession extends BaseModel
     protected $table = 'tv_auth_session';
     protected $primaryKey = 'tv_auth_session_id';
     
+    // This table doesn't have updated_at column
+    const UPDATED_AT = null;
+    
     protected $fillable = [
         'session_token',
         'qr_code',

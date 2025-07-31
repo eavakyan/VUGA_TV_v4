@@ -58,17 +58,24 @@ fun QRCodeAuthScreen(
                 val errorReporter = remember { ErrorReporter(context, viewModel.errorLogger) }
                 val scope = rememberCoroutineScope()
                 
-                ErrorContent(
-                    error = uiState.error ?: "Unknown error",
-                    onRetry = { viewModel.generateNewSession() },
-                    onBack = onNavigateBack,
-                    onSendReport = {
-                        scope.launch {
-                            errorReporter.sendErrorReport(getErrorCode(uiState.error ?: ""))
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.Center)
-                )
+                // Show debug screen on error for APIBKEND07
+                if (getErrorCode(uiState.error ?: "") == "APIBKEND07") {
+                    TVAuthDebugScreen(
+                        onBack = { viewModel.generateNewSession() }
+                    )
+                } else {
+                    ErrorContent(
+                        error = uiState.error ?: "Unknown error",
+                        onRetry = { viewModel.generateNewSession() },
+                        onBack = onNavigateBack,
+                        onSendReport = {
+                            scope.launch {
+                                errorReporter.sendErrorReport(getErrorCode(uiState.error ?: ""))
+                            }
+                        },
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
             }
             
             uiState.sessionData != null -> {
