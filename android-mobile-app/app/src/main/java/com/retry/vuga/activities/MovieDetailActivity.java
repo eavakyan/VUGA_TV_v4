@@ -343,35 +343,55 @@ public class MovieDetailActivity extends BaseActivity {
         });
 
         binding.btnPlay.setOnClickListener(v -> {
+            // Direct play without source selection
+            if (contentItem == null || contentItem.getContent_sources() == null || contentItem.getContent_sources().isEmpty()) {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            binding.rvSource.setAdapter(contentSourceAdapter);
+            // Get the first (and only) source
+            ContentDetail.SourceItem sourceToPlay = contentItem.getContent_sources().get(0);
+            
+            // Check play progress from history
             ArrayList<MovieHistory> movieHistories = sessionManager.getMovieHistories();
-            ArrayList<ContentDetail.SourceItem> sourceItems = new ArrayList<>();
-            boolean isAdded = false;
-            for (int j = 0; j < movieHistories.size(); j++) {
-                MovieHistory movieHistory = movieHistories.get(j);
-                if (movieHistory != null && movieHistory.getSources() != null && movieHistory.getMovieId() != null && movieHistory.getMovieId() == contentId) {
-                    for (int i = 0; i < contentItem.getContent_sources().size(); i++) {
-                        isAdded = true;
-                        ContentDetail.SourceItem contentSource = contentItem.getContent_sources().get(i);
-                        for (int k = 0; k < movieHistory.getSources().size(); k++) {
-                            ContentDetail.SourceItem sourceItem = movieHistory.getSources().get(k);
-                            if (sourceItem.getId() == contentItem.getContent_sources().get(i).getId()) {
-                                contentSource.playProgress = sourceItem.playProgress;
-//                                break;
-                            }
+            for (MovieHistory movieHistory : movieHistories) {
+                if (movieHistory != null && movieHistory.getSources() != null && 
+                    movieHistory.getMovieId() != null && movieHistory.getMovieId() == contentId) {
+                    for (ContentDetail.SourceItem historySource : movieHistory.getSources()) {
+                        if (historySource.getId() == sourceToPlay.getId()) {
+                            sourceToPlay.playProgress = historySource.playProgress;
+                            break;
                         }
-                        sourceItems.add(contentSource);
                     }
                 }
             }
-            if (!isAdded) {
-                sourceItems = (ArrayList<ContentDetail.SourceItem>) contentItem.getContent_sources();
+
+            // Check access type and play directly
+            if (isNetworkConnected()) {
+                if (sourceToPlay.getAccess_type() == 1) {
+                    increaseViews(sourceToPlay);
+
+                    Intent intent = new Intent(MovieDetailActivity.this, PlayerNewActivity.class);
+                    intent.putExtra(Const.DataKey.CONTENT_SOURCE, new Gson().toJson(sourceToPlay));
+                    intent.putExtra(Const.DataKey.SUB_TITLES, new Gson().toJson(subTitlesList));
+                    intent.putExtra(Const.DataKey.NAME, titleName);
+                    intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
+                    intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
+                    intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+
+                } else if (sourceToPlay.getAccess_type() == 2) {
+                    // Premium pop up
+                    showPremiumPopup();
+
+                } else if (sourceToPlay.getAccess_type() == 3) {
+                    // Video ad pop up
+                    showADDPopup(sourceToPlay, VIEW, null);
+                }
+            } else {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
             }
-            contentSourceAdapter.updateItems(sourceItems);
-            binding.loutSourcesBlur.setVisibility(View.VISIBLE);
-
-
         });
 
         binding.btnBack.setOnClickListener(v -> {
@@ -397,36 +417,55 @@ public class MovieDetailActivity extends BaseActivity {
             dMap.put(Const.DataKey.episode_image, model.getThumbnail());
             dMap.put(Const.DataKey.content_duration, model.getDuration());
 
+            // Direct play without source selection
+            if (model.getSources() == null || model.getSources().isEmpty()) {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            binding.rvSource.setAdapter(contentSourceAdapter);
+            // Get the first (and only) source
+            ContentDetail.SourceItem sourceToPlay = model.getSources().get(0);
+            
+            // Check play progress from history
             ArrayList<MovieHistory> movieHistories = sessionManager.getMovieHistories();
-            ArrayList<ContentDetail.SourceItem> sourceItems = new ArrayList<>();
-            boolean isAdded = false;
-            for (int j = 0; j < movieHistories.size(); j++) {
-                MovieHistory movieHistory = movieHistories.get(j);
-                if (movieHistory != null && movieHistory.getSources() != null && movieHistory.getMovieId() != null && movieHistory.getMovieId() == contentId) {
-                    for (int i = 0; i < model.getSources().size(); i++) {
-                        isAdded = true;
-                        ContentDetail.SourceItem contentSource = model.getSources().get(i);
-                        for (int k = 0; k < movieHistory.getSources().size(); k++) {
-                            ContentDetail.SourceItem sourceItem = movieHistory.getSources().get(k);
-                            if (sourceItem.getId() == model.getSources().get(i).getId()) {
-                                contentSource.playProgress = sourceItem.playProgress;
-//                                break;
-                            }
+            for (MovieHistory movieHistory : movieHistories) {
+                if (movieHistory != null && movieHistory.getSources() != null && 
+                    movieHistory.getMovieId() != null && movieHistory.getMovieId() == contentId) {
+                    for (ContentDetail.SourceItem historySource : movieHistory.getSources()) {
+                        if (historySource.getId() == sourceToPlay.getId()) {
+                            sourceToPlay.playProgress = historySource.playProgress;
+                            break;
                         }
-                        sourceItems.add(contentSource);
                     }
                 }
             }
-            if (!isAdded) {
-                sourceItems = (ArrayList<ContentDetail.SourceItem>) model.getSources();
+
+            // Check access type and play directly
+            if (isNetworkConnected()) {
+                if (sourceToPlay.getAccess_type() == 1) {
+                    increaseViews(sourceToPlay);
+
+                    Intent intent = new Intent(MovieDetailActivity.this, PlayerNewActivity.class);
+                    intent.putExtra(Const.DataKey.CONTENT_SOURCE, new Gson().toJson(sourceToPlay));
+                    intent.putExtra(Const.DataKey.SUB_TITLES, new Gson().toJson(subTitlesList));
+                    intent.putExtra(Const.DataKey.NAME, titleName);
+                    intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
+                    intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
+                    intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+
+                } else if (sourceToPlay.getAccess_type() == 2) {
+                    // Premium pop up
+                    showPremiumPopup();
+
+                } else if (sourceToPlay.getAccess_type() == 3) {
+                    // Video ad pop up
+                    showADDPopup(sourceToPlay, VIEW, null);
+                }
+            } else {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
             }
-            contentSourceAdapter.updateItems(sourceItems);
-//            contentSourceAdapter.updateItems(model.getSources());
-            binding.loutSourcesBlur.setVisibility(View.VISIBLE);
-
-
         });
 
 
