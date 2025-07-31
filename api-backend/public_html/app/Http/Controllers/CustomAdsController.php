@@ -19,7 +19,7 @@ class CustomAdsController extends Controller
 
     public function fetchCustomAdList(Request $request)
     {
-        $columns = ['id'];
+        $columns = ['custom_ad_id'];
         $query = CustomAd::query();
         $totalData = $query->count();
 
@@ -58,7 +58,7 @@ class CustomAdsController extends Controller
             if ($item->status == Constants::On) {
                 $status = '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none customAdOff" checked rel="' . $item->id . '" value="' . $item->status . '" >
+                        <input type="checkbox" class="d-none customAdOff" checked rel="' . $item->custom_ad_id . '" value="' . $item->status . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -68,7 +68,7 @@ class CustomAdsController extends Controller
             } else {
                 $status = '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none customAdOn" rel="' . $item->id . '" value="' . $item->status . '" >
+                        <input type="checkbox" class="d-none customAdOn" rel="' . $item->custom_ad_id . '" value="' . $item->status . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -77,9 +77,9 @@ class CustomAdsController extends Controller
                 </div>';
             }
 
-            $customAdDetail = '<a href="customAdDetailView/' . $item->id . '" class="btn btn-info me-2 shadow-none text-white" style="white-space: nowrap;">' . __('detail') . '</a>';
+            $customAdDetail = '<a href="customAdDetailView/' . $item->custom_ad_id . '" class="btn btn-info me-2 shadow-none text-white" style="white-space: nowrap;">' . __('detail') . '</a>';
 
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->custom_ad_id}'
                         data-brand_logo='{$item->brand_logo}' 
                         data-title='{$item->title}' 
                         data-brand_name='{$item->brand_name}' 
@@ -93,7 +93,7 @@ class CustomAdsController extends Controller
                         data-status='{$item->status}' 
                         class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->custom_ad_id}'>" . __('delete') . "</a>";
 
             $actionHtml = "<div class='text-end action'> {$customAdDetail} {$edit} {$delete}</div>";
 
@@ -125,7 +125,7 @@ class CustomAdsController extends Controller
 
     function customAdOn(Request $request)
     {
-        $customAd = CustomAd::where('id', $request->ad_id)->with('sources')->first();
+        $customAd = CustomAd::where('custom_ad_id', $request->ad_id)->with('sources')->first();
 
         if ($customAd->sources->isEmpty()) {
             return response()->json([
@@ -145,7 +145,7 @@ class CustomAdsController extends Controller
 
     function customAdOff(Request $request)
     {
-        $customAd = CustomAd::where('id', $request->ad_id)->first();
+        $customAd = CustomAd::where('custom_ad_id', $request->ad_id)->first();
         $customAd->status = Constants::Off;
         $customAd->save();
 
@@ -234,7 +234,7 @@ class CustomAdsController extends Controller
 
     function deleteCustomAd(Request $request)
     {
-        $customAd = CustomAd::where('id', $request->custom_ad_id)->first();
+        $customAd = CustomAd::where('custom_ad_id', $request->custom_ad_id)->first();
         if ($customAd == null) {
             return response()->json([
                 'status' => false,
@@ -260,7 +260,7 @@ class CustomAdsController extends Controller
 
     function customAdDetailView(Request $request)
     {
-        $customAd = CustomAd::where('id', $request->id)->first();
+        $customAd = CustomAd::where('custom_ad_id', $request->id)->first();
         if ($customAd == null) {
             return response()->json([
                 'status' => false,
@@ -275,7 +275,7 @@ class CustomAdsController extends Controller
 
     function fetchCustomAdImageSourceList(Request $request)
     {
-        $columns = ['id'];
+        $columns = ['custom_ad_source_id'];
         $query = CustomAdSource::where('custom_ad_id', $request->custom_ad_id)->where('type', 0);
         $totalData = $query->count();
 
@@ -305,14 +305,14 @@ class CustomAdsController extends Controller
                       </div>";
             $description = "<span class='itemDescription'>{$item->description}</span>";
 
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->custom_ad_source_id}'
                         data-content='{$item->content}' 
                         data-headline='{$item->headline}' 
                         data-description='{$item->description}' 
                         data-show_time='{$item->show_time}' 
                         class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->custom_ad_source_id}'>" . __('delete') . "</a>";
 
             $actionHtml = "<div class='text-end action'> {$edit} {$delete}</div>";
 
@@ -392,7 +392,7 @@ class CustomAdsController extends Controller
 
     function deleteCustomAdSource(Request $request)
     {
-        $customAdSource = CustomAdSource::where('id', $request->custom_ad_source_id)->first();
+        $customAdSource = CustomAdSource::where('custom_ad_source_id', $request->custom_ad_source_id)->first();
         if ($customAdSource == null) {
             return response()->json([
                 'status' => false,
@@ -412,7 +412,7 @@ class CustomAdsController extends Controller
 
     function fetchCustomAdVideoSourceList(Request $request)
     {
-        $columns = ['id'];
+        $columns = ['custom_ad_source_id'];
         $query = CustomAdSource::where('custom_ad_id', $request->custom_ad_id)->where('type', Constants::CustomAdSourceTypeVideo);
         $totalData = $query->count();
 
@@ -436,7 +436,7 @@ class CustomAdsController extends Controller
 
         $data = $result->map(function ($item) {
             $videoHtml = "<div class='d-flex align-items-center'>
-                        <a href='javascript:;' rel='{$item->id}' data-source_url='{$item->content}' class='btn-primary text-white px-3 py-1 border-radius source_file_video'>" . __('preview') . "</a>
+                        <a href='javascript:;' rel='{$item->custom_ad_source_id}' data-source_url='{$item->content}' class='btn-primary text-white px-3 py-1 border-radius source_file_video'>" . __('preview') . "</a>
                         <span class='ms-3'>{$item->headline}</span>
                         </div>";
             $description = "<span class='itemDescription'>{$item->description}</span>";
@@ -445,14 +445,14 @@ class CustomAdsController extends Controller
             ? "<span class='badge bg-danger px-3'>" . __('mustWatch') . "</span>"
                 : "<span class='badge bg-success px-3'>" . __('skippable') . "</span>";
 
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->custom_ad_source_id}'
                         data-content='{$item->content}' 
                         data-headline='{$item->headline}' 
                         data-description='{$item->description}' 
                         data-is_skippable='{$item->is_skippable}' 
                         class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->custom_ad_source_id}'>" . __('delete') . "</a>";
 
             $actionHtml = "<div class='text-end action'> {$edit} {$delete}</div>";
 
@@ -576,7 +576,7 @@ class CustomAdsController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $customAd = CustomAd::where('id', $request->custom_ad_id)->first();
+        $customAd = CustomAd::where('custom_ad_id', $request->custom_ad_id)->first();
         if ($customAd == null) {
             return response()->json([
                 'status' => false,

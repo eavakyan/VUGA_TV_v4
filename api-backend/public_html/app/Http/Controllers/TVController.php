@@ -13,10 +13,10 @@ class TVController extends Controller
 {
     function fetchLiveTVPageData()
     {
-        $tvCategories = TVCategory::orderBy('id', 'DESC')->get();
+        $tvCategories = TVCategory::orderBy('tv_category_id', 'DESC')->get();
 
         foreach ($tvCategories as $category) {
-            $channels = TVChannel::whereRaw('FIND_IN_SET(?, category_ids)', [$category->id])->limit(env('LIVE_TV_DATA_COUNT'))->orderBy('id', 'DESC')->get();
+            $channels = TVChannel::whereRaw('FIND_IN_SET(?, category_ids)', [$category->tv_category_id])->limit(env('LIVE_TV_DATA_COUNT'))->orderBy('tv_channel_id', 'DESC')->get();
             $category->channels = $channels;
         }
 
@@ -41,7 +41,7 @@ class TVController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $tvCategory = TVCategory::where('id', $request->tv_category_id)->first();
+        $tvCategory = TVCategory::where('tv_category_id', $request->tv_category_id)->first();
         if ($tvCategory == null) {
             return response()->json([
                 'status' => false,
@@ -54,7 +54,7 @@ class TVController extends Controller
 
 
         $channels = TVChannel::whereRaw('FIND_IN_SET(?, category_ids)', [$request->tv_category_id])
-                            ->orderBy('id', 'DESC')
+                            ->orderBy('tv_channel_id', 'DESC')
                             ->skip($start)
                             ->take($limit)
                             ->get();
@@ -85,7 +85,7 @@ class TVController extends Controller
         $limit = $request->limit;
 
         $channels = TVChannel::where('title', 'like', '%' . $request->keyword . '%')
-                                ->orderBy('id', 'DESC')
+                                ->orderBy('tv_channel_id', 'DESC')
                                 ->skip($start)
                                 ->take($limit)
                                 ->get();
@@ -109,7 +109,7 @@ class TVController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $tvChannel = TVChannel::where('id', $request->channel_id)->first();
+        $tvChannel = TVChannel::where('tv_channel_id', $request->channel_id)->first();
         $tvChannel->total_view += 1;
         $tvChannel->save();
 
@@ -133,7 +133,7 @@ class TVController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $tvChannel = TVChannel::where('id', $request->channel_id)->first();
+        $tvChannel = TVChannel::where('tv_channel_id', $request->channel_id)->first();
         $tvChannel->total_share += 1;
         $tvChannel->save();
 
@@ -157,7 +157,7 @@ class TVController extends Controller
         $query = TVCategory::query();
         $totalData = $query->count();
 
-        $columns = ['id'];
+        $columns = ['tv_category_id'];
         $limit = $request->input('length');
         $start = $request->input('start');
         $orderColumn = $columns[$request->input('order.0.column')];
@@ -182,9 +182,9 @@ class TVController extends Controller
                     <span class='ms-3'>{$item->title}</span>
                   </div>";
 
-            $edit = "<a rel='{$item->id}' data-title='{$item->title}' data-image='{$imageUrl}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . '</a>';
+            $edit = "<a rel='{$item->tv_category_id}' data-title='{$item->title}' data-image='{$imageUrl}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . '</a>';
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . '</a>';
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->tv_category_id}'>" . __('delete') . '</a>';
 
             $action = "<div class='text-end action'>{$edit}{$delete}</div>";
 
@@ -224,7 +224,7 @@ class TVController extends Controller
 
     public function updateTvCategory(Request $request)
     {
-        $tvCategory = TVCategory::where('id', $request->tv_category_id)->first();
+        $tvCategory = TVCategory::where('tv_category_id', $request->tv_category_id)->first();
 
         if (!$tvCategory) {
             return response()->json([
@@ -255,7 +255,7 @@ class TVController extends Controller
     public function deleteTvCategory(Request $request)
     {
 
-        $tvCategory = TVCategory::where('id', $request->tv_category_id)->first();
+        $tvCategory = TVCategory::where('tv_category_id', $request->tv_category_id)->first();
         if (!$tvCategory) {
             return response()->json([
                 'status' => false,
@@ -295,7 +295,7 @@ class TVController extends Controller
 
     public function fetchTvChannelList(Request $request)
     {
-        $columns = ['id'];
+        $columns = ['tv_channel_id'];
         $query = TVChannel::query();
 
         $totalData = $query->count();
@@ -327,7 +327,7 @@ class TVController extends Controller
 
 
             $categoryIds = explode(',', $item->category_ids);
-            $categories = TVCategory::whereIn('id', $categoryIds)->get();
+            $categories = TVCategory::whereIn('tv_category_id', $categoryIds)->get();
             $categoryTitles = $categories->pluck('title')->implode(', ');
 
             if ($item->type == Constants::Youtube) {
@@ -338,7 +338,7 @@ class TVController extends Controller
             }
              
 
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->tv_channel_id}'
                     data-title='{$item->title}' 
                     data-thumbnail='{$item->thumbnail}' 
                     data-access_type='{$item->access_type}' 
@@ -347,7 +347,7 @@ class TVController extends Controller
                     data-source='{$item->source}' 
                     class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . '</a>';
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . '</a>';
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->tv_channel_id}'>" . __('delete') . '</a>';
 
             $actionHtml = "<div class='text-end action'>{$edit} {$delete}</div>";
 
@@ -401,7 +401,7 @@ class TVController extends Controller
 
     public function updateTvChannel(Request $request)
     {
-        $tvChannel = TVChannel::where('id', $request->tv_channel_id)->first();
+        $tvChannel = TVChannel::where('tv_channel_id', $request->tv_channel_id)->first();
 
         if (!$tvChannel) {
             return response()->json([
@@ -436,7 +436,7 @@ class TVController extends Controller
 
     public function deleteTvChannel(Request $request)
     {
-        $tvChannel = TVChannel::where('id', $request->tv_channel_id)->first();
+        $tvChannel = TVChannel::where('tv_channel_id', $request->tv_channel_id)->first();
 
         if (!$tvChannel) {
             return response()->json([

@@ -8,6 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class CustomAd extends Model
 {
     use HasFactory;
+    protected $table = 'custom_ad';
+    protected $primaryKey = 'custom_ad_id';
 
     public function sources()
     {

@@ -29,7 +29,7 @@ class ActorController extends Controller
         $query = Actor::query();
         $totalData = $query->count();
 
-        $columns = ['id'];
+        $columns = ['actor_id'];
         $limit = $request->input('length');
         $start = $request->input('start');
         $orderColumn = $columns[$request->input('order.0.column')];
@@ -55,14 +55,14 @@ class ActorController extends Controller
                     <span class='ms-3'>{$item->fullname}</span>
                 </div>";
 
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->actor_id}'
                     data-fullname='{$item->fullname}' 
                     data-profile_image='{$item->profile_image}' 
                     data-dob='{$item->dob}' 
                     data-bio='{$item->bio}' 
                     class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->actor_id}'>" . __('delete') . "</a>";
 
             $action = "<div class='text-end action'>{$edit}{$delete}</div>";
 
@@ -112,7 +112,7 @@ class ActorController extends Controller
 
     public function updateActor(Request $request)
     {
-        $actor = Actor::where('id', $request->actor_id)->first();
+        $actor = Actor::where('actor_id', $request->actor_id)->first();
         if ($actor == null) {
             return response()->json([
                 'status' => false,
@@ -143,7 +143,7 @@ class ActorController extends Controller
     
     public function deleteActor(Request $request)
     {
-        $actor = Actor::where('id', $request->actor_id)->first();
+        $actor = Actor::where('actor_id', $request->actor_id)->first();
         if ($actor == null) {
             return response()->json([
                 'status' => false,
@@ -174,7 +174,7 @@ class ActorController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $actor = Actor::where('id', $request->actor_id)->first();
+        $actor = Actor::where('actor_id', $request->actor_id)->first();
         if (!$actor) {
             return response()->json([
                 'status' => false,

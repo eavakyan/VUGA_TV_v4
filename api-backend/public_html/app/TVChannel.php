@@ -8,8 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class TVChannel extends Model
 {
 	use HasFactory;
-	protected $table = 'tv_channels';
-
-	
+	protected $table = 'tv_channel';
+	protected $primaryKey = 'tv_channel_id';
 }
 ?>

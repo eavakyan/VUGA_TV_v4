@@ -16,7 +16,7 @@ class LanguageController extends Controller
     {
         $limit = $request->input('length');
         $start = $request->input('start');
-        $columns = ['id'];
+        $columns = ['app_language_id'];
         $orderColumn = $columns[$request->input('order.0.column', 0)]; 
         $orderDir = $request->input('order.0.dir', 'DESC');
         $searchValue = $request->input('search.value');
@@ -37,9 +37,9 @@ class LanguageController extends Controller
                         ->get();
 
         $data = $result->map(function ($item) {
-            $edit = "<a rel='{$item->id}' data-title='{$item->title}' data-code='{$item->code}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
+            $edit = "<a rel='{$item->app_language_id}' data-title='{$item->title}' data-code='{$item->code}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->app_language_id}'>" . __('delete') . "</a>";
 
             $action = "<div class='text-end action'>{$edit}{$delete}</div>";
 
@@ -120,7 +120,7 @@ class LanguageController extends Controller
 
     public function updateLanguage(Request $request)
     {
-        $language = Language::where('id', $request->language_id)->first();
+        $language = Language::where('app_language_id', $request->language_id)->first();
         if ($language == null) {
             return response()->json([
                 'status' => false,
@@ -141,7 +141,7 @@ class LanguageController extends Controller
 
     public function deleteLanguage(Request $request)
     {
-        $language = Language::where('id', $request->language_id)->first();
+        $language = Language::where('app_language_id', $request->language_id)->first();
         if ($language == null) {
             return response()->json([
                 'status' => false,

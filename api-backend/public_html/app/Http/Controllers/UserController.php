@@ -207,8 +207,8 @@ class UserController extends Controller
     public function usersList(Request $request)
     {
         $columns = [
-            0 => 'id',
-            1 => 'image',
+            0 => 'app_user_id',
+            1 => 'profile_image',
         ];
 
         $query = User::query();
@@ -245,9 +245,10 @@ class UserController extends Controller
 
             $loginType = match ($item->login_type) {
                 1 => 'Google',
-                2 => 'Facebook ',
+                2 => 'Facebook',
                 3 => 'Apple',
                 4 => 'Email',
+                default => 'Unknown',
             };
 
             return [

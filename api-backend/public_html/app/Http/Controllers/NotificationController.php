@@ -15,7 +15,7 @@ class NotificationController extends Controller
 
     public function notificationList(Request $request)
     {
-        $columns = ['id'];
+        $columns = ['notification_id'];
         $query = Notification::query();
         $totalData = $query->count();
 
@@ -42,16 +42,16 @@ class NotificationController extends Controller
             
             $description = "<span class='itemDescription'>{$item->description}</span>";
 
-            $repeat = "<a rel={$item->id}
+            $repeat = "<a rel={$item->notification_id}
                         data-title='{$item->title}' 
                         data-description={$item->description}
                         class='me-3 btn btn-info px-4 text-white repeat shadow-none'>" . __('repeat') . "</a>";
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->notification_id}'
                         data-title='{$item->title}' 
                         data-description='{$item->description}' 
                         class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->notification_id}'>" . __('delete') . "</a>";
 
             $actionHtml = "<div class='text-end action'>{$repeat} {$edit} {$delete}</div>";
 
@@ -89,7 +89,7 @@ class NotificationController extends Controller
 
     public function updateNotification(Request $request)
     {
-        $notification = Notification::where('id', $request->notification_id)->first();
+        $notification = Notification::where('notification_id', $request->notification_id)->first();
 
         if (!$notification) {
             return response()->json([
@@ -123,7 +123,7 @@ class NotificationController extends Controller
 
     public function deleteNotification(Request $request)
     {
-        $notification = Notification::where('id', $request->notification_id)->first();
+        $notification = Notification::where('notification_id', $request->notification_id)->first();
         if ($notification == null) {
             return response()->json([
                 'status' => false,

@@ -21,7 +21,7 @@ class MediaGalleryController extends Controller
         $query = MediaGallery::query();
         $totalData = $query->count();
 
-        $columns = ['id'];
+        $columns = ['media_gallery_id'];
 
         $limit = $request->input('length');
         $start = $request->input('start');
@@ -43,11 +43,11 @@ class MediaGalleryController extends Controller
         $data = $result->map(function ($item) {
  
             $source = '<a href="javascript:;" 
-                            rel="' . $item->id . '"  
+                            rel="' . $item->media_gallery_id . '"  
                             data-source_url="' . $item->file . '" 
                             class="me-2 btn btn-primary px-4 text-white source_file_video"> Video Preview </a>';
-            $edit = "<a rel='{$item->id}' data-title='{$item->title}' data-file='{$item->file}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $edit = "<a rel='{$item->media_gallery_id}' data-title='{$item->title}' data-file='{$item->file}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->media_gallery_id}'>" . __('delete') . "</a>";
             $action = "<div class='text-end action'>{$edit}{$delete}</div>";
             return [
                 $source,
@@ -86,7 +86,7 @@ class MediaGalleryController extends Controller
 
     public function updateMedia(Request $request)
     {
-        $media = MediaGallery::where('id', $request->media_id)->first();
+        $media = MediaGallery::where('media_gallery_id', $request->media_id)->first();
         if (!$media) {
             return response()->json([
                 'status' => false,
@@ -114,7 +114,7 @@ class MediaGalleryController extends Controller
 
     public function deleteMedia(Request $request)
     {
-        $media = MediaGallery::where('id', $request->media_id)->first();
+        $media = MediaGallery::where('media_gallery_id', $request->media_id)->first();
 
         if (!$media) {
             return response()->json([

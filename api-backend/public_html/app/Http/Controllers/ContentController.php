@@ -144,7 +144,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $genre = Genre::where('id', $request->genre_id)->first();
+        $genre = Genre::where('genre_id', $request->genre_id)->first();
         if ($genre == null) {
             return response()->json([
                 'status' => false,
@@ -189,7 +189,7 @@ class ContentController extends Controller
             ]);
         }
 
-        $content = Content::with('sources.media')->where('is_show', Constants::showContent)->where('id', $request->content_id)->first();
+        $content = Content::with('sources.media')->where('is_show', Constants::showContent)->where('content_id', $request->content_id)->first();
         if (!$content) {
             return response()->json([
                 'status' => false,
@@ -238,14 +238,14 @@ class ContentController extends Controller
                 $query->whereRaw('FIND_IN_SET(?, genre_ids)', [$genreId]);
             }
         })
-        ->where('id', '!=', $content->id)
+        ->where('content_id', '!=', $content->content_id)
         ->inRandomOrder()
         ->limit(env('MORE_LIKE_RANDOM_LIST_COUNT'))
         ->get();
 
         if ($moreLikeThis->isEmpty()) {
             $moreLikeThis = Content::where('is_show', Constants::showContent)->where('type', $content->type)
-            ->where('id', '!=', $content->id)
+            ->where('content_id', '!=', $content->content_id)
             ->inRandomOrder()
             ->limit(env('MORE_LIKE_RANDOM_LIST_COUNT'))
             ->get();
@@ -388,7 +388,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $episode = Episode::where('id', $request->episode_id)->first();
+        $episode = Episode::where('episode_id', $request->episode_id)->first();
         $episode->total_view += 1;
         $episode->save();
 
@@ -411,7 +411,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $episode = Episode::where('id', $request->episode_id)->first();
+        $episode = Episode::where('episode_id', $request->episode_id)->first();
         $episode->total_download += 1;
         $episode->save();
 
@@ -437,7 +437,7 @@ class ContentController extends Controller
     public function fetchMoviesList(Request $request)
     {
         $content_type = Constants::movie;
-        $columns = ['id'];
+        $columns = ['content_id'];
 
         $query = Content::where('type', $content_type);
         $totalData = $query->count();
@@ -478,7 +478,7 @@ class ContentController extends Controller
             $featured = $item->is_featured == Constants::featured
                 ? '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none unfeatured" checked rel="' . $item->id . '" value="' . $item->is_featured . '" >
+                        <input type="checkbox" class="d-none unfeatured" checked rel="' . $item->content_id . '" value="' . $item->is_featured . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -487,7 +487,7 @@ class ContentController extends Controller
                </div>'
                 : '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none featured" rel="' . $item->id . '" value="' . $item->is_featured . '" >
+                        <input type="checkbox" class="d-none featured" rel="' . $item->content_id . '" value="' . $item->is_featured . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -499,7 +499,7 @@ class ContentController extends Controller
             $activeContent = $item->is_show == Constants::showContent
                 ? '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none hideContent" checked rel="' . $item->id . '" value="' . $item->is_show . '" >
+                        <input type="checkbox" class="d-none hideContent" checked rel="' . $item->content_id . '" value="' . $item->is_show . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -508,7 +508,7 @@ class ContentController extends Controller
                </div>'
                 : '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none showContent" rel="' . $item->id . '" value="' . $item->is_show . '" >
+                        <input type="checkbox" class="d-none showContent" rel="' . $item->content_id . '" value="' . $item->is_show . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -516,9 +516,9 @@ class ContentController extends Controller
                     </label>
                </div>';
 
-            $movieDetail = "<a href='contentList/{$item->id}' class='btn btn-info me-2 shadow-none text-white' style='white-space: nowrap;'>" . __('details') . "</a>";
+            $movieDetail = "<a href='contentList/{$item->content_id}' class='btn btn-info me-2 shadow-none text-white' style='white-space: nowrap;'>" . __('details') . "</a>";
 
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->content_id}'
                     data-type='{$item->type}' 
                     data-title='{$item->title}'
                     data-description='{$item->description}' 
@@ -532,8 +532,8 @@ class ContentController extends Controller
                     data-hposter='{$item->horizontal_poster}' 
                     class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
-            $notifyContent = "<a href='#' class='ms-2 text-white notifyContent btn btn-warning shadow-none' style='padding: 6px 10px !important;' rel='{$item->id}' data-title='{$item->title}' data-description='{$item->description}' '><svg viewBox='0 0 24 24' width='24' height='24' stroke='currentColor' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round' class='css-i6dzq1'><path d='M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9'></path><path d='M13.73 21a2 2 0 0 1-3.46 0'></path></svg></a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->content_id}'>" . __('delete') . "</a>";
+            $notifyContent = "<a href='#' class='ms-2 text-white notifyContent btn btn-warning shadow-none' style='padding: 6px 10px !important;' rel='{$item->content_id}' data-title='{$item->title}' data-description='{$item->description}' '><svg viewBox='0 0 24 24' width='24' height='24' stroke='currentColor' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round' class='css-i6dzq1'><path d='M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9'></path><path d='M13.73 21a2 2 0 0 1-3.46 0'></path></svg></a>";
 
             $action = "<div class='text-end action'>{$movieDetail}{$edit}{$delete}{$notifyContent}</div>";
 
@@ -787,7 +787,7 @@ class ContentController extends Controller
     public function fetchSourceList(Request $request)
     {
         $contentId = $request->input('content_id');
-        $columns = ['id'];
+        $columns = ['content_id'];
 
         $typeMappings = [
             "Youtube" => 1,
@@ -829,7 +829,7 @@ class ContentController extends Controller
             
             if ($item->type == Constants::FileType) {
                 $source = '<a href="javascript:;" 
-                            rel="' . $item->id . '"  
+                            rel="' . $item->content_source_id . '"  
                             data-source_url="' . $item->media->file . '" 
                             class="me-2 btn btn-primary px-4 text-white source_file_video">' . __('videoPreview') . ' </a>';
             } elseif ($item->type == Constants::Youtube) {
@@ -839,7 +839,7 @@ class ContentController extends Controller
                 $source = '<a href="' . $item->source . '" target="_blank" class="sourceUrlLink"> ' . __('preview') . ' </a>';
             }
 
-            $edit = '<a rel="' . $item->id . '"
+            $edit = '<a rel="' . $item->content_source_id . '"
                         data-title="' . $item->title . '" 
                         data-quality="' . $item->quality . '" 
                         data-size="' . $item->size . '" 
@@ -849,7 +849,7 @@ class ContentController extends Controller
                         data-source="' . $item->source . '" 
                         class="me-2 btn btn-success px-3 text-white edit">' . __('edit') . '</a>';
 
-            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel=' . $item->id . '>' . __('delete') . '</a>';
+            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel=' . $item->content_source_id . '>' . __('delete') . '</a>';
 
             $action = '<div class="text-end action">' . $edit . $delete . '</div>';
 
@@ -901,7 +901,7 @@ class ContentController extends Controller
 
     public function updateContentSource(Request $request)
     {
-        $contentSource = ContentSource::where('id', $request->source_id)->first();
+        $contentSource = ContentSource::where('content_source_id', $request->source_id)->first();
         if ($contentSource == null) {
             return response()->json([
                 'status' => false,
@@ -936,7 +936,7 @@ class ContentController extends Controller
 
     public function deleteSource(Request $request)
     {
-        $contentSource = ContentSource::where('id', $request->source_id)->first();
+        $contentSource = ContentSource::where('content_source_id', $request->source_id)->first();
         if ($contentSource == null) {
             return response()->json([
                 'status' => false,
@@ -957,7 +957,7 @@ class ContentController extends Controller
     public function fetchCastList(Request $request)
     {
         $contentId = $request->input('content_id');
-        $columns = ['id'];
+        $columns = ['content_id'];
 
         $query = ContentCast::where('content_id', $contentId);
         $totalData = $query->count();
@@ -992,12 +992,12 @@ class ContentController extends Controller
 
             $characterName = $item->character_name;
 
-            $edit = "<a rel='{$item->id}'
-                    data-actor_id='{$item->actor->id}' 
+            $edit = "<a rel='{$item->content_cast_id}'
+                    data-actor_id='{$item->actor->actor_id}' 
                     data-character_name='{$item->character_name}' 
                     class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->content_cast_id}'>" . __('delete') . "</a>";
 
             $action = "<div class='text-end action'>{$edit}{$delete}</div>";
 
@@ -1035,7 +1035,7 @@ class ContentController extends Controller
 
     public function updateCast(Request $request)
     {
-        $contentCast = ContentCast::where('id', $request->cast_id)->first();
+        $contentCast = ContentCast::where('content_cast_id', $request->cast_id)->first();
         if ($contentCast == null) {
             return response()->json([
                 'status' => false,
@@ -1057,7 +1057,7 @@ class ContentController extends Controller
 
     public function deleteCast(Request $request)
     {
-        $contentCast = ContentCast::where('id', $request->cast_id)->first();
+        $contentCast = ContentCast::where('content_cast_id', $request->cast_id)->first();
         if ($contentCast == null) {
             return response()->json([
                 'status' => false,
@@ -1077,7 +1077,7 @@ class ContentController extends Controller
     public function fetchSubtitleList(Request $request)
     {
         $contentId = $request->input('content_id');
-        $columns = ['id'];
+        $columns = ['content_id'];
 
         $query = Subtitle::where('content_id', $contentId)->with('language');
         $totalData = $query->count();
@@ -1104,7 +1104,7 @@ class ContentController extends Controller
         $data = $result->map(function ($item) {
             $download = '<a download href="' . $item->file . '" class="me-2 btn btn-info px-3 text-white download shadow-none">' . __('download') . '</a>';
 
-            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel="' . $item->id . '">' . __('delete') . '</a>';
+            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel="' . $item->subtitle_id . '">' . __('delete') . '</a>';
 
             $action = '<div class="text-end action">' . $download . $delete . '</div>';
 
@@ -1147,7 +1147,7 @@ class ContentController extends Controller
 
     public function deleteSubtitle(Request $request)
     {
-        $subtitle = Subtitle::where('id', $request->subtitle_id)->first();
+        $subtitle = Subtitle::where('subtitle_id', $request->subtitle_id)->first();
         if ($subtitle == null) {
             return response()->json([
                 'status' => false,
@@ -1170,7 +1170,7 @@ class ContentController extends Controller
     public function fetchSeriesList(Request $request)
     {
         $content_type = Constants::series;
-        $columns = ['id'];
+        $columns = ['content_id'];
 
         $query = Content::where('type', $content_type);
         $totalData = $query->count();
@@ -1228,7 +1228,7 @@ class ContentController extends Controller
             $activeContent = $item->is_show == Constants::showContent
                 ? '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none hideContent" checked rel="' . $item->id . '" value="' . $item->is_show . '" >
+                        <input type="checkbox" class="d-none hideContent" checked rel="' . $item->content_id . '" value="' . $item->is_show . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -1237,7 +1237,7 @@ class ContentController extends Controller
                </div>'
                 : '<div class="checkbox-slider d-flex align-items-center">
                     <label>
-                        <input type="checkbox" class="d-none showContent" rel="' . $item->id . '" value="' . $item->is_show . '" >
+                        <input type="checkbox" class="d-none showContent" rel="' . $item->content_id . '" value="' . $item->is_show . '" >
                         <span class="toggle_background">
                             <div class="circle-icon"></div>
                             <div class="vertical_line"></div>
@@ -1246,10 +1246,10 @@ class ContentController extends Controller
                </div>';
 
 
-            $seriesDetail = "<a href='series/{$item->id}' class='btn btn-info me-2 shadow-none text-white' style='white-space: nowrap;'>" . __('details') . "</a>";
+            $seriesDetail = "<a href='series/{$item->content_id}' class='btn btn-info me-2 shadow-none text-white' style='white-space: nowrap;'>" . __('details') . "</a>";
             $title = "<span class='itemDescription'> $item->title </span>";
 
-            $edit = "<a rel='{$item->id}'
+            $edit = "<a rel='{$item->content_id}'
                 data-type='{$item->type}' 
                 data-title='{$item->title}'
                 data-description='{$item->description}' 
@@ -1263,8 +1263,8 @@ class ContentController extends Controller
                 data-hposter='{$item->horizontal_poster}' 
                 class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
 
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
-            $notifyContent = "<a href='#' class='ms-2 text-white notifyContent btn btn-warning shadow-none' style='padding: 6px 10px !important;' rel='{$item->id}' data-title='{$item->title}' data-description='{$item->description}' '><svg viewBox='0 0 24 24' width='24' height='24' stroke='currentColor' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round' class='css-i6dzq1'><path d='M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9'></path><path d='M13.73 21a2 2 0 0 1-3.46 0'></path></svg></a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->content_id}'>" . __('delete') . "</a>";
+            $notifyContent = "<a href='#' class='ms-2 text-white notifyContent btn btn-warning shadow-none' style='padding: 6px 10px !important;' rel='{$item->content_id}' data-title='{$item->title}' data-description='{$item->description}' '><svg viewBox='0 0 24 24' width='24' height='24' stroke='currentColor' stroke-width='2' fill='none' stroke-linecap='round' stroke-linejoin='round' class='css-i6dzq1'><path d='M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9'></path><path d='M13.73 21a2 2 0 0 1-3.46 0'></path></svg></a>";
 
 
             $action = "<div class='text-end action'>{$seriesDetail}{$edit}{$delete}{$notifyContent}</div>";
@@ -1333,7 +1333,7 @@ class ContentController extends Controller
 
     public function updateSeason(Request $request)
     {
-        $season = Season::where('id', $request->season_id)->first();
+        $season = Season::where('season_id', $request->season_id)->first();
         if ($season == null) {
             return response()->json([
                 'status' => false,
@@ -1394,7 +1394,7 @@ class ContentController extends Controller
     public function fetchEpisodeList(Request $request)
     {
         $seasonId = $request->season_id;
-        $columns = ['id'];
+        $columns = ['content_id'];
 
         $query = Episode::orderBy('number', 'ASC')->where('season_id', $seasonId);
         $totalData = $query->count();
@@ -1422,8 +1422,8 @@ class ContentController extends Controller
         $data = $result->map(function ($item) {
             $thumbnailPoster = '<span class="me-2">' . $item->number . '</span>' . '<img data-fancybox src="' . $item->thumbnail . '" alt="vertical image" class="object-cover img-fluid horizontal_poster_tbl">';
             $itemDescription = '<span class="itemDescription">' . $item->description . '</span>';
-            $episodeDetail = '<a href="episodeDetail/' . $item->id . '" class="btn btn-info me-2 shadow-none text-white" style="white-space: nowrap;">' . __('episodeDetail') . '</a>';
-            $edit = '<a rel="' . $item->id . '"
+            $episodeDetail = '<a href="episodeDetail/' . $item->season_id . '" class="btn btn-info me-2 shadow-none text-white" style="white-space: nowrap;">' . __('episodeDetail') . '</a>';
+            $edit = '<a rel="' . $item->season_id . '"
                     data-number="' . $item->number . '"
                     data-thumbnail="' . $item->thumbnail . '"
                     data-title="' . $item->title . '"
@@ -1431,7 +1431,7 @@ class ContentController extends Controller
                     data-duration="' . $item->duration . '" 
                     data-access_type="' . $item->access_type . '" 
                     class="me-2 btn btn-success px-3 text-white edit">' . __('edit') . '</a>';
-            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel="' . $item->id . '">' . __('delete') . '</a>';
+            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel="' . $item->season_id . '">' . __('delete') . '</a>';
             $action = '<div class="text-end action">' . $episodeDetail . $edit . $delete . '</div>';
 
             return [
@@ -1478,7 +1478,7 @@ class ContentController extends Controller
 
     public function updateEpisode(Request $request)
     {
-        $episode = Episode::where('id', $request->episode_id)->first();
+        $episode = Episode::where('episode_id', $request->episode_id)->first();
         if ($episode == null) {
             return response()->json([
                 'status' => false,
@@ -1543,7 +1543,7 @@ class ContentController extends Controller
 
     public function episodeDetailView(Request $request)
     {
-        $episode = Episode::where('id', $request->id)->first();
+        $episode = Episode::where('episode_id', $request->id)->first();
         $languages = Language::orderBy('created_at', 'DESC')->get();
         $mediaGalleries = MediaGallery::orderBy('created_at', 'DESC')->get();
 
@@ -1601,7 +1601,7 @@ class ContentController extends Controller
         foreach ($result as $item) {
             if ($item->type == Constants::FileType) {
                 $source = '<a href="javascript:;" 
-                    rel="' . $item->id . '"  
+                    rel="' . $item->episode_source_id . '"  
                     data-source_url="' . $item->source . '" 
                     class="me-2 btn btn-primary px-4 text-white source_file_video"> Video Preview </a>';
             } else if ($item->type == Constants::Youtube) {
@@ -1611,7 +1611,7 @@ class ContentController extends Controller
                 $source = '<a href="' . $item->source . '" target="_blank" class="sourceUrlLink"> Preview </a>';
             }
 
-            $edit = '<a rel="' . $item->id . '"
+            $edit = '<a rel="' . $item->episode_source_id . '"
                         data-title="' . $item->title . '" 
                         data-quality="' . $item->quality . '" 
                         data-size="' . $item->size . '" 
@@ -1621,7 +1621,7 @@ class ContentController extends Controller
                         data-source="' . $item->source . '" 
                         class="me-2 btn btn-success px-3 text-white edit">' . __('edit') . '</a>';
 
-            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel=' . $item->id . ' >' . __('delete') . '</a>';
+            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel=' . $item->episode_source_id . ' >' . __('delete') . '</a>';
 
             $action = '<div class="text-end action"> '  . $edit . $delete . ' </div>';
 
@@ -1695,7 +1695,7 @@ class ContentController extends Controller
 
     public function updateEpisodeSource(Request $request)
     {
-        $episodeSource = EpisodeSource::where('id', $request->episode_source_id)->first();
+        $episodeSource = EpisodeSource::where('episode_source_id', $request->episode_source_id)->first();
         if ($episodeSource == null) {
             return response()->json([
                 'status' => false,
@@ -1730,7 +1730,7 @@ class ContentController extends Controller
 
     public function deleteEpisodeSource(Request $request)
     {
-        $episodeSource = EpisodeSource::where('id', $request->episode_source_id)->first();
+        $episodeSource = EpisodeSource::where('episode_source_id', $request->episode_source_id)->first();
         if ($episodeSource == null) {
             return response()->json([
                 'status' => false,
@@ -1789,7 +1789,7 @@ class ContentController extends Controller
 
             $download = '<a download href="' . $item->file . '" class="me-2 btn btn-info px-3 text-white download shadow-none">' . __('download') . '</a>';
 
-            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel=' . $item->id . ' >' . __('delete') . '</a>';
+            $delete = '<a href="#" class="btn btn-danger px-3 text-white delete" rel=' . $item->episode_subtitle_id . ' >' . __('delete') . '</a>';
 
             $action = '<div class="text-end action"> '  . $download . $delete . ' </div>';
 
@@ -1830,7 +1830,7 @@ class ContentController extends Controller
 
     public function deleteEpisodeSubtitle(Request $request)
     {
-        $episodeSubtitle = EpisodeSubtitle::where('id', $request->episode_subtitle_id)->first();
+        $episodeSubtitle = EpisodeSubtitle::where('episode_subtitle_id', $request->episode_subtitle_id)->first();
         if ($episodeSubtitle == null) {
             return response()->json([
                 'status' => false,
@@ -1883,7 +1883,7 @@ class ContentController extends Controller
                     <img data-fancybox src='{$imageUrl}' class='object-cover img-fluid vertical_poster_tbl img-border border-radius'>
                     <span class='ms-3'>{$item->content->title}</span>
                   </div>";
-            $remove = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $remove = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->top_content_id}'>" . __('delete') . "</a>";
 
             $action = "<div class='text-end action'>{$remove}</div>";
 

@@ -29,7 +29,7 @@ class TVAuthController extends Controller
 
         try {
             // Clean up expired sessions for this device
-            DB::table('tv_auth_sessions')
+            DB::table('tv_auth_session')
                 ->where('tv_device_id', $request->tv_device_id)
                 ->where('status', 'pending')
                 ->where('expires_at', '<', Carbon::now())
@@ -45,7 +45,7 @@ class TVAuthController extends Controller
             $expiresAt = Carbon::now()->addMinutes(5);
 
             // Create new session
-            DB::table('tv_auth_sessions')->insert([
+            DB::table('tv_auth_session')->insert([
                 'session_token' => $sessionToken,
                 'qr_code' => $qrCode,
                 'tv_device_id' => $request->tv_device_id,
@@ -90,7 +90,7 @@ class TVAuthController extends Controller
         }
 
         try {
-            $session = DB::table('tv_auth_sessions')
+            $session = DB::table('tv_auth_session')
                 ->where('session_token', $request->session_token)
                 ->first();
 
@@ -103,8 +103,8 @@ class TVAuthController extends Controller
 
             // Check if session is expired
             if (Carbon::parse($session->expires_at)->isPast() && $session->status == 'pending') {
-                DB::table('tv_auth_sessions')
-                    ->where('id', $session->id)
+                DB::table('tv_auth_session')
+                    ->where('tv_auth_session_id', $session->tv_auth_session_id)
                     ->update(['status' => 'expired']);
                     
                 return response()->json([
@@ -141,7 +141,7 @@ class TVAuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'session_token' => 'required|string',
-            'user_id' => 'required|integer'
+            'app_user_id' => 'required|integer'
         ]);
 
         if ($validator->fails()) {
@@ -152,7 +152,7 @@ class TVAuthController extends Controller
 
         try {
             // Verify user exists
-            $user = User::find($request->user_id);
+            $user = User::find($request->app_user_id);
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -161,7 +161,7 @@ class TVAuthController extends Controller
             }
 
             // Get session
-            $session = DB::table('tv_auth_sessions')
+            $session = DB::table('tv_auth_session')
                 ->where('session_token', $request->session_token)
                 ->where('status', 'pending')
                 ->first();
@@ -175,8 +175,8 @@ class TVAuthController extends Controller
 
             // Check if session is expired
             if (Carbon::parse($session->expires_at)->isPast()) {
-                DB::table('tv_auth_sessions')
-                    ->where('id', $session->id)
+                DB::table('tv_auth_session')
+                    ->where('tv_auth_session_id', $session->tv_auth_session_id)
                     ->update(['status' => 'expired']);
                     
                 return response()->json([
@@ -186,10 +186,10 @@ class TVAuthController extends Controller
             }
 
             // Authenticate the session
-            DB::table('tv_auth_sessions')
-                ->where('id', $session->id)
+            DB::table('tv_auth_session')
+                ->where('tv_auth_session_id', $session->tv_auth_session_id)
                 ->update([
-                    'user_id' => $request->user_id,
+                    'app_user_id' => $request->app_user_id,
                     'status' => 'authenticated',
                     'authenticated_at' => Carbon::now()
                 ]);
@@ -225,13 +225,13 @@ class TVAuthController extends Controller
         }
 
         try {
-            $session = DB::table('tv_auth_sessions')
+            $session = DB::table('tv_auth_session')
                 ->where('session_token', $request->session_token)
                 ->where('tv_device_id', $request->tv_device_id)
                 ->where('status', 'authenticated')
                 ->first();
 
-            if (!$session || !$session->user_id) {
+            if (!$session || !$session->app_user_id) {
                 return response()->json([
                     'status' => false,
                     'message' => 'Session not authenticated'
@@ -239,7 +239,7 @@ class TVAuthController extends Controller
             }
 
             // Get user data
-            $user = User::find($session->user_id);
+            $user = User::find($session->app_user_id);
             if (!$user) {
                 return response()->json([
                     'status' => false,
@@ -253,8 +253,8 @@ class TVAuthController extends Controller
             $user->save();
 
             // Mark session as completed (optional - you can delete it instead)
-            DB::table('tv_auth_sessions')
-                ->where('id', $session->id)
+            DB::table('tv_auth_session')
+                ->where('tv_auth_session_id', $session->tv_auth_session_id)
                 ->delete();
 
             return response()->json([

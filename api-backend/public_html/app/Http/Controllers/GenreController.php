@@ -17,7 +17,7 @@ class GenreController extends Controller
         $query = Genre::query();
         $totalData = $query->count();
 
-        $columns = ['id'];
+        $columns = ['genre_id'];
 
         $limit = $request->input('length');
         $start = $request->input('start');
@@ -37,8 +37,8 @@ class GenreController extends Controller
             ->get();
 
         $data = $result->map(function ($item) {
-            $edit = "<a rel='{$item->id}' data-title='{$item->title}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
-            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->id}'>" . __('delete') . "</a>";
+            $edit = "<a rel='{$item->genre_id}' data-title='{$item->title}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
+            $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->genre_id}'>" . __('delete') . "</a>";
             $action = "<div class='text-end action'>{$edit}{$delete}</div>";
             return [
                 $item->title,
@@ -104,7 +104,7 @@ class GenreController extends Controller
 
     public function updateGenre(Request $request)
     {
-        $genre = Genre::where('id', $request->genre_id)->first();
+        $genre = Genre::where('genre_id', $request->genre_id)->first();
         if ($genre == null) {
             return response()->json([
                 'status' => false,
@@ -124,7 +124,7 @@ class GenreController extends Controller
 
     public function deleteGenre(Request $request)
     {
-        $genre = Genre::where('id', $request->genre_id)->first();
+        $genre = Genre::where('genre_id', $request->genre_id)->first();
         if ($genre == null) {
             return response()->json([
                 'status' => false,
