@@ -20,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.core.view.ViewCompat;
 import androidx.lifecycle.MutableLiveData;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
 import com.retry.vuga.R;
@@ -162,8 +163,15 @@ public class BaseActivity extends AppCompatActivity {
 
     }
 
-    public static void addRemoveWatchlist(int content_id, boolean isAdd, OnWatchList onWatchList) {
+    public static void addRemoveWatchlist(Context context, int content_id, boolean isAdd, OnWatchList onWatchList) {
         if (sessionManager.getUser() == null) {
+            Log.e("Watchlist", "User is null, cannot update watchlist");
+            return;
+        }
+        
+        Log.d("Watchlist", "User ID from session: " + sessionManager.getUser().getId());
+        if (sessionManager.getUser().getId() == 0) {
+            Log.e("Watchlist", "User ID is 0, cannot update watchlist");
             return;
         }
 
@@ -183,12 +191,20 @@ public class BaseActivity extends AppCompatActivity {
         }
 
         s = Global.listOfIntegerToString(watchList);
-        HashMap<String, RequestBody> hashMap = new HashMap<>();
-        hashMap.put(Const.ApiKey.user_id, RequestBody.create(String.valueOf(sessionManager.getUser().getId()), MediaType.parse("text/plain")));
-        hashMap.put(Const.ApiKey.watchlist_content_ids, RequestBody.create(String.valueOf(s), MediaType.parse("text/plain")));
-
-
-        disposable.add(RetrofitClient.getService().updateProfile(hashMap, null)
+        
+        // Use the simpler form-encoded method for watchlist updates (matches iOS implementation)
+        // Send both user_id and app_user_id for compatibility
+        String userId = String.valueOf(sessionManager.getUser().getId());
+        Log.d("Watchlist", "Sending updateProfile request - userId: " + userId + ", watchlist: " + s);
+        
+        // Log the full request for debugging
+        Log.d("Watchlist", "Request params - user_id: " + userId + ", app_user_id: " + userId + ", watchlist_content_ids: " + s);
+        Log.d("Watchlist", "API endpoint: " + Const.BASE_URL + "user/update-profile");
+        
+        disposable.add(RetrofitClient.getService().updateProfileSimple(
+                userId,  // user_id for V1 compatibility
+                userId,  // app_user_id for V2 API
+                s)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())
@@ -203,9 +219,22 @@ public class BaseActivity extends AppCompatActivity {
                 .subscribe((user, throwable) -> {
 
                     if (user != null && user.getData() != null) {
+                        Log.d("Watchlist", "API Response successful - User watchlist: " + user.getData().getWatchlist_content_ids());
                         onWatchList.onSuccess();
 
                         sessionManager.saveUser(user.getData());
+                        
+                        // Send broadcast to update watchlist UI
+                        Intent intent = new Intent("com.retry.vuga.WATCHLIST_UPDATED");
+                        intent.putExtra("content_id", content_id);
+                        intent.putExtra("is_added", isAdd);
+                        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+                        Log.d("Watchlist", "Broadcast sent for content_id: " + content_id + ", is_added: " + isAdd);
+                    } else {
+                        Log.e("Watchlist", "API Response failed - user or data is null");
+                        if (throwable != null) {
+                            Log.e("Watchlist", "Error: " + throwable.getMessage());
+                        }
                     }
 
                 })

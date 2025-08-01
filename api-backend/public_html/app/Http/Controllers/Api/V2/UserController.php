@@ -89,18 +89,33 @@ class UserController extends Controller
      */
     public function updateProfile(Request $request)
     {
-        $validator = Validator::make($request->all(), [
+        // Accept both user_id (V1) and app_user_id (V2)
+        $userId = $request->user_id ?? $request->app_user_id;
+        
+        // Log the incoming request for debugging
+        \Log::info('updateProfile request', [
+            'user_id' => $request->user_id,
+            'app_user_id' => $request->app_user_id,
+            'userId' => $userId,
+            'all_params' => $request->all()
+        ]);
+        
+        $validator = Validator::make(['app_user_id' => $userId], [
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
         ]);
 
         if ($validator->fails()) {
+            \Log::error('updateProfile validation failed', [
+                'errors' => $validator->errors()->toArray(),
+                'userId' => $userId
+            ]);
             return response()->json([
                 'status' => false,
                 'message' => $validator->errors()->first()
             ], 400);
         }
 
-        $user = AppUser::find($request->app_user_id);
+        $user = AppUser::find($userId);
 
         if ($request->has('fullname')) {
             $user->fullname = $request->fullname;
@@ -136,6 +151,9 @@ class UserController extends Controller
         
         $user->save();
 
+        // Reload user with watchlist relation
+        $user->load('watchlist');
+        
         return response()->json([
             'status' => true,
             'message' => 'Profile updated successfully',
@@ -437,12 +455,15 @@ class UserController extends Controller
      */
     private function formatUserResponse($user)
     {
+        // Always load watchlist if not already loaded
+        if (!$user->relationLoaded('watchlist')) {
+            $user->load('watchlist');
+        }
+        
         $data = $user->toArray();
         
         // Include watchlist as comma-separated IDs for backward compatibility
-        if ($user->relationLoaded('watchlist')) {
-            $data['watchlist_content_ids'] = $user->watchlist->pluck('content_id')->implode(',');
-        }
+        $data['watchlist_content_ids'] = $user->watchlist->pluck('content_id')->implode(',');
         
         // Include profile information
         $user->load(['profiles' => function($query) {
@@ -485,7 +506,10 @@ class UserController extends Controller
         $ids = is_string($contentIds) ? explode(',', $contentIds) : $contentIds;
         $ids = array_filter($ids, 'is_numeric');
         
-        $user->watchlist()->sync($ids);
+        // Only sync content IDs that actually exist in the database
+        $validIds = \App\Models\V2\Content::whereIn('content_id', $ids)->pluck('content_id')->toArray();
+        
+        $user->watchlist()->sync($validIds);
     }
 
     /**

@@ -50,6 +50,12 @@ public interface RetrofitService {
     @POST("updateProfile")
     Single<UserRegistration> updateProfile(@PartMap HashMap<String, RequestBody> hashMap,
                                            @Part MultipartBody.Part image);
+    
+    @FormUrlEncoded
+    @POST("user/update-profile")
+    Single<UserRegistration> updateProfileSimple(@Field("user_id") String userId,
+                                                  @Field("app_user_id") String appUserId,
+                                                  @Field("watchlist_content_ids") String watchlistContentIds);
 
 
 

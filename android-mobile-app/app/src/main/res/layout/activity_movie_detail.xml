@@ -116,7 +116,9 @@
                     android:background="@drawable/bg_for_view_round"
                     android:padding="10dp"
                     android:src="@{isWatchlist?@drawable/ic_bookmark:@drawable/ic_bookmark_not}"
-                    android:tint="@color/text_color" />
+                    android:tint="@color/text_color"
+                    android:clickable="true"
+                    android:focusable="true" />
 
                 <androidx.constraintlayout.utils.widget.ImageFilterView
                     android:id="@+id/btn_share"

@@ -91,6 +91,15 @@ public class MovieDetailActivity extends BaseActivity {
     ContentDetail.DataItem contentItem = null;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh content detail to get latest watchlist state
+        if (contentId != 0 && contentItem != null) {
+            getContentDetail();
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
@@ -98,6 +107,9 @@ public class MovieDetailActivity extends BaseActivity {
 
         initialization();
         setListeners();
+        
+        // Ensure loader is hidden initially
+        binding.loutLoader.setVisibility(View.GONE);
 
 
         contentId = getIntent().getIntExtra(Const.DataKey.CONTENT_ID, 0);
@@ -255,7 +267,9 @@ public class MovieDetailActivity extends BaseActivity {
         });
 
         binding.btnShare.setOnClickListener(v -> {
-
+            Log.d("MovieDetail", "Share button clicked!");
+            Toast.makeText(MovieDetailActivity.this, "Share clicked!", Toast.LENGTH_SHORT).show();
+            
             if (!isShareOpen && contentItem != null) {
                 isShareOpen = true;
                 binding.loutLoader.setVisibility(View.VISIBLE);
@@ -312,11 +326,33 @@ public class MovieDetailActivity extends BaseActivity {
 
         });
 
-
+        Log.d("Watchlist", "Setting up watchlist click listener, view is: " + binding.imgAddToWatchList);
+        
+        // Ensure the watchlist button is clickable and on top
+        binding.imgAddToWatchList.setClickable(true);
+        binding.imgAddToWatchList.setEnabled(true);
+        binding.imgAddToWatchList.bringToFront();
+        
+        // Add touch listener to verify touches are being received
+        binding.imgAddToWatchList.setOnTouchListener((v, event) -> {
+            Log.d("Watchlist", "Touch event: " + event.getAction());
+            return false; // Return false to let the click listener handle it
+        });
+        
         binding.imgAddToWatchList.setOnClickListener(v -> {
-
+            Log.d("Watchlist", "Watchlist icon clicked!");
+            Toast.makeText(MovieDetailActivity.this, "Watchlist clicked!", Toast.LENGTH_SHORT).show();
+            
+            // Ensure we're not blocked by loader
+            if (binding.loutLoader.getVisibility() == View.VISIBLE) {
+                Log.e("Watchlist", "Loader is blocking clicks!");
+                binding.loutLoader.setVisibility(View.GONE);
+            }
+            
             binding.loutLoader.setVisibility(View.VISIBLE);
-            addRemoveWatchlist(contentId, !binding.getIsWatchlist(), new OnWatchList() {
+            boolean newWatchlistState = !isAddedToWatchlist;
+            Log.d("Watchlist", "Current state: " + isAddedToWatchlist + ", New state: " + newWatchlistState);
+            addRemoveWatchlist(MovieDetailActivity.this, contentId, newWatchlistState, new OnWatchList() {
                 @Override
                 public void onTerminate() {
                     binding.loutLoader.setVisibility(View.GONE);
@@ -326,13 +362,30 @@ public class MovieDetailActivity extends BaseActivity {
                 @Override
                 public void onError() {
                     binding.loutLoader.setVisibility(View.GONE);
-
+                    Log.e("Watchlist", "Error updating watchlist");
                 }
 
                 @Override
                 public void onSuccess() {
                     binding.loutLoader.setVisibility(View.GONE);
-                    binding.setIsWatchlist(!binding.getIsWatchlist());
+                    isAddedToWatchlist = newWatchlistState;
+                    // Update the content item's watchlist state as well
+                    if (contentItem != null) {
+                        contentItem.setIs_watchlist(newWatchlistState);
+                    }
+                    binding.setIsWatchlist(newWatchlistState);
+                    binding.executePendingBindings();
+                    
+                    // Manually update the icon as a fallback
+                    binding.imgAddToWatchList.setImageResource(
+                        newWatchlistState ? R.drawable.ic_bookmark : R.drawable.ic_bookmark_not
+                    );
+                    
+                    // Force the watchlist button to be clickable again
+                    binding.imgAddToWatchList.setClickable(true);
+                    binding.imgAddToWatchList.setEnabled(true);
+                    
+                    Log.d("Watchlist", "Update successful - new state: " + newWatchlistState);
                 }
             });
 
@@ -397,6 +450,13 @@ public class MovieDetailActivity extends BaseActivity {
         binding.btnBack.setOnClickListener(v -> {
             onBackPressed();
         });
+        
+        // Debug check for overlays
+        Log.d("Watchlist", "Initial visibility check:");
+        Log.d("Watchlist", "Blur view visibility: " + binding.blurView.getVisibility());
+        Log.d("Watchlist", "Sources blur visibility: " + binding.loutSourcesBlur.getVisibility());
+        Log.d("Watchlist", "Loader visibility: " + binding.loutLoader.getVisibility());
+        Log.d("Watchlist", "Watchlist button visibility: " + binding.imgAddToWatchList.getVisibility());
 
 
         seasonCountAdapter.setOnItemClick((model, position) -> {
@@ -885,6 +945,12 @@ public class MovieDetailActivity extends BaseActivity {
 
         binding.setIsWatchlist(contentItem.getIs_watchlist());
         isAddedToWatchlist = contentItem.getIs_watchlist();
+        Log.d("Watchlist", "Initial watchlist state for content " + contentId + ": " + isAddedToWatchlist);
+        
+        // Manually set initial icon state as well
+        binding.imgAddToWatchList.setImageResource(
+            isAddedToWatchlist ? R.drawable.ic_bookmark : R.drawable.ic_bookmark_not
+        );
 
 
         if (contentItem.getCast().isEmpty()) {
@@ -947,6 +1013,10 @@ public class MovieDetailActivity extends BaseActivity {
         setBlur(binding.blurView2, binding.rootLout, 15f);
         setBlur(binding.loutSourcesBlur, binding.rootLout, 20f);
         setBlur(binding.blurViewPopup, binding.rootLout, 10f);
+        
+        // Make sure blur views don't intercept clicks
+        binding.blurView.setClickable(false);
+        binding.blurView.setFocusable(false);
 
         binding.rvCast.setAdapter(castAdapter);
         binding.rvMoreLikeThis.setAdapter(moreLikeThisAdapter);

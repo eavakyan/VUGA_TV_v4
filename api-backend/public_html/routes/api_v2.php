@@ -146,7 +146,7 @@ Route::prefix('v2')->group(function () {
     // Profile Management (V1 Compatible routes)
     Route::post('/getUserProfiles', [V2\ProfileController::class, 'getUserProfiles']);
     Route::post('/createProfile', [V2\ProfileController::class, 'createProfile']);
-    Route::post('/updateProfile', [V2\ProfileController::class, 'updateProfile']);
+    // Route::post('/updateProfile', [V2\ProfileController::class, 'updateProfile']); // Commented out to avoid conflict with UserController updateProfile
     Route::post('/deleteProfile', [V2\ProfileController::class, 'deleteProfile']);
     Route::post('/selectProfile', [V2\ProfileController::class, 'selectProfile']);
     Route::post('/getDefaultAvatars', [V2\ProfileController::class, 'getDefaultAvatars']);

@@ -108,7 +108,7 @@ public class WatchListFragment extends BaseFragment {
             public void onRemoveClick(ContentDetail.DataItem model) {
 
                 binding.centerLoader.setVisibility(View.VISIBLE);
-                addRemoveWatchlist(model.getId(), false, new BaseActivity.OnWatchList() {
+                addRemoveWatchlist(getContext(), model.getId(), false, new BaseActivity.OnWatchList() {
                     @Override
                     public void onTerminate() {
                         binding.centerLoader.setVisibility(View.GONE);

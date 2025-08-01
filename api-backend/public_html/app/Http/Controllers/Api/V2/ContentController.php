@@ -178,8 +178,8 @@ class ContentController extends Controller
                 }
             } else if ($user) {
                 // Fallback to user-level watchlist for backward compatibility
-                $watchlistIds = $user->watchlist_content_ids ? explode(',', $user->watchlist_content_ids) : [];
-                $formattedContent['is_watchlist'] = in_array($request->content_id, $watchlistIds);
+                // Check the normalized watchlist relation
+                $formattedContent['is_watchlist'] = $user->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists();
             }
         }
         

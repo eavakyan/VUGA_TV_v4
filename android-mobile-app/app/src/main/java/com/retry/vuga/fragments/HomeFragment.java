@@ -1,5 +1,9 @@
 package com.retry.vuga.fragments;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,6 +15,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
@@ -75,6 +80,19 @@ public class HomeFragment extends BaseFragment {
     private Handler handler;
     private boolean reversed = false;
     private int scrollingPos = 0;
+    
+    private BroadcastReceiver watchlistUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.retry.vuga.WATCHLIST_UPDATED".equals(intent.getAction())) {
+                int contentId = intent.getIntExtra("content_id", 0);
+                boolean isAdded = intent.getBooleanExtra("is_added", false);
+                Log.d("Watchlist", "HomeFragment received broadcast - content_id: " + contentId + ", is_added: " + isAdded);
+                // Refresh the home page data to update watchlist
+                getHomePageData();
+            }
+        }
+    };
 
     public HomeFragment() {
         // Required empty public constructor
@@ -107,6 +125,9 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onPause() {
         super.onPause();
+        // Unregister the broadcast receiver
+        LocalBroadcastManager.getInstance(requireContext()).unregisterReceiver(watchlistUpdateReceiver);
+        
         // Stop auto-scrolling to prevent crashes during rotation
         if (handler != null) {
             handler.removeCallbacks(runnable);
@@ -213,6 +234,10 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Register the broadcast receiver for watchlist updates
+        IntentFilter filter = new IntentFilter("com.retry.vuga.WATCHLIST_UPDATED");
+        LocalBroadcastManager.getInstance(requireContext()).registerReceiver(watchlistUpdateReceiver, filter);
+        
         initHistory();
         new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
             @Override
@@ -309,10 +334,17 @@ public class HomeFragment extends BaseFragment {
                                 watchList = new ArrayList<>();
                                 watchList.addAll(homePage.getWatchlist());
                                 homeWatchlistAdapter.updateItems(watchList);
+                                if (binding.loutWathlist != null) {
+                                    binding.loutWathlist.setVisibility(View.VISIBLE);
+                                }
                             } else {
                                 if (binding.loutWathlist != null) {
                                     binding.loutWathlist.setVisibility(View.GONE);
                                 }
+                            }
+                        } else {
+                            if (binding.loutWathlist != null) {
+                                binding.loutWathlist.setVisibility(View.GONE);
                             }
                         }
 
