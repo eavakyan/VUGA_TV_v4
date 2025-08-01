@@ -34,14 +34,23 @@ class WatchlistViewModel : BaseViewModel {
     }
     
     func removeFromWatchlist(content: FlixyContent) {
-        var watchlist = self.myUser?.watchlistIds ?? []
-        watchlist.removeAll(where: { $0 == content.id ?? 0 })
+        var params: [Params: Any] = [
+            .appUserId: myUser?.id ?? 0,
+            .contentId: content.id ?? 0
+        ]
         
-        let params = [Params.watchlistContentIds: watchlist.map({ "\($0)" }).joined(separator: ",")]
-        
-        commonProfileEdit(params: params) { user in
-            self.contents.removeAll(where: { $0.id == content.id })
+        if let profileId = myUser?.lastActiveProfileId, profileId > 0 {
+            params[.profileId] = profileId
         }
+        
+        NetworkManager.callWebService(url: .toggleWatchlist, params: params, callbackSuccess: { [weak self] (obj: UserModel) in
+            if let data = obj.data {
+                self?.myUser = data
+                self?.contents.removeAll(where: { $0.id == content.id })
+            }
+        }, callbackFailure: { error in
+            print("Failed to remove from watchlist: \(error)")
+        })
     }
 }
 

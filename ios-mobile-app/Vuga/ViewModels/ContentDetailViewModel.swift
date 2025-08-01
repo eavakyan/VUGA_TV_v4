@@ -51,7 +51,8 @@ class ContentDetailViewModel : BaseViewModel {
                 print(self?.seasonNumber ?? 0)
             }
 
-            self?.isBookmarked = self?.myUser?.checkIsAddedToWatchList(contentId: self?.content?.id ?? 0) ?? false
+            // Use the server's isWatchlist value if available, otherwise fall back to local check
+            self?.isBookmarked = obj.data?.isWatchlist ?? self?.myUser?.checkIsAddedToWatchList(contentId: self?.content?.id ?? 0) ?? false
             self?.isDataLoaded = true
         }, callbackFailure: { error in
             self.stopLoading()
@@ -89,25 +90,42 @@ class ContentDetailViewModel : BaseViewModel {
     
     func toogleBookmark(homeVm: HomeViewModel?){
         DispatchQueue.main.async { [weak self] in
-            self?.isBookmarked.toggle()
+            guard let self = self else { return }
             
-            var watchlist = self?.myUser?.watchlistIds ?? []
+            let wasBookmarked = self.isBookmarked
+            self.isBookmarked.toggle()
             
-            if self?.isBookmarked == true {
-                watchlist.append(self?.content?.id ?? 0)
-                if let content = self?.content {
-                    homeVm?.wishlists.append(content)
-                }
-            } else {
-                watchlist.removeAll(where: { $0 == self?.content?.id ?? 0 })
-                if let content = self?.content {
-                    homeVm?.wishlists.removeAll(where: {$0.id == content.id})
-                }
+            var params: [Params: Any] = [
+                .appUserId: self.myUser?.id ?? 0,
+                .contentId: self.content?.id ?? 0
+            ]
+            
+            if let profileId = self.myUser?.lastActiveProfileId, profileId > 0 {
+                params[.profileId] = profileId
             }
             
-            let params = [Params.watchlistContentIds: watchlist.map({ "\($0)" }).joined(separator: ",")]
-            
-            self?.commonProfileEdit(params: params)
+            NetworkManager.callWebService(url: .toggleWatchlist, params: params, callbackSuccess: { [weak self] (obj: UserModel) in
+                if let data = obj.data {
+                    self?.myUser = data
+                    
+                    // Update home view model's wishlist
+                    if self?.isBookmarked == true {
+                        if let content = self?.content {
+                            homeVm?.wishlists.append(content)
+                        }
+                    } else {
+                        if let content = self?.content {
+                            homeVm?.wishlists.removeAll(where: {$0.id == content.id})
+                        }
+                    }
+                }
+            }, callbackFailure: { [weak self] error in
+                // If toggle failed, revert the UI state
+                print("Failed to toggle watchlist: \(error)")
+                DispatchQueue.main.async {
+                    self?.isBookmarked = wasBookmarked
+                }
+            })
         }
     }
 }

@@ -268,8 +268,7 @@ struct ContentDetailView: View {
             if !vm.isDataLoaded {
                 vm.fetchContest(contentId: contentId ?? 0)
             }
-            vm.isBookmarked = vm.myUser?.checkIsAddedToWatchList(contentId: vm.content?.id ?? 0) ?? false
-            print("ppppppppp........",vm.isBookmarked)
+            // Watchlist state is now set from server response in fetchContest
             if !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0{
                 Interstitial.shared.loadInterstitial()
             }
@@ -279,12 +278,7 @@ struct ContentDetailView: View {
                 Interstitial.shared.showInterstitialAds()
             }
         }
-        .onChange(of: vm.isDataLoaded, perform: { _ in
-            if vm.isDataLoaded == true {
-                vm.isBookmarked = vm.myUser?.checkIsAddedToWatchList(contentId: vm.content?.id ?? 0) ?? false
-                print("pppppppppppp",vm.isBookmarked)
-            }
-        })
+        // Removed onChange - watchlist state is now handled by server response
         .fullScreenCover(item: $vm.selectedSource, content: { source in
             if source.type?.rawValue ?? 1 == 1 {
                 YoutubeView(youtubeUrl: source.source ?? "")

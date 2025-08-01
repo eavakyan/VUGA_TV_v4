@@ -27,6 +27,8 @@ enum APIs : String {
     case increaseEpisodeDownload            = "increaseEpisodeDownload"
     case fetchHomePageData                  = "fetchHomePageData"
     case fetchWatchList                     = "fetchWatchList"
+    case toggleWatchlist                    = "user/toggle-watchlist"
+    case toggleFavorite                     = "user/toggle-favorite"
     case fetchContentsByGenre               = "fetchContentsByGenre"
     case fetchContentDetails                = "fetchContentDetails"
     case searchContent                      = "searchContent"
