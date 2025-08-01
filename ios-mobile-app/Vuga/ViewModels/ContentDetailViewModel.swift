@@ -29,9 +29,12 @@ class ContentDetailViewModel : BaseViewModel {
     @Published var isShowAd = true
     
     func fetchContest(contentId: Int) {
-        let params: [Params: Any] = [.userId : myUser?.id ?? 0,
+        var params: [Params: Any] = [.userId : myUser?.id ?? 0,
                                      .contentId: contentId]
-        print("ContentDetailViewModel fetchContest - contentId: \(contentId), userId: \(myUser?.id ?? 0)")
+        if let profileId = myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        print("ContentDetailViewModel fetchContest - contentId: \(contentId), userId: \(myUser?.id ?? 0), profileId: \(myUser?.lastActiveProfileId ?? 0)")
         startLoading()
         NetworkManager.callWebService(url: .fetchContentDetails, params: params, callbackSuccess: { [weak self] (obj: ContentModel) in
             self?.stopLoading()

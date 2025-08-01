@@ -159,7 +159,7 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
                 .doOnTerminate(() -> binding.progressBar.setVisibility(View.GONE))
                 .subscribe((response, throwable) -> {
                     if (response != null && response.getStatus()) {
-                        // Update user data with selected profile
+                        // Profile switch successful - update local data and go to main
                         UserRegistration.Data userData = sessionManager.getUser();
                         UserRegistration.Profile selectedProfile = new UserRegistration.Profile();
                         selectedProfile.setProfileId(profile.getProfileId());
@@ -170,19 +170,25 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
                         selectedProfile.setKids(profile.isKids());
                         userData.setLastActiveProfile(selectedProfile);
                         userData.setLastActiveProfileId(profile.getProfileId());
+                        
+                        // Don't clear watchlist - MainActivity should fetch fresh data
                         sessionManager.saveUser(userData);
                         
-                        // Go to main activity
-                        Intent intent = new Intent(this, MainActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        startActivity(intent);
-                        finish();
+                        goToMainActivity();
                     } else {
                         Toast.makeText(this, "Failed to select profile", Toast.LENGTH_SHORT).show();
                     }
                 }));
     }
 
+    private void goToMainActivity() {
+        Intent intent = new Intent(this, MainActivity.class);
+        intent.putExtra("profile_switched", true);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
+    }
+    
     private void deleteProfile(Profile profile) {
         binding.progressBar.setVisibility(View.VISIBLE);
         

@@ -18,7 +18,10 @@ class WatchlistViewModel : BaseViewModel {
             contents = []
             startLoading()
         }
-        let params: [Params: Any] = [.userId : myUser?.id ?? 0, .start: contents.count, .limit: Limits.pagination,.type: contentType.rawValue]
+        var params: [Params: Any] = [.userId : myUser?.id ?? 0, .start: contents.count, .limit: Limits.pagination,.type: contentType.rawValue]
+        if let profileId = myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
         
         NetworkManager.callWebService(url: .fetchWatchList, params: params) { [weak self] (obj: ContentsModel) in
             self?.stopLoading()

@@ -51,11 +51,6 @@ public interface RetrofitService {
     Single<UserRegistration> updateProfile(@PartMap HashMap<String, RequestBody> hashMap,
                                            @Part MultipartBody.Part image);
     
-    @FormUrlEncoded
-    @POST("user/update-profile")
-    Single<UserRegistration> updateProfileSimple(@Field("user_id") String userId,
-                                                  @Field("app_user_id") String appUserId,
-                                                  @Field("watchlist_content_ids") String watchlistContentIds);
 
 
 
@@ -73,7 +68,8 @@ public interface RetrofitService {
     @FormUrlEncoded
     @POST("fetchContentDetails")
     Single<ContentDetail> getContentDetail(@Field(Const.ApiKey.user_id) int userId,
-                                           @Field(Const.ApiKey.content_id) int contentId);
+                                           @Field(Const.ApiKey.content_id) int contentId,
+                                           @Field("profile_id") Integer profileId);
 
     @FormUrlEncoded
     @POST("fetchWatchList")
@@ -81,6 +77,7 @@ public interface RetrofitService {
                                     @Field(Const.ApiKey.user_id) int userId,
                                    @Field(Const.ApiKey.start) int start,
                                    @Field(Const.ApiKey.limit) int limit);
+    
 
 
 
@@ -183,5 +180,9 @@ public interface RetrofitService {
     @POST("selectProfile")
     Single<RestResponse> selectProfile(@Field(Const.ApiKey.user_id) int userId,
                                      @Field("profile_id") int profileId);
+
+    @FormUrlEncoded
+    @POST("user/toggle-watchlist")
+    Single<UserRegistration> toggleWatchlist(@FieldMap HashMap<String, Object> params);
 
 }

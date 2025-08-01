@@ -173,13 +173,17 @@ class ContentController extends Controller
             if ($user && $profileId) {
                 $profile = \App\Models\V2\AppUserProfile::find($profileId);
                 if ($profile && $profile->app_user_id == $request->user_id) {
-                    $formattedContent['is_watchlist'] = $profile->watchlist()->where('profile_watchlist.content_id', $request->content_id)->exists();
+                    $formattedContent['is_watchlist'] = $profile->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists();
                     $formattedContent['is_favorite'] = $profile->favorites()->where('profile_favorite.content_id', $request->content_id)->exists();
                 }
             } else if ($user) {
-                // Fallback to user-level watchlist for backward compatibility
-                // Check the normalized watchlist relation
-                $formattedContent['is_watchlist'] = $user->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists();
+                // If no profile specified, use last active profile
+                if ($user->last_active_profile_id) {
+                    $profile = \App\Models\V2\AppUserProfile::find($user->last_active_profile_id);
+                    if ($profile) {
+                        $formattedContent['is_watchlist'] = $profile->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists();
+                    }
+                }
             }
         }
         

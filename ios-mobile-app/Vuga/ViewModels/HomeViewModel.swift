@@ -33,7 +33,10 @@ class HomeViewModel : BaseViewModel {
          if !isForRefresh {
              startLoading()
          }
-        let params: [Params: Any] = [.userId : myUser?.id ?? 0]
+        var params: [Params: Any] = [.userId : myUser?.id ?? 0]
+        if let profileId = myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
         NetworkManager.callWebService(url: .fetchHomePageData, params: params, callbackSuccess: { [weak self] (obj: HomeModel) in
             guard let self = self else { return }
             

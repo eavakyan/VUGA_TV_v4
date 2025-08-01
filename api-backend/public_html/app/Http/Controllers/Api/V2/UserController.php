@@ -125,9 +125,35 @@ class UserController extends Controller
             $user->email = $request->email;
         }
         
-        // Handle watchlist - now using normalized table
+        // Handle watchlist - now using profile-based watchlist
         if ($request->has('watchlist_content_ids')) {
-            $this->updateUserWatchlist($user, $request->watchlist_content_ids);
+            // Get the profile_id from request or use last active profile
+            $profileId = $request->profile_id ?? $user->last_active_profile_id;
+            
+            \Log::info('updateProfile - watchlist update', [
+                'user_id' => $userId,
+                'profile_id' => $profileId,
+                'watchlist_content_ids' => $request->watchlist_content_ids
+            ]);
+            
+            if ($profileId) {
+                $profile = AppUserProfile::find($profileId);
+                if ($profile && $profile->app_user_id == $user->app_user_id) {
+                    $this->updateProfileWatchlist($profile, $request->watchlist_content_ids);
+                } else {
+                    \Log::warning('updateProfile - profile mismatch', [
+                        'profile_id' => $profileId,
+                        'profile_found' => $profile ? 'yes' : 'no',
+                        'profile_user_id' => $profile ? $profile->app_user_id : null,
+                        'request_user_id' => $user->app_user_id
+                    ]);
+                }
+            } else {
+                \Log::warning('updateProfile - no profile_id', [
+                    'user_id' => $userId,
+                    'last_active_profile_id' => $user->last_active_profile_id
+                ]);
+            }
         }
         
         if ($request->has('login_type')) {
@@ -154,10 +180,18 @@ class UserController extends Controller
         // Reload user with watchlist relation
         $user->load('watchlist');
         
+        $responseData = $this->formatUserResponse($user);
+        
+        \Log::info('updateProfile - response', [
+            'user_id' => $userId,
+            'watchlist_content_ids' => $responseData['watchlist_content_ids'] ?? 'not set',
+            'last_active_profile_id' => $responseData['last_active_profile_id'] ?? 'not set'
+        ]);
+        
         return response()->json([
             'status' => true,
             'message' => 'Profile updated successfully',
-            'data' => $this->formatUserResponse($user)
+            'data' => $responseData
         ]);
     }
 
@@ -284,11 +318,18 @@ class UserController extends Controller
             $profileId = $user->last_active_profile_id;
         }
         
+        \Log::info('toggleWatchlist called', [
+            'app_user_id' => $request->app_user_id,
+            'content_id' => $request->content_id,
+            'profile_id' => $profileId,
+            'has_profile' => !empty($profileId)
+        ]);
+        
         // Use profile-specific watchlist if profile exists
         if ($profileId) {
             $profile = AppUserProfile::find($profileId);
             if ($profile && $profile->app_user_id == $request->app_user_id) {
-                if ($profile->watchlist()->where('content_id', $request->content_id)->exists()) {
+                if ($profile->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists()) {
                     // Remove from watchlist
                     $profile->watchlist()->detach($request->content_id);
                     $message = 'Removed from watchlist';
@@ -305,7 +346,7 @@ class UserController extends Controller
             }
         } else {
             // Fallback to user-level watchlist for backward compatibility
-            if ($user->watchlist()->where('content_id', $request->content_id)->exists()) {
+            if ($user->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists()) {
                 // Remove from watchlist
                 $user->watchlist()->detach($request->content_id);
                 $message = 'Removed from watchlist';
@@ -353,7 +394,7 @@ class UserController extends Controller
         if ($profileId) {
             $profile = AppUserProfile::find($profileId);
             if ($profile && $profile->app_user_id == $request->app_user_id) {
-                if ($profile->favorites()->where('content_id', $request->content_id)->exists()) {
+                if ($profile->favorites()->where('app_user_favorite.content_id', $request->content_id)->exists()) {
                     // Remove from favorites
                     $profile->favorites()->detach($request->content_id);
                     $message = 'Removed from favorites';
@@ -370,7 +411,7 @@ class UserController extends Controller
             }
         } else {
             // Fallback to user-level favorites for backward compatibility
-            if ($user->favorites()->where('content_id', $request->content_id)->exists()) {
+            if ($user->favorites()->where('app_user_favorite.content_id', $request->content_id)->exists()) {
                 // Remove from favorites
                 $user->favorites()->detach($request->content_id);
                 $message = 'Removed from favorites';
@@ -455,15 +496,17 @@ class UserController extends Controller
      */
     private function formatUserResponse($user)
     {
-        // Always load watchlist if not already loaded
-        if (!$user->relationLoaded('watchlist')) {
-            $user->load('watchlist');
-        }
-        
         $data = $user->toArray();
         
-        // Include watchlist as comma-separated IDs for backward compatibility
-        $data['watchlist_content_ids'] = $user->watchlist->pluck('content_id')->implode(',');
+        // Get watchlist from the active profile for backward compatibility
+        $watchlistIds = '';
+        if ($user->last_active_profile_id) {
+            $profile = AppUserProfile::with('watchlist')->find($user->last_active_profile_id);
+            if ($profile) {
+                $watchlistIds = $profile->watchlist->pluck('content_id')->implode(',');
+            }
+        }
+        $data['watchlist_content_ids'] = $watchlistIds;
         
         // Include profile information
         $user->load(['profiles' => function($query) {
@@ -494,22 +537,42 @@ class UserController extends Controller
     }
 
     /**
-     * Update user's watchlist (helper method)
+     * Update profile's watchlist (helper method)
      */
-    private function updateUserWatchlist($user, $contentIds)
+    private function updateProfileWatchlist($profile, $contentIds)
     {
+        \Log::info('updateProfileWatchlist called', [
+            'profile_id' => $profile->profile_id,
+            'content_ids' => $contentIds,
+            'is_empty' => empty($contentIds)
+        ]);
+        
         if (empty($contentIds)) {
-            $user->watchlist()->detach();
+            $profile->watchlist()->detach();
+            \Log::info('Watchlist cleared for profile', ['profile_id' => $profile->profile_id]);
             return;
         }
 
         $ids = is_string($contentIds) ? explode(',', $contentIds) : $contentIds;
         $ids = array_filter($ids, 'is_numeric');
         
+        \Log::info('Processing watchlist IDs', [
+            'profile_id' => $profile->profile_id,
+            'raw_ids' => $ids,
+            'count' => count($ids)
+        ]);
+        
         // Only sync content IDs that actually exist in the database
         $validIds = \App\Models\V2\Content::whereIn('content_id', $ids)->pluck('content_id')->toArray();
         
-        $user->watchlist()->sync($validIds);
+        \Log::info('Syncing watchlist', [
+            'profile_id' => $profile->profile_id,
+            'valid_ids' => $validIds,
+            'valid_count' => count($validIds),
+            'invalid_count' => count($ids) - count($validIds)
+        ]);
+        
+        $profile->watchlist()->sync($validIds);
     }
 
     /**
@@ -555,18 +618,40 @@ class UserController extends Controller
         
         // Get watchlist content IDs
         $watchlistIds = [];
+        \Log::info('fetchWatchList request', [
+            'user_id' => $request->user_id,
+            'profile_id' => $profileId,
+            'has_profile_id' => !empty($profileId)
+        ]);
+        
         if ($profileId) {
             $profile = AppUserProfile::find($profileId);
             if ($profile && $profile->app_user_id == $request->user_id) {
                 $watchlistIds = $profile->watchlist()
                     ->pluck('content_id')
                     ->toArray();
+                \Log::info('Profile watchlist fetched', [
+                    'profile_id' => $profileId,
+                    'watchlist_count' => count($watchlistIds),
+                    'watchlist_ids' => $watchlistIds
+                ]);
+            } else {
+                \Log::warning('Profile not found or mismatch', [
+                    'profile_id' => $profileId,
+                    'profile_found' => $profile ? 'yes' : 'no',
+                    'profile_user_id' => $profile ? $profile->app_user_id : null,
+                    'request_user_id' => $request->user_id
+                ]);
             }
         } else {
             // Fallback to user-level watchlist for backward compatibility
             $watchlistIds = $user->watchlist()
                 ->pluck('content_id')
                 ->toArray();
+            \Log::info('User watchlist fetched (fallback)', [
+                'user_id' => $request->user_id,
+                'watchlist_count' => count($watchlistIds)
+            ]);
         }
         
         // Build query
@@ -607,6 +692,13 @@ class UserController extends Controller
                 'is_watchlist' => true
             ];
         });
+        
+        \Log::info('fetchWatchList response', [
+            'profile_id' => $profileId,
+            'watchlist_ids' => $watchlistIds,
+            'formatted_count' => $formattedContents->count(),
+            'response_data' => $formattedContents->pluck('id')->toArray()
+        ]);
         
         return response()->json([
             'status' => true,

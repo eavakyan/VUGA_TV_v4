@@ -33,6 +33,7 @@ enum Params: String {
     case actorId = "actor_id"
     case sessionToken = "session_token"
     case profileId = "profile_id"
+    case appUserId = "app_user_id"
     case name = "name"
     case avatarType = "avatar_type"
     case avatarUrl = "avatar_url"

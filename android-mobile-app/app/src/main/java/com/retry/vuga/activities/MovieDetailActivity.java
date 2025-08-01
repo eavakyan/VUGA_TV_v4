@@ -341,7 +341,6 @@ public class MovieDetailActivity extends BaseActivity {
         
         binding.imgAddToWatchList.setOnClickListener(v -> {
             Log.d("Watchlist", "Watchlist icon clicked!");
-            Toast.makeText(MovieDetailActivity.this, "Watchlist clicked!", Toast.LENGTH_SHORT).show();
             
             // Ensure we're not blocked by loader
             if (binding.loutLoader.getVisibility() == View.VISIBLE) {
@@ -860,8 +859,9 @@ public class MovieDetailActivity extends BaseActivity {
     }
 
     private void getContentDetail() {
-
-        disposable.add(RetrofitClient.getService().getContentDetail(sessionManager.getUser().getId(), contentId)
+        Integer profileId = sessionManager.getUser().getLastActiveProfileId();
+        
+        disposable.add(RetrofitClient.getService().getContentDetail(sessionManager.getUser().getId(), contentId, profileId)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())

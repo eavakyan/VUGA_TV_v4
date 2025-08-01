@@ -24,6 +24,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.google.gson.Gson;
 import com.retry.vuga.R;
+import com.retry.vuga.model.ContentDetail;
 import com.retry.vuga.model.Downloads;
 import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
@@ -39,6 +40,7 @@ import com.revenuecat.purchases.interfaces.ReceiveCustomerInfoCallback;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -175,54 +177,38 @@ public class BaseActivity extends AppCompatActivity {
             return;
         }
 
-        String s = sessionManager.getUser().getWatchlist_content_ids();
-        List<String> watchList = Global.convertStringToList(s);
-        if (isAdd) {
-            if (!watchList.contains(String.valueOf(content_id))) {
-                watchList.add(String.valueOf(content_id));
-            }
-        } else {
-            if (watchList.contains(String.valueOf(content_id))) {
-                int index = watchList.indexOf(String.valueOf(content_id));
-
-                watchList.remove(index);
-            }
-
+        // Use the toggleWatchlist endpoint instead of updateProfile
+        int userId = sessionManager.getUser().getId();
+        Integer profileId = sessionManager.getUser().getLastActiveProfileId();
+        
+        Log.d("Watchlist", "Toggling watchlist - userId: " + userId + ", profileId: " + profileId + ", contentId: " + content_id + ", isAdd: " + isAdd);
+        
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("app_user_id", userId);
+        params.put("content_id", content_id);
+        if (profileId != null && profileId > 0) {
+            params.put("profile_id", profileId);
         }
-
-        s = Global.listOfIntegerToString(watchList);
         
-        // Use the simpler form-encoded method for watchlist updates (matches iOS implementation)
-        // Send both user_id and app_user_id for compatibility
-        String userId = String.valueOf(sessionManager.getUser().getId());
-        Log.d("Watchlist", "Sending updateProfile request - userId: " + userId + ", watchlist: " + s);
-        
-        // Log the full request for debugging
-        Log.d("Watchlist", "Request params - user_id: " + userId + ", app_user_id: " + userId + ", watchlist_content_ids: " + s);
-        Log.d("Watchlist", "API endpoint: " + Const.BASE_URL + "user/update-profile");
-        
-        disposable.add(RetrofitClient.getService().updateProfileSimple(
-                userId,  // user_id for V1 compatibility
-                userId,  // app_user_id for V2 API
-                s)
+        disposable.add(RetrofitClient.getService().toggleWatchlist(params)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .unsubscribeOn(Schedulers.io())
                 .doOnTerminate(() -> {
                     onWatchList.onTerminate();
                 })
                 .doOnError(throwable -> {
-                    Log.i("TAG", "addRemoveWatchlist: " + throwable.getMessage());
+                    Log.e("Watchlist", "Error toggling watchlist: " + throwable.getMessage());
                     onWatchList.onError();
-
                 })
-                .subscribe((user, throwable) -> {
-
-                    if (user != null && user.getData() != null) {
-                        Log.d("Watchlist", "API Response successful - User watchlist: " + user.getData().getWatchlist_content_ids());
+                .subscribe((response, throwable) -> {
+                    if (response != null && response.getStatus()) {
+                        Log.d("Watchlist", "Watchlist toggled successfully: " + response.getMessage());
                         onWatchList.onSuccess();
-
-                        sessionManager.saveUser(user.getData());
+                        
+                        // Update local user data if provided
+                        if (response.getData() != null) {
+                            sessionManager.saveUser(response.getData());
+                        }
                         
                         // Send broadcast to update watchlist UI
                         Intent intent = new Intent("com.retry.vuga.WATCHLIST_UPDATED");
@@ -231,14 +217,13 @@ public class BaseActivity extends AppCompatActivity {
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         Log.d("Watchlist", "Broadcast sent for content_id: " + content_id + ", is_added: " + isAdd);
                     } else {
-                        Log.e("Watchlist", "API Response failed - user or data is null");
+                        Log.e("Watchlist", "Failed to toggle watchlist");
                         if (throwable != null) {
                             Log.e("Watchlist", "Error: " + throwable.getMessage());
                         }
+                        onWatchList.onError();
                     }
-
-                })
-        );
+                }));
     }
 
 

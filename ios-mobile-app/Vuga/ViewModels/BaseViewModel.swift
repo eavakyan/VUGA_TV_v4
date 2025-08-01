@@ -36,6 +36,10 @@ class BaseViewModel : NSObject, ObservableObject {
     func commonProfileEdit(params: [Params: Any], completion: @escaping ((_ user: User) -> ()) = { _ in}) {
         var params = params
         params[.userId] = myUser?.id ?? 0
+        params[.appUserId] = myUser?.id ?? 0  // For V2 API compatibility
+        if let profileId = myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
         NetworkManager.callWebService(url: .updateProfile, params: params) { (obj: UserModel) in
             if let data = obj.data {
                 self.myUser = data

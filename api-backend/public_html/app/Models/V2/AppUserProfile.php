@@ -45,8 +45,7 @@ class AppUserProfile extends Model
     
     public function watchlist(): BelongsToMany
     {
-        return $this->belongsToMany(Content::class, 'profile_watchlist', 'profile_id', 'content_id')
-            ->withPivot('added_at')
+        return $this->belongsToMany(Content::class, 'app_user_watchlist', 'profile_id', 'content_id')
             ->withTimestamps();
     }
     
