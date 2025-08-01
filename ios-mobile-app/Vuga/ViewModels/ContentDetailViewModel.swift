@@ -141,4 +141,10 @@ extension ContentDetailViewModel {
             self?.sources = data
         }
     }
+    
+    func playSource(_ source: Source) {
+        DispatchQueue.main.async { [weak self] in
+            self?.selectedSource = source
+        }
+    }
 }

@@ -129,7 +129,26 @@ struct ContentDetailView: View {
                             .cornerRadius(15)
                             .addStroke(radius: 15, color: .base.opacity(0.3))
                             .onTap {
-                                vm.selectSources(data: content.contentSources ?? [])
+                                // Direct play without source selection
+                                if let sources = content.contentSources, !sources.isEmpty {
+                                    let firstSource = sources[0]
+                                    if firstSource.accessType == .free || isPro {
+                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                            vm.pickedSource = firstSource
+                                            vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                                            vm.playSource(firstSource)
+                                            if content.type == .movie {
+                                                vm.increaseContentView(contentId: content.id ?? 0)
+                                            }
+                                        }
+                                    } else if firstSource.accessType == .premium {
+                                        vm.pickedSource = firstSource
+                                        vm.isShowPremiumDialog = true
+                                    } else if firstSource.accessType == .locked {
+                                        vm.pickedSource = firstSource
+                                        vm.isShowAdDialog = true
+                                    }
+                                }
                             }
                         }
                         if !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0 {
@@ -201,8 +220,26 @@ struct ContentDetailView: View {
                                 ForEach(selectedSeason.episodes ?? [], id: \.id) { episode in
                                     EpisodeCard(episode: episode, episodeTotalView: (episode.totalView ?? 0) + (episode.id == vm.selectedEpisode?.id ? episodeIncreaseTotalView : 0))
                                         .onTap {
-                                            vm.selectSources(data: episode.sources ?? [])
                                             vm.selectedEpisode = episode
+                                            // Direct play without source selection
+                                            if let sources = episode.sources, !sources.isEmpty {
+                                                let firstSource = sources[0]
+                                                if firstSource.accessType == .free || isPro {
+                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                                        vm.pickedSource = firstSource
+                                                        vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                                                        vm.playSource(firstSource)
+                                                        vm.increaseEpisodeView(episodeId: episode.id ?? 0)
+                                                        episodeIncreaseTotalView += 1
+                                                    }
+                                                } else if firstSource.accessType == .premium {
+                                                    vm.pickedSource = firstSource
+                                                    vm.isShowPremiumDialog = true
+                                                } else if firstSource.accessType == .locked {
+                                                    vm.pickedSource = firstSource
+                                                    vm.isShowAdDialog = true
+                                                }
+                                            }
                                         }
                                 }
                             }
@@ -224,8 +261,6 @@ struct ContentDetailView: View {
                 
             })
         }
-        .blur(radius: vm.isSourceSheetOn ? 7 : 0)
-        .overlay(AvailableSourcesView(vm: vm, episodeIncreaseTotalView: $episodeIncreaseTotalView, content: vm.content, seasonNumber: vm.seasonNumber))
         .background(ContentBackgroudView(content: vm.content))
         .addBackground()
         .loaderView(vm.isLoading)
@@ -250,7 +285,6 @@ struct ContentDetailView: View {
                 print("pppppppppppp",vm.isBookmarked)
             }
         })
-        .animation(.default, value: vm.isSourceSheetOn)
         .fullScreenCover(item: $vm.selectedSource, content: { source in
             if source.type?.rawValue ?? 1 == 1 {
                 YoutubeView(youtubeUrl: source.source ?? "")
@@ -271,6 +305,40 @@ struct ContentDetailView: View {
                 }
             }
         })
+        .customAlert(isPresented: $vm.isShowPremiumDialog){
+            DialogCard(icon: Image.crown ,title: .subScribeToPro, iconColor: .rating, subTitle: .proDialogDes, buttonTitle: .becomeAPro, onClose: {
+                withAnimation {
+                    vm.isShowPremiumDialog = false
+                }
+            },onButtonTap: {
+                vm.isShowPremiumDialog = false
+                Navigation.pushToSwiftUiView(ProView())
+            })
+        }
+        .customAlert(isPresented: $vm.isShowAdDialog){
+            DialogCard(icon: Image.adLcok, title: .unlokeWithAd, subTitle: .adDialogDes, buttonTitle: .watchAd, onClose: {
+                withAnimation {
+                    vm.isShowAdDialog = false
+                }
+            },onButtonTap: {
+                vm.isShowAdDialog = false
+                // Show ad and then play video
+                if let pickedSource = vm.pickedSource {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        // After ad is watched, play the video
+                        vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                        vm.playSource(pickedSource)
+                        vm.isShowAd = false // Don't show ad again in video player
+                        if vm.content?.type == .movie {
+                            vm.increaseContentView(contentId: vm.content?.id ?? 0)
+                        } else if let episode = vm.selectedEpisode {
+                            vm.increaseEpisodeView(episodeId: episode.id ?? 0)
+                            episodeIncreaseTotalView += 1
+                        }
+                    }
+                }
+            })
+        }
     }
     
     var verticalDivider : some View {
