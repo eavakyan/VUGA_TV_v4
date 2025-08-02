@@ -801,6 +801,14 @@
         </eightbitlab.com.blurview.BlurView>
 
 
+        <!-- Cast Mini Controller -->
+        <include
+            android:id="@+id/cast_mini_controller_container"
+            layout="@layout/cast_mini_controller"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true" />
+
     </RelativeLayout>
 
 

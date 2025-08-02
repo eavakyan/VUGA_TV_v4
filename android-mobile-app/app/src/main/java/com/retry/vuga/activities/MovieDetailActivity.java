@@ -11,8 +11,12 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.Toast;
+import android.widget.TextView;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import androidx.databinding.DataBindingUtil;
+import com.bumptech.glide.Glide;
 import androidx.lifecycle.Observer;
 import androidx.mediarouter.app.MediaRouteButton;
 import androidx.mediarouter.app.MediaRouteChooserDialog;
@@ -23,6 +27,9 @@ import com.google.android.gms.cast.framework.SessionManagerListener;
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaLoadRequestData;
 import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaStatus;
+import com.google.android.gms.cast.framework.media.RemoteMediaClient;
+import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.common.images.WebImage;
 import android.net.Uri;
 
@@ -1031,6 +1038,9 @@ public class MovieDetailActivity extends BaseActivity {
         setBlur(binding.loutSourcesBlur, binding.rootLout, 20f);
         setBlur(binding.blurViewPopup, binding.rootLout, 10f);
         
+        // Initialize Cast session management
+        initializeCastSessionManagement();
+        
         // Make sure blur views don't intercept clicks
         binding.blurView.setClickable(false);
         binding.blurView.setFocusable(false);
@@ -1153,6 +1163,183 @@ public class MovieDetailActivity extends BaseActivity {
                 
         castSession.getRemoteMediaClient().load(loadRequest);
         Toast.makeText(this, "Casting to TV...", Toast.LENGTH_SHORT).show();
+    }
+    
+    private void initializeCastSessionManagement() {
+        try {
+            CastContext castContext = CastContext.getSharedInstance(this);
+            castContext.getSessionManager().addSessionManagerListener(new SessionManagerListener<CastSession>() {
+                @Override
+                public void onSessionStarted(CastSession session, String sessionId) {
+                    Log.d("Cast", "Session started");
+                    updateCastState(true, session);
+                    if (contentItem != null) {
+                        loadMediaToCast(session);
+                    }
+                }
+                
+                @Override
+                public void onSessionResumed(CastSession session, boolean wasSuspended) {
+                    Log.d("Cast", "Session resumed");
+                    updateCastState(true, session);
+                }
+                
+                @Override
+                public void onSessionEnded(CastSession session, int error) {
+                    Log.d("Cast", "Session ended");
+                    updateCastState(false, null);
+                }
+                
+                @Override
+                public void onSessionSuspended(CastSession session, int reason) {
+                    Log.d("Cast", "Session suspended");
+                }
+                
+                @Override
+                public void onSessionStarting(CastSession session) {
+                    Log.d("Cast", "Session starting");
+                    showCastConnecting();
+                }
+                
+                @Override
+                public void onSessionStartFailed(CastSession session, int error) {
+                    Log.d("Cast", "Session start failed");
+                    Toast.makeText(MovieDetailActivity.this, "Failed to connect to cast device", Toast.LENGTH_SHORT).show();
+                }
+                
+                @Override
+                public void onSessionEnding(CastSession session) {
+                    Log.d("Cast", "Session ending");
+                }
+                
+                @Override
+                public void onSessionResumeFailed(CastSession session, int error) {
+                    Log.d("Cast", "Session resume failed");
+                }
+                
+                @Override
+                public void onSessionResuming(CastSession session, String sessionId) {}
+            }, CastSession.class);
+            
+            // Check if already casting
+            CastSession currentSession = castContext.getSessionManager().getCurrentCastSession();
+            if (currentSession != null && currentSession.isConnected()) {
+                updateCastState(true, currentSession);
+            }
+        } catch (Exception e) {
+            Log.e("Cast", "Error initializing cast: " + e.getMessage());
+        }
+    }
+    
+    private void updateCastState(boolean isCasting, CastSession session) {
+        runOnUiThread(() -> {
+            if (isCasting) {
+                // Update Cast button to show connected state
+                binding.btnCast.setImageResource(R.drawable.ic_cast_connected);
+                binding.btnCast.setColorFilter(getResources().getColor(R.color.app_color));
+                
+                // Show mini controller
+                View miniController = findViewById(R.id.cast_mini_controller);
+                if (miniController != null) {
+                    miniController.setVisibility(View.VISIBLE);
+                    
+                    // Update mini controller UI
+                    if (contentItem != null) {
+                        ImageView thumbnail = miniController.findViewById(R.id.cast_thumbnail);
+                        TextView title = miniController.findViewById(R.id.cast_title);
+                        TextView status = miniController.findViewById(R.id.cast_status);
+                        ImageView playPause = miniController.findViewById(R.id.cast_play_pause);
+                        ImageView stop = miniController.findViewById(R.id.cast_stop);
+                        ProgressBar progress = miniController.findViewById(R.id.cast_progress);
+                        
+                        // Load thumbnail
+                        if (thumbnail != null && contentItem.getHorizontalPoster() != null) {
+                            Glide.with(this)
+                                .load(Const.IMAGE_URL + contentItem.getHorizontalPoster())
+                                .into(thumbnail);
+                        }
+                        
+                        // Set title
+                        if (title != null) {
+                            title.setText(contentItem.getTitle());
+                        }
+                        
+                        // Set status
+                        if (status != null && session != null) {
+                            String deviceName = session.getCastDevice() != null ? 
+                                session.getCastDevice().getFriendlyName() : "Cast Device";
+                            status.setText("Casting to " + deviceName);
+                        }
+                        
+                        // Set up play/pause button
+                        if (playPause != null && session != null) {
+                            RemoteMediaClient remoteMediaClient = session.getRemoteMediaClient();
+                            if (remoteMediaClient != null) {
+                                // Update play/pause icon based on player state
+                                remoteMediaClient.registerCallback(new RemoteMediaClient.Callback() {
+                                    @Override
+                                    public void onStatusUpdated() {
+                                        int playerState = remoteMediaClient.getPlayerState();
+                                        if (playerState == MediaStatus.PLAYER_STATE_PLAYING) {
+                                            playPause.setImageResource(R.drawable.ic_pause);
+                                        } else {
+                                            playPause.setImageResource(R.drawable.ic_play);
+                                        }
+                                        
+                                        // Update progress
+                                        if (progress != null) {
+                                            long position = remoteMediaClient.getApproximateStreamPosition();
+                                            MediaInfo mediaInfo = remoteMediaClient.getMediaInfo();
+                                            if (mediaInfo != null) {
+                                                long duration = mediaInfo.getStreamDuration();
+                                                if (duration > 0) {
+                                                    progress.setMax((int) duration);
+                                                    progress.setProgress((int) position);
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                                
+                                playPause.setOnClickListener(v -> {
+                                    if (remoteMediaClient.isPlaying()) {
+                                        remoteMediaClient.pause();
+                                    } else {
+                                        remoteMediaClient.play();
+                                    }
+                                });
+                            }
+                        }
+                        
+                        // Set up stop button
+                        if (stop != null) {
+                            stop.setOnClickListener(v -> {
+                                CastContext.getSharedInstance(this).getSessionManager().endCurrentSession(true);
+                            });
+                        }
+                    }
+                }
+                
+                // Show "Now casting" toast
+                Toast.makeText(this, "Connected to cast device", Toast.LENGTH_SHORT).show();
+            } else {
+                // Update Cast button to show disconnected state
+                binding.btnCast.setImageResource(R.drawable.ic_cast);
+                binding.btnCast.clearColorFilter();
+                
+                // Hide mini controller
+                View miniController = findViewById(R.id.cast_mini_controller);
+                if (miniController != null) {
+                    miniController.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+    
+    private void showCastConnecting() {
+        runOnUiThread(() -> {
+            Toast.makeText(this, "Connecting to cast device...", Toast.LENGTH_SHORT).show();
+        });
     }
 
 
