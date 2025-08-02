@@ -14,6 +14,17 @@ import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.Observer;
+import androidx.mediarouter.app.MediaRouteButton;
+import androidx.mediarouter.app.MediaRouteChooserDialog;
+import com.google.android.gms.cast.framework.CastButtonFactory;
+import com.google.android.gms.cast.framework.CastContext;
+import com.google.android.gms.cast.framework.CastSession;
+import com.google.android.gms.cast.framework.SessionManagerListener;
+import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaLoadRequestData;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.common.images.WebImage;
+import android.net.Uri;
 
 import com.google.android.flexbox.AlignItems;
 import com.google.android.flexbox.FlexDirection;
@@ -266,6 +277,12 @@ public class MovieDetailActivity extends BaseActivity {
             }
         });
 
+        binding.btnCast.setOnClickListener(v -> {
+            if (contentItem != null) {
+                showCastDialog();
+            }
+        });
+        
         binding.btnShare.setOnClickListener(v -> {
             Log.d("MovieDetail", "Share button clicked!");
             Toast.makeText(MovieDetailActivity.this, "Share clicked!", Toast.LENGTH_SHORT).show();
@@ -1040,6 +1057,102 @@ public class MovieDetailActivity extends BaseActivity {
         binding.rvGenere.setLayoutManager(flayoutManager);
 //....................................................
 
+    }
+    
+    private void showCastDialog() {
+        Log.d("Cast", "showCastDialog called");
+        try {
+            CastContext castContext = CastContext.getSharedInstance(this);
+            Log.d("Cast", "CastContext obtained");
+            CastSession castSession = castContext.getSessionManager().getCurrentCastSession();
+            
+            if (castSession != null && castSession.isConnected()) {
+                Log.d("Cast", "Already connected to cast device");
+                // Already connected to a cast device, load the media
+                loadMediaToCast(castSession);
+            } else {
+                Log.d("Cast", "Not connected, showing cast dialog");
+                // Create and show MediaRouteChooserDialog
+                MediaRouteChooserDialog dialog = new MediaRouteChooserDialog(this);
+                dialog.setRouteSelector(CastContext.getSharedInstance(this).getMergedSelector());
+                dialog.show();
+                Log.d("Cast", "MediaRouteChooserDialog shown");
+                
+                // Listen for cast connection
+                castContext.getSessionManager().addSessionManagerListener(
+                    new SessionManagerListener<CastSession>() {
+                        @Override
+                        public void onSessionStarted(CastSession session, String sessionId) {
+                            loadMediaToCast(session);
+                            castContext.getSessionManager().removeSessionManagerListener(this, CastSession.class);
+                        }
+                        
+                        @Override
+                        public void onSessionResumed(CastSession session, boolean wasSuspended) {}
+                        
+                        @Override
+                        public void onSessionEnded(CastSession session, int error) {}
+                        
+                        @Override
+                        public void onSessionSuspended(CastSession session, int reason) {}
+                        
+                        @Override
+                        public void onSessionStarting(CastSession session) {}
+                        
+                        @Override
+                        public void onSessionStartFailed(CastSession session, int error) {
+                            Toast.makeText(MovieDetailActivity.this, "Failed to connect to cast device", Toast.LENGTH_SHORT).show();
+                        }
+                        
+                        @Override
+                        public void onSessionEnding(CastSession session) {}
+                        
+                        @Override
+                        public void onSessionResuming(CastSession session, String sessionId) {}
+                        
+                        @Override
+                        public void onSessionResumeFailed(CastSession session, int error) {}
+                    }, CastSession.class);
+            }
+        } catch (Exception e) {
+            Log.e("Cast", "Error showing cast dialog: " + e.getMessage());
+            Toast.makeText(this, "Cast is not available", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void loadMediaToCast(CastSession castSession) {
+        if (contentItem == null || contentItem.getContent_sources() == null || contentItem.getContent_sources().isEmpty()) {
+            Toast.makeText(this, "No media source available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Get the first available source
+        ContentDetail.SourceItem source = contentItem.getContent_sources().get(0);
+        
+        // Build media metadata
+        MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+        movieMetadata.putString(MediaMetadata.KEY_TITLE, contentItem.getTitle());
+        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, contentItem.getDescription());
+        
+        if (contentItem.getHorizontalPoster() != null) {
+            movieMetadata.addImage(new WebImage(Uri.parse(Const.BASE + contentItem.getHorizontalPoster())));
+        }
+        
+        // Build media info
+        MediaInfo mediaInfo = new MediaInfo.Builder(source.getSource())
+                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                .setContentType("video/mp4")
+                .setMetadata(movieMetadata)
+                .build();
+        
+        // Load media to cast device
+        MediaLoadRequestData loadRequest = new MediaLoadRequestData.Builder()
+                .setMediaInfo(mediaInfo)
+                .setAutoplay(true)
+                .build();
+                
+        castSession.getRemoteMediaClient().load(loadRequest);
+        Toast.makeText(this, "Casting to TV...", Toast.LENGTH_SHORT).show();
     }
 
 

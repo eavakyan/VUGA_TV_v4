@@ -24,12 +24,22 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Locale;
 
 import io.branch.referral.Branch;
+import com.google.android.gms.cast.framework.CastContext;
+
 public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
         Branch.getAutoInstance(this);
         Branch.enableLogging();
+
+        // Initialize Google Cast SDK
+        try {
+            CastContext.getSharedInstance(this);
+        } catch (Exception e) {
+            // Cast may not be available on all devices
+            Log.e("MyApplication", "Cast SDK initialization failed", e);
+        }
 
         setLanguage();
         PRDownloader.initialize(this);
