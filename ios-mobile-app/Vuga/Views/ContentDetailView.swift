@@ -18,11 +18,15 @@ import MediaPlayer
 struct ContentDetailView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @AppStorage(SessionKeys.isPro) var isPro = false
+    @AppStorage(SessionKeys.hasShownAirPlayGuidance) var hasShownAirPlayGuidance = false
     @StateObject var vm = ContentDetailViewModel()
     var homeVm : HomeViewModel?
     @State var showTrailerSheet = false
     @State private var currentIndex : Int = 0
     @State var episodeIncreaseTotalView = 0
+    @State private var isAirPlayConnected = false
+    @State private var showAirPlayGuidance = false
+    @State private var airPlayObserver: Any?
     var contentId: Int?
     var body: some View {
         VStack {
@@ -40,7 +44,7 @@ struct ContentDetailView: View {
                             shareContent()
                         }
                         // AirPlay button
-                        AirPlayRoutePickerView()
+                        AirPlayRoutePickerView(isConnected: isAirPlayConnected)
                             .frame(width: 44, height: 44)
                     }
                 }
@@ -337,6 +341,89 @@ struct ContentDetailView: View {
                 }
             })
         }
+        .alert("Stream to TV", isPresented: $showAirPlayGuidance) {
+            Button("Got it") {
+                hasShownAirPlayGuidance = true
+            }
+        } message: {
+            Text("Your TV is now connected! Simply press the Play button to stream the video to your TV.")
+        }
+        .onAppear {
+            // Monitor AirPlay route changes
+            airPlayObserver = NotificationCenter.default.addObserver(
+                forName: AVAudioSession.routeChangeNotification,
+                object: nil,
+                queue: .main
+            ) { notification in
+                checkAirPlayConnection()
+            }
+            checkAirPlayConnection()
+        }
+        .onDisappear {
+            // Clean up observer
+            if let observer = airPlayObserver {
+                NotificationCenter.default.removeObserver(observer)
+            }
+        }
+    }
+    
+    func checkAirPlayConnection() {
+        let audioSession = AVAudioSession.sharedInstance()
+        let currentRoute = audioSession.currentRoute
+        
+        // Check if any output is AirPlay
+        let wasConnected = isAirPlayConnected
+        isAirPlayConnected = currentRoute.outputs.contains { output in
+            output.portType == .airPlay
+        }
+        
+        // If just connected to AirPlay
+        if isAirPlayConnected && !wasConnected {
+            // Show guidance if it hasn't been shown before
+            if !hasShownAirPlayGuidance {
+                showAirPlayGuidance = true
+            }
+            
+            // Auto-play logic for better UX
+            if let content = vm.content {
+                if content.type == .movie {
+                    // For movies, check if we have sources and auto-play the first one
+                    if let sources = content.contentSources, !sources.isEmpty {
+                        let firstSource = sources[0]
+                        if firstSource.accessType == .free || isPro {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                vm.pickedSource = firstSource
+                                vm.progress = 0
+                                vm.playSource(firstSource)
+                                if content.type == .movie {
+                                    vm.increaseContentView(contentId: content.id ?? 0)
+                                }
+                            }
+                        }
+                    }
+                } else if content.type == .series {
+                    // For series, play the first episode of the selected season
+                    if let selectedSeason = vm.selectedSeason,
+                       let episodes = selectedSeason.episodes,
+                       !episodes.isEmpty {
+                        let firstEpisode = episodes[0]
+                        vm.selectedEpisode = firstEpisode
+                        if let sources = firstEpisode.sources, !sources.isEmpty {
+                            let firstSource = sources[0]
+                            if firstSource.accessType == .free || isPro {
+                                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                                    vm.pickedSource = firstSource
+                                    vm.progress = 0
+                                    vm.playSource(firstSource)
+                                    vm.increaseEpisodeView(episodeId: firstEpisode.id ?? 0)
+                                    episodeIncreaseTotalView += 1
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
     
     var verticalDivider : some View {
@@ -604,11 +691,13 @@ struct ViewSizeKey: PreferenceKey {
 
 // AirPlay Route Picker View
 struct AirPlayRoutePickerView: UIViewRepresentable {
+    let isConnected: Bool
+    
     func makeUIView(context: Context) -> UIView {
         let routePickerView = AVRoutePickerView()
         routePickerView.backgroundColor = UIColor.clear
         routePickerView.tintColor = UIColor(Color.text.opacity(0.8))
-        routePickerView.activeTintColor = UIColor(Color.text)
+        routePickerView.activeTintColor = UIColor(Color.base)
         routePickerView.prioritizesVideoDevices = true
         
         // Create a wrapper view to handle the tap
@@ -629,10 +718,15 @@ struct AirPlayRoutePickerView: UIViewRepresentable {
     }
     
     func updateUIView(_ uiView: UIView, context: Context) {
-        // Update the tint color if needed
+        // Update the tint color based on connection status
         if let routePickerView = uiView.subviews.first as? AVRoutePickerView {
-            routePickerView.tintColor = UIColor(Color.text.opacity(0.8))
-            routePickerView.activeTintColor = UIColor(Color.text)
+            if isConnected {
+                routePickerView.tintColor = UIColor(Color.base)
+                routePickerView.activeTintColor = UIColor(Color.base)
+            } else {
+                routePickerView.tintColor = UIColor(Color.text.opacity(0.8))
+                routePickerView.activeTintColor = UIColor(Color.base)
+            }
         }
     }
 }

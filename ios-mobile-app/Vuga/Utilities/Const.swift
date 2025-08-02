@@ -37,6 +37,7 @@ struct SessionKeys {
     static var myUser = "myUser"
     static var isPro = "isPro"
     static var isNotificationOn = "isNotificationOn"
+    static var hasShownAirPlayGuidance = "hasShownAirPlayGuidance"
 }
 
 //MARK: - Limits
