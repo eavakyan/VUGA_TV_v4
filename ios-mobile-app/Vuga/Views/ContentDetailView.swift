@@ -27,6 +27,11 @@ struct ContentDetailView: View {
     @State private var isAirPlayConnected = false
     @State private var showAirPlayGuidance = false
     @State private var airPlayObserver: Any?
+    @State private var showDownloadProgress = false
+    @State private var downloadingSource: Source?
+    @State private var showDownloadStartedAlert = false
+    @State private var downloadAlertMessage = ""
+    @EnvironmentObject var downloadViewModel: DownloadViewModel
     var contentId: Int?
     var body: some View {
         VStack {
@@ -117,8 +122,6 @@ struct ContentDetailView: View {
                                         .resizeFitTo(size: 16)
                                     Text(content.duration ?? "")
                                 }
-                                verticalDivider
-                                TotalWatchTag(totalViews: ((content.totalView ?? 0) + episodeIncreaseTotalView).roundedWithAbbreviations)
                             }
                         }
                         .outfitRegular()
@@ -156,6 +159,29 @@ struct ContentDetailView: View {
                                         vm.pickedSource = firstSource
                                         vm.isShowAdDialog = true
                                     }
+                                }
+                            }
+                            
+                            // Download button for movies
+                            if content.contentSources?.first?.isDownload == 1 {
+                                HStack(spacing: 12) {
+                                    Image.download
+                                        .resizeFitTo(size: 20, renderingMode: .template)
+                                        .foregroundColor(.text)
+                                    Text(String.download.localized(language))
+                                        .outfitRegular(20)
+                                }
+                                .padding(10)
+                                .maxWidthFrame()
+                                .background(Color.bg)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(Color.text.opacity(0.3), lineWidth: 1)
+                                )
+                                .cornerRadius(15)
+                                .padding(.top, 10)
+                                .onTap {
+                                    handleDownload()
                                 }
                             }
                         }
@@ -348,6 +374,11 @@ struct ContentDetailView: View {
         } message: {
             Text("Your TV is now connected! Simply press the Play button to stream the video to your TV.")
         }
+        .alert("Download Started", isPresented: $showDownloadStartedAlert) {
+            Button("OK") { }
+        } message: {
+            Text(downloadAlertMessage)
+        }
         .onAppear {
             // Monitor AirPlay route changes
             airPlayObserver = NotificationCenter.default.addObserver(
@@ -365,6 +396,78 @@ struct ContentDetailView: View {
                 NotificationCenter.default.removeObserver(observer)
             }
         }
+        // TODO: Add DownloadProgressView to Xcode project
+        // .overlay(
+        //     // Download progress dialog
+        //     Group {
+        //         if showDownloadProgress, let source = downloadingSource, let content = vm.content {
+        //             DownloadProgressView(
+        //                 isShowing: $showDownloadProgress,
+        //                 content: content,
+        //                 source: source,
+        //                 downloadId: source.sourceDownloadId(contentType: content.type ?? .movie)
+        //             )
+        //             .environmentObject(downloadViewModel)
+        //         }
+        //     }
+        // )
+    }
+    
+    func handleDownload() {
+        guard let content = vm.content,
+              let sources = content.contentSources,
+              !sources.isEmpty else { return }
+        
+        let firstSource = sources[0]
+        let downloadId = firstSource.sourceDownloadId(contentType: content.type ?? .movie)
+        
+        // Check if already downloading
+        if let existingDownload = downloadViewModel.downloadingContents[downloadId] {
+            switch existingDownload.downloadStatus {
+            case .downloading:
+                downloadAlertMessage = "\(content.title ?? "This content") is already downloading. Progress: \(Int(existingDownload.progress * 100))%"
+                showDownloadStartedAlert = true
+                return
+            case .downloaded:
+                downloadAlertMessage = "\(content.title ?? "This content") has already been downloaded."
+                showDownloadStartedAlert = true
+                return
+            case .queued:
+                downloadAlertMessage = "\(content.title ?? "This content") is in the download queue."
+                showDownloadStartedAlert = true
+                return
+            default:
+                break
+            }
+        }
+        
+        // Check if user has access
+        if firstSource.accessType == .premium && !isPro {
+            vm.pickedSource = firstSource
+            vm.isShowPremiumDialog = true
+            return
+        } else if firstSource.accessType == .locked && !isPro {
+            vm.pickedSource = firstSource
+            vm.isShowAdDialog = true
+            return
+        }
+        
+        // Check storage before downloading
+        let sizeInMB = Int(firstSource.size ?? "500") ?? 500
+        let estimatedSize: Int64 = Int64(sizeInMB) * 1024 * 1024 // Convert MB to bytes
+        
+        // TODO: Add StorageManager to Xcode project for storage checking
+        // if !StorageManager.shared.hasEnoughStorage(for: estimatedSize) {
+        //     // Show storage error alert - could add an alert here
+        //     return
+        // }
+        
+        // Show download started alert since progress dialog is not available yet
+        downloadAlertMessage = "Download started for \(content.title ?? "content"). You can continue browsing while it downloads in the background. Check your downloads in Profile → Downloads."
+        showDownloadStartedAlert = true
+        
+        // Start download
+        downloadViewModel.startDownload(content: content, episode: nil, source: firstSource, seasonNumber: 1)
     }
     
     func checkAirPlayConnection() {
@@ -470,18 +573,6 @@ struct ContentDetailView: View {
     ContentDetailView()
 }
 
-struct TotalWatchTag : View {
-    var totalViews: String
-    var body: some View {
-        HStack {
-            Image.eye
-                .resizeFitTo(size: 16, renderingMode: .template)
-            Text(totalViews)
-                .outfitLight(16)
-        }
-        .foregroundColor(.base)
-    }
-}
 
 
 private struct ContentBackgroudView: View {
@@ -609,7 +700,6 @@ struct EpisodeCard : View {
                     Text(episode.duration ?? "")
                         .outfitRegular(18)
                         .foregroundColor(.textLight)
-                    TotalWatchTag(totalViews: episodeTotalView.roundedWithAbbreviations)
                 }
             }
             

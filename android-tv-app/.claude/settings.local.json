@@ -28,7 +28,8 @@
       "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/test-profile-api.sh:*)",
       "Bash(xcrun swift:*)",
       "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/test_build.sh)",
-      "Bash(sudo rm:*)"
+      "Bash(sudo rm:*)",
+      "Bash(xcrun simctl list:*)"
     ],
     "deny": []
   }

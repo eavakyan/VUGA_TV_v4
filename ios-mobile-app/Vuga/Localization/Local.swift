@@ -108,4 +108,9 @@ extension String {
     static let live = "live"
     static let recentlyWatched = "recentlyWatched"
     static let recentlyWatchedDeleteDes = "recentlyWatchedDeleteDes"
+    static let download = "download"
+    static let preparingDownload = "preparingDownload"
+    static let downloadInBackground = "downloadInBackground"
+    static let cancel = "cancel"
+    static let done = "done"
 }

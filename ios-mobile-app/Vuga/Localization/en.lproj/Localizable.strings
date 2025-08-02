@@ -99,4 +99,9 @@
 "live"                              = "Live";
 "recentlyWatched"                   = "Recently Watched";
 "recentlyWatchedDeleteDes"          = "Do you really want to delete this from history?";
+"download"                          = "Download";
+"preparingDownload"                 = "Preparing download...";
+"downloadInBackground"              = "Download in Background";
+"cancel"                            = "Cancel";
+"done"                              = "Done";
 

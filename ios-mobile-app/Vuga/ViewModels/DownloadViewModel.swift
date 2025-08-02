@@ -100,15 +100,17 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
     
     func startDownload(content: FlixyContent, episode: Episode?, source: Source,seasonNumber: Int) {
         
-        //        let id = source.sourceDownloadId(contentType: content.type ?? .movie)
-        //
-        //        let task = self.session.downloadTask(with: source.sourceURL)
-        //
-        //        let downloadingContent = DownloadingContent(id: id,progress: 0.0, lastProgress: 5, downloadStatus: .downloading, task: task, source: source,episode: episode,flixyContent: content)
-        //        downloadingContents[id] = downloadingContent
-        //        progressDictionary[task] = (currentProgressIndex: 0, progress: 0.0)
-        //        print(downloadingContents)
-        //        task.resume()
+        // Check storage before downloading
+        let sizeInMB = Int(source.size ?? "500") ?? 500
+        let estimatedSize: Int64 = Int64(sizeInMB) * 1024 * 1024 // Convert MB to bytes
+        
+        // TODO: Add StorageManager to Xcode project for storage checking
+        // if !StorageManager.shared.hasEnoughStorage(for: estimatedSize) {
+        //     // Show storage error - in iOS we typically don't use toast, we'll let the UI handle this
+        //     print("Insufficient storage space. Please free up some space to download this content.")
+        //     return
+        // }
+        
         DispatchQueue.main.async {
             let id = source.sourceDownloadId(contentType: content.type ?? .movie)
             let downloadingContent = DownloadingContent(id: id, progress: 0.0, downloadStatus: .queued, source: source, episode: episode, flixyContent: content, sourceUrl: source.sourceURL)
@@ -477,7 +479,9 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
 
 extension UIImage {
     func resized(withPercentage percentage: CGFloat, isOpaque: Bool = true) -> UIImage? {
-        let canvas = CGSize(width: size.width * percentage, height: size.height * percentage)
+        let newWidth = size.width * percentage
+        let newHeight = size.height * percentage
+        let canvas = CGSize(width: newWidth, height: newHeight)
         let format = imageRendererFormat
         format.opaque = isOpaque
         return UIGraphicsImageRenderer(size: canvas, format: format).image {
@@ -485,7 +489,9 @@ extension UIImage {
         }
     }
     func resized(toWidth width: CGFloat, isOpaque: Bool = true) -> UIImage? {
-        let canvas = CGSize(width: width, height: CGFloat(ceil(width/size.width * size.height)))
+        let scale = width / size.width
+        let newHeight = size.height * scale
+        let canvas = CGSize(width: width, height: ceil(newHeight))
         let format = imageRendererFormat
         format.opaque = isOpaque
         return UIGraphicsImageRenderer(size: canvas, format: format).image {
