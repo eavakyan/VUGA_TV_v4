@@ -1,5 +1,6 @@
 package com.vugaenterprises.androidtv.ui.viewmodels;
 
+import com.vugaenterprises.androidtv.data.UserDataStore;
 import com.vugaenterprises.androidtv.data.repository.ContentRepository;
 import dagger.internal.DaggerGenerated;
 import dagger.internal.Factory;
@@ -24,21 +25,26 @@ import javax.inject.Provider;
 public final class HomeViewModel_Factory implements Factory<HomeViewModel> {
   private final Provider<ContentRepository> contentRepositoryProvider;
 
-  public HomeViewModel_Factory(Provider<ContentRepository> contentRepositoryProvider) {
+  private final Provider<UserDataStore> userDataStoreProvider;
+
+  public HomeViewModel_Factory(Provider<ContentRepository> contentRepositoryProvider,
+      Provider<UserDataStore> userDataStoreProvider) {
     this.contentRepositoryProvider = contentRepositoryProvider;
+    this.userDataStoreProvider = userDataStoreProvider;
   }
 
   @Override
   public HomeViewModel get() {
-    return newInstance(contentRepositoryProvider.get());
+    return newInstance(contentRepositoryProvider.get(), userDataStoreProvider.get());
   }
 
-  public static HomeViewModel_Factory create(
-      Provider<ContentRepository> contentRepositoryProvider) {
-    return new HomeViewModel_Factory(contentRepositoryProvider);
+  public static HomeViewModel_Factory create(Provider<ContentRepository> contentRepositoryProvider,
+      Provider<UserDataStore> userDataStoreProvider) {
+    return new HomeViewModel_Factory(contentRepositoryProvider, userDataStoreProvider);
   }
 
-  public static HomeViewModel newInstance(ContentRepository contentRepository) {
-    return new HomeViewModel(contentRepository);
+  public static HomeViewModel newInstance(ContentRepository contentRepository,
+      UserDataStore userDataStore) {
+    return new HomeViewModel(contentRepository, userDataStore);
   }
 }

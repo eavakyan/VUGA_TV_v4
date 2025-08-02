@@ -521,7 +521,7 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
       public T get() {
         switch (id) {
           case 0: // com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel 
-          return (T) new ContentDetailViewModel(singletonCImpl.contentRepositoryProvider.get());
+          return (T) new ContentDetailViewModel(singletonCImpl.contentRepositoryProvider.get(), singletonCImpl.userDataStoreProvider.get());
 
           case 1: // com.vugaenterprises.androidtv.ui.viewmodels.FavoritesViewModel 
           return (T) new FavoritesViewModel(singletonCImpl.provideApiServiceProvider.get());
@@ -530,7 +530,7 @@ public final class DaggerStreamingApplication_HiltComponents_SingletonC {
           return (T) new HistoryViewModel(singletonCImpl.provideApiServiceProvider.get());
 
           case 3: // com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel 
-          return (T) new HomeViewModel(singletonCImpl.contentRepositoryProvider.get());
+          return (T) new HomeViewModel(singletonCImpl.contentRepositoryProvider.get(), singletonCImpl.userDataStoreProvider.get());
 
           case 4: // com.vugaenterprises.androidtv.ui.viewmodels.ProfileSelectionViewModel 
           return (T) new ProfileSelectionViewModel(singletonCImpl.profileRepositoryProvider.get(), singletonCImpl.provideErrorLoggerProvider.get());
