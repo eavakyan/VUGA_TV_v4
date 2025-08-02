@@ -99,30 +99,39 @@ class Content extends BaseModel
     }
     
     /**
-     * Get users who have this content in their watchlist
+     * Get profiles who have this content in their watchlist
      */
     public function watchlistedBy()
     {
-        return $this->belongsToMany(AppUser::class, 'app_user_watchlist', 'content_id', 'app_user_id')
-                    ->withPivot('added_at');
+        return $this->belongsToMany(AppUserProfile::class, 'app_user_watchlist', 'content_id', 'profile_id')
+                    ->withTimestamps();
     }
     
     /**
-     * Get users who have favorited this content
+     * Get profiles who have favorited this content
      */
     public function favoritedBy()
     {
-        return $this->belongsToMany(AppUser::class, 'app_user_favorite', 'content_id', 'app_user_id')
-                    ->withPivot('added_at');
+        return $this->belongsToMany(AppUserProfile::class, 'app_profile_favorite', 'content_id', 'profile_id')
+                    ->withTimestamps();
     }
     
     /**
-     * Get the content's ratings from users
+     * Get the content's ratings from profiles
      */
-    public function userRatings()
+    public function profileRatings()
     {
-        return $this->belongsToMany(AppUser::class, 'app_user_rating', 'content_id', 'app_user_id')
-                    ->withPivot('rating', 'created_at', 'updated_at');
+        return $this->belongsToMany(AppUserProfile::class, 'app_profile_rating', 'content_id', 'profile_id')
+                    ->withPivot('rating')
+                    ->withTimestamps();
+    }
+    
+    /**
+     * Get the content's watch history by profiles
+     */
+    public function profileWatchHistory()
+    {
+        return $this->hasMany(AppUserWatchHistory::class, 'content_id', 'content_id');
     }
     
     /**

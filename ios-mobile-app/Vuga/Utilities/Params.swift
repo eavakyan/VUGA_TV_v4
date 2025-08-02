@@ -40,4 +40,8 @@ enum Params: String {
     case avatarColor = "avatar_color"
     case avatarId = "avatar_id"
     case isKids = "is_kids"
+    case rating = "rating"
+    case lastWatchedPosition = "last_watched_position"
+    case totalDuration = "total_duration"
+    case completed = "completed"
 }

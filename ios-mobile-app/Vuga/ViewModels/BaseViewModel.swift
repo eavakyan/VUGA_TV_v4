@@ -61,5 +61,91 @@ class BaseViewModel : NSObject, ObservableObject {
         // To enable premium features without RevenueCat, set isPro = true
         isPro = false
     }
+    
+    func toggleFavorite(contentId: Int, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
+        guard let user = myUser else {
+            completion(false, "Please login to add favorites")
+            return
+        }
+        
+        var params: [Params: Any] = [
+            .appUserId: user.id,
+            .contentId: contentId
+        ]
+        
+        if let profileId = user.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        NetworkManager.callWebService(url: .toggleFavorite, params: params, callbackSuccess: { [weak self] (obj: UserModel) in
+            if let data = obj.data {
+                self?.myUser = data
+                completion(true, obj.message)
+                // Post notification to update UI
+                NotificationCenter.default.post(name: Notification.Name("FavoriteUpdated"), object: nil, userInfo: ["contentId": contentId])
+            } else {
+                completion(false, obj.message)
+            }
+        }, callbackFailure: { error in
+            completion(false, error.localizedDescription)
+        })
+    }
+    
+    func rateContent(contentId: Int, rating: Float, completion: @escaping ((_ success: Bool, _ message: String?) -> ())) {
+        guard let user = myUser else {
+            completion(false, "Please login to rate content")
+            return
+        }
+        
+        var params: [Params: Any] = [
+            .appUserId: user.id,
+            .contentId: contentId,
+            .rating: rating
+        ]
+        
+        if let profileId = user.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        NetworkManager.callWebService(url: .rateContent, params: params, callbackSuccess: { (obj: StatusAndMessageModel) in
+            completion(obj.status ?? false, obj.message)
+            // Post notification to update UI
+            NotificationCenter.default.post(name: Notification.Name("RatingUpdated"), object: nil, userInfo: ["contentId": contentId, "rating": rating])
+        }, callbackFailure: { error in
+            completion(false, error.localizedDescription)
+        })
+    }
+    
+    func updateWatchProgress(contentId: Int? = nil, episodeId: Int? = nil, position: Int, duration: Int, completion: @escaping ((_ success: Bool) -> ()) = { _ in }) {
+        guard let user = myUser else {
+            completion(false)
+            return
+        }
+        
+        var params: [Params: Any] = [
+            .appUserId: user.id,
+            .lastWatchedPosition: position,
+            .totalDuration: duration,
+            .deviceType: 1 // iOS
+        ]
+        
+        if let profileId = user.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        if let contentId = contentId {
+            params[.contentId] = contentId
+        }
+        
+        if let episodeId = episodeId {
+            params[.episodeId] = episodeId
+        }
+        
+        NetworkManager.callWebService(url: .updateWatchProgress, params: params, callbackSuccess: { (obj: StatusAndMessageModel) in
+            completion(obj.status ?? false)
+        }, callbackFailure: { _ in
+            completion(false)
+        })
+    }
 }
 

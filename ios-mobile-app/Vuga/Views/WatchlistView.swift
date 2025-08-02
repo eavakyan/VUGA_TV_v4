@@ -44,9 +44,11 @@ struct WatchlistView: View {
                 .padding(.horizontal,10)
                 .padding(.vertical,12)
             ScrollView(showsIndicators: false) {
-                LazyVStack {
-                    ForEach(vm.contents, id: \.id) { content in
-                        WatchlistCardView(vm: vm, content: content)
+                LazyVStack(spacing: 10) {
+                    ForEach(vm.contents.indices, id: \.self) { index in
+                        if index < vm.contents.count {
+                            WatchlistCardView(vm: vm, content: vm.contents[index])
+                        }
                     }
                 }
                 .padding([.horizontal,.bottom],10)

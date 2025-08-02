@@ -390,36 +390,30 @@ class UserController extends Controller
             $profileId = $user->last_active_profile_id;
         }
         
-        // Use profile-specific favorites if profile exists
-        if ($profileId) {
-            $profile = AppUserProfile::find($profileId);
-            if ($profile && $profile->app_user_id == $request->app_user_id) {
-                if ($profile->favorites()->where('app_user_favorite.content_id', $request->content_id)->exists()) {
-                    // Remove from favorites
-                    $profile->favorites()->detach($request->content_id);
-                    $message = 'Removed from favorites';
-                } else {
-                    // Add to favorites
-                    $profile->favorites()->attach($request->content_id);
-                    $message = 'Added to favorites';
-                }
-            } else {
-                return response()->json([
-                    'status' => false,
-                    'message' => 'Profile not found or unauthorized'
-                ], 404);
-            }
+        // Profile is required for favorites
+        if (!$profileId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile ID is required'
+            ], 400);
+        }
+        
+        $profile = AppUserProfile::find($profileId);
+        if (!$profile || $profile->app_user_id != $request->app_user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found or unauthorized'
+            ], 404);
+        }
+        
+        if ($profile->favorites()->where('app_profile_favorite.content_id', $request->content_id)->exists()) {
+            // Remove from favorites
+            $profile->favorites()->detach($request->content_id);
+            $message = 'Removed from favorites';
         } else {
-            // Fallback to user-level favorites for backward compatibility
-            if ($user->favorites()->where('app_user_favorite.content_id', $request->content_id)->exists()) {
-                // Remove from favorites
-                $user->favorites()->detach($request->content_id);
-                $message = 'Removed from favorites';
-            } else {
-                // Add to favorites
-                $user->favorites()->attach($request->content_id);
-                $message = 'Added to favorites';
-            }
+            // Add to favorites
+            $profile->favorites()->attach($request->content_id);
+            $message = 'Added to favorites';
         }
 
         return response()->json([
@@ -438,6 +432,7 @@ class UserController extends Controller
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
             'content_id' => 'required|integer|exists:content,content_id',
             'rating' => 'required|numeric|min:0|max:10',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -448,9 +443,31 @@ class UserController extends Controller
         }
 
         $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Profile is required for ratings
+        if (!$profileId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile ID is required'
+            ], 400);
+        }
+        
+        $profile = AppUserProfile::find($profileId);
+        if (!$profile || $profile->app_user_id != $request->app_user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found or unauthorized'
+            ], 404);
+        }
         
         // Update or create rating
-        $user->ratings()->syncWithoutDetaching([
+        $profile->ratings()->syncWithoutDetaching([
             $request->content_id => ['rating' => $request->rating]
         ]);
 
@@ -470,6 +487,7 @@ class UserController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -479,8 +497,32 @@ class UserController extends Controller
             ], 400);
         }
 
+        $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Profile is required for watch history
+        if (!$profileId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile ID is required'
+            ], 400);
+        }
+        
+        $profile = AppUserProfile::find($profileId);
+        if (!$profile || $profile->app_user_id != $request->app_user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found or unauthorized'
+            ], 404);
+        }
+
         $watchHistory = AppUserWatchHistory::with(['content', 'episode.season'])
-                            ->where('app_user_id', $request->app_user_id)
+                            ->where('profile_id', $profileId)
                             ->orderBy('updated_at', 'desc')
                             ->get();
 
@@ -580,7 +622,7 @@ class UserController extends Controller
      */
     private function updateContentAverageRating($contentId)
     {
-        $avgRating = DB::table('app_user_rating')
+        $avgRating = DB::table('app_profile_rating')
                         ->where('content_id', $contentId)
                         ->avg('rating');
         
@@ -593,6 +635,10 @@ class UserController extends Controller
      */
     public function fetchWatchList(Request $request)
     {
+        \Log::info('fetchWatchList called', [
+            'all_params' => $request->all()
+        ]);
+        
         $validator = Validator::make($request->all(), [
             'user_id' => 'required|integer|exists:app_user,app_user_id',
             'start' => 'required|integer',
@@ -628,7 +674,7 @@ class UserController extends Controller
             $profile = AppUserProfile::find($profileId);
             if ($profile && $profile->app_user_id == $request->user_id) {
                 $watchlistIds = $profile->watchlist()
-                    ->pluck('content_id')
+                    ->pluck('content.content_id')
                     ->toArray();
                 \Log::info('Profile watchlist fetched', [
                     'profile_id' => $profileId,
@@ -646,11 +692,21 @@ class UserController extends Controller
         } else {
             // Fallback to user-level watchlist for backward compatibility
             $watchlistIds = $user->watchlist()
-                ->pluck('content_id')
+                ->pluck('content.content_id')
                 ->toArray();
             \Log::info('User watchlist fetched (fallback)', [
                 'user_id' => $request->user_id,
                 'watchlist_count' => count($watchlistIds)
+            ]);
+        }
+        
+        // If no watchlist items, return empty array
+        if (empty($watchlistIds)) {
+            \Log::info('No watchlist items found, returning empty array');
+            return response()->json([
+                'status' => true,
+                'message' => 'Fetch WatchList Successfully',
+                'data' => []
             ]);
         }
         
@@ -661,12 +717,35 @@ class UserController extends Controller
         // Filter by type if provided
         if ($request->has('type') && $request->type != 0) {
             $query->where('type', $request->type);
+            \Log::info('Filtering by type', ['type' => $request->type]);
         }
+        
+        // Debug: Log content types in watchlist
+        $contentTypes = Content::whereIn('content_id', $watchlistIds)
+            ->pluck('type', 'content_id')
+            ->toArray();
+        \Log::info('Content types in watchlist', [
+            'content_types' => $contentTypes,
+            'requested_type' => $request->type
+        ]);
+        
+        // Log the query before pagination
+        \Log::info('Query before pagination', [
+            'watchlist_ids' => $watchlistIds,
+            'sql' => $query->toSql(),
+            'bindings' => $query->getBindings()
+        ]);
         
         // Apply pagination
         $contents = $query->offset($request->start)
             ->limit($request->limit)
             ->get();
+            
+        \Log::info('Query results', [
+            'count' => $contents->count(),
+            'start' => $request->start,
+            'limit' => $request->limit
+        ]);
         
         // Format response to match V1
         $formattedContents = $contents->map(function ($content) {
@@ -674,20 +753,20 @@ class UserController extends Controller
                 'id' => $content->content_id,
                 'title' => $content->title,
                 'description' => $content->description,
-                'type' => $content->type,
-                'duration' => $content->duration,
-                'release_year' => $content->release_year,
-                'ratings' => $content->ratings,
-                'language_id' => $content->language_id,
+                'type' => (int) $content->type,
+                'duration' => (string) $content->duration,
+                'release_year' => (int) $content->release_year,
+                'ratings' => (float) $content->ratings,
+                'language_id' => (int) $content->language_id,
                 'download_link' => $content->download_link,
                 'trailer_url' => $content->trailer_url,
                 'vertical_poster' => $content->vertical_poster,
                 'horizontal_poster' => $content->horizontal_poster,
                 'genre_ids' => $content->genre_ids,
-                'is_featured' => $content->is_featured,
-                'total_view' => $content->total_view,
-                'total_download' => $content->total_download,
-                'total_share' => $content->total_share,
+                'is_featured' => (int) $content->is_featured,
+                'total_view' => (int) $content->total_view,
+                'total_download' => (int) $content->total_download,
+                'total_share' => (int) $content->total_share,
                 'actor_ids' => $content->actor_ids,
                 'is_watchlist' => true
             ];
@@ -697,7 +776,9 @@ class UserController extends Controller
             'profile_id' => $profileId,
             'watchlist_ids' => $watchlistIds,
             'formatted_count' => $formattedContents->count(),
-            'response_data' => $formattedContents->pluck('id')->toArray()
+            'response_data' => $formattedContents->pluck('id')->toArray(),
+            'type_filter' => $request->type,
+            'all_content_before_filter' => Content::whereIn('content_id', $watchlistIds)->pluck('content_id')->toArray()
         ]);
         
         return response()->json([

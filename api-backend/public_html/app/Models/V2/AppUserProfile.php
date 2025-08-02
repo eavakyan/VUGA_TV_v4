@@ -51,14 +51,20 @@ class AppUserProfile extends Model
     
     public function favorites(): BelongsToMany
     {
-        return $this->belongsToMany(Content::class, 'profile_favorite', 'profile_id', 'content_id')
-            ->withPivot('added_at')
+        return $this->belongsToMany(Content::class, 'app_profile_favorite', 'profile_id', 'content_id')
+            ->withTimestamps();
+    }
+    
+    public function ratings(): BelongsToMany
+    {
+        return $this->belongsToMany(Content::class, 'app_profile_rating', 'profile_id', 'content_id')
+            ->withPivot('rating')
             ->withTimestamps();
     }
     
     public function watchHistory(): HasMany
     {
-        return $this->hasMany(ProfileWatchHistory::class, 'profile_id', 'profile_id');
+        return $this->hasMany(AppUserWatchHistory::class, 'profile_id', 'profile_id');
     }
     
     public function downloads(): HasMany

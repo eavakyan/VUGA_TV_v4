@@ -8,7 +8,7 @@ class AppUserWatchHistory extends BaseModel
     protected $primaryKey = 'watch_history_id';
     
     protected $fillable = [
-        'app_user_id',
+        'profile_id',
         'content_id',
         'episode_id',
         'last_watched_position',
@@ -18,7 +18,7 @@ class AppUserWatchHistory extends BaseModel
     ];
     
     protected $casts = [
-        'app_user_id' => 'integer',
+        'profile_id' => 'integer',
         'content_id' => 'integer',
         'episode_id' => 'integer',
         'last_watched_position' => 'integer',
@@ -30,11 +30,11 @@ class AppUserWatchHistory extends BaseModel
     ];
     
     /**
-     * Get the watch history's user
+     * Get the watch history's profile
      */
-    public function user()
+    public function profile()
     {
-        return $this->belongsTo(AppUser::class, 'app_user_id');
+        return $this->belongsTo(AppUserProfile::class, 'profile_id', 'profile_id');
     }
     
     /**

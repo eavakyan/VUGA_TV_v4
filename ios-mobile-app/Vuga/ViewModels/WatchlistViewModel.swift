@@ -28,7 +28,11 @@ class WatchlistViewModel : BaseViewModel {
             if isForRefresh {
                 self?.contents.removeAll()
             }
-            self?.contents.append(contentsOf: obj.data ?? [])
+            let newContents = obj.data ?? []
+            print("WatchlistViewModel: Received \(newContents.count) items from API")
+            print("WatchlistViewModel: Current contents count before append: \(self?.contents.count ?? 0)")
+            self?.contents.append(contentsOf: newContents)
+            print("WatchlistViewModel: Current contents count after append: \(self?.contents.count ?? 0)")
             self?.isDataFetched = true
         }
     }

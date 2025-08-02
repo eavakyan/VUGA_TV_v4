@@ -174,7 +174,7 @@ class ContentController extends Controller
                 $profile = \App\Models\V2\AppUserProfile::find($profileId);
                 if ($profile && $profile->app_user_id == $request->user_id) {
                     $formattedContent['is_watchlist'] = $profile->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists();
-                    $formattedContent['is_favorite'] = $profile->favorites()->where('profile_favorite.content_id', $request->content_id)->exists();
+                    $formattedContent['is_favorite'] = $profile->favorites()->where('app_profile_favorite.content_id', $request->content_id)->exists();
                 }
             } else if ($user) {
                 // If no profile specified, use last active profile
@@ -182,6 +182,7 @@ class ContentController extends Controller
                     $profile = \App\Models\V2\AppUserProfile::find($user->last_active_profile_id);
                     if ($profile) {
                         $formattedContent['is_watchlist'] = $profile->watchlist()->where('app_user_watchlist.content_id', $request->content_id)->exists();
+                        $formattedContent['is_favorite'] = $profile->favorites()->where('app_profile_favorite.content_id', $request->content_id)->exists();
                     }
                 }
             }
@@ -392,7 +393,12 @@ class ContentController extends Controller
         // Get user-specific data if logged in
         $userData = null;
         if ($request->app_user_id) {
-            $userData = $this->getUserContentData($request->app_user_id, $request->content_id);
+            $profileId = $request->profile_id;
+            if (!$profileId) {
+                $user = \App\Models\V2\AppUser::find($request->app_user_id);
+                $profileId = $user ? $user->last_active_profile_id : null;
+            }
+            $userData = $this->getUserContentData($request->app_user_id, $profileId, $request->content_id);
         }
 
         // Get recommendations
@@ -690,41 +696,16 @@ class ContentController extends Controller
             }
         }
         
-        // If we have a profile, use profile-specific watch history
+        // Use profile-specific watch history
         if ($profileId) {
-            $watchHistory = \App\Models\V2\ProfileWatchHistory::with(['content.language', 'content.genres', 'episode.season'])
-                ->where('profile_id', $profileId)
-                ->where('completed', 0)
-                ->where('last_position', '>', 0)
-                ->orderBy('updated_at', 'desc')
-                ->limit(10)
-                ->get();
-                
-            return $watchHistory->map(function($history) {
-                $data = $this->formatContent($history->content);
-                $data['watch_history'] = [
-                    'last_watched_position' => $history->last_position,
-                    'total_duration' => $history->duration,
-                    'episode_id' => $history->episode_id,
-                    'episode' => $history->episode ? [
-                        'episode_id' => $history->episode->episode_id,
-                        'title' => $history->episode->title,
-                        'season_title' => $history->episode->season->title,
-                        'number' => $history->episode->number
-                    ] : null
-                ];
-                return $data;
-            });
-        } else {
-            // Fallback to user-level watch history for backward compatibility
             $watchHistory = AppUserWatchHistory::with(['content.language', 'content.genres', 'episode.season'])
-                ->where('app_user_id', $userId)
+                ->where('profile_id', $profileId)
                 ->where('completed', 0)
                 ->where('last_watched_position', '>', 0)
                 ->orderBy('updated_at', 'desc')
                 ->limit(10)
                 ->get();
-
+                
             return $watchHistory->map(function($history) {
                 $data = $this->formatContent($history->content);
                 $data['watch_history'] = [
@@ -740,24 +721,41 @@ class ContentController extends Controller
                 ];
                 return $data;
             });
+        } else {
+            // No profile, return empty array
+            return [];
         }
     }
 
     /**
      * Get user-specific content data
      */
-    private function getUserContentData($userId, $contentId)
+    private function getUserContentData($userId, $profileId, $contentId)
     {
         $user = \App\Models\V2\AppUser::find($userId);
         
+        // If profile is provided, use profile-specific data
+        if ($profileId) {
+            $profile = \App\Models\V2\AppUserProfile::find($profileId);
+            if ($profile && $profile->app_user_id == $userId) {
+                return [
+                    'is_in_watchlist' => $profile->watchlist()->where('content_id', $contentId)->exists(),
+                    'is_favorite' => $profile->favorites()->where('content_id', $contentId)->exists(),
+                    'user_rating' => $profile->ratings()->where('content_id', $contentId)->value('rating'),
+                    'watch_history' => AppUserWatchHistory::where('profile_id', $profileId)
+                                                          ->where('content_id', $contentId)
+                                                          ->whereNull('episode_id')
+                                                          ->first()
+                ];
+            }
+        }
+        
+        // Fallback to empty data if no valid profile
         return [
-            'is_in_watchlist' => $user->watchlist()->where('content_id', $contentId)->exists(),
-            'is_favorite' => $user->favorites()->where('content_id', $contentId)->exists(),
-            'user_rating' => $user->ratings()->where('content_id', $contentId)->value('rating'),
-            'watch_history' => AppUserWatchHistory::where('app_user_id', $userId)
-                                                  ->where('content_id', $contentId)
-                                                  ->whereNull('episode_id')
-                                                  ->first()
+            'is_in_watchlist' => false,
+            'is_favorite' => false,
+            'user_rating' => null,
+            'watch_history' => null
         ];
     }
 
