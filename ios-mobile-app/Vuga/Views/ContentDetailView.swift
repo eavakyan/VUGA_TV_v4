@@ -13,6 +13,7 @@ import AVKit
 import BranchSDK
 import Flow
 import WrappingStack
+import MediaPlayer
 
 struct ContentDetailView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
@@ -38,6 +39,9 @@ struct ContentDetailView: View {
                             Function.shared.haptic()
                             shareContent()
                         }
+                        // AirPlay button
+                        AirPlayRoutePickerView()
+                            .frame(width: 44, height: 44)
                     }
                 }
                 .padding([.horizontal, .top],15)
@@ -596,4 +600,39 @@ struct ViewSizeKey: PreferenceKey {
     typealias Value = CGSize
     static var defaultValue: CGSize = .zero
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {}
+}
+
+// AirPlay Route Picker View
+struct AirPlayRoutePickerView: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        let routePickerView = AVRoutePickerView()
+        routePickerView.backgroundColor = UIColor.clear
+        routePickerView.tintColor = UIColor(Color.text.opacity(0.8))
+        routePickerView.activeTintColor = UIColor(Color.text)
+        routePickerView.prioritizesVideoDevices = true
+        
+        // Create a wrapper view to handle the tap
+        let wrapperView = UIView()
+        wrapperView.backgroundColor = .clear
+        wrapperView.addSubview(routePickerView)
+        
+        // Setup constraints
+        routePickerView.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            routePickerView.centerXAnchor.constraint(equalTo: wrapperView.centerXAnchor),
+            routePickerView.centerYAnchor.constraint(equalTo: wrapperView.centerYAnchor),
+            routePickerView.widthAnchor.constraint(equalToConstant: 44),
+            routePickerView.heightAnchor.constraint(equalToConstant: 44)
+        ])
+        
+        return wrapperView
+    }
+    
+    func updateUIView(_ uiView: UIView, context: Context) {
+        // Update the tint color if needed
+        if let routePickerView = uiView.subviews.first as? AVRoutePickerView {
+            routePickerView.tintColor = UIColor(Color.text.opacity(0.8))
+            routePickerView.activeTintColor = UIColor(Color.text)
+        }
+    }
 }

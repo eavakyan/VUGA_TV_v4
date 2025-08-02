@@ -131,7 +131,18 @@ class PlayerModel: BaseViewModel {
     func setupPlayer(videoUrl: String, type: Int){
         if let url = URL(string: videoUrl) {
             if type == 2 || type == 3 || type == 4 {
+                // Configure audio session for AirPlay
+                do {
+                    try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback)
+                    try AVAudioSession.sharedInstance().setActive(true)
+                } catch {
+                    print("Failed to configure audio session: \(error)")
+                }
+                
                 player = AVPlayer(url: url)
+                // Enable AirPlay
+                player?.allowsExternalPlayback = true
+                player?.usesExternalPlaybackWhileExternalScreenIsActive = true
             } else if type == 5 || type == 6 || type == 7 {
                 vlcPlayer = VLCMediaPlayer()
                 vlcPlayer?.media = VLCMedia(url: url)
