@@ -20,6 +20,10 @@
         <item name="android:windowBackground">@color/app_black</item>
         <item name="android:navigationBarColor">@color/app_black</item>
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        
+        <!-- Enable edge-to-edge display -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
 
 
 

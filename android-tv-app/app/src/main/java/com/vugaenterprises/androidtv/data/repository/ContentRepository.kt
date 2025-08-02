@@ -25,10 +25,10 @@ class ContentRepository @Inject constructor(
         }
     }
 
-    suspend fun getHomeData(userId: Int = 1): HomePageResponse {
+    suspend fun getHomeData(userId: Int = 1, profileId: Int? = null): HomePageResponse {
         return try {
-            Log.d("ContentRepository", "Calling getHomeData API for user: $userId")
-            val response = apiService.getHomeData(userId)
+            Log.d("ContentRepository", "Calling getHomeData API for user: $userId, profile: $profileId")
+            val response = apiService.getHomeData(userId, profileId)
             Log.d("ContentRepository", "Home data API response: status=${response.status}, message=${response.message}")
             Log.d("ContentRepository", "Featured content size: ${response.featured.size}")
             Log.d("ContentRepository", "Watchlist size: ${response.watchlist.size}")
@@ -50,10 +50,10 @@ class ContentRepository @Inject constructor(
         }
     }
 
-    suspend fun getFeaturedContent(userId: Int = 1): List<Content> {
+    suspend fun getFeaturedContent(userId: Int = 1, profileId: Int? = null): List<Content> {
         return try {
             Log.d("ContentRepository", "Calling getHomeData API for featured content...")
-            val response = apiService.getHomeData(userId)
+            val response = apiService.getHomeData(userId, profileId)
             Log.d("ContentRepository", "Featured content API response: status=${response.status}")
             if (response.status) {
                 val content = response.featured
@@ -69,10 +69,10 @@ class ContentRepository @Inject constructor(
         }
     }
 
-    suspend fun getTrendingContent(userId: Int = 1): List<Content> {
+    suspend fun getTrendingContent(userId: Int = 1, profileId: Int? = null): List<Content> {
         return try {
             Log.d("ContentRepository", "Calling getHomeData API for trending content...")
-            val response = apiService.getHomeData(userId)
+            val response = apiService.getHomeData(userId, profileId)
             Log.d("ContentRepository", "Trending content API response: status=${response.status}")
             if (response.status) {
                 // For now, use top contents as trending
@@ -87,10 +87,10 @@ class ContentRepository @Inject constructor(
         }
     }
 
-    suspend fun getNewContent(userId: Int = 1): List<Content> {
+    suspend fun getNewContent(userId: Int = 1, profileId: Int? = null): List<Content> {
         return try {
             Log.d("ContentRepository", "Calling getHomeData API for new content...")
-            val response = apiService.getHomeData(userId)
+            val response = apiService.getHomeData(userId, profileId)
             Log.d("ContentRepository", "New content API response: status=${response.status}")
             if (response.status) {
                 // For now, use genre contents as new content
@@ -105,10 +105,10 @@ class ContentRepository @Inject constructor(
         }
     }
 
-    suspend fun getRecommendations(userId: Int = 1): List<Content> {
+    suspend fun getRecommendations(userId: Int = 1, profileId: Int? = null): List<Content> {
         return try {
             Log.d("ContentRepository", "Calling getHomeData API for recommendations...")
-            val response = apiService.getHomeData(userId)
+            val response = apiService.getHomeData(userId, profileId)
             Log.d("ContentRepository", "Recommendations API response: status=${response.status}")
             if (response.status) {
                 // For now, use watchlist as recommendations
@@ -123,10 +123,10 @@ class ContentRepository @Inject constructor(
         }
     }
 
-    suspend fun getContinueWatching(userId: Int = 1): List<WatchHistory> {
+    suspend fun getContinueWatching(userId: Int = 1, profileId: Int? = null): List<WatchHistory> {
         return try {
             Log.d("ContentRepository", "Calling getHomeData API for continue watching...")
-            val response = apiService.getHomeData(userId)
+            val response = apiService.getHomeData(userId, profileId)
             Log.d("ContentRepository", "Continue watching API response: status=${response.status}")
             if (response.status) {
                 // For now, convert watchlist to watch history format
@@ -153,10 +153,10 @@ class ContentRepository @Inject constructor(
         }
     }
 
-    suspend fun getContentById(contentId: Int, userId: Int = 1): Content? {
+    suspend fun getContentById(contentId: Int, userId: Int = 1, profileId: Int? = null): Content? {
         return try {
-            Log.d("ContentRepository", "Calling getContentDetail API for id: $contentId, userId: $userId")
-            val response = apiService.getContentDetail(userId, contentId)
+            Log.d("ContentRepository", "Calling getContentDetail API for id: $contentId, userId: $userId, profileId: $profileId")
+            val response = apiService.getContentDetail(userId, contentId, profileId)
             Log.d("ContentRepository", "Content by ID API response: status=${response.status}, message=${response.message}")
             if (response.status) {
                 Log.d("ContentRepository", "Content data received: ${response.data.title}")

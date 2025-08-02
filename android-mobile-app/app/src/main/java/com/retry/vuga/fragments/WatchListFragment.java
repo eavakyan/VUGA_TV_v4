@@ -18,6 +18,7 @@ import com.retry.vuga.activities.BaseActivity;
 import com.retry.vuga.adapters.WatchListAdapter;
 import com.retry.vuga.databinding.FragmentWatchListBinding;
 import com.retry.vuga.model.ContentDetail;
+import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 
@@ -183,7 +184,9 @@ public class WatchListFragment extends BaseFragment {
         if (!dataOver) {
 
             disposable.clear();
-            disposable.add(RetrofitClient.getService().getWatchList(contentType, sessionManager.getUser().getId(), watchListAdapter.getItemCount(), Const.PAGINATION_COUNT)
+            UserRegistration.Data user = sessionManager.getUser();
+            Integer profileId = user != null ? user.getLastActiveProfileId() : null;
+            disposable.add(RetrofitClient.getService().getWatchList(contentType, user != null ? user.getId() : 0, watchListAdapter.getItemCount(), Const.PAGINATION_COUNT, profileId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .unsubscribeOn(Schedulers.io())

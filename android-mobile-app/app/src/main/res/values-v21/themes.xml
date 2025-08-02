@@ -1,0 +1,31 @@
+<resources>
+    <!-- Base application theme for API 21+. -->
+    <style name="Theme.Vuga" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/app_black</item>
+        <item name="colorPrimaryVariant">@color/app_black</item>
+        <item name="colorOnPrimary">@color/app_black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/app_color</item>
+        <item name="colorSecondaryVariant">@color/app_color</item>
+        <item name="colorOnSecondary">@color/app_color</item>
+
+        <item name="colorAccent">@color/app_color</item>
+
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/app_black</item>
+
+        <!-- Customize your theme here. -->
+        <item name="android:windowBackground">@color/app_black</item>
+        <item name="android:navigationBarColor">@color/app_black</item>
+        <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        
+        <!-- Enable edge-to-edge display -->
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+        <item name="android:windowTranslucentNavigation">false</item>
+        
+        <!-- Force navigation bar to be drawn under content -->
+        <item name="android:windowTranslucentStatus">false</item>
+        <item name="android:fitsSystemWindows">false</item>
+    </style>
+</resources>

@@ -60,7 +60,8 @@ interface ApiService {
     @FormUrlEncoded
     @POST("fetchHomePageData")
     suspend fun getHomeData(
-        @Field("user_id") userId: Int
+        @Field("user_id") userId: Int,
+        @Field("profile_id") profileId: Int? = null
     ): HomePageResponse
     
     // Content endpoints
@@ -68,7 +69,8 @@ interface ApiService {
     @POST("fetchContentDetails")
     suspend fun getContentDetail(
         @Field("user_id") userId: Int,
-        @Field("content_id") contentId: Int
+        @Field("content_id") contentId: Int,
+        @Field("profile_id") profileId: Int? = null
     ): ContentDetailResponse
     
     @FormUrlEncoded
@@ -85,7 +87,8 @@ interface ApiService {
         @Field("type") type: Int,
         @Field("user_id") userId: Int,
         @Field("start") start: Int,
-        @Field("limit") limit: Int
+        @Field("limit") limit: Int,
+        @Field("profile_id") profileId: Int? = null
     ): AllContentResponse
     
     // Search endpoints
@@ -163,6 +166,68 @@ interface ApiService {
     
     @POST("selectProfile")
     suspend fun selectProfile(@Body request: SelectProfileRequest): ProfilesResponse
+    
+    // Profile-based features
+    @FormUrlEncoded
+    @POST("user/toggle-watchlist")
+    suspend fun toggleWatchlist(
+        @Field("app_user_id") userId: Int,
+        @Field("content_id") contentId: Int,
+        @Field("profile_id") profileId: Int? = null
+    ): UserRegistrationResponse
+    
+    @FormUrlEncoded
+    @POST("user/toggle-favorite")
+    suspend fun toggleFavorite(
+        @Field("app_user_id") userId: Int,
+        @Field("content_id") contentId: Int,
+        @Field("profile_id") profileId: Int? = null
+    ): UserRegistrationResponse
+    
+    @FormUrlEncoded
+    @POST("user/rate-content")
+    suspend fun rateContent(
+        @Field("app_user_id") userId: Int,
+        @Field("content_id") contentId: Int,
+        @Field("rating") rating: Float,
+        @Field("profile_id") profileId: Int? = null
+    ): RestResponse
+    
+    @FormUrlEncoded
+    @POST("watch/update-progress")
+    suspend fun updateWatchProgress(
+        @Field("app_user_id") userId: Int,
+        @Field("content_id") contentId: Int? = null,
+        @Field("episode_id") episodeId: Int? = null,
+        @Field("last_watched_position") position: Int,
+        @Field("total_duration") duration: Int,
+        @Field("device_type") deviceType: Int = 2, // Android TV
+        @Field("profile_id") profileId: Int? = null
+    ): RestResponse
+    
+    @FormUrlEncoded
+    @POST("watch/continue-watching")
+    suspend fun getContinueWatching(
+        @Field("app_user_id") userId: Int,
+        @Field("limit") limit: Int = 20,
+        @Field("profile_id") profileId: Int? = null
+    ): RestResponse
+    
+    @FormUrlEncoded
+    @POST("watch/mark-completed")
+    suspend fun markAsCompleted(
+        @Field("app_user_id") userId: Int,
+        @Field("content_id") contentId: Int? = null,
+        @Field("episode_id") episodeId: Int? = null,
+        @Field("profile_id") profileId: Int? = null
+    ): RestResponse
+    
+    @FormUrlEncoded
+    @POST("user/watch-history")
+    suspend fun getWatchHistory(
+        @Field("app_user_id") userId: Int,
+        @Field("profile_id") profileId: Int? = null
+    ): RestResponse
 }
 
 // Constants for API field names
@@ -184,4 +249,10 @@ object ApiFields {
     const val CUSTOM_AD_ID = "custom_ad_id"
     const val METRIC = "metric"
     const val IS_ANDROID = "is_android"
+    const val PROFILE_ID = "profile_id"
+    const val APP_USER_ID = "app_user_id"
+    const val RATING = "rating"
+    const val LAST_WATCHED_POSITION = "last_watched_position"
+    const val TOTAL_DURATION = "total_duration"
+    const val DEVICE_TYPE = "device_type"
 } 

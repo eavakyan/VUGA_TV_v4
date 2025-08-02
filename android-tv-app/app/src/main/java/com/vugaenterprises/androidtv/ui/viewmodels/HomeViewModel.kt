@@ -6,16 +6,19 @@ import androidx.lifecycle.viewModelScope
 import com.vugaenterprises.androidtv.data.model.Content
 import com.vugaenterprises.androidtv.data.model.WatchHistory
 import com.vugaenterprises.androidtv.data.repository.ContentRepository
+import com.vugaenterprises.androidtv.data.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val contentRepository: ContentRepository
+    private val contentRepository: ContentRepository,
+    private val userDataStore: UserDataStore
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -31,12 +34,18 @@ class HomeViewModel @Inject constructor(
                 Log.d("HomeViewModel", "Starting to load content...")
                 _uiState.value = _uiState.value.copy(isLoading = true)
                 
-                // For now, use user ID 1 - in a real app, this would come from auth
-                val userId = 1
+                // Get user ID and profile ID from data store
+                val userId = userDataStore.getUserId().first() ?: 1
+                val profileId = try {
+                    userDataStore.getSelectedProfile().first()?.profileId
+                } catch (e: Exception) {
+                    null
+                }
+                
+                Log.d("HomeViewModel", "Loading home data for userId: $userId, profileId: $profileId")
                 
                 // Load home data which contains all sections
-                Log.d("HomeViewModel", "Loading home data...")
-                val homeData = contentRepository.getHomeData(userId)
+                val homeData = contentRepository.getHomeData(userId, profileId)
                 Log.d("HomeViewModel", "Home data loaded: status=${homeData.status}")
                 
                 if (homeData.status) {
@@ -111,7 +120,13 @@ class HomeViewModel @Inject constructor(
                 Log.d("HomeViewModel", "Basic connection test: $basicTest")
                 
                 // Then test the home data API
-                val homeData = contentRepository.getHomeData(1)
+                val userId = userDataStore.getUserId().first() ?: 1
+                val profileId = try {
+                    userDataStore.getSelectedProfile().first()?.profileId
+                } catch (e: Exception) {
+                    null
+                }
+                val homeData = contentRepository.getHomeData(userId, profileId)
                 Log.d("HomeViewModel", "API test successful: got ${homeData.featured.size} featured items")
                 
                 _uiState.value = _uiState.value.copy(

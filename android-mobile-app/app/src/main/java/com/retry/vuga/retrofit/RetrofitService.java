@@ -76,7 +76,8 @@ public interface RetrofitService {
     Single<AllContent> getWatchList(@Field(Const.ApiKey.type) int type,
                                     @Field(Const.ApiKey.user_id) int userId,
                                    @Field(Const.ApiKey.start) int start,
-                                   @Field(Const.ApiKey.limit) int limit);
+                                   @Field(Const.ApiKey.limit) int limit,
+                                   @Field("profile_id") Integer profileId);
     
 
 
@@ -184,5 +185,29 @@ public interface RetrofitService {
     @FormUrlEncoded
     @POST("user/toggle-watchlist")
     Single<UserRegistration> toggleWatchlist(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("user/toggle-favorite")
+    Single<UserRegistration> toggleFavorite(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("user/rate-content")
+    Single<RestResponse> rateContent(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("watch/update-progress")
+    Single<RestResponse> updateWatchProgress(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("watch/continue-watching")
+    Single<RestResponse> getContinueWatching(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("watch/mark-completed")
+    Single<RestResponse> markAsCompleted(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("user/watch-history")
+    Single<RestResponse> getWatchHistory(@FieldMap HashMap<String, Object> params);
 
 }

@@ -18,6 +18,7 @@
         android:id="@+id/root_lout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:fitsSystemWindows="false"
         tools:context=".activities.MainActivity">
 
         <LinearLayout
@@ -41,8 +42,10 @@
             <LinearLayout
                 android:id="@+id/bottomBar"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/hetght_of_bottombar"
+                android:layout_height="wrap_content"
                 android:background="@color/app_black"
+                android:paddingTop="10dp"
+                android:paddingBottom="25dp"
                 android:visibility="visible"
 
                 tools:visibility="gone">

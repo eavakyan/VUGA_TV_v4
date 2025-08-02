@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +27,7 @@ import com.google.gson.Gson;
 import com.retry.vuga.R;
 import com.retry.vuga.model.ContentDetail;
 import com.retry.vuga.model.Downloads;
+import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.DeviceUtils;
@@ -224,6 +226,105 @@ public class BaseActivity extends AppCompatActivity {
                         onWatchList.onError();
                     }
                 }));
+    }
+
+    public void toggleFavorite(int content_id, OnFavoriteCallback onFavoriteCallback) {
+        UserRegistration.Data user = sessionManager.getUser();
+        int userId = user != null ? user.getId() : 0;
+        Integer profileId = user != null ? user.getLastActiveProfileId() : null;
+        
+        if (userId == 0) {
+            Toast.makeText(this, "Please login to add favorites", Toast.LENGTH_SHORT).show();
+            onFavoriteCallback.onError();
+            return;
+        }
+        
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("app_user_id", userId);
+        params.put("content_id", content_id);
+        if (profileId != null && profileId > 0) {
+            params.put("profile_id", profileId);
+        }
+        
+        disposable.add(RetrofitClient.getService().toggleFavorite(params)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnTerminate(onFavoriteCallback::onTerminate)
+                .doOnError(throwable -> {
+                    Log.e("Favorite", "Error toggling favorite: " + throwable.getMessage());
+                    onFavoriteCallback.onError();
+                })
+                .subscribe((response, throwable) -> {
+                    if (response != null && response.getStatus()) {
+                        onFavoriteCallback.onSuccess(response.getMessage());
+                        
+                        // Update user data in session
+                        if (response.getData() != null) {
+                            sessionManager.saveUser(response.getData());
+                        }
+                        
+                        // Send broadcast to update favorite UI
+                        Intent intent = new Intent("com.retry.vuga.FAVORITE_UPDATED");
+                        intent.putExtra("content_id", content_id);
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                    } else {
+                        onFavoriteCallback.onError();
+                    }
+                }));
+    }
+
+    public void rateContent(int content_id, float rating, OnRatingCallback onRatingCallback) {
+        UserRegistration.Data user = sessionManager.getUser();
+        int userId = user != null ? user.getId() : 0;
+        Integer profileId = user != null ? user.getLastActiveProfileId() : null;
+        
+        if (userId == 0) {
+            Toast.makeText(this, "Please login to rate content", Toast.LENGTH_SHORT).show();
+            onRatingCallback.onError();
+            return;
+        }
+        
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("app_user_id", userId);
+        params.put("content_id", content_id);
+        params.put("rating", rating);
+        if (profileId != null && profileId > 0) {
+            params.put("profile_id", profileId);
+        }
+        
+        disposable.add(RetrofitClient.getService().rateContent(params)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .doOnTerminate(onRatingCallback::onTerminate)
+                .doOnError(throwable -> {
+                    Log.e("Rating", "Error rating content: " + throwable.getMessage());
+                    onRatingCallback.onError();
+                })
+                .subscribe((response, throwable) -> {
+                    if (response != null && response.getStatus()) {
+                        onRatingCallback.onSuccess(response.getMessage());
+                        
+                        // Send broadcast to update rating UI
+                        Intent intent = new Intent("com.retry.vuga.RATING_UPDATED");
+                        intent.putExtra("content_id", content_id);
+                        intent.putExtra("rating", rating);
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
+                    } else {
+                        onRatingCallback.onError();
+                    }
+                }));
+    }
+
+    public interface OnFavoriteCallback {
+        void onSuccess(String message);
+        void onError();
+        void onTerminate();
+    }
+
+    public interface OnRatingCallback {
+        void onSuccess(String message);
+        void onError();
+        void onTerminate();
     }
 
 
