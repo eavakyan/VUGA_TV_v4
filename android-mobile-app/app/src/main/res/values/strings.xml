@@ -159,6 +159,12 @@
     <string name="resume_download">Resume Download</string>
     <string name="pause_download">Pause Download</string>
     <string name="delete_download">Delete Download</string>
+    <string name="insufficient_storage">Insufficient storage space. Please free up some space to download this content.</string>
+    <string name="no_downloadable_source">No downloadable source available for this content.</string>
+    <string name="already_downloaded">This content is already downloaded.</string>
+    <string name="download">Download</string>
+    <string name="preparing_download">Preparing download...</string>
+    <string name="download_in_background">Download in Background</string>
     <string name="top">Top Contents</string>
     <string name="no_data_found">No Data Found</string>
     <string name="change">Change</string>

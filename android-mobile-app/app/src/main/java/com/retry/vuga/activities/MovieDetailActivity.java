@@ -55,12 +55,14 @@ import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.CustomDialogBuilder;
 import com.retry.vuga.utils.Global;
 import com.retry.vuga.utils.adds.MyRewardAds;
+import com.retry.vuga.dialogs.DownloadProgressDialog;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import android.os.Handler;
 
 import io.branch.indexing.BranchUniversalObject;
 import io.branch.referral.util.ContentMetadata;
@@ -98,6 +100,8 @@ public class MovieDetailActivity extends BaseActivity {
 
 
     ContentDetailSourceAdapter contentSourceAdapter;
+    DownloadProgressDialog downloadProgressDialog;
+    ContentDetail.SourceItem currentDownloadingSource;
 
     @Override
     protected void onPause() {
@@ -148,6 +152,34 @@ public class MovieDetailActivity extends BaseActivity {
             public void onChanged(Downloads downloads) {
                 Log.i("TAG", "internet onReceive: movie ");
                 contentSourceAdapter.changeDownloadData(downloads);
+                
+                // Update download progress dialog if it's showing
+                if (downloadProgressDialog != null && downloadProgressDialog.isShowing() && 
+                    currentDownloadingSource != null && downloads.getId() == currentDownloadingSource.getId()) {
+                    
+                    downloadProgressDialog.setDownloadState(downloads.getDownloadStatus());
+                    
+                    if (downloads.getDownloadStatus() == Const.DownloadStatus.PROGRESSING) {
+                        downloadProgressDialog.updateProgress(downloads.getProgress());
+                        
+                        // Calculate downloaded size
+                        long totalSize;
+                        try {
+                            totalSize = Long.parseLong(downloads.getSize()) * 1024L * 1024L; // Convert MB to bytes
+                        } catch (Exception e) {
+                            totalSize = 500L * 1024L * 1024L; // Default to 500MB
+                        }
+                        long downloadedSize = (long)(totalSize * downloads.getProgress() / 100.0);
+                        downloadProgressDialog.updateDownloadSize(downloadedSize, totalSize);
+                    } else if (downloads.getDownloadStatus() == Const.DownloadStatus.COMPLETED) {
+                        // Auto dismiss after 2 seconds when completed
+                        new Handler().postDelayed(() -> {
+                            if (downloadProgressDialog != null && downloadProgressDialog.isShowing()) {
+                                downloadProgressDialog.dismiss();
+                            }
+                        }, 2000);
+                    }
+                }
             }
         });
         binding.loutSourcesBlur.setOnClickListener(v -> {
@@ -416,6 +448,55 @@ public class MovieDetailActivity extends BaseActivity {
 
         binding.btnCloseSource.setOnClickListener(v -> {
             binding.loutSourcesBlur.setVisibility(View.GONE);
+        });
+        
+        binding.btnDownload.setOnClickListener(v -> {
+            // Handle download button click
+            if (contentItem == null || contentItem.getContent_sources() == null || contentItem.getContent_sources().isEmpty()) {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Get the first downloadable source
+            ContentDetail.SourceItem downloadableSource = null;
+            for (ContentDetail.SourceItem source : contentItem.getContent_sources()) {
+                if (source.getIs_download() == 1) {
+                    downloadableSource = source;
+                    break;
+                }
+            }
+            
+            if (downloadableSource == null) {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.no_downloadable_source), Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
+            // Check if already downloaded
+            List<Downloads> downloads = sessionManager.getDownloads();
+            for (Downloads download : downloads) {
+                if (download.getSourceItem() != null && download.getSourceItem().getId() == downloadableSource.getId()) {
+                    Toast.makeText(MovieDetailActivity.this, getString(R.string.already_downloaded), Toast.LENGTH_SHORT).show();
+                    return;
+                }
+            }
+            
+            // Check access type and start download
+            if (isNetworkConnected()) {
+                if (downloadableSource.getAccess_type() == 1) {
+                    // Free content - start download directly
+                    increaseDownloads(downloadableSource);
+                    currentDownloadingSource = downloadableSource;
+                    showDownloadProgressDialog(downloadableSource);
+                } else if (downloadableSource.getAccess_type() == 2) {
+                    // Premium content
+                    showPremiumPopup();
+                } else if (downloadableSource.getAccess_type() == 3) {
+                    // Ad-locked content
+                    showADDPopup(downloadableSource, DOWNLOAD, null);
+                }
+            } else {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
+            }
         });
 
         binding.btnPlay.setOnClickListener(v -> {
@@ -724,6 +805,65 @@ public class MovieDetailActivity extends BaseActivity {
         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         return cm.getActiveNetworkInfo() != null && cm.getActiveNetworkInfo().isConnected();
     }
+    
+    private void showDownloadProgressDialog(ContentDetail.SourceItem sourceItem) {
+        downloadProgressDialog = new DownloadProgressDialog(this, contentItem.getTitle(), contentItem.getHorizontalPoster());
+        downloadProgressDialog.setOnDownloadActionListener(new DownloadProgressDialog.OnDownloadActionListener() {
+            @Override
+            public void onBackgroundDownload() {
+                // Continue download in background
+                Toast.makeText(MovieDetailActivity.this, "Download continues in background", Toast.LENGTH_SHORT).show();
+            }
+            
+            @Override
+            public void onCancelDownload() {
+                // Cancel the download
+                if (downloadService != null && downloadService.getMyDownloader() != null) {
+                    downloadService.getMyDownloader().cancelDownload();
+                }
+                // Remove from pending downloads
+                List<Downloads> pendings = sessionManager.getPendings();
+                for (Downloads d : pendings) {
+                    if (d.getId() == sourceItem.getId()) {
+                        sessionManager.removeFileFromPending(d);
+                        break;
+                    }
+                }
+                
+                Toast.makeText(MovieDetailActivity.this, "Download cancelled", Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        downloadProgressDialog.show();
+        downloadProgressDialog.setDownloadState(Const.DownloadStatus.START);
+        
+        // Start the actual download
+        ItemContentSourceBinding dummyBinding = ItemContentSourceBinding.inflate(getLayoutInflater());
+        startBackgroundDownload(sourceItem, dummyBinding);
+    }
+    
+    private boolean hasEnoughStorage(long requiredBytes) {
+        try {
+            File path = new File(getPath());
+            long availableBytes = path.getUsableSpace();
+            long totalBytes = path.getTotalSpace();
+            
+            // Industry best practice: Allow downloads up to 10% of total storage or 90% of available storage
+            long maxAllowedBytes = Math.min(totalBytes / 10, (long)(availableBytes * 0.9));
+            
+            // Check if required space is available
+            if (requiredBytes > maxAllowedBytes) {
+                return false;
+            }
+            
+            // Also check if at least 500MB will remain after download
+            long minRemainingSpace = 500L * 1024L * 1024L; // 500MB
+            return (availableBytes - requiredBytes) > minRemainingSpace;
+        } catch (Exception e) {
+            Log.e("Storage", "Error checking storage: " + e.getMessage());
+            return true; // Allow download if we can't check
+        }
+    }
 
     private void startBackgroundDownload(ContentDetail.SourceItem model, ItemContentSourceBinding adapterBinding) {
 
@@ -774,6 +914,19 @@ public class MovieDetailActivity extends BaseActivity {
             setBinding(adapterBinding, Const.DownloadStatus.COMPLETED);
 
         } else {
+            // Check storage before downloading
+            long estimatedSize;
+            try {
+                int sizeInMB = Integer.parseInt(model.getSize());
+                estimatedSize = sizeInMB > 0 ? sizeInMB * 1024L * 1024L : 500L * 1024L * 1024L;
+            } catch (Exception e) {
+                estimatedSize = 500L * 1024L * 1024L; // Default to 500MB if parsing fails
+            }
+            
+            if (!hasEnoughStorage(estimatedSize)) {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.insufficient_storage), Toast.LENGTH_SHORT).show();
+                return;
+            }
 
             downloadingObject.setDownloadStatus(Const.DownloadStatus.QUEUED);
             if (isNetworkConnected()) {
@@ -856,6 +1009,9 @@ public class MovieDetailActivity extends BaseActivity {
         super.onDestroy();
 
         downloading_obj.removeObservers(this);
+        if (downloadProgressDialog != null && downloadProgressDialog.isShowing()) {
+            downloadProgressDialog.dismiss();
+        }
     }
 
     @Override
@@ -1013,6 +1169,11 @@ public class MovieDetailActivity extends BaseActivity {
             Log.i("TAG", "setContentDetail: " + subTitlesList.size());
         }
 
+        // Set content sources for movie type
+        if (contentItem.getType() == 1 && contentItem.getContent_sources() != null && !contentItem.getContent_sources().isEmpty()) {
+            contentSourceAdapter.updateItems(contentItem.getContent_sources());
+        }
+
     }
 
 
@@ -1050,6 +1211,7 @@ public class MovieDetailActivity extends BaseActivity {
         binding.rvSeason.setAdapter(seasonCountAdapter);
         binding.rvEpisodes.setAdapter(episodeAdapter);
         binding.rvGenere.setAdapter(genreAdapter);
+        binding.rvSource.setAdapter(contentSourceAdapter);
 
         binding.rvCast.setItemAnimator(null);
         binding.rvMoreLikeThis.setItemAnimator(null);
