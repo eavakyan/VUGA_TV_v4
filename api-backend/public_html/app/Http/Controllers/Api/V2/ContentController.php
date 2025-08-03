@@ -62,18 +62,18 @@ class ContentController extends Controller
         $watchlistContent = [];
         
         if (!empty($watchlistIds)) {
-            $watchlistContent = Content::with(['language', 'genres'])
+            $query = Content::with(['language', 'genres'])
                 ->whereIn('content_id', $watchlistIds)
                 ->visible()
-                ->limit(5)
-                ->get();
+                ->limit(5);
+            $watchlistContent = $this->filterContentByAge($query, $profileId)->get();
         }
 
         // Featured content
-        $featuredContent = Content::with(['language', 'genres'])
+        $query = Content::with(['language', 'genres'])
             ->featured()
-            ->visible()
-            ->get();
+            ->visible();
+        $featuredContent = $this->filterContentByAge($query, $profileId)->get();
 
         // Top content
         $topContents = TopContent::with(['content.language', 'content.genres'])
@@ -95,15 +95,16 @@ class ContentController extends Controller
         $genreContents = [];
         
         foreach ($genres as $genre) {
-            $contents = DB::table('content')
-                ->where('is_show', 1)
-                ->whereRaw('FIND_IN_SET(?, genre_ids)', [$genre->genre_id])
+            $query = Content::visible()
+                ->whereHas('genres', function($q) use ($genre) {
+                    $q->where('genre.genre_id', $genre->genre_id);
+                })
                 ->inRandomOrder()
-                ->limit(10)
-                ->get();
+                ->limit(10);
                 
-            if ($contents->isNotEmpty()) {
-                $contentModels = Content::whereIn('content_id', $contents->pluck('content_id'))->get();
+            $contentModels = $this->filterContentByAge($query, $profileId)->get();
+            
+            if ($contentModels->isNotEmpty()) {
                 $genre->contents = $this->formatContentList($contentModels);
                 $genreContents[] = $genre;
             }
@@ -144,13 +145,28 @@ class ContentController extends Controller
             'casts.actor',
             'subtitles',
             'seasons.episodes.sources',
-            'seasons.episodes.subtitles'
+            'seasons.episodes.subtitles',
+            'ageLimits'
         ])->find($request->content_id);
 
         if (!$content || !$content->is_show) {
             return response()->json([
                 'status' => false,
                 'message' => 'Content not found'
+            ]);
+        }
+        
+        // Check age restrictions
+        $profileId = $request->profile_id;
+        if (!$profileId && $request->user_id > 0) {
+            $user = \App\Models\V2\AppUser::find($request->user_id);
+            $profileId = $user ? $user->last_active_profile_id : null;
+        }
+        
+        if (!$this->canProfileAccessContent($profileId, $request->content_id)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This content is not available for your profile due to age restrictions'
             ]);
         }
 
@@ -190,14 +206,14 @@ class ContentController extends Controller
         
         // Get more like this
         $genreIds = $content->genres->pluck('genre_id');
-        $moreLikeThis = Content::with(['language', 'genres'])
+        $query = Content::with(['language', 'genres'])
             ->visible()
             ->where('content_id', '!=', $content->content_id)
             ->whereHas('genres', function($q) use ($genreIds) {
                 $q->whereIn('genre.genre_id', $genreIds);
             })
-            ->limit(10)
-            ->get();
+            ->limit(10);
+        $moreLikeThis = $this->filterContentByAge($query, $profileId)->get();
         
         $formattedContent['more_like_this'] = $this->formatContentList($moreLikeThis);
 
@@ -215,6 +231,7 @@ class ContentController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'app_user_id' => 'nullable|integer|exists:app_user,app_user_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -223,54 +240,74 @@ class ContentController extends Controller
                 'message' => $validator->errors()->first()
             ], 400);
         }
+        
+        // Get profile ID
+        $profileId = $request->profile_id;
+        if (!$profileId && $request->app_user_id) {
+            $user = \App\Models\V2\AppUser::find($request->app_user_id);
+            $profileId = $user ? $user->last_active_profile_id : null;
+        }
 
         // Featured content
-        $featuredContent = Content::with(['language', 'genres', 'sources'])
+        $query = Content::with(['language', 'genres', 'sources', 'ageLimits'])
             ->featured()
             ->visible()
             ->orderBy('updated_at', 'desc')
-            ->limit(10)
-            ->get();
+            ->limit(10);
+        $featuredContent = $this->filterContentByAge($query, $profileId)->get();
 
-        // Top content
-        $topContent = TopContent::with(['content.language', 'content.genres'])
+        // Top content - filter after fetching
+        $topContentQuery = TopContent::with(['content.language', 'content.genres', 'content.ageLimits'])
             ->join('content', 'top_content.content_id', '=', 'content.content_id')
             ->where('content.is_show', 1)
             ->orderBy('top_content.content_index')
-            ->limit(10)
-            ->get()
-            ->pluck('content');
+            ->limit(20) // Get more to account for filtering
+            ->get();
+            
+        $topContent = collect();
+        foreach ($topContentQuery as $topItem) {
+            if ($this->canProfileAccessContent($profileId, $topItem->content->content_id)) {
+                $topContent->push($topItem->content);
+                if ($topContent->count() >= 10) break;
+            }
+        }
 
         // Continue watching (if user is logged in)
         $continueWatching = [];
         if ($request->app_user_id) {
-            $continueWatching = $this->getContinueWatching($request->app_user_id, $request->profile_id ?? null);
+            $continueWatching = $this->getContinueWatching($request->app_user_id, $profileId);
         }
 
         // New releases
-        $newReleases = Content::with(['language', 'genres'])
+        $query = Content::with(['language', 'genres', 'ageLimits'])
             ->visible()
             ->orderBy('created_at', 'desc')
-            ->limit(20)
-            ->get();
+            ->limit(20);
+        $newReleases = $this->filterContentByAge($query, $profileId)->get();
 
         // Content by genres
-        $genreContent = Genre::with(['contents' => function($query) {
-                $query->visible()
-                      ->with(['language', 'genres'])
-                      ->limit(10);
-            }])
-            ->get()
-            ->map(function($genre) {
+        $genreContent = Genre::all()
+            ->map(function($genre) use ($profileId) {
+                $query = Content::visible()
+                    ->with(['language', 'genres', 'ageLimits'])
+                    ->whereHas('genres', function($q) use ($genre) {
+                        $q->where('genre.genre_id', $genre->genre_id);
+                    })
+                    ->limit(10);
+                    
+                $contents = $this->filterContentByAge($query, $profileId)->get();
+                
+                if ($contents->isEmpty()) {
+                    return null;
+                }
+                
                 return [
                     'genre_id' => $genre->genre_id,
                     'genre_title' => $genre->title,
-                    'contents' => $genre->contents
+                    'contents' => $contents
                 ];
             })
-            ->filter(function($item) {
-                return $item['contents']->isNotEmpty();
-            })
+            ->filter()
             ->values();
 
         return response()->json([
@@ -298,6 +335,8 @@ class ContentController extends Controller
             'language_id' => 'nullable|integer|exists:app_language,app_language_id',
             'genre_id' => 'nullable|integer|exists:genre,genre_id',
             'sort_by' => 'nullable|in:latest,oldest,popular,rating',
+            'app_user_id' => 'nullable|integer|exists:app_user,app_user_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -306,8 +345,15 @@ class ContentController extends Controller
                 'message' => $validator->errors()->first()
             ], 400);
         }
+        
+        // Get profile ID
+        $profileId = $request->profile_id;
+        if (!$profileId && $request->app_user_id) {
+            $user = \App\Models\V2\AppUser::find($request->app_user_id);
+            $profileId = $user ? $user->last_active_profile_id : null;
+        }
 
-        $query = Content::with(['language', 'genres', 'sources'])
+        $query = Content::with(['language', 'genres', 'sources', 'ageLimits'])
                         ->visible();
 
         // Apply filters
@@ -339,6 +385,9 @@ class ContentController extends Controller
             default: // latest
                 $query->orderBy('created_at', 'desc');
         }
+        
+        // Apply age filtering
+        $query = $this->filterContentByAge($query, $profileId);
 
         $perPage = $request->per_page ?? 20;
         $contents = $query->paginate($perPage);
@@ -380,7 +429,8 @@ class ContentController extends Controller
             'casts.actor',
             'subtitles.language',
             'seasons.episodes.sources',
-            'seasons.episodes.subtitles.language'
+            'seasons.episodes.subtitles.language',
+            'ageLimits'
         ])->find($request->content_id);
 
         if (!$content || !$content->is_show) {
@@ -388,6 +438,20 @@ class ContentController extends Controller
                 'status' => false,
                 'message' => 'Content not found'
             ], 404);
+        }
+        
+        // Check age restrictions
+        $profileId = $request->profile_id;
+        if (!$profileId && $request->app_user_id) {
+            $user = \App\Models\V2\AppUser::find($request->app_user_id);
+            $profileId = $user ? $user->last_active_profile_id : null;
+        }
+        
+        if (!$this->canProfileAccessContent($profileId, $request->content_id)) {
+            return response()->json([
+                'status' => false,
+                'message' => 'This content is not available for your profile due to age restrictions'
+            ], 403);
         }
 
         // Get user-specific data if logged in
@@ -425,6 +489,8 @@ class ContentController extends Controller
             'type' => 'nullable|integer|in:1,2',
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
+            'app_user_id' => 'nullable|integer|exists:app_user,app_user_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
         ]);
 
         if ($validator->fails()) {
@@ -433,8 +499,15 @@ class ContentController extends Controller
                 'message' => $validator->errors()->first()
             ], 400);
         }
+        
+        // Get profile ID
+        $profileId = $request->profile_id;
+        if (!$profileId && $request->app_user_id) {
+            $user = \App\Models\V2\AppUser::find($request->app_user_id);
+            $profileId = $user ? $user->last_active_profile_id : null;
+        }
 
-        $query = Content::with(['language', 'genres'])
+        $query = Content::with(['language', 'genres', 'ageLimits'])
                         ->visible()
                         ->where(function($q) use ($request) {
                             $q->where('title', 'LIKE', '%' . $request->search . '%')
@@ -444,6 +517,9 @@ class ContentController extends Controller
         if ($request->type) {
             $query->where('type', $request->type);
         }
+        
+        // Apply age filtering
+        $query = $this->filterContentByAge($query, $profileId);
 
         $perPage = $request->per_page ?? 20;
         $contents = $query->orderBy('total_view', 'desc')
@@ -848,6 +924,13 @@ class ContentController extends Controller
             $data['genre_ids'] = $content->genres->pluck('genre_id')->implode(',');
         }
         
+        // Add age limit information if loaded
+        if ($content->relationLoaded('ageLimits') && $content->ageLimits->isNotEmpty()) {
+            $data['age_rating'] = $content->ageLimits->first()->code;
+            $data['min_age'] = $content->ageLimits->max('min_age');
+            $data['age_limits'] = $content->ageLimits;
+        }
+        
         // Convert duration back to string if needed for backward compatibility
         if (isset($data['duration']) && is_numeric($data['duration'])) {
             $data['duration_seconds'] = $data['duration'];
@@ -902,5 +985,85 @@ class ContentController extends Controller
         }
         
         return $data;
+    }
+    
+    /**
+     * Filter content based on profile age restrictions
+     */
+    private function filterContentByAge($query, $profileId = null)
+    {
+        if (!$profileId) {
+            return $query;
+        }
+        
+        $profile = \App\Models\V2\AppUserProfile::find($profileId);
+        if (!$profile) {
+            return $query;
+        }
+        
+        // If kids profile, only show content for ages 12 and under
+        if ($profile->is_kids_profile || $profile->is_kids) {
+            return $query->whereHas('ageLimits', function($q) {
+                $q->where(function($subQ) {
+                    $subQ->whereNotNull('age_limit.max_age')
+                         ->where('age_limit.max_age', '<=', 12);
+                });
+            })->orWhereDoesntHave('ageLimits');
+        }
+        
+        // If profile has age set, filter based on age
+        if ($profile->age) {
+            return $query->where(function($q) use ($profile) {
+                // Include content without age limits
+                $q->whereDoesntHave('ageLimits')
+                  // Or content where profile age meets minimum age requirement
+                  ->orWhereHas('ageLimits', function($ageQuery) use ($profile) {
+                      $ageQuery->where('age_limit.min_age', '<=', $profile->age);
+                  });
+            });
+        }
+        
+        return $query;
+    }
+    
+    /**
+     * Check if profile can access content based on age restrictions
+     */
+    private function canProfileAccessContent($profileId, $contentId)
+    {
+        if (!$profileId) {
+            return true; // No restrictions if no profile
+        }
+        
+        $profile = \App\Models\V2\AppUserProfile::find($profileId);
+        if (!$profile) {
+            return true; // Allow if profile not found
+        }
+        
+        $content = Content::with('ageLimits')->find($contentId);
+        if (!$content) {
+            return false; // Content not found
+        }
+        
+        // If content has no age limits, allow access
+        if ($content->ageLimits->isEmpty()) {
+            return true;
+        }
+        
+        // Get the highest age limit for the content
+        $maxAgeLimit = $content->ageLimits->max('min_age');
+        
+        // Kids profiles can only access content for ages 12 and under
+        if ($profile->is_kids_profile || $profile->is_kids) {
+            return $content->ageLimits->where('max_age', '<=', 12)->isNotEmpty();
+        }
+        
+        // Check if profile age meets the requirement
+        if ($profile->age) {
+            return $profile->age >= $maxAgeLimit;
+        }
+        
+        // If no age is set and not a kids profile, allow access
+        return true;
     }
 }

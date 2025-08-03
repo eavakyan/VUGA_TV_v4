@@ -99,6 +99,15 @@ class Content extends BaseModel
     }
     
     /**
+     * Get the content's age limits
+     */
+    public function ageLimits()
+    {
+        return $this->belongsToMany(AgeLimit::class, 'content_age_limits', 'content_id', 'age_limit_id')
+                    ->withTimestamps();
+    }
+    
+    /**
      * Get profiles who have this content in their watchlist
      */
     public function watchlistedBy()

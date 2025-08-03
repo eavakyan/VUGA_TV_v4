@@ -19,12 +19,16 @@ class AppUserProfile extends Model
         'avatar_id',
         'custom_avatar_url',
         'is_kids',
-        'is_active'
+        'is_active',
+        'age',
+        'is_kids_profile'
     ];
     
     protected $casts = [
         'is_kids' => 'boolean',
         'is_active' => 'boolean',
+        'age' => 'integer',
+        'is_kids_profile' => 'boolean',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

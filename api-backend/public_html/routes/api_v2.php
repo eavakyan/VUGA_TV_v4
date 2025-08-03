@@ -159,6 +159,8 @@ Route::prefix('v2')->group(function () {
         Route::post('/delete', [V2\ProfileController::class, 'deleteProfile']);
         Route::post('/select', [V2\ProfileController::class, 'selectProfile']);
         Route::post('/avatars', [V2\ProfileController::class, 'getDefaultAvatars']);
+        Route::post('/update-age-settings', [V2\ProfileController::class, 'updateAgeSettings']);
+        Route::post('/age-ratings', [V2\ProfileController::class, 'getAgeRatings']);
     });
     
     // Test endpoint to verify V2 API is working

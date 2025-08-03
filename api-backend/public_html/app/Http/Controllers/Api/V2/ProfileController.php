@@ -53,7 +53,9 @@ class ProfileController extends Controller
             'user_id' => 'required|integer|exists:app_user,app_user_id',
             'name' => 'required|string|max:100',
             'avatar_id' => 'nullable|integer|exists:default_avatar,avatar_id',
-            'is_kids' => 'boolean'
+            'is_kids' => 'boolean',
+            'age' => 'nullable|integer|min:1|max:150',
+            'is_kids_profile' => 'nullable|boolean'
         ]);
 
         if ($validator->fails()) {
@@ -81,7 +83,9 @@ class ProfileController extends Controller
             'name' => $request->name,
             'avatar_type' => 'default',
             'avatar_id' => $request->avatar_id ?? 1,
-            'is_kids' => $request->is_kids ?? false
+            'is_kids' => $request->is_kids ?? false,
+            'is_kids_profile' => $request->is_kids_profile ?? $request->is_kids ?? false,
+            'age' => $request->age
         ]);
 
         $profile->load('defaultAvatar');
@@ -104,6 +108,8 @@ class ProfileController extends Controller
             'name' => 'string|max:100',
             'avatar_id' => 'integer|exists:default_avatar,avatar_id',
             'is_kids' => 'boolean',
+            'age' => 'nullable|integer|min:1|max:150',
+            'is_kids_profile' => 'nullable|boolean',
             'profile_image' => 'nullable|file|image|max:2048' // 2MB max
         ]);
 
@@ -131,6 +137,16 @@ class ProfileController extends Controller
         }
         if ($request->has('is_kids')) {
             $profile->is_kids = $request->is_kids;
+        }
+        if ($request->has('age')) {
+            $profile->age = $request->age;
+        }
+        if ($request->has('is_kids_profile')) {
+            $profile->is_kids_profile = $request->is_kids_profile;
+            // If setting as kids profile, also set is_kids for backward compatibility
+            if ($request->is_kids_profile) {
+                $profile->is_kids = true;
+            }
         }
 
         // Handle profile image upload
@@ -292,6 +308,73 @@ class ProfileController extends Controller
     }
 
     /**
+     * Update profile age settings
+     */
+    public function updateAgeSettings(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'profile_id' => 'required|integer|exists:app_user_profile,profile_id',
+            'user_id' => 'required|integer|exists:app_user,app_user_id',
+            'age' => 'nullable|integer|min:1|max:150',
+            'is_kids_profile' => 'nullable|boolean'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        $profile = AppUserProfile::where('profile_id', $request->profile_id)
+            ->where('app_user_id', $request->user_id)
+            ->first();
+
+        if (!$profile) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found'
+            ]);
+        }
+        
+        // Update age if provided
+        if ($request->has('age')) {
+            $profile->age = $request->age;
+        }
+        
+        // Update kids profile setting if provided
+        if ($request->has('is_kids_profile')) {
+            $profile->is_kids_profile = $request->is_kids_profile;
+            // If setting as kids profile, also set is_kids for backward compatibility
+            if ($request->is_kids_profile) {
+                $profile->is_kids = true;
+            }
+        }
+        
+        $profile->save();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Profile age settings updated successfully',
+            'profile' => $this->formatProfileResponse($profile)
+        ]);
+    }
+
+    /**
+     * Get available age ratings
+     */
+    public function getAgeRatings(Request $request)
+    {
+        $ageRatings = \App\Models\V2\AgeLimit::orderBy('min_age')->get();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Age ratings fetched successfully',
+            'age_ratings' => $ageRatings
+        ]);
+    }
+
+    /**
      * Format profile response
      */
     private function formatProfileResponse($profile)
@@ -303,6 +386,8 @@ class ProfileController extends Controller
             'avatar_url' => $profile->avatar_url,
             'avatar_color' => $profile->avatar_color,
             'is_kids' => (bool) $profile->is_kids,
+            'is_kids_profile' => (bool) $profile->is_kids_profile,
+            'age' => $profile->age,
             'created_at' => $profile->created_at,
             'updated_at' => $profile->updated_at
         ];

@@ -174,3 +174,8 @@ Route::post('mediaGalleryList', [MediaGalleryController::class, 'mediaGalleryLis
 Route::post('addMedia', [MediaGalleryController::class, 'addMedia'])->middleware(['checkLogin'])->name('addMedia');
 Route::post('updateMedia', [MediaGalleryController::class, 'updateMedia'])->middleware(['checkLogin'])->name('updateMedia');
 Route::post('deleteMedia', [MediaGalleryController::class, 'deleteMedia'])->middleware(['checkLogin'])->name('deleteMedia');
+
+// CSV Import
+Route::get('csv-import', [\App\Http\Controllers\Admin\CsvImportController::class, 'index'])->middleware(['checkLogin'])->name('admin.csv-import');
+Route::post('csv-import/import', [\App\Http\Controllers\Admin\CsvImportController::class, 'import'])->middleware(['checkLogin'])->name('admin.csv-import.import');
+Route::get('csv-import/template', [\App\Http\Controllers\Admin\CsvImportController::class, 'downloadTemplate'])->middleware(['checkLogin'])->name('admin.csv-import.template');

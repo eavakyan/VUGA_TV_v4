@@ -94,6 +94,12 @@
                                 <span> {{ __('topContents') }} </span>
                             </a>
                         </li>
+                        <li class="sideBarli csvImportSideA">
+                            <a href="{{ route('admin.csv-import') }}" class="nav-link">
+                                <i data-feather="upload"></i>
+                                <span> {{ __('Bulk Import') }} </span>
+                            </a>
+                        </li>
                         <li class="sideBarli actorSideA">
                             <a href="{{ route('actors') }}" class="nav-link">
                                 <i data-feather="star"></i>
