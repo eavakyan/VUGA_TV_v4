@@ -110,6 +110,12 @@ public class ContentDetail {
 
         @SerializedName("more_like_this")
         private List<ContentDetail.DataItem> moreLikeThis;
+        
+        @SerializedName("age_ratings")
+        private List<AgeRating> ageRatings;
+        
+        @SerializedName("user_rating")
+        private Double userRating;
 
 
 //-------------------------------------------
@@ -309,6 +315,59 @@ public class ContentDetail {
 
         public void setId(int id) {
             this.id = id;
+        }
+        
+        public List<AgeRating> getAgeRatings() {
+            return ageRatings == null ? new ArrayList<>() : ageRatings;
+        }
+        
+        public void setAgeRatings(List<AgeRating> ageRatings) {
+            this.ageRatings = ageRatings;
+        }
+        
+        public String getAgeRatingCode() {
+            if (ageRatings != null && !ageRatings.isEmpty()) {
+                return ageRatings.get(0).getCode();
+            }
+            return "NR";
+        }
+        
+        public String getAgeRatingColor() {
+            if (ageRatings != null && !ageRatings.isEmpty()) {
+                return ageRatings.get(0).getDisplayColor();
+            }
+            return "#666666";
+        }
+        
+        public int getMinimumAge() {
+            if (ageRatings != null && !ageRatings.isEmpty()) {
+                return ageRatings.get(0).getMinAge();
+            }
+            return 0;
+        }
+        
+        public boolean isAppropriateFor(Profile profile) {
+            if (profile == null) {
+                return true;
+            }
+            
+            if (profile.isEffectiveKidsProfile()) {
+                return ageRatings != null && ageRatings.stream().anyMatch(AgeRating::isKidsFriendly);
+            }
+            
+            if (profile.getAge() != null) {
+                return getMinimumAge() <= profile.getAge();
+            }
+            
+            return true;
+        }
+        
+        public Double getUserRating() {
+            return userRating;
+        }
+        
+        public void setUserRating(Double userRating) {
+            this.userRating = userRating;
         }
 
 
@@ -639,6 +698,12 @@ public class ContentDetail {
 
             @SerializedName("total_download")
             private int totalDownload;
+            
+            @SerializedName("ratings")
+            private double ratings;
+            
+            @SerializedName("user_rating")
+            private Double userRating;
 
 
             @SerializedName("sources")
@@ -744,6 +809,22 @@ public class ContentDetail {
 
             public void setDescription(String description) {
                 this.description = description;
+            }
+            
+            public double getRatings() {
+                return ratings;
+            }
+            
+            public void setRatings(double ratings) {
+                this.ratings = ratings;
+            }
+            
+            public Double getUserRating() {
+                return userRating;
+            }
+            
+            public void setUserRating(Double userRating) {
+                this.userRating = userRating;
             }
 
 

@@ -27,6 +27,12 @@ data class Profile(
     @SerializedName("is_kids")
     val isKids: Boolean = false,
     
+    @SerializedName("is_kids_profile")
+    val isKidsProfile: Boolean? = null,
+    
+    @SerializedName("age")
+    val age: Int? = null,
+    
     @SerializedName("is_active")
     val isActive: Boolean? = null,
     
@@ -41,8 +47,8 @@ data class Profile(
         get() = name.take(1).uppercase()
         
     // Helper to check if it's a kids profile
-    val isKidsProfile: Boolean
-        get() = isKids
+    val effectiveKidsProfile: Boolean
+        get() = isKidsProfile ?: isKids
 }
 
 data class ProfilesResponse(

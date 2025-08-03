@@ -103,8 +103,7 @@ class Content extends BaseModel
      */
     public function ageLimits()
     {
-        return $this->belongsToMany(AgeLimit::class, 'content_age_limits', 'content_id', 'age_limit_id')
-                    ->withTimestamps();
+        return $this->belongsToMany(AgeLimit::class, 'content_age_limit', 'content_id', 'age_limit_id');
     }
     
     /**

@@ -18,6 +18,10 @@ class ProfileViewModel : BaseViewModel {
     @Published var isRatingAppSheet = false
     @Published var isPrivacyURLSheet = false
     @Published var showProfileSelection = false
+    @Published var showAgeSettings = false
+    @Published var ageRatings: [AgeRating] = []
+    @Published var selectedAge: Int?
+    @Published var isKidsProfile: Bool = false
     @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
 
     
@@ -91,5 +95,73 @@ class ProfileViewModel : BaseViewModel {
             self.stopLoading()
             print("ProfileViewModel logOutMyAc error: \(error)")
         })
+    }
+    
+    // MARK: - Age Restrictions
+    
+    func fetchAgeRatings() {
+        startLoading()
+        NetworkManager.callWebService(url: .getAgeRatings) { (response: AgeRatingResponse) in
+            DispatchQueue.main.async {
+                if response.status {
+                    self.ageRatings = response.ageRatings ?? []
+                } else {
+                    print("Failed to fetch age ratings: \(response.message)")
+                }
+                self.stopLoading()
+            }
+        } callbackFailure: { error in
+            DispatchQueue.main.async {
+                self.stopLoading()
+                print("Error fetching age ratings: \(error)")
+            }
+        }
+    }
+    
+    func updateAgeSettings(profileId: Int, age: Int?, isKidsProfile: Bool?) {
+        startLoading()
+        
+        var params: [Params: Any] = [
+            .profileId: profileId,
+            .userId: myUser?.id ?? 0
+        ]
+        
+        if let age = age {
+            params[.age] = age
+        }
+        
+        if let isKidsProfile = isKidsProfile {
+            params[.isKidsProfile] = isKidsProfile ? 1 : 0
+        }
+        
+        NetworkManager.callWebService(url: .updateAgeSettings, params: params) { (response: ProfileAgeUpdateResponse) in
+            DispatchQueue.main.async {
+                if response.status {
+                    // Update current profile if it matches
+                    if let updatedProfile = response.profile,
+                       let currentProfile = SessionManager.shared.getCurrentProfile(),
+                       currentProfile.profileId == updatedProfile.profileId {
+                        SessionManager.shared.setCurrentProfile(updatedProfile)
+                    }
+                    self.showAgeSettings = false
+                    print("Age settings updated successfully")
+                } else {
+                    print("Failed to update age settings: \(response.message)")
+                }
+                self.stopLoading()
+            }
+        } callbackFailure: { error in
+            DispatchQueue.main.async {
+                self.stopLoading()
+                print("Error updating age settings: \(error)")
+            }
+        }
+    }
+    
+    func loadCurrentProfileSettings() {
+        if let currentProfile = SessionManager.shared.getCurrentProfile() {
+            selectedAge = currentProfile.age
+            isKidsProfile = currentProfile.effectiveKidsProfile
+        }
     }
 }

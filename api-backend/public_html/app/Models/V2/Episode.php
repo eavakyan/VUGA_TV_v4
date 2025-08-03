@@ -14,6 +14,7 @@ class Episode extends BaseModel
         'title',
         'description',
         'duration',
+        'ratings',
         'total_view',
         'total_download'
     ];
@@ -22,6 +23,7 @@ class Episode extends BaseModel
         'season_id' => 'integer',
         'number' => 'integer',
         'duration' => 'integer',
+        'ratings' => 'float',
         'total_view' => 'integer',
         'total_download' => 'integer',
         'created_at' => 'datetime',

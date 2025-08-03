@@ -1,0 +1,25 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(composer:*)",
+      "Bash(grep:*)",
+      "Bash(php artisan:*)",
+      "Bash(chmod:*)",
+      "Bash(./test_age_endpoints.sh:*)",
+      "Bash(./test_age_simple.sh:*)",
+      "Bash(./test_content_filtering.sh:*)",
+      "Bash(./gradlew:*)",
+      "Bash(adb:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(php -l:*)",
+      "Bash(curl:*)",
+      "Bash(./gradlew:*)",
+      "Bash(adb:*)",
+      "Bash(xcodebuild:*)",
+      "Bash(swift:*)",
+      "Bash(ls:*)"
+    ],
+    "deny": []
+  }
+}

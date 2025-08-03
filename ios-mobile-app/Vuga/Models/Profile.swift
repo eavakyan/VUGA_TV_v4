@@ -10,6 +10,8 @@ struct Profile: Codable, Equatable {
     let avatarColor: String
     let avatarId: Int?
     let isKids: Bool
+    let isKidsProfile: Bool?
+    let age: Int?
     let isActive: Bool?
     let createdAt: String?
     let updatedAt: String?
@@ -23,6 +25,8 @@ struct Profile: Codable, Equatable {
         case avatarColor = "avatar_color"
         case avatarId = "avatar_id"
         case isKids = "is_kids"
+        case isKidsProfile = "is_kids_profile"
+        case age = "age"
         case isActive = "is_active"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
@@ -49,6 +53,16 @@ struct Profile: Codable, Equatable {
             isKids = false
         }
         
+        // Handle isKidsProfile as either Bool or Int
+        if let isKidsProfileBool = try? container.decode(Bool.self, forKey: .isKidsProfile) {
+            isKidsProfile = isKidsProfileBool
+        } else if let isKidsProfileInt = try? container.decode(Int.self, forKey: .isKidsProfile) {
+            isKidsProfile = isKidsProfileInt == 1
+        } else {
+            isKidsProfile = nil
+        }
+        
+        age = try container.decodeIfPresent(Int.self, forKey: .age)
         isActive = try container.decodeIfPresent(Bool.self, forKey: .isActive)
         createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
         updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
@@ -66,14 +80,26 @@ struct Profile: Codable, Equatable {
         try container.encode(avatarColor, forKey: .avatarColor)
         try container.encodeIfPresent(avatarId, forKey: .avatarId)
         try container.encode(isKids ? 1 : 0, forKey: .isKids) // Encode as Int
+        if let isKidsProfile = isKidsProfile {
+            try container.encode(isKidsProfile ? 1 : 0, forKey: .isKidsProfile) // Encode as Int
+        }
+        try container.encodeIfPresent(age, forKey: .age)
         try container.encodeIfPresent(isActive, forKey: .isActive)
         try container.encodeIfPresent(createdAt, forKey: .createdAt)
         try container.encodeIfPresent(updatedAt, forKey: .updatedAt)
     }
     
     // Helper to check if it's a kids profile
-    var isKidsProfile: Bool {
-        return isKids
+    var effectiveKidsProfile: Bool {
+        return isKidsProfile ?? isKids
+    }
+    
+    // Helper to get age restriction level
+    var ageRestriction: Int? {
+        if effectiveKidsProfile {
+            return 13 // Kids profiles are restricted to PG content (13 and under)
+        }
+        return age
     }
     
     // Helper to get the display initial

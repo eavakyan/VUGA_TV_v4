@@ -35,6 +35,10 @@ struct FlixyContent: Codable {
     let contentSubtitles: [Subtitle]?
     let seasons: [Season]?
     let moreLikeThis: [FlixyContent]?
+    let ageRating: String?
+    let minAge: Int?
+    let ageLimits: [AgeRating]?
+    let userRating: Double?
     
     enum CodingKeys: String, CodingKey {
         case id = "content_id"
@@ -60,6 +64,10 @@ struct FlixyContent: Codable {
         case contentSubtitles = "content_subtitles"
         case seasons
         case moreLikeThis = "more_like_this"
+        case ageRating = "age_rating"
+        case minAge = "min_age"
+        case ageLimits = "age_limits"
+        case userRating = "user_rating"
     }
     
     var ratingString : String {
@@ -74,6 +82,50 @@ struct FlixyContent: Codable {
     
     var genreString : String {
         genres.map({ $0.title ?? "" }).joined(separator: ", ")
+    }
+    
+    // Age restriction helpers
+    var ageRatingCode: String {
+        return ageRating ?? "NR" // Not Rated
+    }
+    
+    var minimumAge: Int {
+        return minAge ?? 0
+    }
+    
+    // Check if content is appropriate for a given profile
+    func isAppropriateFor(profile: Profile?) -> Bool {
+        guard let profile = profile else { return true }
+        
+        // Kids profiles can only see G and PG content
+        if profile.effectiveKidsProfile {
+            return ageRatingCode == "G" || ageRatingCode == "PG"
+        }
+        
+        // Check age restriction
+        if let profileAge = profile.age {
+            return profileAge >= minimumAge
+        }
+        
+        return true // No restrictions if age not set
+    }
+    
+    // Get age rating display color
+    var ageRatingColor: String {
+        switch ageRatingCode {
+        case "G":
+            return "#4CAF50" // Green
+        case "PG":
+            return "#8BC34A" // Light Green
+        case "PG-13":
+            return "#FF9800" // Orange
+        case "R":
+            return "#F44336" // Red
+        case "NC-17":
+            return "#9C27B0" // Purple
+        default:
+            return "#757575" // Gray
+        }
     }
     
 }
@@ -237,25 +289,96 @@ struct Season: Codable,Equatable {
 // MARK: - Episode
 struct Episode: Codable {
     let id, seasonID, number: Int?
-    let thumbnail, title, description, duration: String?
+    let thumbnail, title, description: String?
     var accessType, totalView, totalDownload: Int?
+    let ratings: Double?
     let createdAt: String?
     let updatedAt: String?
     let sources: [Source]?
     let episodeSubtitle: [Subtitle]?
+    let userRating: Double?
+    
+    // Handle duration as either String or Int
+    private let durationString: String?
+    private let durationInt: Int?
+    
+    var duration: String? {
+        if let durationString = durationString {
+            return durationString
+        } else if let durationInt = durationInt {
+            return String(durationInt)
+        }
+        return nil
+    }
 
     
     enum CodingKeys: String, CodingKey {
         case id = "episode_id"
         case seasonID = "season_id"
-        case number, thumbnail, title, description, duration
+        case number, thumbnail, title, description
         case accessType = "access_type"
         case totalView = "total_view"
         case totalDownload = "total_download"
+        case ratings
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case episodeSubtitle = "subtitles"
         case sources
+        case userRating = "user_rating"
+        case duration
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        id = try container.decodeIfPresent(Int.self, forKey: .id)
+        seasonID = try container.decodeIfPresent(Int.self, forKey: .seasonID)
+        number = try container.decodeIfPresent(Int.self, forKey: .number)
+        thumbnail = try container.decodeIfPresent(String.self, forKey: .thumbnail)
+        title = try container.decodeIfPresent(String.self, forKey: .title)
+        description = try container.decodeIfPresent(String.self, forKey: .description)
+        accessType = try container.decodeIfPresent(Int.self, forKey: .accessType)
+        totalView = try container.decodeIfPresent(Int.self, forKey: .totalView)
+        totalDownload = try container.decodeIfPresent(Int.self, forKey: .totalDownload)
+        ratings = try container.decodeIfPresent(Double.self, forKey: .ratings)
+        createdAt = try container.decodeIfPresent(String.self, forKey: .createdAt)
+        updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
+        sources = try container.decodeIfPresent([Source].self, forKey: .sources)
+        episodeSubtitle = try container.decodeIfPresent([Subtitle].self, forKey: .episodeSubtitle)
+        userRating = try container.decodeIfPresent(Double.self, forKey: .userRating)
+        
+        // Try to decode duration as String first, then as Int
+        if let durationStr = try? container.decode(String.self, forKey: .duration) {
+            durationString = durationStr
+            durationInt = nil
+        } else if let durationNum = try? container.decode(Int.self, forKey: .duration) {
+            durationInt = durationNum
+            durationString = nil
+        } else {
+            durationString = nil
+            durationInt = nil
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encodeIfPresent(id, forKey: .id)
+        try container.encodeIfPresent(seasonID, forKey: .seasonID)
+        try container.encodeIfPresent(number, forKey: .number)
+        try container.encodeIfPresent(thumbnail, forKey: .thumbnail)
+        try container.encodeIfPresent(title, forKey: .title)
+        try container.encodeIfPresent(description, forKey: .description)
+        try container.encodeIfPresent(accessType, forKey: .accessType)
+        try container.encodeIfPresent(totalView, forKey: .totalView)
+        try container.encodeIfPresent(totalDownload, forKey: .totalDownload)
+        try container.encodeIfPresent(ratings, forKey: .ratings)
+        try container.encodeIfPresent(createdAt, forKey: .createdAt)
+        try container.encodeIfPresent(updatedAt, forKey: .updatedAt)
+        try container.encodeIfPresent(sources, forKey: .sources)
+        try container.encodeIfPresent(episodeSubtitle, forKey: .episodeSubtitle)
+        try container.encodeIfPresent(userRating, forKey: .userRating)
+        
+        // Encode duration as string
+        try container.encodeIfPresent(duration, forKey: .duration)
     }
 }
 

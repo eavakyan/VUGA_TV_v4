@@ -49,6 +49,7 @@ import com.retry.vuga.databinding.ActivityMovieDetailBinding;
 import com.retry.vuga.databinding.ItemContentSourceBinding;
 import com.retry.vuga.model.ContentDetail;
 import com.retry.vuga.model.Downloads;
+import com.retry.vuga.model.Profile;
 import com.retry.vuga.model.history.MovieHistory;
 import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
@@ -56,6 +57,7 @@ import com.retry.vuga.utils.CustomDialogBuilder;
 import com.retry.vuga.utils.Global;
 import com.retry.vuga.utils.adds.MyRewardAds;
 import com.retry.vuga.dialogs.DownloadProgressDialog;
+import com.retry.vuga.dialogs.RatingDialog;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -457,6 +459,11 @@ public class MovieDetailActivity extends BaseActivity {
                 return;
             }
             
+            // Check age restrictions first
+            if (!checkAgeRestrictions()) {
+                return;
+            }
+            
             // Get the first downloadable source
             ContentDetail.SourceItem downloadableSource = null;
             for (ContentDetail.SourceItem source : contentItem.getContent_sources()) {
@@ -555,6 +562,13 @@ public class MovieDetailActivity extends BaseActivity {
             onBackPressed();
         });
         
+        // Add click listener for rating
+        binding.layoutRating.setOnClickListener(v -> {
+            if (contentItem != null) {
+                showRatingDialog();
+            }
+        });
+        
         // Debug check for overlays
         Log.d("Watchlist", "Initial visibility check:");
         Log.d("Watchlist", "Blur view visibility: " + binding.blurView.getVisibility());
@@ -572,7 +586,16 @@ public class MovieDetailActivity extends BaseActivity {
             Log.i("TAG", "setListeners: s : " + seasonCount);
         });
 
+        episodeAdapter.setOnEpisodeRatingClick(episode -> {
+            showEpisodeRatingDialog(episode);
+        });
+        
         episodeAdapter.setOnEpisodeClick((model, position) -> {
+            // Check age restrictions first
+            if (!checkAgeRestrictions()) {
+                return;
+            }
+            
             titleName = model.getTitle();
             subTitlesList = model.getSubtitles();
             episodeCount = position + 1;
@@ -1502,6 +1525,159 @@ public class MovieDetailActivity extends BaseActivity {
         runOnUiThread(() -> {
             Toast.makeText(this, "Connecting to cast device...", Toast.LENGTH_SHORT).show();
         });
+    }
+    
+    private boolean checkAgeRestrictions() {
+        if (contentItem == null) {
+            return true;
+        }
+        
+        try {
+            // Get current profile from user
+            if (sessionManager.getUser() == null || sessionManager.getUser().getLastActiveProfileId() == null) {
+                return true; // No profile restriction if no user/profile
+            }
+            
+            // For now, we'll implement a basic check
+            // In a full implementation, you would need to fetch the profile details
+            // including age and isKidsProfile from the API
+            Profile currentProfile = getCurrentProfile();
+            if (currentProfile != null && !contentItem.isAppropriateFor(currentProfile)) {
+                showAgeRestrictionDialog();
+                return false;
+            }
+            
+            return true;
+        } catch (Exception e) {
+            // If there's any error checking age restrictions, allow access
+            Log.e("AgeRestriction", "Error checking age restrictions: " + e.getMessage());
+            return true;
+        }
+    }
+    
+    private Profile getCurrentProfile() {
+        // This is a simplified version - in a full implementation,
+        // you would fetch the current profile from the API or local storage
+        // For now, we'll return null to allow all content
+        // TODO: Implement proper profile fetching
+        return null;
+    }
+    
+    private void showAgeRestrictionDialog() {
+        String message;
+        String ageRatingCode = contentItem.getAgeRatingCode();
+        
+        if (!"NR".equals(ageRatingCode)) {
+            message = "This content is rated " + ageRatingCode + " and may not be appropriate for all ages. " +
+                    "Please check your profile age settings.";
+        } else {
+            message = "This content may not be appropriate for all ages. " +
+                    "Please check your profile age settings.";
+        }
+        
+        new android.app.AlertDialog.Builder(this)
+                .setTitle("Age Restriction")
+                .setMessage(message)
+                .setPositiveButton("OK", null)
+                .setNegativeButton("Age Settings", (dialog, which) -> {
+                    // Navigate to age settings - for now just show a message
+                    Toast.makeText(this, "Age settings feature coming soon", Toast.LENGTH_SHORT).show();
+                })
+                .show();
+    }
+    
+    private void showRatingDialog() {
+        RatingDialog dialog = new RatingDialog(this, contentItem.getTitle());
+        dialog.setOnRatingSubmitListener(rating -> {
+            submitRating(rating);
+        });
+        dialog.show();
+    }
+    
+    private void submitRating(int rating) {
+        // Check if user is logged in
+        if (sessionManager.getUser() == null) {
+            Toast.makeText(this, "Please login to rate content", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        binding.loutLoader.setVisibility(View.VISIBLE);
+        
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("app_user_id", sessionManager.getUser().getId());
+        params.put("content_id", contentId);
+        params.put("rating", rating);
+        
+        // Add profile_id if available
+        if (sessionManager.getUser().getLastActiveProfileId() != null) {
+            params.put("profile_id", sessionManager.getUser().getLastActiveProfileId());
+        }
+        
+        disposable.add(RetrofitClient.getService()
+                .rateContent(params)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    binding.loutLoader.setVisibility(View.GONE);
+                    if (response != null && response.getStatus()) {
+                        Toast.makeText(this, "Rating submitted successfully", Toast.LENGTH_SHORT).show();
+                        // Refresh content details to get updated ratings
+                        getContentDetail();
+                    } else {
+                        Toast.makeText(this, response != null ? response.getMessage() : "Failed to submit rating", Toast.LENGTH_SHORT).show();
+                    }
+                }, throwable -> {
+                    binding.loutLoader.setVisibility(View.GONE);
+                    Toast.makeText(this, "Error submitting rating", Toast.LENGTH_SHORT).show();
+                    Log.e("Rating", "Error submitting rating", throwable);
+                }));
+    }
+    
+    private void showEpisodeRatingDialog(ContentDetail.SeasonItem.EpisodesItem episode) {
+        RatingDialog dialog = new RatingDialog(this, episode.getTitle());
+        dialog.setOnRatingSubmitListener(rating -> {
+            submitEpisodeRating(episode, rating);
+        });
+        dialog.show();
+    }
+    
+    private void submitEpisodeRating(ContentDetail.SeasonItem.EpisodesItem episode, int rating) {
+        // Check if user is logged in
+        if (sessionManager.getUser() == null) {
+            Toast.makeText(this, "Please login to rate episode", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        binding.loutLoader.setVisibility(View.VISIBLE);
+        
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("app_user_id", sessionManager.getUser().getId());
+        params.put("episode_id", episode.getId());
+        params.put("rating", rating);
+        
+        // Add profile_id if available
+        if (sessionManager.getUser().getLastActiveProfileId() != null) {
+            params.put("profile_id", sessionManager.getUser().getLastActiveProfileId());
+        }
+        
+        disposable.add(RetrofitClient.getService()
+                .rateEpisode(params)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    binding.loutLoader.setVisibility(View.GONE);
+                    if (response != null && response.getStatus()) {
+                        Toast.makeText(this, "Episode rating submitted successfully", Toast.LENGTH_SHORT).show();
+                        // Refresh content details to get updated ratings
+                        getContentDetail();
+                    } else {
+                        Toast.makeText(this, response != null ? response.getMessage() : "Failed to submit rating", Toast.LENGTH_SHORT).show();
+                    }
+                }, throwable -> {
+                    binding.loutLoader.setVisibility(View.GONE);
+                    Toast.makeText(this, "Error submitting episode rating", Toast.LENGTH_SHORT).show();
+                    Log.e("Rating", "Error submitting episode rating", throwable);
+                }));
     }
 
 

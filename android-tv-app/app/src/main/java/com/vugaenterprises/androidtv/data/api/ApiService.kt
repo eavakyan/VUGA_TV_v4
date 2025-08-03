@@ -228,6 +228,19 @@ interface ApiService {
         @Field("app_user_id") userId: Int,
         @Field("profile_id") profileId: Int? = null
     ): RestResponse
+    
+    // Age Settings
+    @POST("profile/age-ratings")
+    suspend fun getAgeRatings(): AgeRatingResponse
+    
+    @FormUrlEncoded
+    @POST("profile/update-age-settings")
+    suspend fun updateAgeSettings(
+        @Field("profile_id") profileId: Int,
+        @Field("user_id") userId: Int,
+        @Field("age") age: Int? = null,
+        @Field("is_kids_profile") isKidsProfile: Boolean
+    ): RestResponse
 }
 
 // Constants for API field names

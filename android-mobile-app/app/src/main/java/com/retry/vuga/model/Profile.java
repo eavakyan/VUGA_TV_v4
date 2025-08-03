@@ -27,6 +27,12 @@ public class Profile {
     @SerializedName("is_kids")
     private boolean isKids;
     
+    @SerializedName("is_kids_profile")
+    private Boolean isKidsProfile;
+    
+    @SerializedName("age")
+    private Integer age;
+    
     @SerializedName("is_active")
     private boolean isActive;
     
@@ -123,5 +129,32 @@ public class Profile {
 
     public void setUpdatedAt(String updatedAt) {
         this.updatedAt = updatedAt;
+    }
+    
+    public Boolean getIsKidsProfile() {
+        return isKidsProfile;
+    }
+    
+    public void setIsKidsProfile(Boolean isKidsProfile) {
+        this.isKidsProfile = isKidsProfile;
+    }
+    
+    public Integer getAge() {
+        return age;
+    }
+    
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+    
+    public boolean isEffectiveKidsProfile() {
+        return isKidsProfile != null ? isKidsProfile : isKids;
+    }
+    
+    public Integer getAgeRestriction() {
+        if (isEffectiveKidsProfile()) {
+            return 13;
+        }
+        return age;
     }
 }

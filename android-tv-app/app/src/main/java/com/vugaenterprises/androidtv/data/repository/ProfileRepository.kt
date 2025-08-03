@@ -105,4 +105,22 @@ class ProfileRepository @Inject constructor(
             emit(Result.failure(e))
         }
     }
+    
+    suspend fun getAgeRatings() = apiService.getAgeRatings()
+    
+    suspend fun updateAgeSettings(
+        profileId: Int,
+        age: Int? = null,
+        isKidsProfile: Boolean
+    ): com.vugaenterprises.androidtv.data.model.RestResponse {
+        val userId = userDataStore.getUserId().first()
+            ?: throw Exception("User not logged in")
+        
+        return apiService.updateAgeSettings(
+            profileId = profileId,
+            userId = userId,
+            age = age,
+            isKidsProfile = isKidsProfile
+        )
+    }
 }

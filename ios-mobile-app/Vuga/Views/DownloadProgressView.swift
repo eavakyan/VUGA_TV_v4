@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import Kingfisher
 
 struct DownloadProgressView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
@@ -43,7 +44,8 @@ struct DownloadProgressView: View {
                 // Content info with thumbnail
                 HStack(spacing: 15) {
                     // Thumbnail
-                    ImageView(imageView: content.horizontalPoster ?? "")
+                    KFImage(URL(string: content.horizontalPoster ?? ""))
+                        .resizable()
                         .aspectRatio(16/9, contentMode: .fill)
                         .frame(width: 100, height: 56)
                         .cornerRadius(8)
@@ -152,7 +154,7 @@ struct DownloadProgressView: View {
     }
     
     private var downloadSizeText: String {
-        let totalSize = Float(source.size ?? 0)
+        let totalSize = Float(source.size ?? "0") ?? 0
         let downloadedSize = totalSize * progress
         return String(format: "%.1f MB / %.0f MB", downloadedSize, totalSize)
     }

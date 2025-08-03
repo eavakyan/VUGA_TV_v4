@@ -26,12 +26,15 @@ class AppUser extends BaseModel
     ];
     
     /**
-     * Get the user's watchlist items
+     * Get the user's watchlist items (legacy - now profile-based)
+     * Returns empty collection since watchlists are profile-based
      */
     public function watchlist()
     {
-        return $this->belongsToMany(Content::class, 'app_user_watchlist', 'app_user_id', 'content_id')
-                    ->withPivot('added_at');
+        // Watchlists are now profile-based, not user-based
+        // Return empty collection for backward compatibility
+        return $this->belongsToMany(Content::class, 'app_user_watchlist', 'profile_id', 'content_id')
+                    ->whereRaw('1 = 0'); // Always return empty
     }
     
     /**

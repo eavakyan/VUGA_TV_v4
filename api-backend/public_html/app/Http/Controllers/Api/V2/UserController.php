@@ -481,6 +481,67 @@ class UserController extends Controller
     }
 
     /**
+     * Rate episode (for TV series)
+     */
+    public function rateEpisode(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'episode_id' => 'required|integer|exists:episode,episode_id',
+            'rating' => 'required|numeric|min:0|max:10',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Profile is required for ratings
+        if (!$profileId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile ID is required'
+            ], 400);
+        }
+        
+        $profile = AppUserProfile::find($profileId);
+        if (!$profile || $profile->app_user_id != $request->app_user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found or unauthorized'
+            ], 404);
+        }
+        
+        // Update or create episode rating
+        DB::table('app_profile_episode_rating')->upsert([
+            'profile_id' => $profileId,
+            'episode_id' => $request->episode_id,
+            'rating' => $request->rating,
+            'created_at' => now(),
+            'updated_at' => now()
+        ], ['profile_id', 'episode_id'], ['rating', 'updated_at']);
+
+        // Update episode average rating
+        $this->updateEpisodeAverageRating($request->episode_id);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Episode rating submitted successfully'
+        ]);
+    }
+
+    /**
      * Get user's watch history
      */
     public function getWatchHistory(Request $request)
@@ -628,6 +689,20 @@ class UserController extends Controller
         
         Content::where('content_id', $contentId)
                ->update(['ratings' => $avgRating ?: 0]);
+    }
+    
+    /**
+     * Update episode's average rating (helper method)
+     */
+    private function updateEpisodeAverageRating($episodeId)
+    {
+        $avgRating = DB::table('app_profile_episode_rating')
+                        ->where('episode_id', $episodeId)
+                        ->avg('rating');
+        
+        DB::table('episode')
+            ->where('episode_id', $episodeId)
+            ->update(['ratings' => $avgRating ?: 0]);
     }
     
     /**

@@ -56,6 +56,7 @@ Route::prefix('v2')->group(function () {
         Route::post('/toggle-watchlist', [V2\UserController::class, 'toggleWatchlist']);
         Route::post('/toggle-favorite', [V2\UserController::class, 'toggleFavorite']);
         Route::post('/rate-content', [V2\UserController::class, 'rateContent']);
+        Route::post('/rate-episode', [V2\UserController::class, 'rateEpisode']);
         Route::post('/watch-history', [V2\UserController::class, 'getWatchHistory']);
     });
     

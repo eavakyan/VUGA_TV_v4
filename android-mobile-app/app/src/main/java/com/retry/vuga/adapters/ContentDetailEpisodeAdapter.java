@@ -21,6 +21,7 @@ import java.util.List;
 public class ContentDetailEpisodeAdapter extends RecyclerView.Adapter<ContentDetailEpisodeAdapter.ItemHolder> {
     List<ContentDetail.SeasonItem.EpisodesItem> list = new ArrayList<>();
     OnEpisodeClick onEpisodeClick;
+    OnEpisodeRatingClick onEpisodeRatingClick;
 
     public OnEpisodeClick getOnEpisodeClick() {
         return onEpisodeClick;
@@ -28,6 +29,10 @@ public class ContentDetailEpisodeAdapter extends RecyclerView.Adapter<ContentDet
 
     public void setOnEpisodeClick(OnEpisodeClick onEpisodeClick) {
         this.onEpisodeClick = onEpisodeClick;
+    }
+    
+    public void setOnEpisodeRatingClick(OnEpisodeRatingClick onEpisodeRatingClick) {
+        this.onEpisodeRatingClick = onEpisodeRatingClick;
     }
 
     @NonNull
@@ -56,6 +61,10 @@ public class ContentDetailEpisodeAdapter extends RecyclerView.Adapter<ContentDet
 
     public interface OnEpisodeClick {
         void onClick(ContentDetail.SeasonItem.EpisodesItem model, int position);
+    }
+    
+    public interface OnEpisodeRatingClick {
+        void onRatingClick(ContentDetail.SeasonItem.EpisodesItem model);
     }
 
     public class ItemHolder extends RecyclerView.ViewHolder {
@@ -87,8 +96,16 @@ public class ContentDetailEpisodeAdapter extends RecyclerView.Adapter<ContentDet
 
             binding.getRoot().setOnClickListener(v -> {
                 onEpisodeClick.onClick(model, position);
-
             });
+            
+            // Add click listener for rating
+            if (binding.layoutEpisodeRating != null) {
+                binding.layoutEpisodeRating.setOnClickListener(v -> {
+                    if (onEpisodeRatingClick != null) {
+                        onEpisodeRatingClick.onRatingClick(model);
+                    }
+                });
+            }
 
         }
 

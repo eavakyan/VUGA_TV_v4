@@ -30,6 +30,7 @@ enum APIs : String {
     case toggleWatchlist                    = "user/toggle-watchlist"
     case toggleFavorite                     = "user/toggle-favorite"
     case rateContent                        = "user/rate-content"
+    case rateEpisode                        = "user/rate-episode"
     case updateWatchProgress                = "watch/update-progress"
     case getContinueWatching                = "watch/continue-watching"
     case markAsCompleted                    = "watch/mark-completed"
@@ -57,6 +58,8 @@ enum APIs : String {
     case createProfile                      = "createProfile"
     case deleteProfile                      = "deleteProfile"
     case selectProfile                      = "selectProfile"
+    case updateAgeSettings                  = "profile/update-age-settings"
+    case getAgeRatings                      = "profile/age-ratings"
 }
 
 extension String {

@@ -46,6 +46,7 @@ extension Image {
     static let notification         = Image("notification")
     static let edit                 = Image("edit")
     static let tv                   = Image(systemName: "tv")
+    static let settings             = Image(systemName: "gearshape.fill")
     static let premium              = Image("premium")
     static let premium_bg           = Image("premium_bg")
     static let camera               = Image("camera")

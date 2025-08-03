@@ -319,11 +319,15 @@
                                 android:orientation="horizontal">
 
                                 <LinearLayout
+                                    android:id="@+id/layout_rating"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:gravity="center_vertical"
                                     android:orientation="horizontal"
-
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground"
+                                    android:padding="4dp"
                                     >
 
                                     <ImageView
@@ -346,6 +350,19 @@
                                         android:textColor="@color/rating_yellow"
                                         android:textSize="@dimen/_16sp"
                                         tools:text="8.5" />
+                                    
+                                    <TextView
+                                        android:id="@+id/tv_user_rating"
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="8dp"
+                                        android:fontFamily="@font/outfit_light"
+                                        android:text='@{content.userRating != null ? "(" + String.format("%.0f", content.userRating) + ")" : "(Tap to rate)"}'
+                                        android:textColor="@color/text_color_light"
+                                        android:textSize="@dimen/_14sp"
+                                        android:visibility="visible"
+                                        tools:text="(8)" />
                                 </LinearLayout>
 
                                 <View

@@ -68,6 +68,13 @@ struct ProfileView: View {
                         ProfileFieldCard(icon: .person, title: "Switch Profile"){
                             vm.showProfileSelection = true
                         }
+                        
+                        // Age Settings - only show if there's a current profile
+                        if let currentProfile = SessionManager.shared.getCurrentProfile() {
+                            ProfileFieldCard(icon: .settings, title: "Age Settings"){
+                                Navigation.pushToSwiftUiView(AgeSettingsView(profile: currentProfile, viewModel: vm))
+                            }
+                        }
                     }
                     ProfileFieldCard(icon: .privacy, title: .privacyPolicy){
                         vm.isPrivacyURLSheet = true

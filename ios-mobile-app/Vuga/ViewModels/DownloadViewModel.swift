@@ -104,12 +104,11 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         let sizeInMB = Int(source.size ?? "500") ?? 500
         let estimatedSize: Int64 = Int64(sizeInMB) * 1024 * 1024 // Convert MB to bytes
         
-        // TODO: Add StorageManager to Xcode project for storage checking
-        // if !StorageManager.shared.hasEnoughStorage(for: estimatedSize) {
-        //     // Show storage error - in iOS we typically don't use toast, we'll let the UI handle this
-        //     print("Insufficient storage space. Please free up some space to download this content.")
-        //     return
-        // }
+        if !StorageManager.shared.hasEnoughStorage(for: estimatedSize) {
+            // Show storage error - in iOS we typically don't use toast, we'll let the UI handle this
+            print("Insufficient storage space. Please free up some space to download this content.")
+            return
+        }
         
         DispatchQueue.main.async {
             let id = source.sourceDownloadId(contentType: content.type ?? .movie)

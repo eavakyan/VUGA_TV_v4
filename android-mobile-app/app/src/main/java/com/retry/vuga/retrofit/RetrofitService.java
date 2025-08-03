@@ -12,6 +12,7 @@ import com.retry.vuga.model.ProfileResponse;
 import com.retry.vuga.model.RestResponse;
 import com.retry.vuga.model.SearchChannel;
 import com.retry.vuga.model.UserRegistration;
+import com.retry.vuga.model.AgeRatingResponse;
 import com.retry.vuga.model.ads.CustomAds;
 import com.retry.vuga.utils.Const;
 
@@ -193,6 +194,10 @@ public interface RetrofitService {
     @FormUrlEncoded
     @POST("user/rate-content")
     Single<RestResponse> rateContent(@FieldMap HashMap<String, Object> params);
+    
+    @FormUrlEncoded
+    @POST("user/rate-episode")
+    Single<RestResponse> rateEpisode(@FieldMap HashMap<String, Object> params);
 
     @FormUrlEncoded
     @POST("watch/update-progress")
@@ -209,5 +214,17 @@ public interface RetrofitService {
     @FormUrlEncoded
     @POST("user/watch-history")
     Single<RestResponse> getWatchHistory(@FieldMap HashMap<String, Object> params);
+
+    @POST("profile/age-ratings")
+    Single<AgeRatingResponse> getAgeRatings();
+
+    @FormUrlEncoded
+    @POST("profile/update-age-settings")
+    Single<RestResponse> updateAgeSettings(
+            @Field("profile_id") int profileId,
+            @Field("user_id") int userId,
+            @Field("age") Integer age,
+            @Field("is_kids_profile") boolean isKidsProfile
+    );
 
 }

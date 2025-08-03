@@ -168,4 +168,54 @@ extension ContentDetailViewModel {
             self?.selectedSource = source
         }
     }
+    
+    func submitRating(rating: Double) {
+        guard let content = content, let userId = myUser?.id else { return }
+        
+        var params: [Params: Any] = [
+            .appUserId: userId,
+            .contentId: content.id ?? 0,
+            .rating: rating
+        ]
+        
+        if let profileId = myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        NetworkManager.callWebService(url: .rateContent, params: params, callbackSuccess: { [weak self] (obj: StatusAndMessageModel) in
+            if obj.status == true {
+                // Refresh content details to get updated ratings
+                if let contentId = content.id {
+                    self?.fetchContest(contentId: contentId)
+                }
+            }
+        }) { error in
+            print("Failed to submit rating: \(error)")
+        }
+    }
+    
+    func submitEpisodeRating(episode: Episode, rating: Double) {
+        guard let userId = myUser?.id else { return }
+        
+        var params: [Params: Any] = [
+            .appUserId: userId,
+            .episodeId: episode.id ?? 0,
+            .rating: rating
+        ]
+        
+        if let profileId = myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        NetworkManager.callWebService(url: .rateEpisode, params: params, callbackSuccess: { [weak self] (obj: StatusAndMessageModel) in
+            if obj.status == true {
+                // Refresh content details to get updated episode ratings
+                if let contentId = self?.content?.id {
+                    self?.fetchContest(contentId: contentId)
+                }
+            }
+        }) { error in
+            print("Failed to submit episode rating: \(error)")
+        }
+    }
 }

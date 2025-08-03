@@ -15,6 +15,144 @@ import Flow
 import WrappingStack
 import MediaPlayer
 
+// Temporary rating components until import issue is resolved
+struct RatingDisplayView: View {
+    let rating: Double
+    let userRating: Double?
+    let onTap: (() -> Void)?
+    
+    var body: some View {
+        HStack(spacing: 8) {
+            // Average rating
+            HStack(spacing: 4) {
+                Image(systemName: "star.fill")
+                    .resizable()
+                    .frame(width: 16, height: 16)
+                    .foregroundColor(.rating)
+                Text(String(format: "%.1f", rating))
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white)
+            }
+            
+            // User rating
+            if let userRating = userRating {
+                Text("•")
+                    .foregroundColor(.gray)
+                HStack(spacing: 4) {
+                    Image(systemName: "person.fill")
+                        .resizable()
+                        .frame(width: 12, height: 12)
+                        .foregroundColor(.primary)
+                    Text(String(format: "%.1f", userRating))
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(.primary)
+                }
+            } else {
+                Text("•")
+                    .foregroundColor(.gray)
+                Text("Rate")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.primary)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+        .background(Color.black.opacity(0.3))
+        .cornerRadius(20)
+        .onTapGesture {
+            onTap?()
+        }
+    }
+}
+
+struct RatingBottomSheet: View {
+    @Binding var isPresented: Bool
+    @Binding var currentRating: Double
+    let contentTitle: String
+    let contentType: ContentType
+    let isEpisode: Bool
+    let onSubmit: (Double) -> Void
+    
+    @State private var tempRating: Double = 0
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Handle
+            RoundedRectangle(cornerRadius: 3)
+                .fill(Color.gray.opacity(0.5))
+                .frame(width: 40, height: 5)
+                .padding(.top, 10)
+            
+            // Title
+            Text("Rate \(isEpisode ? "Episode" : contentType == .movie ? "Movie" : "Series")")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(.white)
+            
+            // Content Title
+            Text(contentTitle)
+                .font(.system(size: 16))
+                .foregroundColor(.gray)
+                .multilineTextAlignment(.center)
+                .lineLimit(2)
+                .padding(.horizontal, 20)
+            
+            // Rating Stars (simplified for now)
+            HStack(spacing: 4) {
+                ForEach(1...5, id: \.self) { index in
+                    Image(systemName: index <= Int(tempRating * 2) ? "star.fill" : "star")
+                        .resizable()
+                        .frame(width: 30, height: 30)
+                        .foregroundColor(.yellow)
+                        .onTapGesture {
+                            tempRating = Double(index) / 2
+                        }
+                }
+            }
+            .padding(.vertical, 10)
+            
+            // Rating Value
+            Text(String(format: "%.1f / 10", tempRating * 2))
+                .font(.system(size: 24, weight: .medium))
+                .foregroundColor(.primary)
+            
+            // Buttons
+            HStack(spacing: 20) {
+                Button(action: {
+                    isPresented = false
+                }) {
+                    Text("Cancel")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.gray.opacity(0.3))
+                        .cornerRadius(10)
+                }
+                
+                Button(action: {
+                    onSubmit(tempRating * 2)
+                    isPresented = false
+                }) {
+                    Text("Submit")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.primary)
+                        .cornerRadius(10)
+                }
+            }
+            .padding(.horizontal, 20)
+            .padding(.bottom, 20)
+        }
+        .background(Color.bg)
+        .cornerRadius(20, corners: [.topLeft, .topRight])
+        .onAppear {
+            tempRating = currentRating / 2
+        }
+    }
+}
+
 struct ContentDetailView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @AppStorage(SessionKeys.isPro) var isPro = false
@@ -31,6 +169,14 @@ struct ContentDetailView: View {
     @State private var downloadingSource: Source?
     @State private var showDownloadStartedAlert = false
     @State private var downloadAlertMessage = ""
+    @State private var showAgeRestrictionAlert = false
+    @State private var ageRestrictionMessage = ""
+    @State private var showRatingSheet = false
+    @State private var currentUserRating: Double = 0
+    @State private var showLoginAlert = false
+    @State private var showEpisodeRatingSheet = false
+    @State private var currentEpisodeRating: Double = 0
+    @State private var selectedEpisodeForRating: Episode?
     @EnvironmentObject var downloadViewModel: DownloadViewModel
     var contentId: Int?
     var body: some View {
@@ -58,138 +204,7 @@ struct ContentDetailView: View {
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 12) {
                     if let content = vm.content {
-                        KFImage(content.verticalPoster?.addBaseURL())
-                            .resizeFillTo(width: Device.width * 0.75, height: Device.width * 1.1, radius: 15)
-                            .addStroke(radius: 15)
-                            .maxFrame()
-                            .overlay(
-                                HStack {
-                                    PlayButton()
-                                    Text(String.trailer.localized(language))
-                                        .outfitMedium(20)
-                                        .padding(.horizontal, 5)
-                                        .padding(.trailing, 40)
-                                }
-                                    .padding(10)
-                                    .background(Color.darkBg)
-                                    .clipShape(Capsule())
-                                    .addStroke(radius: 100,color: .base.opacity(0.5))
-                                    .onTap {
-                                        showTrailerSheet = true
-                                    }
-                                    .padding(.bottom)
-                                    .offset(x: 40)
-                                ,alignment: .bottomTrailing
-                            )
-                        Text(content.title ?? "")
-                            .outfitSemiBold(20)
-                            .foregroundColor(.text)
-                            .multilineTextAlignment(.center)
-                            .padding(.top, 5)
-                        WrappingHStack(id: \.self,horizontalSpacing: 8) {
-                            ForEach(content.genres.indices, id: \.self) { index in
-                                HStack(alignment: .center) {
-                                    Text(content.genres[index].title ?? "")
-                                        .outfitLight()
-                                        .foregroundColor(.textLight)
-                                    if content.genres.count != index + 1{
-                                        Circle()
-                                            .fill(.base.opacity(0.6))
-                                            .frame(width: 5,height: 5)
-                                    }
-                                }
-                            }
-                        }
-                        HStack(spacing: 10) {
-                            HStack {
-                                Image.star
-                                    .resizeFitTo(size: 16,renderingMode: .template)
-                                Text(content.ratingString)
-                                    .outfitLight()
-                            }
-                            .foregroundColor(.rating)
-                            
-                            verticalDivider
-                            
-                            Text(String(content.releaseYear ?? 0))
-                                .outfitLight()
-                                .foregroundColor(.textLight)
-                            
-                            if content.type == .movie {
-                                verticalDivider
-                                HStack {
-                                    Image.clock
-                                        .resizeFitTo(size: 16)
-                                    Text(content.duration ?? "")
-                                }
-                            }
-                        }
-                        .outfitRegular()
-                        .foregroundColor(.textLight)
-                        .padding(.vertical, 5)
-                        
-                        if content.type == .movie {
-                            HStack(spacing: 12) {
-                                PlayButton(size: 30)
-                                Text(String.watchNow.localized(language))
-                                    .outfitRegular(20)
-                            }
-                            .padding(10)
-                            .maxWidthFrame()
-                            .background(Color(hexString: "511B1B"))
-                            .cornerRadius(15)
-                            .addStroke(radius: 15, color: .base.opacity(0.3))
-                            .onTap {
-                                // Direct play without source selection
-                                if let sources = content.contentSources, !sources.isEmpty {
-                                    let firstSource = sources[0]
-                                    if firstSource.accessType == .free || isPro {
-                                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                            vm.pickedSource = firstSource
-                                            vm.progress = 0 // Start from beginning, could be fetched from recently watched
-                                            vm.playSource(firstSource)
-                                            if content.type == .movie {
-                                                vm.increaseContentView(contentId: content.id ?? 0)
-                                            }
-                                        }
-                                    } else if firstSource.accessType == .premium {
-                                        vm.pickedSource = firstSource
-                                        vm.isShowPremiumDialog = true
-                                    } else if firstSource.accessType == .locked {
-                                        vm.pickedSource = firstSource
-                                        vm.isShowAdDialog = true
-                                    }
-                                }
-                            }
-                            
-                            // Download button for movies
-                            if content.contentSources?.first?.isDownload == 1 {
-                                HStack(spacing: 12) {
-                                    Image.download
-                                        .resizeFitTo(size: 20, renderingMode: .template)
-                                        .foregroundColor(.text)
-                                    Text(String.download.localized(language))
-                                        .outfitRegular(20)
-                                }
-                                .padding(10)
-                                .maxWidthFrame()
-                                .background(Color.bg)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .stroke(Color.text.opacity(0.3), lineWidth: 1)
-                                )
-                                .cornerRadius(15)
-                                .padding(.top, 10)
-                                .onTap {
-                                    handleDownload()
-                                }
-                            }
-                        }
-                        if !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0 {
-                            BannerAd()
-                                .padding(.horizontal,-10)
-                                .padding(.top,10)
-                        }
+                        contentDetailSection(for: content)
                         divider()
                         VStack(spacing: 8) {
                             Heading(title: .storyLine) {
@@ -252,8 +267,27 @@ struct ContentDetailView: View {
                             SeasonTags(vm: vm, content: content)
                             if let selectedSeason = vm.selectedSeason {
                                 ForEach(selectedSeason.episodes ?? [], id: \.id) { episode in
-                                    EpisodeCard(episode: episode, episodeTotalView: (episode.totalView ?? 0) + (episode.id == vm.selectedEpisode?.id ? episodeIncreaseTotalView : 0))
-                                        .onTap {
+                                    EpisodeCard(
+                                        episode: episode, 
+                                        episodeTotalView: (episode.totalView ?? 0) + (episode.id == vm.selectedEpisode?.id ? episodeIncreaseTotalView : 0),
+                                        onRatingTap: {
+                                            if vm.myUser != nil {
+                                                selectedEpisodeForRating = episode
+                                                currentEpisodeRating = episode.userRating ?? 0
+                                                showEpisodeRatingSheet = true
+                                            } else {
+                                                showLoginAlert = true
+                                            }
+                                        }
+                                    )
+                                    .onTap {
+                                            // Check age restrictions first
+                                            let currentProfile = SessionManager.shared.getCurrentProfile()
+                                            if !content.isAppropriateFor(profile: currentProfile) {
+                                                displayAgeRestrictionAlert()
+                                                return
+                                            }
+                                            
                                             vm.selectedEpisode = episode
                                             // Direct play without source selection
                                             if let sources = episode.sources, !sources.isEmpty {
@@ -379,6 +413,51 @@ struct ContentDetailView: View {
         } message: {
             Text(downloadAlertMessage)
         }
+        .alert("Age Restriction", isPresented: $showAgeRestrictionAlert) {
+            Button("OK") { }
+            Button("Age Settings") {
+                if let currentProfile = SessionManager.shared.getCurrentProfile() {
+                    Navigation.pushToSwiftUiView(AgeSettingsView(profile: currentProfile, viewModel: ProfileViewModel()))
+                }
+            }
+        } message: {
+            Text(ageRestrictionMessage)
+        }
+        .alert("Login Required", isPresented: $showLoginAlert) {
+            Button("OK") { }
+        } message: {
+            Text("Please log in to rate this content")
+        }
+        .sheet(isPresented: $showRatingSheet) {
+            RatingBottomSheet(
+                isPresented: $showRatingSheet,
+                currentRating: $currentUserRating,
+                contentTitle: vm.content?.title ?? "",
+                contentType: vm.content?.type ?? .movie,
+                isEpisode: false,
+                onSubmit: { rating in
+                    vm.submitRating(rating: rating)
+                }
+            )
+            .presentationDetents([.height(350)])
+            .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: $showEpisodeRatingSheet) {
+            if let episode = selectedEpisodeForRating {
+                RatingBottomSheet(
+                    isPresented: $showEpisodeRatingSheet,
+                    currentRating: $currentEpisodeRating,
+                    contentTitle: episode.title ?? "",
+                    contentType: .series,
+                    isEpisode: true,
+                    onSubmit: { rating in
+                        vm.submitEpisodeRating(episode: episode, rating: rating)
+                    }
+                )
+                .presentationDetents([.height(350)])
+                .presentationDragIndicator(.visible)
+            }
+        }
         .onAppear {
             // Monitor AirPlay route changes
             airPlayObserver = NotificationCenter.default.addObserver(
@@ -396,27 +475,225 @@ struct ContentDetailView: View {
                 NotificationCenter.default.removeObserver(observer)
             }
         }
-        // TODO: Add DownloadProgressView to Xcode project
-        // .overlay(
-        //     // Download progress dialog
-        //     Group {
-        //         if showDownloadProgress, let source = downloadingSource, let content = vm.content {
-        //             DownloadProgressView(
-        //                 isShowing: $showDownloadProgress,
-        //                 content: content,
-        //                 source: source,
-        //                 downloadId: source.sourceDownloadId(contentType: content.type ?? .movie)
-        //             )
-        //             .environmentObject(downloadViewModel)
-        //         }
-        //     }
-        // )
+        .overlay(
+            // Download progress dialog
+            Group {
+                if showDownloadProgress, let source = downloadingSource, let content = vm.content {
+                    DownloadProgressView(
+                        isShowing: $showDownloadProgress,
+                        content: content,
+                        source: source,
+                        downloadId: source.sourceDownloadId(contentType: content.type ?? .movie)
+                    )
+                    .environmentObject(downloadViewModel)
+                }
+            }
+        )
+    }
+    
+    // MARK: - View Builders
+    @ViewBuilder
+    private func contentDetailSection(for content: FlixyContent) -> some View {
+        VStack(spacing: 12) {
+            contentPosterSection(content)
+            contentInfoSection(content)
+            contentRatingSection(content)
+            if content.type == .movie {
+                movieActionButtons(content)
+            }
+            if !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0 {
+                BannerAd()
+                    .padding(.horizontal,-10)
+                    .padding(.top,10)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func contentPosterSection(_ content: FlixyContent) -> some View {
+        KFImage(content.verticalPoster?.addBaseURL())
+            .resizeFillTo(width: Device.width * 0.75, height: Device.width * 1.1, radius: 15)
+            .addStroke(radius: 15)
+            .maxFrame()
+            .overlay(
+                HStack {
+                    PlayButton()
+                    Text(String.trailer.localized(language))
+                        .outfitMedium(20)
+                        .padding(.horizontal, 5)
+                        .padding(.trailing, 40)
+                }
+                    .padding(10)
+                    .background(Color.darkBg)
+                    .clipShape(Capsule())
+                    .addStroke(radius: 100,color: .base.opacity(0.5))
+                    .onTap {
+                        showTrailerSheet = true
+                    }
+                    .padding(.bottom)
+                    .offset(x: 40)
+                ,alignment: .bottomTrailing
+            )
+    }
+    
+    @ViewBuilder
+    private func contentInfoSection(_ content: FlixyContent) -> some View {
+        VStack(spacing: 5) {
+            Text(content.title ?? "")
+                .outfitSemiBold(20)
+                .foregroundColor(.text)
+                .multilineTextAlignment(.center)
+                .padding(.top, 5)
+            
+            WrappingHStack(id: \.self,horizontalSpacing: 8) {
+                ForEach(content.genres.indices, id: \.self) { index in
+                    HStack(alignment: .center) {
+                        Text(content.genres[index].title ?? "")
+                            .outfitLight()
+                            .foregroundColor(.textLight)
+                        if content.genres.count != index + 1{
+                            Circle()
+                                .fill(.base.opacity(0.6))
+                                .frame(width: 5,height: 5)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func contentRatingSection(_ content: FlixyContent) -> some View {
+        HStack(spacing: 10) {
+            // Rating Display with user rating
+            RatingDisplayView(
+                rating: content.ratings ?? 0,
+                userRating: content.userRating,
+                onTap: {
+                    if vm.myUser != nil {
+                        currentUserRating = content.userRating ?? 0
+                        showRatingSheet = true
+                    } else {
+                        showLoginAlert = true
+                    }
+                }
+            )
+            
+            verticalDivider
+            
+            Text(String(content.releaseYear ?? 0))
+                .outfitLight()
+                .foregroundColor(.textLight)
+            
+            // Age Rating
+            if content.ageRatingCode != "NR" {
+                verticalDivider
+                Text(content.ageRatingCode)
+                    .outfitMedium(12)
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(Color(hexString: content.ageRatingColor))
+                    .cornerRadius(4)
+            }
+            
+            if content.type == .movie {
+                verticalDivider
+                HStack {
+                    Image.clock
+                        .resizeFitTo(size: 16)
+                    Text(content.duration ?? "")
+                }
+            }
+        }
+        .outfitRegular()
+        .foregroundColor(.textLight)
+        .padding(.vertical, 5)
+    }
+    
+    @ViewBuilder
+    private func movieActionButtons(_ content: FlixyContent) -> some View {
+        VStack(spacing: 10) {
+            // Play button
+            HStack(spacing: 12) {
+                PlayButton(size: 30)
+                Text(String.watchNow.localized(language))
+                    .outfitRegular(20)
+            }
+            .padding(10)
+            .maxWidthFrame()
+            .background(Color(hexString: "511B1B"))
+            .cornerRadius(15)
+            .addStroke(radius: 15, color: .base.opacity(0.3))
+            .onTap {
+                handlePlayAction(content)
+            }
+            
+            // Download button
+            if content.contentSources?.first?.isDownload == 1 {
+                HStack(spacing: 12) {
+                    Image.download
+                        .resizeFitTo(size: 20, renderingMode: .template)
+                        .foregroundColor(.text)
+                    Text(String.download.localized(language))
+                        .outfitRegular(20)
+                }
+                .padding(10)
+                .maxWidthFrame()
+                .background(Color.bg)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 15)
+                        .stroke(Color.text.opacity(0.3), lineWidth: 1)
+                )
+                .cornerRadius(15)
+                .onTap {
+                    handleDownload()
+                }
+            }
+        }
+    }
+    
+    private func handlePlayAction(_ content: FlixyContent) {
+        // Check age restrictions first
+        let currentProfile = SessionManager.shared.getCurrentProfile()
+        if !content.isAppropriateFor(profile: currentProfile) {
+            displayAgeRestrictionAlert()
+            return
+        }
+        
+        // Direct play without source selection
+        if let sources = content.contentSources, !sources.isEmpty {
+            let firstSource = sources[0]
+            if firstSource.accessType == .free || isPro {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    vm.pickedSource = firstSource
+                    vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                    vm.playSource(firstSource)
+                    if content.type == .movie {
+                        vm.increaseContentView(contentId: content.id ?? 0)
+                    }
+                }
+            } else if firstSource.accessType == .premium {
+                vm.pickedSource = firstSource
+                vm.isShowPremiumDialog = true
+            } else if firstSource.accessType == .locked {
+                vm.pickedSource = firstSource
+                vm.isShowAdDialog = true
+            }
+        }
     }
     
     func handleDownload() {
         guard let content = vm.content,
               let sources = content.contentSources,
               !sources.isEmpty else { return }
+        
+        // Check age restrictions first
+        let currentProfile = SessionManager.shared.getCurrentProfile()
+        if !content.isAppropriateFor(profile: currentProfile) {
+            displayAgeRestrictionAlert()
+            return
+        }
         
         let firstSource = sources[0]
         let downloadId = firstSource.sourceDownloadId(contentType: content.type ?? .movie)
@@ -456,18 +733,37 @@ struct ContentDetailView: View {
         let sizeInMB = Int(firstSource.size ?? "500") ?? 500
         let estimatedSize: Int64 = Int64(sizeInMB) * 1024 * 1024 // Convert MB to bytes
         
-        // TODO: Add StorageManager to Xcode project for storage checking
-        // if !StorageManager.shared.hasEnoughStorage(for: estimatedSize) {
-        //     // Show storage error alert - could add an alert here
-        //     return
-        // }
+        if !StorageManager.shared.hasEnoughStorage(for: estimatedSize) {
+            downloadAlertMessage = "Insufficient storage space. Please free up some space to download this content."
+            showDownloadStartedAlert = true
+            return
+        }
         
-        // Show download started alert since progress dialog is not available yet
-        downloadAlertMessage = "Download started for \(content.title ?? "content"). You can continue browsing while it downloads in the background. Check your downloads in Profile → Downloads."
-        showDownloadStartedAlert = true
+        // Show download progress dialog
+        downloadingSource = firstSource
+        showDownloadProgress = true
         
         // Start download
         downloadViewModel.startDownload(content: content, episode: nil, source: firstSource, seasonNumber: 1)
+    }
+    
+    func displayAgeRestrictionAlert() {
+        guard let content = vm.content else { return }
+        let currentProfile = SessionManager.shared.getCurrentProfile()
+        
+        if let profile = currentProfile {
+            if profile.effectiveKidsProfile {
+                ageRestrictionMessage = "This content is not available on kids profiles. Only G and PG rated content is allowed."
+            } else if let profileAge = profile.age {
+                ageRestrictionMessage = "This content is rated \(content.ageRatingCode) and requires a minimum age of \(content.minimumAge). Your profile age is set to \(profileAge)."
+            } else {
+                ageRestrictionMessage = "This content is age-restricted. Please set your profile age in Age Settings to access this content."
+            }
+        } else {
+            ageRestrictionMessage = "This content is age-restricted. Please create and set up a profile to access this content."
+        }
+        
+        showAgeRestrictionAlert = true
     }
     
     func checkAirPlayConnection() {
@@ -634,7 +930,7 @@ private struct SeasonTags : View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     var content: FlixyContent
     var body: some View {
-        if vm.content?.seasons?.isNotEmpty == true {
+        if content.seasons?.isNotEmpty == true {
             VStack(spacing: 0) {
                 divider(topPadding: 0)
                 ScrollView(.horizontal, showsIndicators: false) {
@@ -681,6 +977,8 @@ struct EpisodeCard : View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     var episode: Episode
     var episodeTotalView: Int
+    var onRatingTap: (() -> Void)?
+    
     var body: some View {
         VStack(alignment: .leading) {
             HStack(spacing: 10) {
@@ -697,9 +995,43 @@ struct EpisodeCard : View {
                         .outfitSemiBold(18)
                         .foregroundColor(.text)
                     
-                    Text(episode.duration ?? "")
-                        .outfitRegular(18)
-                        .foregroundColor(.textLight)
+                    HStack(spacing: 10) {
+                        Text(episode.duration ?? "")
+                            .outfitRegular(16)
+                            .foregroundColor(.textLight)
+                        
+                        // Episode rating
+                        HStack(spacing: 4) {
+                            Image(systemName: "star.fill")
+                                .resizable()
+                                .frame(width: 12, height: 12)
+                                .foregroundColor(.rating)
+                            Text(String(format: "%.1f", episode.ratings ?? 0))
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                            
+                            if let userRating = episode.userRating {
+                                Text("•")
+                                    .foregroundColor(.gray)
+                                Text(String(format: "%.0f", userRating))
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.primary)
+                            } else {
+                                Text("•")
+                                    .foregroundColor(.gray)
+                                Text("Rate")
+                                    .font(.system(size: 14, weight: .medium))
+                                    .foregroundColor(.primary)
+                            }
+                        }
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 4)
+                        .background(Color.black.opacity(0.3))
+                        .cornerRadius(12)
+                        .onTapGesture {
+                            onRatingTap?()
+                        }
+                    }
                 }
             }
             

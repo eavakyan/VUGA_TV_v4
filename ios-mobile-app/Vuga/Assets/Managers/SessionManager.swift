@@ -247,4 +247,12 @@ class SessionManager: ObservableObject {
         currentProfile = nil
         UserDefaults.standard.removeObject(forKey: "currentProfile")
     }
+    
+    func getCurrentProfile() -> Profile? {
+        return currentProfile
+    }
+    
+    func setCurrentProfile(_ profile: Profile) {
+        currentProfile = profile
+    }
 }
