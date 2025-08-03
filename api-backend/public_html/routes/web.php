@@ -12,6 +12,7 @@ use App\Http\Controllers\MediaGalleryController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\TVController;  
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\UserNotificationController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -121,6 +122,9 @@ Route::post('addNotification', [NotificationController::class, 'addNotification'
 Route::post('updateNotification', [NotificationController::class, 'updateNotification'])->middleware(['checkLogin'])->name('updateNotification');
 Route::post('repeatNotification', [NotificationController::class, 'repeatNotification'])->middleware(['checkLogin'])->name('repeatNotification');
 Route::post('deleteNotification', [NotificationController::class, 'deleteNotification'])->middleware(['checkLogin'])->name('deleteNotification');
+
+// User Notifications (One-time messages)
+Route::get('userNotifications', [UserNotificationController::class, 'index'])->middleware(['checkLogin'])->name('userNotifications');
 
 // Admob
 Route::get('admob', [AdmobController::class, 'admob'])->middleware(['checkLogin'])->name('admob');

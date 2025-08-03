@@ -136,6 +136,12 @@
                                 <span> {{ __('notification') }} </span>
                             </a>
                         </li>
+                        <li class="sideBarli userNotificationSideA">
+                            <a href="{{ route('userNotifications') }}" class="nav-link">
+                                <i data-feather="message-square"></i>
+                                <span> {{ __('User Notifications') }} </span>
+                            </a>
+                        </li>
                         <li class="sideBarli admobSideA">
                             <a href="{{ route('admob') }}" class="nav-link">
                                 <i data-feather="activity"></i>

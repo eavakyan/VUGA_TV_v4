@@ -164,6 +164,23 @@ Route::prefix('v2')->group(function () {
         Route::post('/age-ratings', [V2\ProfileController::class, 'getAgeRatings']);
     });
     
+    // User Notifications (One-time messages for profiles)
+    Route::prefix('user-notification')->group(function () {
+        // Client endpoints
+        Route::post('/pending', [V2\UserNotificationController::class, 'getPendingNotifications']);
+        Route::post('/mark-shown', [V2\UserNotificationController::class, 'markNotificationShown']);
+        Route::post('/dismiss', [V2\UserNotificationController::class, 'dismissNotification']);
+        
+        // Admin endpoints
+        Route::prefix('admin')->group(function () {
+            Route::post('/create', [V2\UserNotificationController::class, 'createNotification']);
+            Route::post('/list', [V2\UserNotificationController::class, 'getNotificationsList']);
+            Route::post('/update/{notificationId}', [V2\UserNotificationController::class, 'updateNotification']);
+            Route::delete('/delete/{notificationId}', [V2\UserNotificationController::class, 'deleteNotification']);
+            Route::get('/analytics/{notificationId}', [V2\UserNotificationController::class, 'getNotificationAnalytics']);
+        });
+    });
+    
     // Test endpoint to verify V2 API is working
     Route::get('/test', function () {
         return response()->json([
