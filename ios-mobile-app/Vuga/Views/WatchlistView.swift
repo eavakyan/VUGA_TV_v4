@@ -76,7 +76,7 @@ struct WatchlistView: View {
 struct WatchlistCardView: View {
     @StateObject var vm : WatchlistViewModel
     @State var isShowWatchlistDialog = false
-    var content: FlixyContent
+    var content: VugaContent
 
     var body: some View {
         ContentHorizontalCard(content: content) {
@@ -97,12 +97,12 @@ struct WatchlistCardView: View {
 struct ContentHorizontalCard<ContentV: View>: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     var view: (() -> ContentV)?
-    var content: FlixyContent
-    init(content: FlixyContent, @ViewBuilder view: @escaping () -> ContentV) {
+    var content: VugaContent
+    init(content: VugaContent, @ViewBuilder view: @escaping () -> ContentV) {
         self.content = content
         self.view = view
     }
-    init(content: FlixyContent) where ContentV == EmptyView {
+    init(content: VugaContent) where ContentV == EmptyView {
         self.content = content
         self.view = nil
     }
@@ -113,7 +113,7 @@ struct ContentHorizontalCard<ContentV: View>: View {
                 .cornerRadius(radius: 15)
                 .addStroke(radius: 15)
                 .overlay(
-                    TypeTagForFlixyContent(content: content)
+                    TypeTagForVugaContent(content: content)
                     ,alignment: .topLeading
                 )
                 .cornerRadius(radius: 15)

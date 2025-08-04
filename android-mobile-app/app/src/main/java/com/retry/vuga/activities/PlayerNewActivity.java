@@ -49,6 +49,8 @@ import com.retry.vuga.utils.SessionManager;
 import com.retry.vuga.utils.adds.MyInterstitialAds;
 import com.retry.vuga.utils.subtitle.SubtitleDisplay;
 import com.retry.vuga.utils.subtitle.SubtitleParser;
+import com.retry.vuga.utils.UniversalCastButton;
+import com.retry.vuga.utils.UniversalCastManager;
 import com.retry.vuga.viewmodel.PlayerViewModel;
 
 import org.jetbrains.annotations.NotNull;
@@ -66,6 +68,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class PlayerNewActivity extends BaseActivity {
+    private static final String TAG = "PlayerNewActivity";
     ActivityPlayerNewBinding binding;
     SubtitleLanguagesAdapter subtitleLanguagesAdapter;
     String trailerUrl;
@@ -113,6 +116,11 @@ public class PlayerNewActivity extends BaseActivity {
 
     private PlayerViewModel viewModel;
     private View fullscreenView;
+    
+    // Universal Cast support
+    private UniversalCastButton castButton;
+    private UniversalCastManager castManager;
+    private UniversalCastManager.CastDevice selectedCastDevice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -564,6 +572,11 @@ public class PlayerNewActivity extends BaseActivity {
         } else {
             viewModel.release();
         }
+        
+        // Clean up cast resources
+        if (castManager != null) {
+            castManager.cleanup();
+        }
     }
 
 
@@ -799,6 +812,9 @@ public class PlayerNewActivity extends BaseActivity {
 //        binding.btnMute.setVisibility(View.GONE);
         binding.btnSubtitle.setVisibility(View.GONE);
         sessionManager.saveIntValue(Const.DataKey.SUBTITLE_POSITION, 0);
+        
+        // Initialize Universal Cast functionality
+        initializeCastSupport();
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
@@ -863,6 +879,47 @@ public class PlayerNewActivity extends BaseActivity {
     private void playTrailer() {
         videoPath = trailerUrl;
         playByYoutubePlayer();
+    }
+
+    private void initializeCastSupport() {
+        castButton = binding.btnCast;
+        castManager = castButton.getCastManager();
+        
+        // Set up cast device selection listener
+        castButton.setOnCastDeviceSelectedListener(new UniversalCastButton.OnCastDeviceSelectedListener() {
+            @Override
+            public void onDeviceSelected(UniversalCastManager.CastDevice device) {
+                selectedCastDevice = device;
+                Log.d(TAG, "Cast device selected: " + device.name + " (" + device.type + ")");
+                
+                // If we have a video playing, start casting
+                if (videoPath != null && !videoPath.isEmpty()) {
+                    String title = binding.tvTitle.getText().toString();
+                    String subtitle = null;
+                    String imageUrl = null;
+                    
+                    // Get content details for better metadata
+                    if (modelSource != null && contentSource != null) {
+                        try {
+                            ContentDetail.SourceItem source = new Gson().fromJson(contentSource, ContentDetail.SourceItem.class);
+                            // Add more metadata if available
+                        } catch (Exception e) {
+                            Log.w(TAG, "Could not parse content source for metadata", e);
+                        }
+                    }
+                    
+                    Toast.makeText(PlayerNewActivity.this, "Casting to " + device.name, Toast.LENGTH_SHORT).show();
+                    castManager.castMedia(videoPath, title, subtitle, imageUrl);
+                }
+            }
+            
+            @Override
+            public void onDeviceDisconnected() {
+                selectedCastDevice = null;
+                Log.d(TAG, "Cast device disconnected");
+                Toast.makeText(PlayerNewActivity.this, "Disconnected from cast device", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void noStatusBar() {

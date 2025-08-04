@@ -15,7 +15,7 @@ struct AvailableSourcesView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @StateObject var vm: ContentDetailViewModel
     @Binding var episodeIncreaseTotalView : Int
-    var content: FlixyContent?
+    var content: VugaContent?
     var seasonNumber: Int
     
     var body: some View {
@@ -64,7 +64,7 @@ struct DownloadableSourceView: View {
     @Binding var episodeIncreaseTotalView: Int
 
     var source: Source
-    var content: FlixyContent?
+    var content: VugaContent?
     var seasonNumber: Int
     
     var downloadContent: DownloadingContent? {

@@ -75,5 +75,15 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>VUGA needs camera access to scan QR codes for TV authentication</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>VUGA needs local network access to discover and connect to TVs and streaming devices</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_googlecast._tcp</string>
+		<string>_airplay._tcp</string>
+		<string>_raop._tcp</string>
+		<string>_upnp._tcp</string>
+		<string>_ssdp._tcp</string>
+	</array>
 </dict>
 </plist>

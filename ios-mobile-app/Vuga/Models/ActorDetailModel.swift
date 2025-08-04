@@ -18,7 +18,7 @@ struct ActorDetail: Codable {
     let id: Int?
     let fullname, dob, bio, profileImage: String?
     let createdAt, updatedAt: String?
-    let actorContent: [FlixyContent]?
+    let actorContent: [VugaContent]?
 
     enum CodingKeys: String, CodingKey {
         case id = "actor_id"

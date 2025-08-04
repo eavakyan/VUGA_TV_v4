@@ -8,7 +8,7 @@
 import Foundation
 
 class ContentDetailViewModel : BaseViewModel {
-    @Published var content: FlixyContent?
+    @Published var content: VugaContent?
     @Published var isStoryLineOn = true
     @Published var isStarCastOn = true
     @Published var isSourceSheetOn = false

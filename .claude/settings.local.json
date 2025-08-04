@@ -18,7 +18,18 @@
       "Bash(adb:*)",
       "Bash(xcodebuild:*)",
       "Bash(swift:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(rm:*)",
+      "Bash(ls:*)",
+      "Bash(pod install:*)",
+      "Bash(find:*)",
+      "Bash(plutil:*)",
+      "Bash(xcrun simctl list:*)",
+      "Bash(awk:*)",
+      "Bash(perl:*)",
+      "Bash(sed:*)",
+      "Bash(python3:*)",
+      "WebFetch(domain:developers.google.com)"
     ],
     "deny": []
   }

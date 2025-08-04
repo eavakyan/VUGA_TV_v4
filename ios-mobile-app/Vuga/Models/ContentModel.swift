@@ -11,11 +11,11 @@ import Foundation
 struct ContentModel: Codable {
     let status: Bool?
     let message: String?
-    let data: FlixyContent?
+    let data: VugaContent?
 }
 
 // MARK: - Content
-struct FlixyContent: Codable {
+struct VugaContent: Codable {
     let id: Int?
     let title, description: String?
     let type: ContentType?
@@ -34,7 +34,7 @@ struct FlixyContent: Codable {
     let contentSources: [Source]?
     let contentSubtitles: [Subtitle]?
     let seasons: [Season]?
-    let moreLikeThis: [FlixyContent]?
+    let moreLikeThis: [VugaContent]?
     let ageRating: String?
     let minAge: Int?
     let ageLimits: [AgeRating]?

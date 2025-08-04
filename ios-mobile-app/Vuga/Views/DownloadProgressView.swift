@@ -13,7 +13,7 @@ struct DownloadProgressView: View {
     @EnvironmentObject var downloadViewModel: DownloadViewModel
     @Binding var isShowing: Bool
     
-    let content: FlixyContent
+    let content: VugaContent
     let source: Source
     let downloadId: String
     

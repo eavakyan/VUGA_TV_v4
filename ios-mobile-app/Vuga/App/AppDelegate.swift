@@ -9,6 +9,7 @@ import SwiftUI
 import FirebaseMessaging
 import Firebase
 import GoogleMobileAds
+import GoogleCast
 
 import SwiftUI
 // import RevenueCat - Disabled temporarily
@@ -25,6 +26,9 @@ class AppDelegate : NSObject,UIApplicationDelegate { // PurchasesDelegate {
         // AdMob disabled - not initializing
         // GADMobileAds.sharedInstance().start(completionHandler: nil)
 
+        // Initialize Google Cast
+        initializeGoogleCast()
+
         // Temporarily disabled RevenueCat - configure valid API key in Const.swift
         // Purchases.logLevel = .debug
         // Purchases.configure(withAPIKey: RevenueCatApiKey, appUserID: "\(myUser?.id ?? 0)")
@@ -38,6 +42,67 @@ class AppDelegate : NSObject,UIApplicationDelegate { // PurchasesDelegate {
             }
         }
         return true
+    }
+    
+    private func initializeGoogleCast() {
+        // Use Default Media Receiver for testing - it supports all standard video formats
+        // let appId = "4F8B3483" // Custom receiver - may have issues with video playback
+        let appId = kGCKDefaultMediaReceiverApplicationID // "CC1AD845" - Default receiver
+        
+        print("🚀 GoogleCast: Initializing with app ID: \(appId)")
+        print("🔧 Using Default Media Receiver for better video compatibility")
+        
+        let criteria = GCKDiscoveryCriteria(applicationID: appId)
+        let options = GCKCastOptions(discoveryCriteria: criteria)
+        options.physicalVolumeButtonsWillControlDeviceVolume = true
+        options.disableDiscoveryAutostart = false
+        options.startDiscoveryAfterFirstTapOnCastButton = false
+        
+        GCKCastContext.setSharedInstanceWith(options)
+        
+        let castContext = GCKCastContext.sharedInstance()
+        castContext.useDefaultExpandedMediaControls = true
+        
+        // Enable logging for debugging
+        GCKLogger.sharedInstance().loggingEnabled = true
+        
+        // Start discovery immediately
+        castContext.discoveryManager.startDiscovery()
+        
+        print("✅ GoogleCast: Context initialized and discovery started")
+        print("🔍 GoogleCast: Discovery manager state: \(castContext.discoveryManager.discoveryState.rawValue)")
+        print("🔍 GoogleCast: Discovery active: \(castContext.discoveryManager.discoveryActive)")
+        print("🔍 GoogleCast: Has discovered devices: \(castContext.discoveryManager.hasDiscoveredDevices)")
+        
+        // Add observer for discovery state changes
+        NotificationCenter.default.addObserver(
+            forName: NSNotification.Name.gckCastStateDidChange,
+            object: castContext,
+            queue: OperationQueue.main
+        ) { _ in
+            print("📡 GoogleCast: Cast state changed to: \(castContext.castState.rawValue)")
+            print("🔍 GoogleCast: Discovery state: \(castContext.discoveryManager.discoveryState.rawValue)")
+            print("📱 GoogleCast: Device count: \(castContext.discoveryManager.deviceCount)")
+        }
+        
+        // Log devices after a short delay to allow discovery
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+            let deviceCount = castContext.discoveryManager.deviceCount
+            print("🔥 GoogleCast: Current device count after 3 seconds: \(deviceCount)")
+            if deviceCount == 0 {
+                print("❗ No Cast devices found. Make sure:")
+                print("   - Your Android TV is on the same WiFi network")
+                print("   - Cast is enabled on your Android TV")
+                print("   - Your WiFi allows device-to-device communication")
+            } else {
+                for i in 0..<deviceCount {
+                    let device = castContext.discoveryManager.device(at: i)
+                    print("📺 Device \(i): \(device.friendlyName ?? "Unknown") - ID: \(device.deviceID)")
+                }
+            }
+        }
+        
+        print("✅ GoogleCast: Initialization complete")
     }
     
     // func purchases(_ purchases: Purchases, receivedUpdated customerInfo: CustomerInfo) {

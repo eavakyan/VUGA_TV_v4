@@ -219,6 +219,16 @@
                             app:tint="@color/white"
                             tools:visibility="visible" />
 
+                        <com.retry.vuga.utils.UniversalCastButton
+                            android:id="@+id/btn_cast"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_marginStart="8dp"
+                            android:background="@drawable/bg_round_rect_15"
+                            android:backgroundTint="@color/transparent"
+                            android:padding="6dp"
+                            android:scaleType="fitCenter" />
+
                         <ImageView
                             android:id="@+id/fullscreen_btn"
                             android:layout_width="40dp"

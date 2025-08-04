@@ -188,5 +188,6 @@
     <string name="recent_live_tv">Recent Live TV</string>
     <string name="watch_list_description">Your saved movies and shows appear here.</string>
     <string name="tv_shows">TV Shows</string>
+    <string name="cast_to_tv">Cast to TV</string>
 
 </resources>

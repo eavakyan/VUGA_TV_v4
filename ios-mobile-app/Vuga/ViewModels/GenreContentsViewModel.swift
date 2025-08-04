@@ -8,7 +8,7 @@
 import Foundation
 
 class GenreContestViewModel : BaseViewModel {
-    @Published var contents = [FlixyContent]()
+    @Published var contents = [VugaContent]()
     
     func fetchContests(genreId: Int?){
         let params: [Params: Any] = [.genreId : genreId ?? 0, .start: contents.count, .limit: Limits.pagination]

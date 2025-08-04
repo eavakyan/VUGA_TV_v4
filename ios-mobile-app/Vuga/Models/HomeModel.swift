@@ -14,7 +14,7 @@ struct Genre: Codable {
     let id: Int?
     let title, createdAt: String?
     let updatedAt: String?
-    let contents: [FlixyContent]?
+    let contents: [VugaContent]?
 
     enum CodingKeys: String, CodingKey {
         case id = "genre_id"
@@ -28,7 +28,7 @@ struct Genre: Codable {
 struct HomeModel: Codable {
     let status: Bool?
     let message: String?
-    let featured, watchlist: [FlixyContent]?
+    let featured, watchlist: [VugaContent]?
     let topContents: [TopContent]?
     let genreContents: [Genre]?
 }
@@ -40,7 +40,7 @@ struct TopContent: Codable {
     let id, contentIndex, contentID: Int?
     let createdAt: String?
     let updatedAt: String?
-    let content: FlixyContent?
+    let content: VugaContent?
 
     enum CodingKeys: String, CodingKey {
         case id = "top_content_id"

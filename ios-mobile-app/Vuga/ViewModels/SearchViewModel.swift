@@ -8,7 +8,7 @@
 import SwiftUI
 
 class SearchViewModel : BaseViewModel {
-    @Published var contents = [FlixyContent]()
+    @Published var contents = [VugaContent]()
     @Published var contentType = ContentType.all
     @Published var selectedLang = ContentLanguage(id: 0, title: .all, createdAt: "", updatedAt: "")
     @Published var selectedGenre = Genre(id: 0, title: "", createdAt: "", updatedAt: "", contents: [])

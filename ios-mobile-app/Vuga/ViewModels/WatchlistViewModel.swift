@@ -8,7 +8,7 @@
 import Foundation
 
 class WatchlistViewModel : BaseViewModel {
-    @Published var contents = [FlixyContent]()
+    @Published var contents = [VugaContent]()
     @Published var contentType = ContentType.all
     @Published var isDataFetched = false
 
@@ -37,7 +37,7 @@ class WatchlistViewModel : BaseViewModel {
         }
     }
     
-    func removeFromWatchlist(content: FlixyContent) {
+    func removeFromWatchlist(content: VugaContent) {
         var params: [Params: Any] = [
             .appUserId: myUser?.id ?? 0,
             .contentId: content.id ?? 0

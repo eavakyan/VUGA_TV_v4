@@ -11,5 +11,5 @@ import Foundation
 struct ContentsModel: Codable {
     let status: Bool?
     let message: String?
-    let data: [FlixyContent]?
+    let data: [VugaContent]?
 }

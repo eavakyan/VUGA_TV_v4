@@ -9,9 +9,9 @@ import SwiftUI
 import Combine
 
 class HomeViewModel : BaseViewModel {
-    @Published var featured = [FlixyContent]()
+    @Published var featured = [VugaContent]()
     @Published var topContents = [TopContent]()
-    @Published var wishlists = [FlixyContent]()
+    @Published var wishlists = [VugaContent]()
     @Published var genres = [Genre]()
     @Published var selectedImageIndex = 0
     @Published var selectedRecentlyWatched: RecentlyWatched?

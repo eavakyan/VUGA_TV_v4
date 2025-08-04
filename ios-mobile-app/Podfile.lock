@@ -1,16 +1,56 @@
 PODS:
+  - AFNetworking/NSURLSession (3.2.1):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (3.2.1)
+  - AFNetworking/Security (3.2.1)
+  - AFNetworking/Serialization (3.2.1)
+  - CocoaAsyncSocket (7.6.5)
+  - CocoaUPnP (2.0.3):
+    - AFNetworking/NSURLSession (= 3.2.1)
+    - AFNetworking/Reachability (= 3.2.1)
+    - AFNetworking/Security (= 3.2.1)
+    - AFNetworking/Serialization (= 3.2.1)
+    - CocoaAsyncSocket (~> 7.6.3)
+    - GCDWebServer (~> 3.5.2)
+    - Ono (~> 2.1.1)
+  - GCDWebServer (3.5.4):
+    - GCDWebServer/Core (= 3.5.4)
+  - GCDWebServer/Core (3.5.4)
+  - google-cast-sdk (4.8.3):
+    - Protobuf (~> 3.13)
   - MobileVLCKit (3.3.17)
+  - Ono (2.1.2)
+  - Protobuf (3.29.5)
 
 DEPENDENCIES:
+  - CocoaAsyncSocket (~> 7.6)
+  - CocoaUPnP (~> 2.0)
+  - google-cast-sdk (~> 4.8.0)
   - MobileVLCKit
 
 SPEC REPOS:
   trunk:
+    - AFNetworking
+    - CocoaAsyncSocket
+    - CocoaUPnP
+    - GCDWebServer
+    - google-cast-sdk
     - MobileVLCKit
+    - Ono
+    - Protobuf
 
 SPEC CHECKSUMS:
+  AFNetworking: cb604b1c2bded0871f5f61f5d53653739e841d6b
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
+  CocoaUPnP: 78c1f6c70fecd8d5cafd8d2ce7edd1a2734a13fd
+  GCDWebServer: 2c156a56c8226e2d5c0c3f208a3621ccffbe3ce4
+  google-cast-sdk: 1fb6724e94cc5ff23b359176e0cf6360586bb97a
   MobileVLCKit: c5dd1b0ae933dc9c2348099840e753496dcdd908
+  Ono: 26a7c1fc4df13ece7747560a1d80655807a8a000
+  Protobuf: 164aea2ae380c3951abdc3e195220c01d17400e0
 
-PODFILE CHECKSUM: 17900a3b4845d57b1ceacd7c993ab6f9d20ec8ef
+PODFILE CHECKSUM: 095dab9f4373bda62736969a3516e71b5f318331
 
 COCOAPODS: 1.16.2

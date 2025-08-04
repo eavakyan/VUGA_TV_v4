@@ -193,5 +193,10 @@ dependencies {
     
     // Google Cast SDK
     implementation 'com.google.android.gms:play-services-cast-framework:21.3.0'
+    
+    // DLNA/UPnP Support - Commented out for now due to repository issues
+    // Will use a simplified DLNA implementation instead
+    // implementation 'org.fourthline.cling:cling-core:2.1.2'
+    // implementation 'org.fourthline.cling:cling-support:2.1.2'
 
 }

@@ -45,7 +45,7 @@ struct DownloadingContent {
     var content : DownloadContent?
     var source: Source?
     var episode: Episode?
-    var flixyContent: FlixyContent?
+    var flixyContent: VugaContent?
     var sourceUrl: URL?
 }
 
@@ -98,7 +98,7 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         }
     }
     
-    func startDownload(content: FlixyContent, episode: Episode?, source: Source,seasonNumber: Int) {
+    func startDownload(content: VugaContent, episode: Episode?, source: Source,seasonNumber: Int) {
         
         // Check storage before downloading
         let sizeInMB = Int(source.size ?? "500") ?? 500
@@ -334,7 +334,7 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         }
     }
     
-    func addContentToDownload(content: FlixyContent, episode: Episode?, source: Source,seasonNumber: Int) {
+    func addContentToDownload(content: VugaContent, episode: Episode?, source: Source,seasonNumber: Int) {
         let newDownloadContent = DownloadContent(context: DataController.shared.context)
         let downloadId = source.sourceDownloadId(contentType: content.type ?? .movie)
         let videoName = "\(content.type?.title ?? "")_\(source.id ?? 0)" + source.sourceURL.lastPathComponent

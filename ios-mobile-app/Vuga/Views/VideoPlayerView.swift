@@ -10,6 +10,7 @@ import SwiftUI
 import AVKit
 import Sliders
 import CoreData
+import GoogleCast
 
 struct VideoPlayerView: View {
     @Environment(\.scenePhase) var scenePhase
@@ -18,7 +19,7 @@ struct VideoPlayerView: View {
     @StateObject var orientationManager = OrientationManager()
     @StateObject var vm = PlayerModel()
     @StateObject var contentModel = ContentDetailViewModel()
-    @State var content : FlixyContent?
+    @State var content : VugaContent?
     @State var episode: Episode?
     @State var isplaying = false
     @State var value : Float = 0
@@ -131,7 +132,23 @@ struct VideoPlayerView: View {
                     print("ROTATION : \(UIDevice.current.orientation)")
                     UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
                     AppDelegate.orientationLock = .landscapeRight
-                    vm.setupPlayer(videoUrl: url, type: type)
+                    
+                    // Check if Cast is connected - if so, show a message and close the player
+                    let castContext = GCKCastContext.sharedInstance()
+                    if castContext.castState == .connected {
+                        print("📺 Cast is active - media should be playing on TV. Closing local player.")
+                        
+                        // Show a brief message that casting is active
+                        vm.state = .playing
+                        
+                        // Close the video player since Cast is handling playback
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                            present.wrappedValue.dismiss()
+                        }
+                    } else {
+                        // No Cast connection, setup local player normally
+                        vm.setupPlayer(videoUrl: url, type: type)
+                    }
                     
                     if showLoader {
                         vm.isLoading = true
@@ -577,7 +594,7 @@ struct CustomProgressBar : UIViewRepresentable {
 struct CustomProgressBars: View {
     @StateObject var vm : PlayerModel
     @Binding var value: Double
-    @State var content: FlixyContent?
+    @State var content: VugaContent?
     @Binding var isplaying: Bool
     @State var isEditing = false
     @State var height : CGFloat = 5

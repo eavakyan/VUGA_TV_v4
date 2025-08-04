@@ -10,7 +10,7 @@ import Foundation
 struct IncreaseContentViewModel: Codable {
     let status: Bool?
     let message: String?
-    let data: FlixyContent?
+    let data: VugaContent?
 }
 
 struct IncreaseEpisodeViewsModel : Codable {

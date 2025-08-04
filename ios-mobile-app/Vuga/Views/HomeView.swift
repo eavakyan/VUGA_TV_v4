@@ -214,7 +214,7 @@ struct HomeView: View {
                                 .addStroke(radius: 5)
                                 .padding(.bottom,45)
                                 .overlay(
-                                    TypeTagForFlixyContent(content: topContent.content)
+                                    TypeTagForVugaContent(content: topContent.content)
                                     ,alignment: .topLeading
                                 )
                                 .customCornerRadius(radius: 5)
@@ -252,7 +252,7 @@ struct HomeView: View {
                                 .resizeFillTo(width: 210, height: 130,radius: 10)
                                 .addStroke(radius: 10)
                                 .overlay(
-                                    TypeTagForFlixyContent(content: content)
+                                    TypeTagForVugaContent(content: content)
                                     ,alignment: .topLeading
                                 )
                                 .cornerRadius(radius: 15)
@@ -404,7 +404,7 @@ struct GenreHomeCard : View {
 
 struct ContentVerticalCard: View {
      var vm : HomeViewModel?
-    var content: FlixyContent
+    var content: VugaContent
     var body: some View {
         KFImage(content.verticalPoster?.addBaseURL())
             .resizeFillTo(width: 140, height: 200, radius: 5)
@@ -443,9 +443,9 @@ struct StrokeTextLabel: UIViewRepresentable {
 }
 
 
-struct TypeTagForFlixyContent: View {
+struct TypeTagForVugaContent: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
-    var content: FlixyContent?
+    var content: VugaContent?
     var body: some View {
         HStack {
             Text(content?.type?.title.localized(language) ?? "")

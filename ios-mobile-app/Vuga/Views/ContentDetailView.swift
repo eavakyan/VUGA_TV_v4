@@ -14,6 +14,8 @@ import BranchSDK
 import Flow
 import WrappingStack
 import MediaPlayer
+import GoogleCast
+import Combine
 
 // Temporary rating components until import issue is resolved
 struct RatingDisplayView: View {
@@ -194,9 +196,8 @@ struct ContentDetailView: View {
                             Function.shared.haptic()
                             shareContent()
                         }
-                        // AirPlay button
-                        AirPlayRoutePickerView(isConnected: isAirPlayConnected)
-                            .frame(width: 44, height: 44)
+                        // Universal Cast buttons
+                        CombinedCastView(viewModel: vm)
                     }
                 }
                 .padding([.horizontal, .top],15)
@@ -493,7 +494,7 @@ struct ContentDetailView: View {
     
     // MARK: - View Builders
     @ViewBuilder
-    private func contentDetailSection(for content: FlixyContent) -> some View {
+    private func contentDetailSection(for content: VugaContent) -> some View {
         VStack(spacing: 12) {
             contentPosterSection(content)
             contentInfoSection(content)
@@ -510,7 +511,7 @@ struct ContentDetailView: View {
     }
     
     @ViewBuilder
-    private func contentPosterSection(_ content: FlixyContent) -> some View {
+    private func contentPosterSection(_ content: VugaContent) -> some View {
         KFImage(content.verticalPoster?.addBaseURL())
             .resizeFillTo(width: Device.width * 0.75, height: Device.width * 1.1, radius: 15)
             .addStroke(radius: 15)
@@ -537,7 +538,7 @@ struct ContentDetailView: View {
     }
     
     @ViewBuilder
-    private func contentInfoSection(_ content: FlixyContent) -> some View {
+    private func contentInfoSection(_ content: VugaContent) -> some View {
         VStack(spacing: 5) {
             Text(content.title ?? "")
                 .outfitSemiBold(20)
@@ -563,7 +564,7 @@ struct ContentDetailView: View {
     }
     
     @ViewBuilder
-    private func contentRatingSection(_ content: FlixyContent) -> some View {
+    private func contentRatingSection(_ content: VugaContent) -> some View {
         HStack(spacing: 10) {
             // Rating Display with user rating
             RatingDisplayView(
@@ -612,7 +613,7 @@ struct ContentDetailView: View {
     }
     
     @ViewBuilder
-    private func movieActionButtons(_ content: FlixyContent) -> some View {
+    private func movieActionButtons(_ content: VugaContent) -> some View {
         VStack(spacing: 10) {
             // Play button
             HStack(spacing: 12) {
@@ -653,7 +654,7 @@ struct ContentDetailView: View {
         }
     }
     
-    private func handlePlayAction(_ content: FlixyContent) {
+    private func handlePlayAction(_ content: VugaContent) {
         // Check age restrictions first
         let currentProfile = SessionManager.shared.getCurrentProfile()
         if !content.isAppropriateFor(profile: currentProfile) {
@@ -865,6 +866,241 @@ struct ContentDetailView: View {
     
 }
 
+// MARK: - CombinedCastView
+struct CombinedCastView: View {
+    @ObservedObject var viewModel: ContentDetailViewModel
+    
+    var body: some View {
+        HStack(spacing: 12) {
+            // Google Cast button
+            GoogleCastButton(viewModel: viewModel)
+                .frame(width: 24, height: 24)
+            
+            // AirPlay button
+            AirPlayRoutePickerView(isConnected: false)
+                .frame(width: 24, height: 24)
+        }
+    }
+}
+
+// MARK: - Cast Request Delegate
+class CastRequestDelegate: NSObject, GCKRequestDelegate {
+    func requestDidComplete(_ request: GCKRequest) {
+        print("✅ SUCCESS: Media is now playing on Cast device!")
+        
+        // Check media status
+        if let session = GCKCastContext.sharedInstance().sessionManager.currentCastSession,
+           let remoteMediaClient = session.remoteMediaClient {
+            if let mediaStatus = remoteMediaClient.mediaStatus {
+                print("📺 Player State: \(mediaStatus.playerState.rawValue)")
+                print("📺 Media loaded successfully")
+            }
+        }
+    }
+    
+    func request(_ request: GCKRequest, didFailWithError error: GCKError) {
+        print("❌ FAILED: Could not load media - Error code: \(error.code)")
+        print("❌ Error: \(error.localizedDescription)")
+        
+        // Detailed error analysis
+        switch error.code {
+        case 2100:
+            print("💡 MEDIA_LOAD_FAILED - The media could not be loaded")
+            print("💡 Common causes: CORS issue, unsupported format, network error")
+        case 2101:
+            print("💡 INVALID_REQUEST - The request is invalid")
+        case 2102:
+            print("💡 MEDIA_LOAD_CANCELLED - The media load was cancelled")
+        case 2103:
+            print("💡 MEDIA_LOAD_INTERRUPTED - The media load was interrupted")
+        default:
+            print("💡 Error details: Check if the Cast receiver app supports the media format")
+        }
+    }
+}
+
+// MARK: - GoogleCastButton
+struct GoogleCastButton: UIViewRepresentable {
+    @ObservedObject var viewModel: ContentDetailViewModel
+    
+    func makeUIView(context: Context) -> GCKUICastButton {
+        let castButton = GCKUICastButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        castButton.tintColor = UIColor.white
+        
+        // Log when button is created
+        print("🎯 GoogleCastButton: Created Cast button")
+        
+        // Add target to log taps
+        castButton.addTarget(context.coordinator, action: #selector(Coordinator.castButtonTapped), for: .touchUpInside)
+        
+        return castButton
+    }
+    
+    func updateUIView(_ uiView: GCKUICastButton, context: Context) {
+        // Update if needed
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parentView: self)
+    }
+    
+    class Coordinator: NSObject {
+        var castRequestDelegate: CastRequestDelegate?
+        var parentView: GoogleCastButton?
+        
+        init(parentView: GoogleCastButton? = nil) {
+            self.parentView = parentView
+            super.init()
+        }
+        
+        @objc func castButtonTapped() {
+            print("🎯 GoogleCastButton: Cast button tapped!")
+            let context = GCKCastContext.sharedInstance()
+            print("📱 Cast state: \(context.castState.rawValue)")
+            print("📱 Device count: \(context.discoveryManager.deviceCount)")
+            print("📱 Discovery active: \(context.discoveryManager.discoveryActive)")
+            
+            // If already connected, start casting immediately
+            if context.castState == .connected {
+                print("📺 Already connected to Cast device - starting playback immediately!")
+                startCastingCurrentContent()
+            } else {
+                // Force start discovery
+                if !context.discoveryManager.discoveryActive {
+                    print("🔄 Starting discovery...")
+                    context.discoveryManager.startDiscovery()
+                }
+                
+                // Set up observer to start casting when connection is established
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(castStateChanged),
+                    name: NSNotification.Name.gckCastStateDidChange,
+                    object: nil
+                )
+            }
+        }
+        
+        @objc func castStateChanged() {
+            let context = GCKCastContext.sharedInstance()
+            print("🔄 Cast state changed to: \(context.castState.rawValue)")
+            
+            if context.castState == .connected {
+                print("✅ Cast connected - starting playback!")
+                // Small delay to ensure session is fully established
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.startCastingCurrentContent()
+                }
+                // Remove observer after use
+                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.gckCastStateDidChange, object: nil)
+            }
+        }
+        
+        private func startCastingCurrentContent() {
+            print("🎬 Starting cast playback...")
+            
+            guard let parentView = parentView,
+                  let content = parentView.viewModel.content else {
+                print("❌ No content available to cast")
+                return
+            }
+            
+            // Get the first available source URL
+            var videoUrl: String?
+            var contentType = "video/mp4" // Default
+            
+            if let sources = content.contentSources, !sources.isEmpty {
+                let source = sources[0]
+                
+                // Get URL based on source type
+                if source.type == .file {
+                    videoUrl = source.media?.file?.addBaseURL()?.absoluteString
+                } else {
+                    videoUrl = source.source
+                }
+                
+                // Determine content type from source
+                if source.type == .m3u8 {
+                    contentType = "application/x-mpegURL" // HLS
+                } else if source.type == .mkv {
+                    contentType = "video/x-matroska"
+                } else if source.type == .webm {
+                    contentType = "video/webm"
+                } else if source.type == .mov {
+                    contentType = "video/quicktime"
+                }
+            }
+            
+            // Fallback to test video if no URL available
+            if videoUrl == nil || videoUrl?.isEmpty == true {
+                print("⚠️ No content URL found, using test video")
+                videoUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            }
+            
+            let castContext = GCKCastContext.sharedInstance()
+            guard let session = castContext.sessionManager.currentCastSession,
+                  let remoteMediaClient = session.remoteMediaClient else {
+                print("❌ No active Cast session or media client")
+                return
+            }
+            
+            guard let finalVideoUrl = videoUrl,
+                  let mediaURL = URL(string: finalVideoUrl) else {
+                print("❌ Invalid video URL")
+                return
+            }
+            
+            // Log session details
+            print("📱 Cast device: \(session.device.friendlyName ?? "Unknown")")
+            print("📺 Content: \(content.title ?? "Unknown")")
+            print("🎬 URL: \(finalVideoUrl)")
+            print("📄 Content type: \(contentType)")
+            
+            // Create metadata with actual content info
+            let metadata = GCKMediaMetadata(metadataType: content.type == .series ? .tvShow : .movie)
+            metadata.setString(content.title ?? "Video", forKey: kGCKMetadataKeyTitle)
+            
+            if let description = content.description {
+                metadata.setString(description, forKey: kGCKMetadataKeySubtitle)
+            }
+            
+            // Add poster image if available (use vertical or horizontal poster)
+            if let posterPath = content.verticalPoster ?? content.horizontalPoster,
+               let posterUrl = posterPath.addBaseURL()?.absoluteString,
+               let imageURL = URL(string: posterUrl) {
+                metadata.addImage(GCKImage(url: imageURL, width: 480, height: 720))
+            }
+            
+            // Create media info
+            let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: mediaURL)
+            mediaInfoBuilder.streamType = .buffered
+            mediaInfoBuilder.contentType = contentType
+            mediaInfoBuilder.metadata = metadata
+            
+            let mediaInfo = mediaInfoBuilder.build()
+            
+            // Create and send load request
+            let loadRequestBuilder = GCKMediaLoadRequestDataBuilder()
+            loadRequestBuilder.mediaInformation = mediaInfo
+            loadRequestBuilder.autoplay = true
+            
+            let request = loadRequestBuilder.build()
+            
+            print("📤 Sending cast request...")
+            
+            let loadRequest = remoteMediaClient.loadMedia(with: request)
+            self.castRequestDelegate = CastRequestDelegate()
+            loadRequest.delegate = self.castRequestDelegate
+            
+            print("📤 Cast request sent - content should start playing on TV")
+        }
+        
+        deinit {
+            NotificationCenter.default.removeObserver(self)
+        }
+    }
+}
+
 #Preview {
     ContentDetailView()
 }
@@ -872,7 +1108,7 @@ struct ContentDetailView: View {
 
 
 private struct ContentBackgroudView: View {
-    var content: FlixyContent?
+    var content: VugaContent?
     var body: some View {
         if let content {
             VStack {
@@ -928,7 +1164,7 @@ private struct StarCastCard: View {
 private struct SeasonTags : View {
     @ObservedObject var vm: ContentDetailViewModel
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
-    var content: FlixyContent
+    var content: VugaContent
     var body: some View {
         if content.seasons?.isNotEmpty == true {
             VStack(spacing: 0) {

@@ -14,6 +14,7 @@ import AVKit
 import Sliders
 import SwiftSubtitles
 import MediaPlayer
+import GoogleCast
 
 
 struct VideoPlayer : UIViewControllerRepresentable {
@@ -95,13 +96,19 @@ class PlayerModel: BaseViewModel {
         super.init()
         configureVolAndBrit()
         configurePanRecognizer()
-       NotificationCenter.default.addObserver(self, selector: #selector(handleInterruption(notification:)), name: AVAudioSession.interruptionNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(handleInterruption(notification:)), name: AVAudioSession.interruptionNotification, object: nil)
+        
+        // Observe Cast state changes
+        NotificationCenter.default.addObserver(self, selector: #selector(castStateDidChange), name: NSNotification.Name.gckCastStateDidChange, object: nil)
     }
 
 
     deinit {
         controlsTimer?.invalidate()
         controlsTimer = nil
+        timer?.invalidate()
+        timer = nil
+        NotificationCenter.default.removeObserver(self)
     }
     
     func startControlsTimer() {
@@ -129,6 +136,13 @@ class PlayerModel: BaseViewModel {
     }
     
     func setupPlayer(videoUrl: String, type: Int){
+        // Check if Google Cast is connected
+        let castContext = GCKCastContext.sharedInstance()
+        if castContext.castState == .connected {
+            // Handle Google Cast playback - will be called with metadata from VideoPlayerView
+            return
+        }
+        
         if let url = URL(string: videoUrl) {
             if type == 2 || type == 3 || type == 4 {
                 // Configure audio session for AirPlay
@@ -155,25 +169,37 @@ class PlayerModel: BaseViewModel {
     }
     
     func play() {
-        player?.play()
-        vlcPlayer?.play()
-        state = .playing
-        restartTimer()
-        timer = Timer.scheduledTimer(withTimeInterval: player != nil ? 0.1 : 0.3, repeats: true, block: { timer in
-            self.state = .playing
-            if !self.isEditing {
-                self.getCurrentPosition()
-            }
-        })
+        if castSession != nil {
+            remoteMediaClient?.play()
+            state = .playing
+            restartTimer()
+        } else {
+            player?.play()
+            vlcPlayer?.play()
+            state = .playing
+            restartTimer()
+            timer = Timer.scheduledTimer(withTimeInterval: player != nil ? 0.1 : 0.3, repeats: true, block: { timer in
+                self.state = .playing
+                if !self.isEditing {
+                    self.getCurrentPosition()
+                }
+            })
+        }
     }
     
     func pause() {
-        player?.pause()
-        vlcPlayer?.pause()
-        restartTimer()
-        state = .paused
-        timer?.invalidate()
-        timer = nil
+        if castSession != nil {
+            remoteMediaClient?.pause()
+            restartTimer()
+            state = .paused
+        } else {
+            player?.pause()
+            vlcPlayer?.pause()
+            restartTimer()
+            state = .paused
+            timer?.invalidate()
+            timer = nil
+        }
     }
     
     func stop() {
@@ -183,26 +209,38 @@ class PlayerModel: BaseViewModel {
     }
     
     func jumpForward() {
-        player?.seek(to: CMTime(seconds: currentTime + Double(Limits.skipVideoSeconds), preferredTimescale: 10))
-        vlcPlayer?.jumpForward(Int32(Limits.skipVideoSeconds))
+        if castSession != nil {
+            seekToCast(time: currentTime + Double(Limits.skipVideoSeconds))
+        } else {
+            player?.seek(to: CMTime(seconds: currentTime + Double(Limits.skipVideoSeconds), preferredTimescale: 10))
+            vlcPlayer?.jumpForward(Int32(Limits.skipVideoSeconds))
+        }
         restartTimer()
     }
     
     func jumpBackward() {
-        player?.seek(to: CMTime(seconds: currentTime - Double(Limits.skipVideoSeconds), preferredTimescale: 10))
-        vlcPlayer?.jumpBackward(Int32(Limits.skipVideoSeconds))
+        if castSession != nil {
+            seekToCast(time: max(0, currentTime - Double(Limits.skipVideoSeconds)))
+        } else {
+            player?.seek(to: CMTime(seconds: currentTime - Double(Limits.skipVideoSeconds), preferredTimescale: 10))
+            vlcPlayer?.jumpBackward(Int32(Limits.skipVideoSeconds))
+        }
         restartTimer()
     }
     
     func seekVideo(second: Double) {
         restartTimer()
         
-        vlcPlayer?.time = VLCTime(int: Int32(currentTime * 1000))
-        
-        if let player = player {
-            player.seek(to: CMTime(seconds: second, preferredTimescale: .max)) { finished in
-                if finished {
-                    print("AVPlayer successfully sought to: \(second) seconds")
+        if castSession != nil {
+            seekToCast(time: second)
+        } else {
+            vlcPlayer?.time = VLCTime(int: Int32(currentTime * 1000))
+            
+            if let player = player {
+                player.seek(to: CMTime(seconds: second, preferredTimescale: .max)) { finished in
+                    if finished {
+                        print("AVPlayer successfully sought to: \(second) seconds")
+                    }
                 }
             }
         }
@@ -250,7 +288,7 @@ class PlayerModel: BaseViewModel {
         }
     }
     
-    @objc private func vlcTimeChanged(notification: NSNotification) {
+    @objc func vlcTimeChanged(notification: NSNotification) {
         if let vlcPlayer = vlcPlayer {
             currentTime = Double(vlcPlayer.time.intValue) / 1000.0
             duration = Double(vlcPlayer.media.length.intValue) / 1000.0
@@ -334,9 +372,7 @@ class PlayerModel: BaseViewModel {
             }
         }
     }
-}
-
-extension PlayerModel {
+    
     func configureVolAndBrit(){
         volumeView.alpha = 0.00001
         let slider = volumeView.subviews.first(where: { $0 is UISlider }) as? UISlider
@@ -356,7 +392,7 @@ extension PlayerModel {
     }
     
     
-    @objc fileprivate func panDirection(_ pan: UIPanGestureRecognizer) {
+    @objc func panDirection(_ pan: UIPanGestureRecognizer) {
         
         let locationPoint = pan.location(in: view)
         
@@ -376,7 +412,6 @@ extension PlayerModel {
                         let time = player.currentTime()
                         self.sumTime = TimeInterval(time.value) / TimeInterval(time.timescale)
                         print("A4")
-
                     }
                 }
             } else {
@@ -388,7 +423,6 @@ extension PlayerModel {
                 } else {
                     self.isVolume = false
                     print("A3")
-
                 }
             }
             
@@ -424,33 +458,33 @@ extension PlayerModel {
         }
     }
     
-    private func hideSeekView() {
+    func hideSeekView() {
         self.seekDirection = .forward
         self.showSeek = false
     }
     
-    private func showSeekView(isForward: Bool) {
+    func showSeekView(isForward: Bool) {
         self.showSeek = true
         self.seekDirection = isForward ? .forward : .backward
     }
     
-    private func showVolumeView(){
+    func showVolumeView(){
         self.showVolume = true
     }
     
-    private func hideVolumeView(){
+    func hideVolumeView(){
         self.showVolume = false
     }
     
-    private func showBrightnessView(){
+    func showBrightnessView(){
         self.showBrightness = true
     }
     
-    private func hideBrightnessView(){
+    func hideBrightnessView(){
         self.showBrightness = false
     }
     
-    fileprivate func horizontalMoved(_ value: CGFloat) {
+    func horizontalMoved(_ value: CGFloat) {
         guard PlayerConf.enablePlaytimeGestures else { return }
         
         if let player = player {
@@ -465,7 +499,7 @@ extension PlayerModel {
         }
     }
         
-    fileprivate func verticalMoved(_ value: CGFloat) {
+    func verticalMoved(_ value: CGFloat) {
         if PlayerConf.enableVolumeGestures && self.isVolume{
             
             hideBrightnessView()
@@ -490,8 +524,146 @@ extension PlayerModel {
             }
         }
     }
+    
+    // MARK: - Google Cast Support
+    var castSession: GCKCastSession? {
+        return GCKCastContext.sharedInstance().sessionManager.currentCastSession
+    }
+    
+    var remoteMediaClient: GCKRemoteMediaClient? {
+        return castSession?.remoteMediaClient
+    }
+    
+    func setupCastPlayback(videoUrl: String, title: String? = nil, subtitle: String? = nil, imageUrl: String? = nil) {
+        guard castSession != nil else {
+            print("❌ Cast: No active cast session")
+            return
+        }
+        
+        print("🎬 Cast: Setting up playback for URL: \(videoUrl)")
+        
+        // Test with a public video first to verify Cast is working
+        let testMode = false // Disabled since we're using direct casting from ContentDetailView
+        let finalVideoUrl = testMode ? "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4" : videoUrl
+        
+        print("🔍 Cast: Original video URL: \(videoUrl)")
+        print("🔍 Cast: Final video URL (test mode: \(testMode)): \(finalVideoUrl)")
+        
+        // Ensure URL is valid
+        guard let mediaURL = URL(string: finalVideoUrl) else {
+            print("❌ Cast: Invalid video URL")
+            return
+        }
+        
+        // Build media metadata
+        let metadata = GCKMediaMetadata(metadataType: .movie)
+        metadata.setString(title ?? "Video", forKey: kGCKMetadataKeyTitle)
+        if let subtitle = subtitle {
+            metadata.setString(subtitle, forKey: kGCKMetadataKeySubtitle)
+        }
+        
+        // Add image if available (ensure HTTPS)
+        if let imageUrl = imageUrl, 
+           let url = URL(string: imageUrl.replacingOccurrences(of: "http://", with: "https://")) {
+            metadata.addImage(GCKImage(url: url, width: 480, height: 360))
+        }
+        
+        // Create media information
+        let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: mediaURL)
+        mediaInfoBuilder.streamType = .buffered
+        
+        // Determine content type from URL
+        let pathExtension = mediaURL.pathExtension.lowercased()
+        switch pathExtension {
+        case "mp4":
+            mediaInfoBuilder.contentType = "video/mp4"
+        case "m3u8":
+            mediaInfoBuilder.contentType = "application/x-mpegURL"
+        case "mkv":
+            mediaInfoBuilder.contentType = "video/x-matroska"
+        case "webm":
+            mediaInfoBuilder.contentType = "video/webm"
+        case "mov":
+            mediaInfoBuilder.contentType = "video/quicktime"
+        default:
+            mediaInfoBuilder.contentType = "video/mp4" // Default fallback
+        }
+        
+        mediaInfoBuilder.metadata = metadata
+        
+        // Add custom data for CORS handling
+        mediaInfoBuilder.customData = [
+            "playbackRate": 1.0,
+            "headers": [
+                "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148"
+            ]
+        ]
+        
+        let mediaInfo = mediaInfoBuilder.build()
+        
+        // Create load request
+        let loadRequestBuilder = GCKMediaLoadRequestDataBuilder()
+        loadRequestBuilder.mediaInformation = mediaInfo
+        loadRequestBuilder.autoplay = true
+        loadRequestBuilder.playbackRate = 1.0
+        
+        let request = loadRequestBuilder.build()
+        
+        // Load media on cast device
+        let loadRequest = remoteMediaClient?.loadMedia(with: request)
+        loadRequest?.delegate = self
+        
+        print("✅ Cast: Media load request sent")
+        print("📹 Cast: Content type: \(mediaInfoBuilder.contentType ?? "unknown")")
+        self.state = .playing
+        self.startCastProgressTimer()
+    }
+    
+    func startCastProgressTimer() {
+        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+            if let remoteMediaClient = self.remoteMediaClient {
+                self.currentTime = remoteMediaClient.mediaStatus?.streamPosition ?? 0
+                self.duration = remoteMediaClient.mediaStatus?.mediaInformation?.streamDuration ?? 1
+                
+                // Update state based on player state
+                switch remoteMediaClient.mediaStatus?.playerState {
+                case .playing:
+                    self.state = .playing
+                case .paused:
+                    self.state = .paused
+                case .buffering:
+                    self.state = .buffering
+                case .idle:
+                    if remoteMediaClient.mediaStatus?.idleReason == .finished {
+                        self.state = .complete
+                        self.isVideoComplete = true
+                    }
+                default:
+                    break
+                }
+            }
+        }
+    }
+    
+    func seekToCast(time: Double) {
+        if let remoteMediaClient = remoteMediaClient {
+            let options = GCKMediaSeekOptions()
+            options.interval = time
+            remoteMediaClient.seek(with: options)
+        }
+    }
+    
+    @objc func castStateDidChange() {
+        let castContext = GCKCastContext.sharedInstance()
+        print("🎯 Cast state changed: \(castContext.castState.rawValue)")
+        
+        if castContext.castState == .noDevicesAvailable || castContext.castState == .notConnected {
+            // Cast disconnected, stop timer
+            timer?.invalidate()
+            timer = nil
+        }
+    }
 }
-
 
 enum PanDirection {
     case vertical
@@ -541,6 +713,66 @@ class PlayerConf {
     static var hideControlAfterSec = 2
 }
 
+
+extension PlayerModel: GCKRequestDelegate {
+    func requestDidComplete(_ request: GCKRequest) {
+        print("✅ Cast: Request completed successfully")
+    }
+    
+    func request(_ request: GCKRequest, didFailWithError error: GCKError) {
+        print("❌ Cast: Request failed with error: \(error.localizedDescription)")
+        print("🔍 Cast: Error code: \(error.code)")
+        
+        // Handle specific error codes
+        switch error.code {
+        case 1:
+            print("📡 Cast: Network error - Check if the Cast device can access the media URL")
+        case 2:
+            print("⏱ Cast: Request timed out")
+            print("💡 Tip: The media URL might be inaccessible from the Cast device")
+        case 3:
+            print("⚠️ Cast: Invalid request format")
+        case 4:
+            print("🚫 Cast: Request was cancelled")
+        case 5:
+            print("🔄 Cast: Request was replaced by another request")
+        case 6:
+            print("🚫 Cast: Operation not allowed in current state")
+        case 7:
+            print("♻️ Cast: Duplicate request")
+        case 8:
+            print("⚠️ Cast: Invalid media player state")
+        case 30:
+            print("❌ Cast: Media failed to load (Error 30)")
+            print("💡 This usually indicates:")
+            print("   - Network connectivity issue between Cast device and media server")
+            print("   - CORS (Cross-Origin Resource Sharing) not configured on server")
+            print("   - Media URL not accessible from Cast device's network")
+            print("   - Invalid or unsupported media format")
+            print("🔧 Try:")
+            print("   - Test with a public URL (like YouTube or Google's sample videos)")
+            print("   - Check if the URL loads in a web browser from the same network")
+            print("   - Verify CORS headers allow Cast device access")
+        case 2100, 2101, 2102, 2103:
+            print("❌ Cast: Media load failed - Check URL accessibility and format")
+            print("💡 Tip: Ensure the media URL is publicly accessible and CORS-enabled")
+            print("🔍 Common issues:")
+            print("   - CORS not configured on the server")
+            print("   - URL not accessible from Cast device's network")
+            print("   - Unsupported media format")
+        default:
+            print("❓ Cast: Unknown error code: \(error.code)")
+        }
+        
+        // Reset state on error
+        self.state = .error
+        self.isVideoFaildToPlay = true
+        
+        // Try fallback: Play locally if Cast fails
+        timer?.invalidate()
+        timer = nil
+    }
+}
 
 extension PlayerModel : VLCMediaPlayerDelegate {
     func mediaPlayerStateChanged(_ aNotification: Notification!) {
@@ -651,4 +883,3 @@ struct SubtitlesView: View {
         return "\(minutes):\(seconds)"
     }
 }
-

@@ -1,6 +1,6 @@
 //
 //  ConstForAllTarget.swift
-//  Flixy
+//  Vuga
 //
 //  Created by Arpit Kakdiya on 21/08/24.
 //
