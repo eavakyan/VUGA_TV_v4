@@ -77,22 +77,36 @@
                     />
 
 
-                <TextView
-                    android:id="@+id/btn_yes"
-                    style="@style/TextViewLocal"
+                <FrameLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="30dp"
-                    android:background="@drawable/bg_for_edit_text_13"
-                    android:backgroundTint="@color/app_color"
-                    android:fontFamily="@font/outfit_semi_bold"
-                    android:gravity="center"
-                    android:paddingVertical="15dp"
-                    android:text="@string/remove"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
-                    android:textSize="@dimen/_14sp" />
+                    android:layout_marginTop="30dp">
+
+                    <TextView
+                        android:id="@+id/btn_yes"
+                        style="@style/TextViewLocal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:background="@drawable/bg_for_edit_text_13"
+                        android:backgroundTint="@color/app_color"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:gravity="center"
+                        android:paddingVertical="15dp"
+                        android:text="@string/remove"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="@dimen/_14sp" />
+
+                    <ProgressBar
+                        android:id="@+id/progress_bar"
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:layout_gravity="center"
+                        android:indeterminateTint="@color/white"
+                        android:visibility="gone" />
+
+                </FrameLayout>
 
 
             </LinearLayout>

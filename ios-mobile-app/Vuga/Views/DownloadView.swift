@@ -118,6 +118,7 @@ struct DownloadCardView : View {
     @State var showPauseDialog = false
     @State var isShowResumeDialog = false
     @State var isShowWatchNowDialog = false
+    @State var isDeleting = false
     @State var isShowDialog = false
     var isForSeriesView = false
     var content: DownloadContent
@@ -155,11 +156,14 @@ struct DownloadCardView : View {
             VideoPlayerView(type: Int(content.contentSourceType) == 7 ? 5 : Int(content.contentSourceType), isShowAdView: false, isForDownloads: true, downloadContent: content, url: DocumentsDirectory.localDocumentsURL.absoluteString + (content.videoName ?? ""), progress: selectedRecentlyViewed?.progress ?? 0, sourceId: Int(content.contentSourceId))
         })
         .customAlert(isPresented: $isDeleteDialogShow){
-            DialogCard(icon: Image.delete, title: .areYouSure, subTitle: .deleteDownloadDialogDes, buttonTitle: .delete, onClose: {
+            DialogCard(icon: Image.delete, title: .areYouSure, subTitle: .deleteDownloadDialogDes, buttonTitle: .delete, isLoading: isDeleting, onClose: {
                 withAnimation {
-                    isDeleteDialogShow = false
+                    if !isDeleting {
+                        isDeleteDialogShow = false
+                    }
                 }
             },onButtonTap: {
+                isDeleting = true
                 onDeleteTap()
             })
         }
@@ -419,6 +423,7 @@ struct DownloadCardView : View {
         DataController.shared.context.delete(content)
         DataController.shared.saveData()
         
+        isDeleting = false
         isDeleteDialogShow = false
         //        downloadViewModel.isDownloading = false
         //        downloadViewModel.startNextDownload()

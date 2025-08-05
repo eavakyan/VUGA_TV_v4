@@ -16,6 +16,7 @@ struct DialogCard: View {
     var iconColor: Color = .base
     let subTitle: String
     let buttonTitle: String
+    var isLoading: Bool = false
     var onClose: ()->() = {}
     var onButtonTap: ()->() = {}
     
@@ -36,7 +37,22 @@ struct DialogCard: View {
                     .foregroundColor(.textLight)
                     .fixedSize(horizontal: false, vertical: true)
                     .padding(.bottom,12)
-                CommonButton(title: buttonTitle.localized(language),vPadding: 13,borderRadius: 12,fontSize: 16, onTap: onButtonTap)
+                if isLoading {
+                    HStack {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                            .scaleEffect(0.8)
+                        Text("Deleting...")
+                            .outfitMedium(16)
+                            .foregroundColor(.white)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 13)
+                    .background(Color.base.opacity(0.7))
+                    .cornerRadius(12)
+                } else {
+                    CommonButton(title: buttonTitle.localized(language),vPadding: 13,borderRadius: 12,fontSize: 16, onTap: onButtonTap)
+                }
             }
             .padding(25)
             .background(Color.bg)
@@ -56,7 +72,12 @@ struct DialogCard: View {
                 .padding(1)
                 .background(Color.text.opacity(0.2))
                 .clipShape(.circle)
-                .onTap(completion: onClose)
+                .onTap(completion: {
+                    if !isLoading {
+                        onClose()
+                    }
+                })
+                .opacity(isLoading ? 0.5 : 1.0)
                 .padding(5)
                 .padding(.top,3)
                 .padding(.leading,20)

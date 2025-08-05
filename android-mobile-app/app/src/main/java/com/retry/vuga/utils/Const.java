@@ -16,7 +16,7 @@ public class Const {
     public static final String IMAGE_URL = ""; //BASE + "public/storage/"
     public static final String PREF_NAME = BuildConfig.APPLICATION_ID;
     //do not change "_android"
-    public static final String FIREBASE_SUB_TOPIC = "flixy" + "_android";
+    public static final String FIREBASE_SUB_TOPIC = "vuga" + "_android";
     public static final int PAGINATION_COUNT = 10;
     public static final int FEATURED_SCROLL = 5 * 1000;
     public static final int PLAYER_SEC = 10;

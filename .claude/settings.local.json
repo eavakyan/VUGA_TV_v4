@@ -29,7 +29,8 @@
       "Bash(perl:*)",
       "Bash(sed:*)",
       "Bash(python3:*)",
-      "WebFetch(domain:developers.google.com)"
+      "WebFetch(domain:developers.google.com)",
+      "Bash(mkdir:*)"
     ],
     "deny": []
   }

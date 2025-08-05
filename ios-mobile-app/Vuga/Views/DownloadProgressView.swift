@@ -92,27 +92,34 @@ struct DownloadProgressView: View {
                 
                 // Action buttons
                 HStack(spacing: 15) {
-                    // Background download button
-                    Button(action: {
-                        // Continue download in background
-                        isShowing = false
-                    }) {
-                        Text(String.downloadInBackground.localized(language))
-                            .outfitRegular(16)
-                            .foregroundColor(.text)
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 45)
-                            .background(Color.bg)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color.text.opacity(0.3), lineWidth: 1)
-                            )
-                            .cornerRadius(10)
+                    // Background download button (only show if still downloading)
+                    if downloadStatus != .downloaded {
+                        Button(action: {
+                            // Continue download in background
+                            isShowing = false
+                        }) {
+                            Text(String.downloadInBackground.localized(language))
+                                .outfitRegular(16)
+                                .foregroundColor(.text)
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 45)
+                                .background(Color.bg)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color.text.opacity(0.3), lineWidth: 1)
+                                )
+                                .cornerRadius(10)
+                        }
                     }
                     
-                    // Cancel button
+                    // Cancel/Done button
                     Button(action: {
-                        cancelDownload()
+                        if downloadStatus == .downloaded {
+                            // Close the dialog for completed downloads
+                            isShowing = false
+                        } else {
+                            cancelDownload()
+                        }
                     }) {
                         Text(cancelButtonText)
                             .outfitRegular(16)
@@ -122,7 +129,7 @@ struct DownloadProgressView: View {
                             .background(downloadStatus == .downloaded ? Color.text : Color.base)
                             .cornerRadius(10)
                     }
-                    .disabled(isCancelling || downloadStatus == .downloaded)
+                    .disabled(isCancelling)
                 }
                 .padding(.horizontal)
                 .padding(.bottom, 20)
@@ -154,9 +161,13 @@ struct DownloadProgressView: View {
     }
     
     private var downloadSizeText: String {
-        let totalSize = Float(source.size ?? "0") ?? 0
-        let downloadedSize = totalSize * progress
-        return String(format: "%.1f MB / %.0f MB", downloadedSize, totalSize)
+        // Always use source size as it's the most reliable
+        let totalSizeMB = Float(source.size ?? "0") ?? 0
+        
+        // Only update downloaded amount based on actual progress
+        let downloadedSizeMB = totalSizeMB * progress
+        
+        return String(format: "%.1f MB / %.0f MB", downloadedSizeMB, totalSizeMB)
     }
     
     private func cancelDownload() {

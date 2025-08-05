@@ -5,11 +5,11 @@
 
     <string name="branch_schema" translatable="false">vuganew</string>
 
-    <string name="branch_io_key" translatable="false">key_live_egWyAS7gGjbCdaUrtMSqqieaAsmmMVsN</string>
+    <string name="branch_io_key" translatable="false">key_live_nyreLo3wYmAq6Nf0fTMRtiiauteIh4T3</string>
 
-    <string name="branch_app_link" translatable="false">vuga.app.link</string>
+    <string name="branch_app_link" translatable="false">vugatv.app.link</string>
 
-    <string name="branch_app_alternative_link" translatable="false">vuga-alternate.app.link</string>
+    <string name="branch_app_alternative_link" translatable="false">vugatv-alternate.app.link</string>
 
     <string name="revenue_cat_google_api_key" translatable="false">goog_iSMPVNNQIlVFAHJKWBgOTVSqfzJ</string>
 

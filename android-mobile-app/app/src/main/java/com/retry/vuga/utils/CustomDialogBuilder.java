@@ -5,7 +5,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.Window;
 
 import androidx.appcompat.content.res.AppCompatResources;
@@ -324,12 +326,24 @@ public class CustomDialogBuilder {
         }
 
         binding.btnCancel.setOnClickListener(v -> {
-            mBuilder.dismiss();
-
+            if (binding.progressBar.getVisibility() != View.VISIBLE) {
+                mBuilder.dismiss();
+            }
         });
         binding.btnYes.setOnClickListener(v -> {
-            mBuilder.dismiss();
+            // Show progress
+            binding.btnYes.setText("Deleting...");
+            binding.progressBar.setVisibility(View.VISIBLE);
+            binding.btnCancel.setEnabled(false);
+            binding.btnCancel.setAlpha(0.5f);
+            
+            // Execute delete operation
             onDismissListener.onPositiveDismiss();
+            
+            // Dismiss after a short delay to show progress
+            new Handler().postDelayed(() -> {
+                mBuilder.dismiss();
+            }, 500);
         });
 
 

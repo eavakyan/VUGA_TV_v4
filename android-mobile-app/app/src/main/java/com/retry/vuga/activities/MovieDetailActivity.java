@@ -164,12 +164,20 @@ public class MovieDetailActivity extends BaseActivity {
                     if (downloads.getDownloadStatus() == Const.DownloadStatus.PROGRESSING) {
                         downloadProgressDialog.updateProgress(downloads.getProgress());
                         
-                        // Calculate downloaded size
+                        // Calculate downloaded size - use source size as it's constant
                         long totalSize;
-                        try {
-                            totalSize = Long.parseLong(downloads.getSize()) * 1024L * 1024L; // Convert MB to bytes
-                        } catch (Exception e) {
-                            totalSize = 500L * 1024L * 1024L; // Default to 500MB
+                        if (currentDownloadingSource != null && currentDownloadingSource.getSize() != null) {
+                            try {
+                                totalSize = Long.parseLong(currentDownloadingSource.getSize()) * 1024L * 1024L; // Convert MB to bytes
+                            } catch (Exception e) {
+                                totalSize = 500L * 1024L * 1024L; // Default to 500MB
+                            }
+                        } else {
+                            try {
+                                totalSize = Long.parseLong(downloads.getSize()) * 1024L * 1024L; // Convert MB to bytes
+                            } catch (Exception e) {
+                                totalSize = 500L * 1024L * 1024L; // Default to 500MB
+                            }
                         }
                         long downloadedSize = (long)(totalSize * downloads.getProgress() / 100.0);
                         downloadProgressDialog.updateDownloadSize(downloadedSize, totalSize);
@@ -326,7 +334,6 @@ public class MovieDetailActivity extends BaseActivity {
         
         binding.btnShare.setOnClickListener(v -> {
             Log.d("MovieDetail", "Share button clicked!");
-            Toast.makeText(MovieDetailActivity.this, "Share clicked!", Toast.LENGTH_SHORT).show();
             
             if (!isShareOpen && contentItem != null) {
                 isShareOpen = true;
@@ -831,6 +838,18 @@ public class MovieDetailActivity extends BaseActivity {
     
     private void showDownloadProgressDialog(ContentDetail.SourceItem sourceItem) {
         downloadProgressDialog = new DownloadProgressDialog(this, contentItem.getTitle(), contentItem.getHorizontalPoster());
+        
+        // Set initial file size from source
+        if (sourceItem != null && sourceItem.getSize() != null) {
+            try {
+                long totalSize = Long.parseLong(sourceItem.getSize()) * 1024L * 1024L; // Convert MB to bytes
+                downloadProgressDialog.updateDownloadSize(0, totalSize);
+            } catch (Exception e) {
+                // Default to 0 / 500MB if parsing fails
+                downloadProgressDialog.updateDownloadSize(0, 500L * 1024L * 1024L);
+            }
+        }
+        
         downloadProgressDialog.setOnDownloadActionListener(new DownloadProgressDialog.OnDownloadActionListener() {
             @Override
             public void onBackgroundDownload() {
@@ -1196,6 +1215,18 @@ public class MovieDetailActivity extends BaseActivity {
         if (contentItem.getType() == 1 && contentItem.getContent_sources() != null && !contentItem.getContent_sources().isEmpty()) {
             contentSourceAdapter.updateItems(contentItem.getContent_sources());
         }
+
+        // Check if any source is downloadable and show/hide download button accordingly
+        boolean hasDownloadableSource = false;
+        if (contentItem.getContent_sources() != null) {
+            for (ContentDetail.SourceItem source : contentItem.getContent_sources()) {
+                if (source.getIs_download() == 1) {
+                    hasDownloadableSource = true;
+                    break;
+                }
+            }
+        }
+        binding.btnDownload.setVisibility(hasDownloadableSource ? View.VISIBLE : View.GONE);
 
     }
 

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://vugatv.gossip-stone.com/sitemap.xml
