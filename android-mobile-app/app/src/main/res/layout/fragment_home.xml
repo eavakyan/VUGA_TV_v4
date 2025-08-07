@@ -333,7 +333,7 @@
                     android:paddingVertical="12dp"
                     android:gravity="center_vertical">
 
-                    <!-- Logo -->
+                    <!-- Logo 
                     <ImageView
                         android:layout_width="35dp"
                         android:layout_height="35dp"
@@ -341,7 +341,7 @@
                         android:backgroundTint="@color/text_color"
                         android:padding="8dp"
                         android:src="@drawable/logo"
-                        android:layout_marginEnd="12dp" />
+                        android:layout_marginEnd="12dp" />-->
 
                     <!-- Profile Name -->
                     <TextView

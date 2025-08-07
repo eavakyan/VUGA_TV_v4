@@ -360,6 +360,14 @@ public class MainActivity extends BaseActivity {
 
         disposable = new CompositeDisposable();
 
+        // Force top bar to be visible
+        if (binding.topBar != null) {
+            binding.topBar.setVisibility(View.VISIBLE);
+        }
+
+        // Update profile name
+        updateProfileNameInTopBar();
+
         if (binding.btnTv != null) {
             if (sessionManager.getAppSettings().getSettings().getLiveTvEnable() == 0) {
                 binding.btnTv.setVisibility(View.GONE);
@@ -394,6 +402,8 @@ public class MainActivity extends BaseActivity {
         if (binding != null && binding.imgPic != null && binding.imgUser != null) {
             updateProfileAvatar();
         }
+        // Update profile name in top bar
+        updateProfileNameInTopBar();
     }
 
     private void updateProfileAvatar() {
@@ -444,6 +454,22 @@ public class MainActivity extends BaseActivity {
             binding.imgUser.setVisibility(View.VISIBLE);
             binding.viewColorAvatar.setVisibility(View.GONE);
             binding.tvProfileInitial.setVisibility(View.GONE);
+        }
+    }
+
+    private void updateProfileNameInTopBar() {
+        if (binding.tvProfileNameMain != null) {
+            UserRegistration.Data userData = sessionManager.getUser();
+            if (userData != null && userData.getLastActiveProfile() != null) {
+                String profileName = userData.getLastActiveProfile().getName();
+                if (profileName != null && !profileName.isEmpty()) {
+                    binding.tvProfileNameMain.setText(profileName);
+                } else {
+                    binding.tvProfileNameMain.setText("User");
+                }
+            } else {
+                binding.tvProfileNameMain.setText("User");
+            }
         }
     }
 
