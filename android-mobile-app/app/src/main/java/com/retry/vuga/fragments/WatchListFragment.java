@@ -2,6 +2,10 @@ package com.retry.vuga.fragments;
 
 import static com.retry.vuga.activities.BaseActivity.addRemoveWatchlist;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.databinding.DataBindingUtil;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,6 +51,16 @@ public class WatchListFragment extends BaseFragment {
     boolean isLoading = false;
     boolean dataOver = false;
     List<ContentDetail.DataItem> list = new ArrayList<>();
+    Integer currentProfileId = null;
+    
+    private BroadcastReceiver profileChangeReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("com.retry.vuga.PROFILE_CHANGED".equals(intent.getAction())) {
+                refreshForProfileChange();
+            }
+        }
+    };
 
 
     public WatchListFragment() {
@@ -170,11 +185,21 @@ public class WatchListFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Register broadcast receiver for profile changes
+        IntentFilter filter = new IntentFilter("com.retry.vuga.PROFILE_CHANGED");
+        LocalBroadcastManager.getInstance(getContext()).registerReceiver(profileChangeReceiver, filter);
+        
         dataOver = false;
         list.clear();
         watchListAdapter.updateItems(list);
         getWatchlist();
-
+    }
+    
+    @Override
+    public void onPause() {
+        super.onPause();
+        // Unregister broadcast receiver
+        LocalBroadcastManager.getInstance(getContext()).unregisterReceiver(profileChangeReceiver);
     }
 
 
@@ -182,10 +207,19 @@ public class WatchListFragment extends BaseFragment {
     private void getWatchlist() {
 
         if (!dataOver) {
-
-            disposable.clear();
             UserRegistration.Data user = sessionManager.getUser();
             Integer profileId = user != null ? user.getLastActiveProfileId() : null;
+            
+            // Check if profile has changed and reset data if needed
+            if (currentProfileId == null || !currentProfileId.equals(profileId)) {
+                currentProfileId = profileId;
+                dataOver = false;
+                list.clear();
+                watchListAdapter.updateItems(list);
+                binding.tvEmpty.setVisibility(View.GONE);
+            }
+
+            disposable.clear();
             disposable.add(RetrofitClient.getService().getWatchList(contentType, user != null ? user.getId() : 0, watchListAdapter.getItemCount(), Const.PAGINATION_COUNT, profileId)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
@@ -259,5 +293,16 @@ public class WatchListFragment extends BaseFragment {
         binding.rvWatchlist.setItemAnimator(null);
 
 
+    }
+    
+    // Method to refresh watchlist when profile changes
+    public void refreshForProfileChange() {
+        currentProfileId = null; // Force profile check
+        dataOver = false;
+        list.clear();
+        if (watchListAdapter != null) {
+            watchListAdapter.updateItems(list);
+        }
+        getWatchlist();
     }
 }

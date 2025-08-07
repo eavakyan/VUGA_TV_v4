@@ -8,14 +8,14 @@
     android:padding="20dp">
 
     <RelativeLayout
-        android:layout_width="120dp"
-        android:layout_height="120dp">
+        android:layout_width="100dp"
+        android:layout_height="100dp">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/viewColorAvatar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:cardCornerRadius="60dp"
+            app:cardCornerRadius="50dp"
             app:cardElevation="0dp"
             android:visibility="gone">
 
@@ -25,7 +25,7 @@
                 android:layout_height="match_parent"
                 android:gravity="center"
                 android:textColor="@color/white"
-                android:textSize="48sp"
+                android:textSize="40sp"
                 android:textStyle="bold" />
 
         </androidx.cardview.widget.CardView>

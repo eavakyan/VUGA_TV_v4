@@ -2,6 +2,7 @@ package com.retry.vuga.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -884,6 +885,9 @@ public class PlayerNewActivity extends BaseActivity {
     private void initializeCastSupport() {
         castButton = binding.btnCast;
         castManager = castButton.getCastManager();
+        
+        // DLNA Test Button
+        // DLNA test button removed from production
         
         // Set up cast device selection listener
         castButton.setOnCastDeviceSelectedListener(new UniversalCastButton.OnCastDeviceSelectedListener() {

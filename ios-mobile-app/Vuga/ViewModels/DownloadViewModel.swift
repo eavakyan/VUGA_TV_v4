@@ -69,12 +69,35 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         super.init()
         let configuration = URLSessionConfiguration.default
         self.session = URLSession(configuration: configuration, delegate: self, delegateQueue: nil)
+        loadDownloadsForCurrentProfile()
+        
+        // Listen for profile changes to reload downloads
+        NotificationCenter.default.addObserver(
+            forName: .profileChanged,
+            object: nil,
+            queue: .main
+        ) { [weak self] _ in
+            self?.loadDownloadsForCurrentProfile()
+        }
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self, name: .profileChanged, object: nil)
+    }
+    
+    func loadDownloadsForCurrentProfile() {
+        guard let currentProfileId = SessionManager.shared.currentProfile?.profileId else {
+            downloadContents = []
+            return
+        }
+        
         let fetchRequest: NSFetchRequest<DownloadContent>
         fetchRequest = DownloadContent.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "profileId == %d", currentProfileId)
         let context = DataController.shared.context
         do{
             downloadContents = try context.fetch(fetchRequest)
-            print(downloadContents)
+            print("Loaded \(downloadContents.count) downloads for profile \(currentProfileId)")
         } catch {
             print(error.localizedDescription)
         }
@@ -158,7 +181,7 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         let downloadContent = downloadingContents[downloadId]
         
         if downloadContent?.downloadStatus != .downloading && downloadContent?.downloadStatus != .paused && downloadContent?.downloadStatus != .queued {
-            if let download = SessionManager.shared.getDownloadData().first(where: { $0.sourceId == downloadId }) {
+            if let download = SessionManager.shared.getDownloadDataForCurrentProfile().first(where: { $0.sourceId == downloadId }) {
                 let activity = activities.first(where: {$0.attributes.downloadId == download.sourceId})
                 //                let task = session.downloadTask(with: download.sourceURL)
                 if activity == nil {
@@ -335,6 +358,11 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
     }
     
     func addContentToDownload(content: VugaContent, episode: Episode?, source: Source,seasonNumber: Int) {
+        guard let currentProfileId = SessionManager.shared.currentProfile?.profileId else {
+            print("No current profile found, cannot download content")
+            return
+        }
+        
         let newDownloadContent = DownloadContent(context: DataController.shared.context)
         let downloadId = source.sourceDownloadId(contentType: content.type ?? .movie)
         let videoName = "\(content.type?.title ?? "")_\(source.id ?? 0)" + source.sourceURL.lastPathComponent
@@ -360,13 +388,14 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         newDownloadContent.seasonNo = String(seasonNumber)
         newDownloadContent.episodeHorizontalPoster = episode?.thumbnail
         newDownloadContent.episodeTitle = episode?.title
+        newDownloadContent.profileId = Int32(currentProfileId)
         downloadContents.append(newDownloadContent)
         self.downloadingContents[downloadId]?.content = newDownloadContent
         self.createActivity(contentDownload: newDownloadContent)
 
         DataController.shared.saveData()
         var downloadData = SessionManager.shared.getDownloadData()
-        downloadData.append(DownloadData(data: nil, sourceId: downloadId, sourceURL: source.sourceURL, contentId: content.id ?? 0, episodeId: episode?.id ?? 0, destinationName: videoName))
+        downloadData.append(DownloadData(data: nil, sourceId: downloadId, sourceURL: source.sourceURL, contentId: content.id ?? 0, episodeId: episode?.id ?? 0, destinationName: videoName, profileId: currentProfileId))
         SessionManager.shared.setDownloadData(datum: downloadData)
     }
     

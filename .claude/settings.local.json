@@ -30,7 +30,13 @@
       "Bash(sed:*)",
       "Bash(python3:*)",
       "WebFetch(domain:developers.google.com)",
-      "Bash(mkdir:*)"
+      "Bash(mkdir:*)",
+      "Bash(aapt dump badging:*)",
+      "Bash(touch:*)",
+      "Bash(mv:*)",
+      "Bash(sed:*)",
+      "Bash(xmllint:*)",
+      "Bash(/dev/null)"
     ],
     "deny": []
   }

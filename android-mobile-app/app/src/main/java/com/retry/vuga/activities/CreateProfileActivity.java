@@ -1,8 +1,11 @@
 package com.retry.vuga.activities;
 
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
@@ -29,6 +32,7 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
     private int profileId = -1;
     private boolean isEditMode = false;
     private int selectedAvatarId = 1; // Default avatar ID
+    private Integer profileAge = null;
 
     private List<String> avatarColors = Arrays.asList(
             "#FF5252", "#E91E63", "#9C27B0", "#673AB7",
@@ -51,6 +55,7 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             selectedColor = getIntent().getStringExtra("profile_color");
             selectedAvatarId = getIntent().getIntExtra("avatar_id", 1);
             isKidsProfile = getIntent().getBooleanExtra("is_kids", false);
+            profileAge = getIntent().hasExtra("profile_age") ? getIntent().getIntExtra("profile_age", 0) : null;
 
             binding.etProfileName.setText(profileName);
             binding.switchKidsProfile.setChecked(isKidsProfile);
@@ -89,14 +94,28 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         binding.btnBack.setOnClickListener(v -> finish());
 
         binding.switchKidsProfile.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            isKidsProfile = isChecked;
-            updatePreview();
+            if (isChecked && !isEditMode) {
+                // Show age input dialog
+                showAgeInputDialog();
+            } else {
+                isKidsProfile = isChecked;
+                if (!isChecked) {
+                    profileAge = null;
+                }
+                updatePreview();
+            }
         });
 
         binding.btnCreate.setOnClickListener(v -> {
             String profileName = binding.etProfileName.getText().toString().trim();
             if (profileName.isEmpty()) {
                 Toast.makeText(this, "Please enter profile name", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            // Validate age for Kids Profile
+            if (isKidsProfile && (profileAge == null || profileAge < 1 || profileAge >= 18)) {
+                Toast.makeText(this, "Kids Profile requires age between 1 and 17", Toast.LENGTH_SHORT).show();
                 return;
             }
 
@@ -186,6 +205,49 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             selectedAvatarId = (colorIndex % 8) + 1;
         }
         updatePreview();
+    }
+
+    private void showAgeInputDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter Age");
+        builder.setMessage("Kids Profile is for children under 18. Please enter the age:");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_NUMBER);
+        input.setHint("Age (1-17)");
+        builder.setView(input);
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            String ageStr = input.getText().toString().trim();
+            if (ageStr.isEmpty()) {
+                Toast.makeText(this, "Please enter a valid age", Toast.LENGTH_SHORT).show();
+                binding.switchKidsProfile.setChecked(false);
+                return;
+            }
+
+            try {
+                int age = Integer.parseInt(ageStr);
+                if (age < 1 || age >= 18) {
+                    Toast.makeText(this, "Kids Profile age must be between 1 and 17", Toast.LENGTH_SHORT).show();
+                    binding.switchKidsProfile.setChecked(false);
+                    return;
+                }
+
+                profileAge = age;
+                isKidsProfile = true;
+                updatePreview();
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Please enter a valid number", Toast.LENGTH_SHORT).show();
+                binding.switchKidsProfile.setChecked(false);
+            }
+        });
+
+        builder.setNegativeButton("Cancel", (dialog, which) -> {
+            binding.switchKidsProfile.setChecked(false);
+            dialog.cancel();
+        });
+
+        builder.show();
     }
 
     @Override

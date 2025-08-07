@@ -63,6 +63,10 @@ struct WatchlistView: View {
         .onChange(of: vm.contentType, perform: { value in
             vm.fetchWatchlist(isForRefresh: true)
         })
+        .onReceive(NotificationCenter.default.publisher(for: .profileChanged)) { _ in
+            print("WatchlistView: Profile changed, refreshing watchlist")
+            vm.refreshForProfileChange()
+        }
         .loaderView(vm.isLoading && vm.contents.isEmpty)
         .noDataFound(!vm.isLoading && vm.contents.isEmpty)
     }

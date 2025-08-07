@@ -21,9 +21,14 @@ import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
 
+import android.widget.PopupWindow;
+import android.view.ViewGroup;
+import android.content.Intent;
+
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.request.RequestOptions;
+import com.google.gson.Gson;
 import com.google.android.flexbox.AlignItems;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -31,14 +36,20 @@ import com.google.android.flexbox.JustifyContent;
 import com.retry.vuga.R;
 import com.retry.vuga.activities.BaseActivity;
 import com.retry.vuga.activities.MainActivity;
+import com.retry.vuga.activities.DownloadsActivity;
+import com.retry.vuga.activities.SearchLiveTvActivity;
+import com.retry.vuga.activities.ContentByGenreActivity;
+import com.retry.vuga.adapters.CategoryDropdownAdapter;
 import com.retry.vuga.adapters.ContentDetailGenreAdapter;
 import com.retry.vuga.adapters.HomeCatNameAdapter;
 import com.retry.vuga.adapters.HomeFeaturedAdapter;
 import com.retry.vuga.adapters.HomeTopItemsAdapter;
 import com.retry.vuga.adapters.HomeWatchlistAdapter;
 import com.retry.vuga.adapters.MovieHistoryAdapter;
+import com.retry.vuga.adapters.HorizontalCategoryAdapter;
 import com.retry.vuga.databinding.FragmentHomeBinding;
 import com.retry.vuga.model.ContentDetail;
+import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.model.HomePage;
 import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
@@ -74,6 +85,12 @@ public class HomeFragment extends BaseFragment {
     MainViewModel mainViewModel;
     HomeViewModel viewModel;
     ContentDetailGenreAdapter genreAdapter;
+    
+    // New UI components
+    private HorizontalCategoryAdapter horizontalCategoryAdapter;
+    private CategoryDropdownAdapter categoryDropdownAdapter;
+    private PopupWindow categoryPopupWindow;
+    private String selectedFilter = "TV Shows"; // Default filter
 
 
     private boolean scrolledByUser = false;
@@ -149,6 +166,10 @@ public class HomeFragment extends BaseFragment {
     }
 
     private void initListeners() {
+        
+        // Initialize new UI components
+        setupHeaderWithLogoAndProfile();
+        setupHorizontalCategoryList();
 
         binding.btnWatchlistMore.setOnClickListener(v -> {
 
@@ -234,6 +255,9 @@ public class HomeFragment extends BaseFragment {
     @Override
     public void onResume() {
         super.onResume();
+        // Update profile name when returning to fragment
+        updateProfileName();
+        
         // Register the broadcast receiver for watchlist updates
         IntentFilter filter = new IntentFilter("com.retry.vuga.WATCHLIST_UPDATED");
         LocalBroadcastManager.getInstance(requireContext()).registerReceiver(watchlistUpdateReceiver, filter);
@@ -365,6 +389,8 @@ public class HomeFragment extends BaseFragment {
                             catList = new ArrayList<>();
                             catList.addAll(homePage.getGenreContents().stream().filter(genreContents -> !genreContents.getContent().isEmpty()).collect(Collectors.toList()));
                             homeCatNameAdapter.updateItems(catList);
+                            // Update horizontal categories
+                            horizontalCategoryAdapter.updateGenres(catList);
                         }
 
                     }
@@ -394,6 +420,7 @@ public class HomeFragment extends BaseFragment {
         homeTopItemsAdapter = new HomeTopItemsAdapter();
         homeFeaturedAdapter = new HomeFeaturedAdapter();
         genreAdapter = new ContentDetailGenreAdapter();
+        horizontalCategoryAdapter = new HorizontalCategoryAdapter();
         
         if (binding.swipeRefresh != null) {
             binding.swipeRefresh.setProgressViewOffset(true, 150, 350);
@@ -422,6 +449,11 @@ public class HomeFragment extends BaseFragment {
 
             binding.rvGenere.setLayoutManager(layoutManager);
             binding.rvGenere.setAdapter(genreAdapter);
+        }
+        
+        // Set up horizontal categories RecyclerView
+        if (binding.rvHorizontalCategories != null) {
+            binding.rvHorizontalCategories.setAdapter(horizontalCategoryAdapter);
         }
 
         // Set blur only if views exist
@@ -515,5 +547,74 @@ public class HomeFragment extends BaseFragment {
         }
     }
 
+    private void setupHeaderWithLogoAndProfile() {
+        // Update profile name based on current user profile
+        updateProfileName();
+        
+        // Set click listeners for sticky header buttons
+        if (binding.btnCast != null) {
+            binding.btnCast.setOnClickListener(v -> {
+                // Handle casting - placeholder for now
+                // You can implement cast functionality here
+                Log.i("HomeFragment", "Casting clicked");
+            });
+        }
+        
+        if (binding.btnDownload != null) {
+            binding.btnDownload.setOnClickListener(v -> {
+                startActivity(new Intent(getActivity(), DownloadsActivity.class));
+            });
+        }
+        
+        if (binding.btnSearch != null) {
+            binding.btnSearch.setOnClickListener(v -> {
+                startActivity(new Intent(getActivity(), SearchLiveTvActivity.class));
+            });
+        }
+        
+        // Set up sticky categories RecyclerView
+        if (binding.rvCategoriesSticky != null) {
+            binding.rvCategoriesSticky.setAdapter(horizontalCategoryAdapter);
+        }
+    }
+    
+    private void setupHorizontalCategoryList() {
+        // Set category click listener
+        horizontalCategoryAdapter.setOnCategoryClickListener((genre, position) -> {
+            // Navigate to category detail view
+            Intent intent = new Intent(getActivity(), ContentByGenreActivity.class);
+            intent.putExtra(Const.DataKey.DATA, new Gson().toJson(genre));
+            startActivity(intent);
+        });
+    }
+    
+    private void updateProfileName() {
+        if (binding.tvProfileName != null) {
+            UserRegistration.Data userData = sessionManager.getUser();
+            if (userData != null && userData.getLastActiveProfile() != null) {
+                String profileName = userData.getLastActiveProfile().getName();
+                if (profileName != null && !profileName.isEmpty()) {
+                    binding.tvProfileName.setText("Hi, " + profileName);
+                    // Set profile avatar with first letter
+                    if (binding.tvProfileAvatar != null) {
+                        String firstLetter = profileName.substring(0, 1).toUpperCase();
+                        binding.tvProfileAvatar.setText(firstLetter);
+                    }
+                } else {
+                    binding.tvProfileName.setText("Hi, User");
+                    if (binding.tvProfileAvatar != null) {
+                        binding.tvProfileAvatar.setText("U");
+                    }
+                }
+            } else {
+                binding.tvProfileName.setText("Hi, User");
+                if (binding.tvProfileAvatar != null) {
+                    binding.tvProfileAvatar.setText("U");
+                }
+            }
+        }
+    }
+    
+    // Removed old navigation and dropdown methods - replaced with horizontal category list
 
 }

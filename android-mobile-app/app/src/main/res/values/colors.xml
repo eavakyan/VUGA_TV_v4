@@ -17,6 +17,7 @@
 
     <color name="app_color">#F64136</color>
     <color name="stroke_color_red">#A9201C</color>
+    <color name="app_color_70">#B3F64136</color>
     <color name="app_color_50">#80F64136</color>
     <color name="app_color_30">#4DF64136</color>
 

@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.GridLayoutManager;
 
 import com.retry.vuga.R;
@@ -105,7 +106,14 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
                                     updatedProfile.setAvatarColor(profile.getAvatarColor());
                                     updatedProfile.setKids(profile.isKids());
                                     userData.setLastActiveProfile(updatedProfile);
+                                    userData.setLastActiveProfileId(profile.getProfileId());
                                     sessionManager.saveUser(userData);
+                                    
+                                    // Send broadcast to notify about profile change
+                                    Intent intent = new Intent("com.retry.vuga.PROFILE_CHANGED");
+                                    intent.putExtra("profile_id", profile.getProfileId());
+                                    LocalBroadcastManager.getInstance(ProfileSelectionActivity.this).sendBroadcast(intent);
+                                    
                                     break;
                                 }
                             }
@@ -173,6 +181,11 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
                         
                         // Don't clear watchlist - MainActivity should fetch fresh data
                         sessionManager.saveUser(userData);
+                        
+                        // Send broadcast to notify about profile change
+                        Intent intent = new Intent("com.retry.vuga.PROFILE_CHANGED");
+                        intent.putExtra("profile_id", profile.getProfileId());
+                        LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
                         
                         goToMainActivity();
                     } else {

@@ -216,6 +216,7 @@ public class BaseActivity extends AppCompatActivity {
                         Intent intent = new Intent("com.retry.vuga.WATCHLIST_UPDATED");
                         intent.putExtra("content_id", content_id);
                         intent.putExtra("is_added", isAdd);
+                        intent.putExtra("profile_id", profileId);
                         LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
                         Log.d("Watchlist", "Broadcast sent for content_id: " + content_id + ", is_added: " + isAdd);
                     } else {

@@ -98,6 +98,12 @@ public class ProfileActivity extends BaseActivity {
             startActivity(new Intent(this, LanguageActivity.class));
 
         });
+        
+        binding.loutAgeSettings.setOnClickListener(v -> {
+            // TODO: Temporarily disabled age settings
+            // startActivity(new Intent(this, AgeSettingsActivity.class));
+            Toast.makeText(this, "Age settings temporarily unavailable", Toast.LENGTH_SHORT).show();
+        });
 
         binding.loutTvConnect.setOnClickListener(v -> {
             startActivity(new Intent(this, QRScannerActivity.class));

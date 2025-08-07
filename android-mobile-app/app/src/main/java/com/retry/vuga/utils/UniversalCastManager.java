@@ -29,6 +29,7 @@ public class UniversalCastManager {
     private Context context;
     private CastContext castContext;
     private DlnaManager dlnaManager;
+    private DlnaCaster dlnaCaster;
     private List<CastDevice> allDevices;
     private OnDeviceDiscoveryListener discoveryListener;
     private OnCastStateListener castStateListener;
@@ -91,6 +92,7 @@ public class UniversalCastManager {
         
         // Initialize DLNA
         this.dlnaManager = new DlnaManager(context);
+        this.dlnaCaster = new DlnaCaster();
     }
     
     private void setupCastListeners() {
@@ -183,6 +185,8 @@ public class UniversalCastManager {
         this.discoveryListener = listener;
         this.allDevices.clear();
         
+        Log.d(TAG, "Starting device discovery for both Cast and DLNA");
+        
         // Discover Google Cast devices (they're automatically discovered by the Cast SDK)
         if (castContext != null) {
             // Google Cast devices are discovered automatically
@@ -191,6 +195,10 @@ public class UniversalCastManager {
         }
         
         // Discover DLNA devices
+        Log.d(TAG, "Starting DLNA device discovery");
+        Log.d(TAG, "DLNA manager instance: " + dlnaManager);
+        Log.d(TAG, "Is DLNA already discovering: " + dlnaManager.isDiscovering());
+        
         dlnaManager.discoverDevices(new DlnaManager.OnDeviceDiscoveryListener() {
             @Override
             public void onDeviceDiscovered(DlnaManager.DlnaDevice device) {
@@ -202,16 +210,34 @@ public class UniversalCastManager {
                     device
                 );
                 
-                allDevices.add(castDevice);
+                // Check if device already exists by IP address
+                boolean deviceExists = false;
+                for (CastDevice existingDevice : allDevices) {
+                    if (existingDevice.ipAddress.equals(castDevice.ipAddress) && 
+                        existingDevice.type == DeviceType.DLNA) {
+                        deviceExists = true;
+                        break;
+                    }
+                }
                 
-                if (discoveryListener != null) {
-                    discoveryListener.onDeviceDiscovered(castDevice, DeviceType.DLNA);
+                if (!deviceExists) {
+                    allDevices.add(castDevice);
+                    
+                    if (discoveryListener != null) {
+                        discoveryListener.onDeviceDiscovered(castDevice, DeviceType.DLNA);
+                    }
                 }
             }
             
             @Override
             public void onDiscoveryComplete(List<DlnaManager.DlnaDevice> devices) {
-                Log.d(TAG, "DLNA discovery complete. Found " + devices.size() + " devices");
+                Log.d(TAG, "DLNA discovery complete. Raw device count: " + devices.size());
+                Log.d(TAG, "Total unique devices in allDevices: " + allDevices.size());
+                
+                // Log each unique device
+                for (CastDevice device : allDevices) {
+                    Log.d(TAG, "  - " + device.name + " (" + device.type + ") at " + device.ipAddress);
+                }
                 
                 if (discoveryListener != null) {
                     discoveryListener.onDiscoveryComplete(new ArrayList<>(allDevices));
@@ -324,36 +350,128 @@ public class UniversalCastManager {
     }
     
     private void castToDlna(String videoUrl, String title, String subtitle, String imageUrl) {
-        // For now, DLNA casting is a simplified implementation
-        // In a full implementation, you would need to:
-        // 1. Send SOAP requests to the DLNA device's control URLs
-        // 2. Set the media URL using SetAVTransportURI
-        // 3. Start playback using Play command
-        
-        Log.d(TAG, "DLNA casting not fully implemented yet");
-        Log.d(TAG, "Would cast URL: " + videoUrl + " to device: " + currentDevice.name);
-        
-        // For now, just report success to indicate the framework is working
-        if (castStateListener != null) {
-            castStateListener.onMediaLoadResult(true, null);
+        if (currentDevice == null || !(currentDevice.originalDevice instanceof DlnaManager.DlnaDevice)) {
+            Log.e(TAG, "Invalid DLNA device for casting");
+            if (castStateListener != null) {
+                castStateListener.onMediaLoadResult(false, "Invalid DLNA device");
+            }
+            return;
         }
+        
+        DlnaManager.DlnaDevice dlnaDevice = (DlnaManager.DlnaDevice) currentDevice.originalDevice;
+        Log.d(TAG, "Casting to DLNA device: " + dlnaDevice.name + " at " + dlnaDevice.location);
+        Log.d(TAG, "Video URL: " + videoUrl);
+        Log.d(TAG, "Device IP: " + dlnaDevice.ipAddress);
+        Log.d(TAG, "Device USN: " + dlnaDevice.usn);
+        
+        // Connect to DLNA device
+        dlnaCaster.connectToDevice(dlnaDevice.location, new DlnaCaster.OnCastListener() {
+            @Override
+            public void onSuccess() {
+                Log.d(TAG, "DLNA device connection successful");
+                
+                // Determine content type based on URL
+                String contentType = "video/mp4"; // Default
+                if (videoUrl.contains(".m3u8")) {
+                    contentType = "video/x-mpegURL";
+                } else if (videoUrl.contains(".mkv")) {
+                    contentType = "video/x-matroska";
+                } else if (videoUrl.contains(".webm")) {
+                    contentType = "video/webm";
+                } else if (videoUrl.contains(".avi")) {
+                    contentType = "video/x-msvideo";
+                } else if (videoUrl.contains(".mov")) {
+                    contentType = "video/quicktime";
+                }
+                
+                Log.d(TAG, "Casting video with content type: " + contentType);
+                Log.d(TAG, "Full video URL being cast: " + videoUrl);
+                
+                // Cast the video
+                dlnaCaster.castVideo(videoUrl, title, contentType, new DlnaCaster.OnCastListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "DLNA cast successful - media loaded and playing");
+                        isConnected = true;
+                        currentDeviceType = DeviceType.DLNA;
+                        
+                        if (castStateListener != null) {
+                            castStateListener.onMediaLoadResult(true, null);
+                            castStateListener.onCastStateChanged(true, currentDevice, DeviceType.DLNA);
+                        }
+                    }
+                    
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "DLNA cast failed: " + error);
+                        Log.e(TAG, "Failed URL was: " + videoUrl);
+                        if (castStateListener != null) {
+                            castStateListener.onMediaLoadResult(false, error);
+                        }
+                    }
+                });
+            }
+            
+            @Override
+            public void onError(String error) {
+                Log.e(TAG, "DLNA connection failed: " + error);
+                Log.e(TAG, "Failed device location: " + dlnaDevice.location);
+                if (castStateListener != null) {
+                    castStateListener.onMediaLoadResult(false, "Connection failed: " + error);
+                }
+            }
+        });
     }
     
     public void pauseMedia() {
-        if (!isConnected || currentDeviceType != DeviceType.GOOGLE_CAST) return;
+        if (!isConnected) return;
         
-        CastSession session = castContext.getSessionManager().getCurrentCastSession();
-        if (session != null && session.getRemoteMediaClient() != null) {
-            session.getRemoteMediaClient().pause();
+        switch (currentDeviceType) {
+            case GOOGLE_CAST:
+                CastSession session = castContext.getSessionManager().getCurrentCastSession();
+                if (session != null && session.getRemoteMediaClient() != null) {
+                    session.getRemoteMediaClient().pause();
+                }
+                break;
+            case DLNA:
+                dlnaCaster.pause(new DlnaCaster.OnCastListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "DLNA pause successful");
+                    }
+                    
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "DLNA pause failed: " + error);
+                    }
+                });
+                break;
         }
     }
     
     public void resumeMedia() {
-        if (!isConnected || currentDeviceType != DeviceType.GOOGLE_CAST) return;
+        if (!isConnected) return;
         
-        CastSession session = castContext.getSessionManager().getCurrentCastSession();
-        if (session != null && session.getRemoteMediaClient() != null) {
-            session.getRemoteMediaClient().play();
+        switch (currentDeviceType) {
+            case GOOGLE_CAST:
+                CastSession session = castContext.getSessionManager().getCurrentCastSession();
+                if (session != null && session.getRemoteMediaClient() != null) {
+                    session.getRemoteMediaClient().play();
+                }
+                break;
+            case DLNA:
+                dlnaCaster.play(new DlnaCaster.OnCastListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "DLNA resume successful");
+                    }
+                    
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "DLNA resume failed: " + error);
+                    }
+                });
+                break;
         }
     }
     
@@ -376,8 +494,24 @@ public class UniversalCastManager {
                 }
                 break;
             case DLNA:
-                // Stop DLNA casting
-                Log.d(TAG, "Stopping DLNA cast");
+                dlnaCaster.stop(new DlnaCaster.OnCastListener() {
+                    @Override
+                    public void onSuccess() {
+                        Log.d(TAG, "DLNA stop successful");
+                        isConnected = false;
+                        currentDevice = null;
+                        currentDeviceType = DeviceType.NONE;
+                        
+                        if (castStateListener != null) {
+                            castStateListener.onCastStateChanged(false, null, DeviceType.NONE);
+                        }
+                    }
+                    
+                    @Override
+                    public void onError(String error) {
+                        Log.e(TAG, "DLNA stop failed: " + error);
+                    }
+                });
                 break;
         }
     }
@@ -402,7 +536,26 @@ public class UniversalCastManager {
         this.castStateListener = listener;
     }
     
+    public void connectToDlnaDevice(CastDevice device) {
+        if (device == null || device.type != DeviceType.DLNA) {
+            Log.w(TAG, "Invalid DLNA device");
+            return;
+        }
+        
+        currentDevice = device;
+        currentDeviceType = DeviceType.DLNA;
+        
+        // For DLNA, we don't maintain a persistent connection
+        // Connection is established when casting media
+        isConnected = true;
+        
+        if (castStateListener != null) {
+            castStateListener.onCastStateChanged(true, device, DeviceType.DLNA);
+        }
+    }
+    
     public void cleanup() {
         dlnaManager.cleanup();
+        dlnaCaster.cleanup();
     }
 }

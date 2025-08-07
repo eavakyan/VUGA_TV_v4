@@ -224,10 +224,25 @@
                             android:layout_width="35dp"
                             android:layout_height="35dp"
                             android:layout_marginStart="8dp"
+                            android:layout_marginEnd="8dp"
                             android:background="@drawable/bg_round_rect_15"
                             android:backgroundTint="@color/transparent"
                             android:padding="6dp"
-                            android:scaleType="fitCenter" />
+                            android:scaleType="fitCenter"
+                            android:visibility="visible"
+                            app:tint="@color/white" />
+                            
+                        <!-- DLNA Test Button - Temporary for debugging -->
+                        <Button
+                            android:id="@+id/btn_dlna_test"
+                            android:layout_width="wrap_content"
+                            android:layout_height="35dp"
+                            android:layout_marginStart="4dp"
+                            android:text="DLNA"
+                            android:textSize="10sp"
+                            android:minWidth="40dp"
+                            android:padding="4dp"
+                            android:visibility="visible" />
 
                         <ImageView
                             android:id="@+id/fullscreen_btn"

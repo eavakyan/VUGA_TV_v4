@@ -7,6 +7,10 @@
 
 import Foundation
 
+extension Notification.Name {
+    static let profileChanged = Notification.Name("profileChanged")
+}
+
 struct DownloadData: Hashable,Codable {
     var data: Data?
     var sourceId: String
@@ -14,6 +18,7 @@ struct DownloadData: Hashable,Codable {
     var contentId: Int
     var episodeId: Int
     var destinationName: String
+    var profileId: Int
 //    var downloadStatus: DownloadStatus
 }
 
@@ -32,6 +37,7 @@ class SessionManager: ObservableObject {
         didSet {
             if let profile = currentProfile {
                 saveProfile(profile)
+                NotificationCenter.default.post(name: .profileChanged, object: nil)
             }
         }
     }
@@ -133,6 +139,15 @@ class SessionManager: ObservableObject {
             }
         }
         return []
+    }
+    
+    func getDownloadDataForCurrentProfile() -> [DownloadData] {
+        guard let currentProfileId = currentProfile?.profileId else { return [] }
+        return getDownloadData().filter { $0.profileId == currentProfileId }
+    }
+    
+    func getDownloadDataForProfile(profileId: Int) -> [DownloadData] {
+        return getDownloadData().filter { $0.profileId == profileId }
     }
     
     func setGenres(data: [Genre]){

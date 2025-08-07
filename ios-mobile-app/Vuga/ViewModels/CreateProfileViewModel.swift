@@ -11,7 +11,7 @@ class CreateProfileViewModel: BaseViewModel {
         "#FFEB3B", "#FFC107", "#FF9800", "#FF5722"
     ]
     
-    func createProfile(name: String, color: String, isKids: Bool, completion: @escaping () -> Void) {
+    func createProfile(name: String, color: String, isKids: Bool, age: Int? = nil, completion: @escaping () -> Void) {
         guard let userId = myUser?.id else { return }
         
         startLoading()
@@ -23,12 +23,17 @@ class CreateProfileViewModel: BaseViewModel {
             avatarId = (colorIndex % 8) + 1
         }
         
-        let params: [Params: Any] = [
+        var params: [Params: Any] = [
             .userId: userId,
             .name: name,
             .avatarId: avatarId,
             .isKids: isKids ? 1 : 0
         ]
+        
+        // Add age if provided (required for kids profiles)
+        if let age = age {
+            params[.age] = age
+        }
         
         NetworkManager.callWebService(url: .createProfile, params: params) { [weak self] (obj: ProfileResponse) in
             self?.stopLoading()
@@ -42,7 +47,7 @@ class CreateProfileViewModel: BaseViewModel {
         }
     }
     
-    func updateProfile(profileId: Int, name: String, color: String, isKids: Bool, avatarId: Int? = nil, completion: @escaping () -> Void) {
+    func updateProfile(profileId: Int, name: String, color: String, isKids: Bool, avatarId: Int? = nil, age: Int? = nil, completion: @escaping () -> Void) {
         guard let userId = myUser?.id else { return }
         
         startLoading()
@@ -54,13 +59,18 @@ class CreateProfileViewModel: BaseViewModel {
             finalAvatarId = (colorIndex % 8) + 1
         }
         
-        let params: [Params: Any] = [
+        var params: [Params: Any] = [
             .profileId: profileId,
             .userId: userId,
             .name: name,
             .avatarId: finalAvatarId,
             .isKids: isKids ? 1 : 0
         ]
+        
+        // Add age if provided (required for kids profiles)
+        if let age = age {
+            params[.age] = age
+        }
         
         NetworkManager.callWebService(url: .updateProfile, params: params) { [weak self] (obj: ProfileResponse) in
             self?.stopLoading()

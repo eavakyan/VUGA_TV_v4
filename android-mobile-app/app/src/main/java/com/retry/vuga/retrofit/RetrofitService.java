@@ -227,4 +227,8 @@ public interface RetrofitService {
             @Field("is_kids_profile") boolean isKidsProfile
     );
 
+    // Genre endpoints
+    @POST("genre/all")
+    Single<HomePage> getAllGenres();
+
 }

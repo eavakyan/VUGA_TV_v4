@@ -44,6 +44,14 @@ struct HomeView: View {
         ZStack(alignment: .top){
             ScrollView(showsIndicators: false) {
                 VStack {
+                    // Header with Logo and Profile Name
+                    headerWithLogoAndProfile
+                        .padding(.top, 50) // Fixed top padding for proper spacing
+                    
+                    // Navigation Menu Row with horizontal category list
+                    horizontalCategoryList
+                        .padding(.bottom, 10)
+                    
                     if vm.featured.isNotEmpty {
                         topBar
                             .frame(height: Device.height * 0.6)
@@ -63,7 +71,7 @@ struct HomeView: View {
                     }
                     .ignoresSafeArea(.all,edges: .top)
                 }
-                .padding(.top,50)
+                .padding(.top, 0) // Remove duplicate top padding
             }
             .refreshable {
                 vm.isForRefresh = true
@@ -103,6 +111,108 @@ struct HomeView: View {
         }
         .addBackground()
         .loaderView(vm.isLoading)
+    }
+    
+    // Header with Logo and Profile Name
+    private var headerWithLogoAndProfile: some View {
+        HStack {
+            // Left side - Logo and Profile Name
+            HStack(spacing: 10) {
+                // App Logo
+                Image.logo
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(width: 80, height: 23)
+                
+                Text(getProfileGreeting())
+                    .outfitSemiBold(18)
+                    .foregroundColor(.text)
+            }
+            
+            Spacer()
+            
+            // Right side - Action icons
+            HStack(spacing: 12) {
+                // Stream-casting icon
+                Button(action: {
+                    // Handle casting - placeholder
+                    print("Casting tapped")
+                }) {
+                    Image(systemName: "airplayvideo")
+                        .font(.system(size: 16, weight: .medium))
+                        .foregroundColor(.textLight)
+                        .frame(width: 35, height: 35)
+                        .background(Color.searchBg)
+                        .clipShape(Circle())
+                }
+                
+                // Downloads icon
+                Button(action: {
+                    Navigation.pushToSwiftUiView(DownloadView())
+                }) {
+                    Image.download
+                        .resizeFitTo(size: 16, renderingMode: .template)
+                        .foregroundColor(.textLight)
+                        .frame(width: 35, height: 35)
+                        .background(Color.searchBg)
+                        .clipShape(Circle())
+                }
+                
+                // Search icon
+                Button(action: {
+                    selectedTab = .search
+                }) {
+                    Image.search
+                        .resizeFitTo(size: 16, renderingMode: .template)
+                        .foregroundColor(.textLight)
+                        .frame(width: 35, height: 35)
+                        .background(Color.searchBg)
+                        .clipShape(Circle())
+                }
+            }
+        }
+        .padding(.horizontal, 15)
+    }
+    
+    // Horizontal Category List Component
+    @State private var selectedGenre: Genre?
+    
+    private var horizontalCategoryList: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Section title
+            HStack {
+                Text("Categories")
+                    .outfitSemiBold(16)
+                    .foregroundColor(.text)
+                    .padding(.leading, 15)
+                Spacer()
+            }
+            
+            // Horizontal scrollable category list
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 12) {
+                    ForEach(vm.genres, id: \.id) { genre in
+                        Button(action: {
+                            selectedGenre = genre
+                            Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                        }) {
+                            Text(genre.title ?? "")
+                                .outfitMedium(14)
+                                .foregroundColor(selectedGenre?.id == genre.id ? .text : .textLight)
+                                .padding(.horizontal, 20)
+                                .padding(.vertical, 8)
+                                .background(selectedGenre?.id == genre.id ? Color.base : Color.clear)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 15)
+                                        .stroke(selectedGenre?.id == genre.id ? Color.clear : Color.strokeColor, lineWidth: 1)
+                                )
+                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                        }
+                    }
+                }
+                .padding(.horizontal, 15)
+            }
+        }
     }
     
     private var recentlyWatched: some View {
@@ -368,6 +478,24 @@ struct HomeView: View {
                             .animation(.default,value: vm.selectedImageIndex)
                             .allowsHitTesting(false)
                     )
+    }
+    
+    // Helper function to get profile greeting
+    private func getProfileGreeting() -> String {
+        guard let user = SessionManager.shared.getUser(),
+              let profile = user.lastActiveProfile else {
+            return "Hi, User"
+        }
+        
+        let profileName = profile.name?.isEmpty == false ? profile.name! : "User"
+        return "Hi, \(profileName)"
+    }
+    
+    // Helper function to filter content by type
+    private func filterContentByType(_ type: String) {
+        print("Filtering content by: \(type)")
+        // Implementation for filtering content based on type
+        // This could involve calling different API endpoints or filtering existing data
     }
 }
 

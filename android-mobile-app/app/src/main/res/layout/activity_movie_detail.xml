@@ -34,13 +34,44 @@
             android:layout_width="match_parent"
             android:layout_height="590dp">
 
+            <!-- Poster Image (shown when no trailer) -->
             <ImageView
-
+                android:id="@+id/img_poster_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
+                android:visibility="@{content.trailerUrl.isEmpty() ? View.VISIBLE : View.GONE}"
                 app:image_url="@{content.verticalPoster}"
                 tools:src="@tools:sample/backgrounds/scenic" />
+
+            <!-- Video Player for Trailer (shown when trailer exists) -->
+            <VideoView
+                android:id="@+id/video_trailer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:layout_centerInParent="true" />
+
+            <!-- WebView for YouTube trailers -->
+            <WebView
+                android:id="@+id/webview_youtube_trailer"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone"
+                android:layout_centerInParent="true" />
+
+            <!-- Play/Pause button overlay for trailer (only for non-YouTube videos) -->
+            <ImageView
+                android:id="@+id/btn_play_pause_trailer"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_play"
+                android:background="@drawable/bg_round_rect_500"
+                android:backgroundTint="@color/app_color_70"
+                android:padding="20dp"
+                android:visibility="gone"
+                app:tint="@color/white" />
 
             <eightbitlab.com.blurview.BlurView
                 android:id="@+id/blurView"
@@ -120,17 +151,14 @@
                     android:clickable="true"
                     android:focusable="true" />
 
-                <androidx.constraintlayout.utils.widget.ImageFilterView
+                <com.retry.vuga.utils.UniversalCastButton
                     android:id="@+id/btn_cast"
                     android:layout_width="@dimen/back_btn_size"
                     android:layout_height="@dimen/back_btn_size"
                     android:layout_marginStart="10dp"
                     android:background="@drawable/bg_for_view_round"
                     android:padding="10dp"
-                    android:src="@drawable/ic_cast"
-                    android:tint="@color/text_color"
-                    android:clickable="true"
-                    android:focusable="true"
+                    android:scaleType="fitCenter"
                     android:visibility="visible" />
 
                 <androidx.constraintlayout.utils.widget.ImageFilterView
@@ -203,70 +231,6 @@
                             </eightbitlab.com.blurview.BlurView>
 
                         </RelativeLayout>
-
-                        <androidx.cardview.widget.CardView
-
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginHorizontal="20dp"
-                            android:layout_marginEnd="-20dp"
-                            android:layout_marginBottom="30dp"
-                            android:outlineSpotShadowColor="@color/transparent"
-                            app:cardBackgroundColor="@color/transparent"
-                            app:cardCornerRadius="500dp"
-                            tools:targetApi="p">
-
-                            <eightbitlab.com.blurview.BlurView
-                                android:id="@+id/blurView_2"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:background="@color/app_black_70"
-                                android:elevation="16dp">
-
-
-                                <LinearLayout
-                                    android:id="@+id/btn_trailer"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-
-                                    android:background="@drawable/bg_for_trailer_tab"
-                                    android:orientation="horizontal"
-
-                                    android:paddingHorizontal="15dp"
-                                    android:paddingVertical="10dp">
-
-                                    <ImageView
-                                        android:layout_width="30dp"
-                                        android:layout_height="30dp"
-                                        android:background="@drawable/bg_round_rect_500"
-                                        android:backgroundTint="@color/app_color"
-                                        android:padding="10dp"
-                                        android:paddingVertical="20dp"
-                                        android:src="@drawable/ic_play"
-                                        app:tint="@color/text_color" />
-
-                                    <TextView
-
-
-                                        style="@style/TextViewLocal"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="10dp"
-                                        android:layout_marginEnd="30dp"
-                                        android:fontFamily="@font/outfit_medium"
-                                        android:gravity="center"
-                                        android:text="@string/trailer"
-                                        android:textSize="@dimen/_20sp"
-
-                                        />
-                                </LinearLayout>
-                            </eightbitlab.com.blurview.BlurView>
-
-
-                        </androidx.cardview.widget.CardView>
-
 
                     </RelativeLayout>
 
@@ -457,7 +421,7 @@
                                 android:backgroundTint="@color/trans_stroke_color"
                                 android:gravity="center"
                                 android:orientation="horizontal"
-                                android:visibility="@{content.type==1?View.VISIBLE:View.GONE}">
+                                android:visibility="gone">
 
                                 <ImageView
                                     android:layout_width="30dp"

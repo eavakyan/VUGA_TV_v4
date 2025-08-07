@@ -38,7 +38,7 @@
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
                 android:paddingTop="20dp"
-                android:paddingBottom="40dp"
+                android:paddingBottom="80dp"
                 android:gravity="center">
 
                 <Button

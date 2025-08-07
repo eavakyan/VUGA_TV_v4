@@ -224,7 +224,24 @@ struct ContentDetailView: View {
                             }
                         }
                         .animation(.linear, value: vm.isStoryLineOn)
-                                                if content.contentCast?.isNotEmpty == true {
+                        
+                        if content.type == .movie {
+                            divider()
+                            VStack(spacing: 8) {
+                                Heading(title: .moreLikeThis)
+                                ScrollView(.horizontal,showsIndicators: false, content: {
+                                    LazyHStack(content: {
+                                        ForEach(content.moreLikeThis ?? [], id: \.id) { content in
+                                            ContentVerticalCard(vm: homeVm, content: content)
+                                        }
+                                    })
+                                    .padding(.horizontal, 10)
+                                })
+                                .padding(.horizontal, -10)
+                            }
+                        }
+                        
+                        if content.contentCast?.isNotEmpty == true {
                             divider()
                             VStack(spacing: 8) {
                                 Heading(title: .starCast) {
@@ -247,21 +264,6 @@ struct ContentDetailView: View {
                                     .frame(height: 55)
                                     .flipsForRightToLeftLayoutDirection(language == .Arabic ? true : false)
                                 }
-                            }
-                        }
-                        if content.type == .movie {
-                            divider()
-                            VStack(spacing: 8) {
-                                Heading(title: .moreLikeThis)
-                                ScrollView(.horizontal,showsIndicators: false, content: {
-                                    LazyHStack(content: {
-                                        ForEach(content.moreLikeThis ?? [], id: \.id) { content in
-                                            ContentVerticalCard(vm: homeVm, content: content)
-                                        }
-                                    })
-                                    .padding(.horizontal, 10)
-                                })
-                                .padding(.horizontal, -10)
                             }
                         }
                         if content.type == .series {
@@ -362,9 +364,13 @@ struct ContentDetailView: View {
         .fullScreenCover(isPresented: $showTrailerSheet, content: {
             if let content = vm.content {
                 if content.type == .movie {
-                    YoutubeView(youtubeUrl: content.trailerURL ?? "")
+                    if let trailerUrl = content.trailerURL, !trailerUrl.isEmpty {
+                        TrailerPlayerView(trailerUrl: getFullTrailerUrl(trailerUrl))
+                    }
                 } else if content.type == .series {
-                    YoutubeView(youtubeUrl: vm.selectedSeason?.trailerURL ?? "")
+                    if let trailerUrl = vm.selectedSeason?.trailerURL, !trailerUrl.isEmpty {
+                        TrailerPlayerView(trailerUrl: getFullTrailerUrl(trailerUrl))
+                    }
                 }
             }
         })
@@ -512,29 +518,20 @@ struct ContentDetailView: View {
     
     @ViewBuilder
     private func contentPosterSection(_ content: VugaContent) -> some View {
-        KFImage(content.verticalPoster?.addBaseURL())
-            .resizeFillTo(width: Device.width * 0.75, height: Device.width * 1.1, radius: 15)
-            .addStroke(radius: 15)
-            .maxFrame()
-            .overlay(
-                HStack {
-                    PlayButton()
-                    Text(String.trailer.localized(language))
-                        .outfitMedium(20)
-                        .padding(.horizontal, 5)
-                        .padding(.trailing, 40)
-                }
-                    .padding(10)
-                    .background(Color.darkBg)
-                    .clipShape(Capsule())
-                    .addStroke(radius: 100,color: .base.opacity(0.5))
-                    .onTap {
-                        showTrailerSheet = true
-                    }
-                    .padding(.bottom)
-                    .offset(x: 40)
-                ,alignment: .bottomTrailing
-            )
+        if let trailerUrl = content.trailerURL, !trailerUrl.isEmpty {
+            // Show inline trailer player
+            TrailerInlinePlayer(trailerUrl: getFullTrailerUrl(trailerUrl))
+                .frame(width: Device.width * 0.9, height: Device.width * 1.1)
+                .cornerRadius(15)
+                .addStroke(radius: 15)
+                .maxFrame()
+        } else {
+            // Show poster image with trailer button
+            KFImage(content.verticalPoster?.addBaseURL())
+                .resizeFillTo(width: Device.width * 0.75, height: Device.width * 1.1, radius: 15)
+                .addStroke(radius: 15)
+                .maxFrame()
+        }
     }
     
     @ViewBuilder
@@ -862,6 +859,16 @@ struct ContentDetailView: View {
     func shareLink(_ url: String) {
         let AV = UIActivityViewController(activityItems: [url], applicationActivities: nil)
         UIApplication.shared.windows.first?.rootViewController?.present(AV, animated: true, completion: nil)
+    }
+    
+    func getFullTrailerUrl(_ trailerUrl: String) -> String {
+        // If it's already a full URL (http/https), return as-is
+        if trailerUrl.hasPrefix("http://") || trailerUrl.hasPrefix("https://") {
+            return trailerUrl
+        }
+        
+        // Otherwise, prepend the CDN base URL
+        return APIs.imageUrl + trailerUrl
     }
     
 }

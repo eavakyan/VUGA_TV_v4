@@ -14,6 +14,11 @@ import android.widget.Toast;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.VideoView;
+import android.webkit.WebView;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
+import android.webkit.WebViewClient;
 
 import androidx.databinding.DataBindingUtil;
 import com.bumptech.glide.Glide;
@@ -55,6 +60,8 @@ import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.CustomDialogBuilder;
 import com.retry.vuga.utils.Global;
+import com.retry.vuga.utils.UniversalCastButton;
+import com.retry.vuga.utils.UniversalCastManager;
 import com.retry.vuga.utils.adds.MyRewardAds;
 import com.retry.vuga.dialogs.DownloadProgressDialog;
 import com.retry.vuga.dialogs.RatingDialog;
@@ -108,7 +115,22 @@ public class MovieDetailActivity extends BaseActivity {
     @Override
     protected void onPause() {
         super.onPause();
-
+        
+        // Pause trailer video if playing
+        if (binding != null) {
+            if (binding.videoTrailer != null && binding.videoTrailer.isPlaying()) {
+                binding.videoTrailer.pause();
+                binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_play);
+                binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
+                binding.btnPlayPauseTrailer.setAlpha(1f);
+            }
+            
+            // Pause YouTube video if playing
+            if (binding.webviewYoutubeTrailer != null && binding.webviewYoutubeTrailer.getVisibility() == View.VISIBLE) {
+                binding.webviewYoutubeTrailer.onPause();
+                binding.webviewYoutubeTrailer.pauseTimers();
+            }
+        }
     }
 
 
@@ -120,6 +142,13 @@ public class MovieDetailActivity extends BaseActivity {
         // Refresh content detail to get latest watchlist state
         if (contentId != 0 && contentItem != null) {
             getContentDetail();
+        }
+        
+        // Resume YouTube video if it was playing
+        if (binding != null && binding.webviewYoutubeTrailer != null && 
+            binding.webviewYoutubeTrailer.getVisibility() == View.VISIBLE) {
+            binding.webviewYoutubeTrailer.onResume();
+            binding.webviewYoutubeTrailer.resumeTimers();
         }
     }
 
@@ -326,9 +355,31 @@ public class MovieDetailActivity extends BaseActivity {
             }
         });
 
-        binding.btnCast.setOnClickListener(v -> {
-            if (contentItem != null) {
-                showCastDialog();
+        // Setup UniversalCastButton
+        binding.btnCast.setOnCastDeviceSelectedListener(new UniversalCastButton.OnCastDeviceSelectedListener() {
+            @Override
+            public void onDeviceSelected(UniversalCastManager.CastDevice device) {
+                Log.d("MovieDetail", "Cast device selected: " + device.name + " (" + device.type + ")");
+                if (contentItem != null) {
+                    // Handle casting based on device type
+                    if (device.type == UniversalCastManager.DeviceType.GOOGLE_CAST) {
+                        // For Google Cast, use existing loadMediaToCast method
+                        CastContext castContext = CastContext.getSharedInstance(MovieDetailActivity.this);
+                        CastSession castSession = castContext.getSessionManager().getCurrentCastSession();
+                        if (castSession != null && castSession.isConnected()) {
+                            loadMediaToCast(castSession);
+                        }
+                    } else if (device.type == UniversalCastManager.DeviceType.DLNA) {
+                        // For DLNA, cast the video
+                        castToDlna(device);
+                    }
+                }
+            }
+            
+            @Override
+            public void onDeviceDisconnected() {
+                Log.d("MovieDetail", "Cast device disconnected");
+                stopCasting();
             }
         });
         
@@ -378,16 +429,6 @@ public class MovieDetailActivity extends BaseActivity {
         });
 
         binding.loutLoader.setOnClickListener(v -> {
-
-        });
-        binding.btnTrailer.setOnClickListener(v -> {
-            if (trailerUrl == null || trailerUrl.isEmpty()) {
-                return;
-            }
-            Intent intent = new Intent(this, PlayerNewActivity.class);
-            intent.putExtra(Const.DataKey.TRAILER_URL, trailerUrl);
-            intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-            startActivity(intent);
 
         });
 
@@ -1054,6 +1095,13 @@ public class MovieDetailActivity extends BaseActivity {
         if (downloadProgressDialog != null && downloadProgressDialog.isShowing()) {
             downloadProgressDialog.dismiss();
         }
+        
+        // Clean up WebView
+        if (binding != null && binding.webviewYoutubeTrailer != null) {
+            binding.webviewYoutubeTrailer.loadUrl("about:blank");
+            binding.webviewYoutubeTrailer.clearHistory();
+            binding.webviewYoutubeTrailer.destroy();
+        }
     }
 
     @Override
@@ -1153,6 +1201,9 @@ public class MovieDetailActivity extends BaseActivity {
             titleName = contentItem.getTitle();
         }
         binding.setContent(contentItem);
+        
+        // Setup trailer video player if trailer exists
+        setupTrailerPlayer();
 
         if (contentItem.getGenreList().isEmpty()) {
             List<String> list = Global.getGenreListFromIds(contentItem.getGenreIds(), this);
@@ -1189,7 +1240,7 @@ public class MovieDetailActivity extends BaseActivity {
             }
         }
 
-        if (moreList.isEmpty() || contentItem.getType() == 2)
+        if (moreList.isEmpty())
             binding.setIsMoreLikeThisVisible(false);
         else {
             binding.setIsMoreLikeThisVisible(true);
@@ -1218,7 +1269,9 @@ public class MovieDetailActivity extends BaseActivity {
 
         // Check if any source is downloadable and show/hide download button accordingly
         boolean hasDownloadableSource = false;
-        if (contentItem.getContent_sources() != null) {
+        
+        // For movies, check content sources directly
+        if (contentItem.getType() == 1 && contentItem.getContent_sources() != null) {
             for (ContentDetail.SourceItem source : contentItem.getContent_sources()) {
                 if (source.getIs_download() == 1) {
                     hasDownloadableSource = true;
@@ -1226,6 +1279,10 @@ public class MovieDetailActivity extends BaseActivity {
                 }
             }
         }
+        
+        // For series (type == 2), download button should remain hidden
+        // Series downloads are handled at episode level, not content level
+        
         binding.btnDownload.setVisibility(hasDownloadableSource ? View.VISIBLE : View.GONE);
 
     }
@@ -1249,7 +1306,6 @@ public class MovieDetailActivity extends BaseActivity {
         genreAdapter = new ContentDetailGenreAdapter();
 
         setBlur(binding.blurView, binding.rootLout, 15f);
-        setBlur(binding.blurView2, binding.rootLout, 15f);
         setBlur(binding.loutSourcesBlur, binding.rootLout, 20f);
         setBlur(binding.blurViewPopup, binding.rootLout, 10f);
         
@@ -1381,6 +1437,61 @@ public class MovieDetailActivity extends BaseActivity {
         Toast.makeText(this, "Casting to TV...", Toast.LENGTH_SHORT).show();
     }
     
+    private void castToDlna(UniversalCastManager.CastDevice device) {
+        Log.d("MovieDetail", "Casting to DLNA device: " + device.name);
+        
+        // Get the cast manager from the button
+        UniversalCastManager castManager = binding.btnCast.getCastManager();
+        
+        if (contentItem != null && contentItem.getContent_sources() != null && !contentItem.getContent_sources().isEmpty()) {
+            // Get the first available source
+            ContentDetail.SourceItem source = contentItem.getContent_sources().get(0);
+            String videoUrl = source.getSource();
+            
+            // Ensure video URL is absolute
+            if (!videoUrl.startsWith("http://") && !videoUrl.startsWith("https://")) {
+                // Check source type
+                if (source.getType() == 7 && source.getMediaItem() != null) {
+                    videoUrl = Const.IMAGE_URL + source.getMediaItem().getFile();
+                } else {
+                    videoUrl = Const.IMAGE_URL + source.getSource();
+                }
+            }
+            
+            String title = contentItem.getTitle();
+            Log.d("MovieDetail", "Video URL for DLNA: " + videoUrl);
+            
+            // Show progress
+            Toast.makeText(this, "Connecting to " + device.name + "...", Toast.LENGTH_SHORT).show();
+            
+            // Connect to the DLNA device and immediately cast
+            castManager.connectToDlnaDevice(device);
+            
+            // Cast the media immediately after connection
+            // The castManager will handle the connection state internally
+            String imageUrl = contentItem.getHorizontalPoster() != null ? 
+                Const.BASE + contentItem.getHorizontalPoster() : "";
+            
+            // Create final copies for lambda
+            final String finalVideoUrl = videoUrl;
+            final String finalTitle = title;
+            
+            // Small delay to ensure connection is established
+            new Handler().postDelayed(() -> {
+                castManager.castMedia(finalVideoUrl, finalTitle, contentItem.getDescription(), imageUrl);
+            }, 500);
+        } else {
+            Toast.makeText(this, "No video source available", Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void stopCasting() {
+        // Get the cast manager from the button
+        UniversalCastManager castManager = binding.btnCast.getCastManager();
+        castManager.stopCasting();
+        updateCastState(false, null);
+    }
+    
     private void initializeCastSessionManagement() {
         try {
             CastContext castContext = CastContext.getSharedInstance(this);
@@ -1450,9 +1561,9 @@ public class MovieDetailActivity extends BaseActivity {
     private void updateCastState(boolean isCasting, CastSession session) {
         runOnUiThread(() -> {
             if (isCasting) {
-                // Update Cast button to show connected state
-                binding.btnCast.setImageResource(R.drawable.ic_cast_connected);
-                binding.btnCast.setColorFilter(getResources().getColor(R.color.app_color));
+                // UniversalCastButton handles its own icon updates
+                // binding.btnCast.setImageResource(R.drawable.ic_cast_connected);
+                // binding.btnCast.setColorFilter(getResources().getColor(R.color.app_color));
                 
                 // Show mini controller
                 View miniController = findViewById(R.id.cast_mini_controller);
@@ -1539,9 +1650,9 @@ public class MovieDetailActivity extends BaseActivity {
                 // Show "Now casting" toast
                 Toast.makeText(this, "Connected to cast device", Toast.LENGTH_SHORT).show();
             } else {
-                // Update Cast button to show disconnected state
-                binding.btnCast.setImageResource(R.drawable.ic_cast);
-                binding.btnCast.clearColorFilter();
+                // UniversalCastButton handles its own icon updates
+                // binding.btnCast.setImageResource(R.drawable.ic_cast);
+                // binding.btnCast.clearColorFilter();
                 
                 // Hide mini controller
                 View miniController = findViewById(R.id.cast_mini_controller);
@@ -1709,6 +1820,218 @@ public class MovieDetailActivity extends BaseActivity {
                     Toast.makeText(this, "Error submitting episode rating", Toast.LENGTH_SHORT).show();
                     Log.e("Rating", "Error submitting episode rating", throwable);
                 }));
+    }
+    
+    private void setupTrailerPlayer() {
+        if (contentItem == null) {
+            Log.d("Trailer", "Content item is null, showing poster");
+            showPosterOnly();
+            return;
+        }
+        
+        String trailerUrl = contentItem.getTrailerUrl();
+        Log.d("Trailer", "Trailer URL: " + trailerUrl);
+        
+        if (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null")) {
+            Log.d("Trailer", "No trailer URL available, showing poster");
+            showPosterOnly();
+            return;
+        }
+        
+        Log.d("Trailer", "Setting up trailer player for URL: " + trailerUrl);
+        
+        // Hide poster when we have a trailer
+        binding.imgPosterBackground.setVisibility(View.GONE);
+        
+        // Check if it's a YouTube URL
+        if (isYouTubeUrl(trailerUrl)) {
+            Log.d("Trailer", "Detected YouTube URL, using WebView");
+            setupYouTubePlayer(trailerUrl);
+        } else {
+            Log.d("Trailer", "Detected CDN URL, using VideoView");
+            setupCdnVideoPlayer(trailerUrl);
+        }
+    }
+    
+    private void showPosterOnly() {
+        binding.videoTrailer.setVisibility(View.GONE);
+        binding.webviewYoutubeTrailer.setVisibility(View.GONE);
+        binding.btnPlayPauseTrailer.setVisibility(View.GONE);
+        binding.imgPosterBackground.setVisibility(View.VISIBLE);
+    }
+    
+    private boolean isYouTubeUrl(String url) {
+        return url != null && (
+            url.contains("youtube.com") || 
+            url.contains("youtu.be") ||
+            url.contains("youtube-nocookie.com")
+        );
+    }
+    
+    private String extractYouTubeVideoId(String url) {
+        String videoId = null;
+        
+        // Handle different YouTube URL formats
+        if (url.contains("youtube.com/watch?v=")) {
+            // Standard YouTube URL
+            int start = url.indexOf("v=") + 2;
+            int end = url.indexOf("&", start);
+            if (end == -1) end = url.length();
+            videoId = url.substring(start, end);
+        } else if (url.contains("youtu.be/")) {
+            // Shortened YouTube URL
+            int start = url.lastIndexOf("/") + 1;
+            int end = url.indexOf("?", start);
+            if (end == -1) end = url.length();
+            videoId = url.substring(start, end);
+        } else if (url.contains("youtube.com/embed/")) {
+            // Embedded YouTube URL
+            int start = url.indexOf("embed/") + 6;
+            int end = url.indexOf("?", start);
+            if (end == -1) end = url.length();
+            videoId = url.substring(start, end);
+        }
+        
+        return videoId;
+    }
+    
+    private void setupYouTubePlayer(String youtubeUrl) {
+        binding.videoTrailer.setVisibility(View.GONE);
+        binding.btnPlayPauseTrailer.setVisibility(View.GONE);
+        binding.webviewYoutubeTrailer.setVisibility(View.VISIBLE);
+        
+        // Extract video ID
+        String videoId = extractYouTubeVideoId(youtubeUrl);
+        if (videoId == null) {
+            Log.e("Trailer", "Could not extract YouTube video ID from: " + youtubeUrl);
+            // Fall back to poster
+            binding.webviewYoutubeTrailer.setVisibility(View.GONE);
+            binding.imgPosterBackground.setVisibility(View.VISIBLE);
+            return;
+        }
+        
+        // Configure WebView
+        WebSettings webSettings = binding.webviewYoutubeTrailer.getSettings();
+        webSettings.setJavaScriptEnabled(true);
+        webSettings.setDomStorageEnabled(true);
+        webSettings.setMediaPlaybackRequiresUserGesture(false);
+        
+        // Set WebView clients
+        binding.webviewYoutubeTrailer.setWebChromeClient(new WebChromeClient());
+        binding.webviewYoutubeTrailer.setWebViewClient(new WebViewClient() {
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                return false;
+            }
+        });
+        
+        // Build YouTube embed HTML
+        String embedHtml = "<!DOCTYPE html>" +
+            "<html>" +
+            "<head>" +
+            "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no\">" +
+            "<style>" +
+            "body { margin: 0; padding: 0; background: black; }" +
+            "iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }" +
+            "</style>" +
+            "</head>" +
+            "<body>" +
+            "<iframe " +
+            "src=\"https://www.youtube.com/embed/" + videoId + "?autoplay=0&loop=1&playlist=" + videoId + "&rel=0&showinfo=0&modestbranding=1\" " +
+            "frameborder=\"0\" " +
+            "allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" " +
+            "allowfullscreen>" +
+            "</iframe>" +
+            "</body>" +
+            "</html>";
+        
+        // Load the YouTube player
+        binding.webviewYoutubeTrailer.loadData(embedHtml, "text/html", "UTF-8");
+    }
+    
+    private void setupCdnVideoPlayer(String trailerUrl) {
+        Log.d("Trailer", "Setting up CDN video player with URL: " + trailerUrl);
+        
+        // Build the full URL if it's not already absolute
+        String fullTrailerUrl = trailerUrl;
+        if (!trailerUrl.startsWith("http://") && !trailerUrl.startsWith("https://")) {
+            fullTrailerUrl = Const.IMAGE_URL + trailerUrl;
+            Log.d("Trailer", "Built full URL: " + fullTrailerUrl);
+        }
+        
+        // Validate URL before attempting to play
+        try {
+            Uri.parse(fullTrailerUrl);
+        } catch (Exception e) {
+            Log.e("Trailer", "Invalid URL format: " + fullTrailerUrl, e);
+            showPosterOnly();
+            return;
+        }
+        
+        binding.videoTrailer.setVisibility(View.VISIBLE);
+        binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
+        binding.webviewYoutubeTrailer.setVisibility(View.GONE);
+        
+        // Set up the video view
+        binding.videoTrailer.setVideoURI(Uri.parse(fullTrailerUrl));
+        
+        // Handle video prepared
+        binding.videoTrailer.setOnPreparedListener(mp -> {
+            Log.d("Trailer", "Video prepared successfully");
+            // Video is ready but don't start playing automatically
+            mp.setLooping(true); // Loop the trailer
+        });
+        
+        // Handle video errors - silently fall back to poster
+        final String finalFullTrailerUrl = fullTrailerUrl;
+        binding.videoTrailer.setOnErrorListener((mp, what, extra) -> {
+            Log.e("Trailer", "Error playing trailer - what: " + what + ", extra: " + extra + ", URL: " + finalFullTrailerUrl);
+            // Silently fall back to poster without showing error message
+            showPosterOnly();
+            return true;
+        });
+        
+        // Set up play/pause button
+        binding.btnPlayPauseTrailer.setOnClickListener(v -> {
+            if (binding.videoTrailer.isPlaying()) {
+                binding.videoTrailer.pause();
+                binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_play);
+            } else {
+                binding.videoTrailer.start();
+                binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_pause);
+                
+                // Hide the play button after 3 seconds when playing
+                new Handler().postDelayed(() -> {
+                    if (binding.videoTrailer.isPlaying()) {
+                        binding.btnPlayPauseTrailer.animate()
+                            .alpha(0f)
+                            .setDuration(300)
+                            .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+                    }
+                }, 3000);
+            }
+        });
+        
+        // Show play button again when video is tapped
+        binding.videoTrailer.setOnClickListener(v -> {
+            if (binding.videoTrailer.isPlaying()) {
+                binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
+                binding.btnPlayPauseTrailer.setAlpha(0f);
+                binding.btnPlayPauseTrailer.animate()
+                    .alpha(1f)
+                    .setDuration(300);
+                
+                // Hide again after 3 seconds
+                new Handler().postDelayed(() -> {
+                    if (binding.videoTrailer.isPlaying()) {
+                        binding.btnPlayPauseTrailer.animate()
+                            .alpha(0f)
+                            .setDuration(300)
+                            .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+                    }
+                }, 3000);
+            }
+        });
     }
 
 

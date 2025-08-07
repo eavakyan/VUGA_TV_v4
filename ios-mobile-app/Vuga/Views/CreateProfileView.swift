@@ -7,6 +7,9 @@ struct CreateProfileView: View {
     @State private var selectedColor = "#FF5252"
     @State private var isKidsProfile = false
     @State private var selectedAvatarId = 1
+    @State private var profileAge: Int? = nil
+    @State private var showAgeInputDialog = false
+    @State private var ageInputText = ""
     
     let profile: Profile?
     let onComplete: () -> Void
@@ -124,6 +127,16 @@ struct CreateProfileView: View {
                             
                             Toggle("", isOn: $isKidsProfile)
                                 .labelsHidden()
+                                .onChange(of: isKidsProfile) { newValue in
+                                    if newValue && profile == nil {
+                                        // Show age input dialog only for new profile creation
+                                        showAgeInputDialog = true
+                                        ageInputText = ""
+                                    } else if !newValue {
+                                        // Clear age when turning off kids profile
+                                        profileAge = nil
+                                    }
+                                }
                         }
                         .padding(.horizontal)
                         
@@ -134,13 +147,20 @@ struct CreateProfileView: View {
                         
                         // Create/Update Button
                         Button(action: {
+                            // Validate age for Kids Profile
+                            if isKidsProfile && (profileAge == nil || profileAge! < 1 || profileAge! >= 18) {
+                                viewModel.showError = true
+                                viewModel.errorMessage = "Kids Profile requires age between 1 and 17"
+                                return
+                            }
+                            
                             if profile == nil {
-                                viewModel.createProfile(name: profileName, color: selectedColor, isKids: isKidsProfile) {
+                                viewModel.createProfile(name: profileName, color: selectedColor, isKids: isKidsProfile, age: profileAge) {
                                     onComplete()
                                     presentationMode.wrappedValue.dismiss()
                                 }
                             } else {
-                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId) {
+                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId, age: profileAge) {
                                     onComplete()
                                     presentationMode.wrappedValue.dismiss()
                                 }
@@ -173,6 +193,7 @@ struct CreateProfileView: View {
                 selectedColor = profile.avatarColor
                 isKidsProfile = profile.isKids
                 selectedAvatarId = profile.avatarId ?? 1
+                profileAge = profile.age
                 
                 // If we don't have the exact color in our list, use the avatar ID to determine which color to select
                 if !avatarColors.contains(selectedColor) && selectedAvatarId > 0 && selectedAvatarId <= 8 {
@@ -182,6 +203,29 @@ struct CreateProfileView: View {
                     }
                 }
             }
+        }
+        .alert("Enter Age", isPresented: $showAgeInputDialog) {
+            TextField("Age (1-17)", text: $ageInputText)
+                .keyboardType(.numberPad)
+            Button("OK") {
+                if let age = Int(ageInputText.trimmingCharacters(in: .whitespacesAndNewlines)), age >= 1 && age < 18 {
+                    profileAge = age
+                    // Age is valid, kids profile remains enabled
+                } else {
+                    // Invalid age, turn off kids profile
+                    isKidsProfile = false
+                    profileAge = nil
+                    viewModel.showError = true
+                    viewModel.errorMessage = "Kids Profile age must be between 1 and 17"
+                }
+            }
+            Button("Cancel", role: .cancel) {
+                // Cancel age entry, turn off kids profile
+                isKidsProfile = false
+                profileAge = nil
+            }
+        } message: {
+            Text("Kids Profile is for children under 18. Please enter the age:")
         }
         .alert(isPresented: $viewModel.showError) {
             Alert(

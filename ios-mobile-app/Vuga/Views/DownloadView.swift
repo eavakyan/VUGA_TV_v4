@@ -13,10 +13,14 @@ import ActivityKit
 struct DownloadView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @EnvironmentObject var vm : DownloadViewModel
-    @FetchRequest(sortDescriptors: []) var downloads : FetchedResults<DownloadContent>
     @State var showAllDeleteDialog = false
     @State var filterdDownloads : [DownloadContent] = []
+    @State var downloads : [DownloadContent] = []
     var isOffLineView = false
+    
+    private var currentProfileId: Int {
+        return SessionManager.shared.currentProfile?.profileId ?? 0
+    }
     var body: some View {
         VStack(spacing: 0) {
             HStack {
@@ -61,8 +65,11 @@ struct DownloadView: View {
         .hideNavigationbar()
         .onAppear(perform: {
             AppDelegate.setOrientation(.portrait)
-            filterdDownloads = removeDuplicateElements(downloads: downloads)
+            loadProfileSpecificDownloads()
         })
+        .onReceive(NotificationCenter.default.publisher(for: .profileChanged)) { _ in
+            loadProfileSpecificDownloads()
+        }
         .customAlert(isPresented: $showAllDeleteDialog){
             DialogCard(icon: Image.delete, title: .areYouSure, subTitle: .deleteAllDes, buttonTitle: .delete, onClose: {
                 withAnimation {
@@ -97,7 +104,23 @@ struct DownloadView: View {
         .addBackground()
         .noDataFound(!vm.isLoading && downloads.isEmpty)
     }
-    func removeDuplicateElements(downloads: FetchedResults<DownloadContent>) -> [DownloadContent] {
+    func loadProfileSpecificDownloads() {
+        let fetchRequest: NSFetchRequest<DownloadContent> = DownloadContent.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "profileId == %d", currentProfileId)
+        fetchRequest.sortDescriptors = []
+        
+        do {
+            let profileDownloads = try DataController.shared.context.fetch(fetchRequest)
+            downloads = profileDownloads
+            filterdDownloads = removeDuplicateElements(downloads: profileDownloads)
+        } catch {
+            print("Error loading profile-specific downloads: \(error)")
+            downloads = []
+            filterdDownloads = []
+        }
+    }
+    
+    func removeDuplicateElements(downloads: [DownloadContent]) -> [DownloadContent] {
         var uniquePosts = [DownloadContent]()
         for download in downloads {
             if !uniquePosts.contains(where: {$0.contentId == download.contentId && $0.type == .series}) {
@@ -110,7 +133,6 @@ struct DownloadView: View {
 
 struct DownloadCardView : View {
     @EnvironmentObject var downloadViewModel : DownloadViewModel
-    @FetchRequest(sortDescriptors: []) var downloads : FetchedResults<DownloadContent>
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @State var isDeleteDialogShow : Bool = false
     @State var selectedRecentlyViewed : RecentlyWatched?
@@ -132,8 +154,16 @@ struct DownloadCardView : View {
     }
     
     func seriesDownloadCount() -> String {
-       let filterDownloads = downloads.filter({$0.contentId == content.contentId})
-        return String(filterDownloads.count)
+        let fetchRequest: NSFetchRequest<DownloadContent> = DownloadContent.fetchRequest()
+        let currentProfileId = SessionManager.shared.currentProfile?.profileId ?? 0
+        fetchRequest.predicate = NSPredicate(format: "profileId == %d AND contentId == %@", currentProfileId, content.contentId ?? "")
+        
+        do {
+            let count = try DataController.shared.context.count(for: fetchRequest)
+            return String(count)
+        } catch {
+            return "0"
+        }
     }
     
     var body: some View {
@@ -422,6 +452,8 @@ struct DownloadCardView : View {
         }
         DataController.shared.context.delete(content)
         DataController.shared.saveData()
+        
+        // Refresh downloads will be handled by the parent view observing data changes
         
         isDeleting = false
         isDeleteDialogShow = false

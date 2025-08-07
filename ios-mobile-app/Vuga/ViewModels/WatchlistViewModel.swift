@@ -11,9 +11,17 @@ class WatchlistViewModel : BaseViewModel {
     @Published var contents = [VugaContent]()
     @Published var contentType = ContentType.all
     @Published var isDataFetched = false
+    private var currentProfileId: Int? = nil
 
     
     func fetchWatchlist(isForRefresh: Bool = false){
+        // Check if profile has changed and force refresh if needed
+        let activeProfileId = myUser?.lastActiveProfileId
+        if currentProfileId != activeProfileId {
+            currentProfileId = activeProfileId
+            contents = []
+            isDataFetched = false
+        }
         if isForRefresh {
             contents = []
             startLoading()
@@ -24,16 +32,24 @@ class WatchlistViewModel : BaseViewModel {
         }
         
         NetworkManager.callWebService(url: .fetchWatchList, params: params) { [weak self] (obj: ContentsModel) in
-            self?.stopLoading()
+            guard let self = self else { return }
+            self.stopLoading()
+            
+            // Verify profile hasn't changed during network call
+            if self.currentProfileId != myUser?.lastActiveProfileId {
+                print("WatchlistViewModel: Profile changed during network call, ignoring results")
+                return
+            }
+            
             if isForRefresh {
-                self?.contents.removeAll()
+                self.contents.removeAll()
             }
             let newContents = obj.data ?? []
-            print("WatchlistViewModel: Received \(newContents.count) items from API")
-            print("WatchlistViewModel: Current contents count before append: \(self?.contents.count ?? 0)")
-            self?.contents.append(contentsOf: newContents)
-            print("WatchlistViewModel: Current contents count after append: \(self?.contents.count ?? 0)")
-            self?.isDataFetched = true
+            print("WatchlistViewModel: Received \(newContents.count) items for profile \(self.currentProfileId ?? 0)")
+            print("WatchlistViewModel: Current contents count before append: \(self.contents.count)")
+            self.contents.append(contentsOf: newContents)
+            print("WatchlistViewModel: Current contents count after append: \(self.contents.count)")
+            self.isDataFetched = true
         }
     }
     
@@ -55,6 +71,12 @@ class WatchlistViewModel : BaseViewModel {
         }, callbackFailure: { error in
             print("Failed to remove from watchlist: \(error)")
         })
+    }
+    
+    // Method to refresh watchlist when profile changes
+    func refreshForProfileChange() {
+        isDataFetched = false
+        fetchWatchlist(isForRefresh: true)
     }
 }
 

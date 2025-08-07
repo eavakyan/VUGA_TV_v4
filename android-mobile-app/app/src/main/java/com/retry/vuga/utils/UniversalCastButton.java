@@ -59,6 +59,8 @@ public class UniversalCastButton extends ImageButton {
         // Set initial cast icon
         setImageResource(R.drawable.ic_cast);
         setContentDescription("Cast to TV");
+        setColorFilter(getContext().getResources().getColor(R.color.white));
+        setVisibility(View.VISIBLE);
         
         // Set up cast state listener
         castManager.setCastStateListener(new UniversalCastManager.OnCastStateListener() {
@@ -111,9 +113,11 @@ public class UniversalCastButton extends ImageButton {
             if (isConnected) {
                 setImageResource(R.drawable.ic_cast_connected);
                 setContentDescription("Connected to Cast device");
+                setColorFilter(getContext().getResources().getColor(R.color.white));
             } else {
                 setImageResource(R.drawable.ic_cast);
                 setContentDescription("Cast to TV");
+                setColorFilter(getContext().getResources().getColor(R.color.white));
             }
         });
     }
@@ -128,8 +132,8 @@ public class UniversalCastButton extends ImageButton {
         
         // Show progress dialog while discovering
         AlertDialog progressDialog = new AlertDialog.Builder(getContext())
-                .setTitle("Discovering devices...")
-                .setMessage("Looking for Cast and DLNA devices...")
+                .setTitle("Finding TVs")
+                .setMessage("Searching for available TVs on your network...")
                 .setCancelable(true)
                 .setNegativeButton("Cancel", (dialog, which) -> {
                     isDiscovering = false;
@@ -138,6 +142,8 @@ public class UniversalCastButton extends ImageButton {
                 .create();
         
         progressDialog.show();
+        
+        Log.d(TAG, "Starting device discovery from UniversalCastButton");
         
         // Start device discovery
         castManager.discoverDevices(new UniversalCastManager.OnDeviceDiscoveryListener() {
@@ -155,9 +161,9 @@ public class UniversalCastButton extends ImageButton {
                 if (devices.isEmpty()) {
                     // Show "no devices found" dialog
                     new AlertDialog.Builder(getContext())
-                            .setTitle("No devices found")
-                            .setMessage("No Cast or DLNA devices were found on your network. Make sure your TV supports casting and is connected to the same WiFi network.")
-                            .setNeutralButton("OK", null)
+                            .setTitle("No TVs found")
+                            .setMessage("Make sure your TV is turned on and connected to the same WiFi network as your phone.")
+                            .setPositiveButton("OK", null)
                             .show();
                 } else {
                     // Show device selection dialog
@@ -187,13 +193,8 @@ public class UniversalCastButton extends ImageButton {
                 UniversalCastManager.CastDevice device = getItem(position);
                 
                 if (device != null) {
-                    String displayName = device.name;
-                    if (device.type == UniversalCastManager.DeviceType.DLNA) {
-                        displayName += " (DLNA)";
-                    } else if (device.type == UniversalCastManager.DeviceType.GOOGLE_CAST) {
-                        displayName += " (Cast)";
-                    }
-                    ((android.widget.TextView) view).setText(displayName);
+                    // Just show the device name without technical details
+                    ((android.widget.TextView) view).setText(device.name);
                 }
                 
                 return view;
@@ -202,7 +203,7 @@ public class UniversalCastButton extends ImageButton {
         
         // Show device selection dialog
         new AlertDialog.Builder(getContext())
-                .setTitle("Select Cast Device")
+                .setTitle("Select TV")
                 .setAdapter(adapter, (dialog, which) -> {
                     UniversalCastManager.CastDevice selectedDevice = devices.get(which);
                     Log.d(TAG, "Selected device: " + selectedDevice.name + " (" + selectedDevice.type + ")");
@@ -211,14 +212,8 @@ public class UniversalCastButton extends ImageButton {
                         deviceSelectedListener.onDeviceSelected(selectedDevice);
                     }
                     
-                    // For Google Cast devices, let the Cast SDK handle the connection
-                    // For DLNA devices, we would need to implement connection logic
-                    if (selectedDevice.type == UniversalCastManager.DeviceType.GOOGLE_CAST) {
-                        // The Cast SDK will handle the connection when media is cast
-                        Toast.makeText(getContext(), "Selected " + selectedDevice.name + ". Start playing a video to cast.", Toast.LENGTH_LONG).show();
-                    } else if (selectedDevice.type == UniversalCastManager.DeviceType.DLNA) {
-                        Toast.makeText(getContext(), "Selected DLNA device: " + selectedDevice.name, Toast.LENGTH_SHORT).show();
-                    }
+                    // Notify the listener - let the activity handle the connection and casting
+                    // This ensures the video starts playing immediately after connection
                 })
                 .setNegativeButton("Cancel", null)
                 .show();

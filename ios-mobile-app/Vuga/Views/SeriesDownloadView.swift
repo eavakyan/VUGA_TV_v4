@@ -13,7 +13,8 @@ struct SeriesDownloadView: View {
     var content : DownloadContent
     init(content: DownloadContent) {
         self.content = content
-        let seriesSection = SectionedFetchRequest<String,DownloadContent>(sectionIdentifier: \.seasonNo!, sortDescriptors: [SortDescriptor(\.seasonNo,order: .forward)],predicate: NSPredicate(format: "contentId == %@", content.contentId ?? ""))
+        let currentProfileId = SessionManager.shared.currentProfile?.profileId ?? 0
+        let seriesSection = SectionedFetchRequest<String,DownloadContent>(sectionIdentifier: \.seasonNo!, sortDescriptors: [SortDescriptor(\.seasonNo,order: .forward)],predicate: NSPredicate(format: "contentId == %@ AND profileId == %d", content.contentId ?? "", currentProfileId))
         self._downloads = seriesSection
     }
     var body: some View {

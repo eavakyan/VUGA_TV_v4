@@ -15,6 +15,7 @@
         <attribute name="episodeTitle" optional="YES" attributeType="String"/>
         <attribute name="genres" optional="YES" attributeType="String"/>
         <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="profileId" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="rating" optional="YES" attributeType="String"/>
         <attribute name="releaseYear" optional="YES" attributeType="String"/>
         <attribute name="seasonNo" optional="YES" attributeType="String"/>
