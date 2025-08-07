@@ -46,7 +46,7 @@ struct HomeView: View {
                 VStack {
                     // Header with Logo and Profile Name
                     headerWithLogoAndProfile
-                        .padding(.top, 50) // Fixed top padding for proper spacing
+                        .padding(.top, 10) // Fixed top padding for proper spacing
                     
                     // Navigation Menu Row with horizontal category list
                     horizontalCategoryList
@@ -495,10 +495,10 @@ struct HomeView: View {
     private func getProfileGreeting() -> String {
         guard let profile = SessionManager.shared.getCurrentProfile(),
               !profile.name.isEmpty else {
-            return "Hi, User"
+            return "User"
         }
         
-        return "Hi, \(profile.name)"
+        return profile.name
     }
     
     // Helper function to filter content by type
