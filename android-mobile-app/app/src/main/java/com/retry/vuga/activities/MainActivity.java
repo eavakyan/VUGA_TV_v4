@@ -127,6 +127,20 @@ public class MainActivity extends BaseActivity {
             });
         }
         
+        // Top bar Download button
+        if (binding.btnDownloadMain != null) {
+            binding.btnDownloadMain.setOnClickListener(v -> {
+                startActivity(new Intent(this, DownloadsActivity.class));
+            });
+        }
+        
+        // Top bar Search button
+        if (binding.btnSearchMain != null) {
+            binding.btnSearchMain.setOnClickListener(v -> {
+                startActivity(new Intent(this, SearchLiveTvActivity.class));
+            });
+        }
+        
         // Handle tablet-specific navigation
         if (DeviceUtils.isTabletLandscape(this)) {
             setupTabletNavigation();
@@ -249,28 +263,37 @@ public class MainActivity extends BaseActivity {
         }
 
 
-        if (binding.btnDiscover != null) {
-            binding.btnDiscover.setOnClickListener(v -> {
-                if (binding.viewPager != null) {
-                    binding.viewPager.setCurrentItem(1, false);
-                }
+        // Bottom navigation - Search
+        if (binding.btnSearchNav != null) {
+            binding.btnSearchNav.setOnClickListener(v -> {
+                startActivity(new Intent(this, SearchLiveTvActivity.class));
             });
         }
 
-        if (binding.btnTv != null) {
-            binding.btnTv.setOnClickListener(v -> {
+        // Bottom navigation - Subscriptions
+        if (binding.btnSubscriptions != null) {
+            binding.btnSubscriptions.setOnClickListener(v -> {
+                // TODO: Navigate to Subscriptions activity when created
+                // For now, navigate to position 2
                 if (binding.viewPager != null) {
                     binding.viewPager.setCurrentItem(2, false);
                 }
             });
         }
 
-
+        // Bottom navigation - Watch List
         if (binding.btnWatch != null) {
             binding.btnWatch.setOnClickListener(v -> {
                 if (binding.viewPager != null) {
                     binding.viewPager.setCurrentItem(3, false);
                 }
+            });
+        }
+
+        // Bottom navigation - Profile
+        if (binding.btnProfile != null) {
+            binding.btnProfile.setOnClickListener(v -> {
+                startActivity(new Intent(this, ProfileActivity.class));
             });
         }
 
@@ -367,6 +390,9 @@ public class MainActivity extends BaseActivity {
 
         // Update profile name
         updateProfileNameInTopBar();
+        
+        // Update bottom navigation profile avatar
+        updateBottomNavProfileAvatar();
 
         if (binding.btnTv != null) {
             if (sessionManager.getAppSettings().getSettings().getLiveTvEnable() == 0) {
@@ -404,6 +430,9 @@ public class MainActivity extends BaseActivity {
         }
         // Update profile name in top bar
         updateProfileNameInTopBar();
+        
+        // Update bottom navigation profile avatar
+        updateBottomNavProfileAvatar();
     }
 
     private void updateProfileAvatar() {
@@ -469,6 +498,23 @@ public class MainActivity extends BaseActivity {
                 }
             } else {
                 binding.tvProfileNameMain.setText("User");
+            }
+        }
+    }
+    
+    private void updateBottomNavProfileAvatar() {
+        if (binding.navProfileInitial != null) {
+            UserRegistration.Data userData = sessionManager.getUser();
+            if (userData != null && userData.getLastActiveProfile() != null) {
+                String profileName = userData.getLastActiveProfile().getName();
+                if (profileName != null && !profileName.isEmpty()) {
+                    String firstLetter = profileName.substring(0, 1).toUpperCase();
+                    binding.navProfileInitial.setText(firstLetter);
+                } else {
+                    binding.navProfileInitial.setText("U");
+                }
+            } else {
+                binding.navProfileInitial.setText("U");
             }
         }
     }

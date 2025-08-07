@@ -313,7 +313,7 @@
 
                  </com.google.android.material.appbar.AppBarLayout>
      -->
-            <!-- Two Sticky Header Rows -->
+            <!-- Sticky Header with Category List -->
             <LinearLayout
                 android:id="@+id/stickyHeaderContainer"
                 android:layout_width="match_parent"
@@ -321,122 +321,19 @@
                 android:orientation="vertical"
                 android:background="@color/app_black"
                 android:elevation="8dp"
-                android:layout_marginTop="80dp">
+                android:layout_marginTop="80dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="10dp">
 
-                <!-- Header Row: Logo, Profile Name, Action Buttons, Profile Avatar -->
-                <LinearLayout
-                    android:id="@+id/headerRowOne"
+                <!-- Horizontal Category List -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvCategoriesSticky"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
+                    android:clipToPadding="false"
                     android:paddingHorizontal="15dp"
-                    android:paddingVertical="12dp"
-                    android:gravity="center_vertical">
-
-                    <!-- Logo 
-                    <ImageView
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/bg_round"
-                        android:backgroundTint="@color/text_color"
-                        android:padding="8dp"
-                        android:src="@drawable/logo"
-                        android:layout_marginEnd="12dp" />-->
-
-                    <!-- Profile Name -->
-                    <TextView
-                        android:id="@+id/tvProfileName"
-                        style="@style/TextViewLocal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:fontFamily="@font/outfit_semi_bold"
-                        android:text="Hi, John"
-                        android:textSize="16sp"
-                        android:textColor="@color/text_color"
-                        android:layout_marginEnd="15dp" />
-
-                    <!-- Cast Button -->
-                    <ImageView
-                        android:id="@+id/btnCast"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/bg_round"
-                        android:backgroundTint="@color/view_bg_color"
-                        android:padding="8dp"
-                        android:src="@drawable/ic_cast"
-                        android:layout_marginEnd="10dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:tint="@color/text_color_light" />
-
-                    <!-- Download Button -->
-                    <ImageView
-                        android:id="@+id/btnDownload"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/bg_round"
-                        android:backgroundTint="@color/view_bg_color"
-                        android:padding="8dp"
-                        android:src="@drawable/ic_download"
-                        android:layout_marginEnd="10dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:tint="@color/text_color_light" />
-
-                    <!-- Search Button -->
-                    <ImageView
-                        android:id="@+id/btnSearch"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/bg_round"
-                        android:backgroundTint="@color/view_bg_color"
-                        android:padding="8dp"
-                        android:src="@drawable/ic_search"
-                        android:layout_marginEnd="15dp"
-                        android:clickable="true"
-                        android:focusable="true"
-                        app:tint="@color/text_color_light" />
-
-                    <!-- Spacer -->
-                    <View
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
-                    <!-- Profile Avatar -->
-                    <TextView
-                        android:id="@+id/tvProfileAvatar"
-                        android:layout_width="35dp"
-                        android:layout_height="35dp"
-                        android:background="@drawable/bg_round"
-                        android:backgroundTint="@color/download_yellow"
-                        android:gravity="center"
-                        android:text="G"
-                        android:textColor="@color/app_black"
-                        android:textSize="16sp"
-                        android:fontFamily="@font/outfit_bold" />
-
-                </LinearLayout>
-
-                <!-- Second Header Row: Horizontal Category Slider -->
-                <LinearLayout
-                    android:id="@+id/headerRowTwo"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:paddingBottom="10dp">
-
-                    <!-- Horizontal Category List -->
-                    <androidx.recyclerview.widget.RecyclerView
-                        android:id="@+id/rvCategoriesSticky"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:clipToPadding="false"
-                        android:paddingHorizontal="15dp"
-                        android:orientation="horizontal"
-                        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
-
-                </LinearLayout>
+                    android:orientation="horizontal"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
 
             </LinearLayout>
 

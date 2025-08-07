@@ -17,7 +17,6 @@ import java.util.List;
 public class HorizontalCategoryAdapter extends RecyclerView.Adapter<HorizontalCategoryAdapter.ViewHolder> {
 
     private List<HomePage.GenreContents> genreList = new ArrayList<>();
-    private int selectedPosition = -1;
     private OnCategoryClickListener listener;
 
     public interface OnCategoryClickListener {
@@ -34,18 +33,6 @@ public class HorizontalCategoryAdapter extends RecyclerView.Adapter<HorizontalCa
         notifyDataSetChanged();
     }
 
-    public void setSelectedPosition(int position) {
-        int previousSelected = selectedPosition;
-        selectedPosition = position;
-        
-        // Notify both old and new selected items
-        if (previousSelected != -1) {
-            notifyItemChanged(previousSelected);
-        }
-        if (selectedPosition != -1) {
-            notifyItemChanged(selectedPosition);
-        }
-    }
 
     @NonNull
     @Override
@@ -62,15 +49,13 @@ public class HorizontalCategoryAdapter extends RecyclerView.Adapter<HorizontalCa
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         HomePage.GenreContents genre = genreList.get(position);
-        boolean isSelected = position == selectedPosition;
         
         holder.binding.setGenre(genre);
-        holder.binding.setIsSelected(isSelected);
+        holder.binding.setIsSelected(false); // Never show as selected
         holder.binding.executePendingBindings();
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {
-                setSelectedPosition(position);
                 listener.onCategoryClick(genre, position);
             }
         });

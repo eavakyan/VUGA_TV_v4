@@ -551,26 +551,7 @@ public class HomeFragment extends BaseFragment {
         // Update profile name based on current user profile
         updateProfileName();
         
-        // Set click listeners for sticky header buttons
-        if (binding.btnCast != null) {
-            binding.btnCast.setOnClickListener(v -> {
-                // Handle casting - placeholder for now
-                // You can implement cast functionality here
-                Log.i("HomeFragment", "Casting clicked");
-            });
-        }
-        
-        if (binding.btnDownload != null) {
-            binding.btnDownload.setOnClickListener(v -> {
-                startActivity(new Intent(getActivity(), DownloadsActivity.class));
-            });
-        }
-        
-        if (binding.btnSearch != null) {
-            binding.btnSearch.setOnClickListener(v -> {
-                startActivity(new Intent(getActivity(), SearchLiveTvActivity.class));
-            });
-        }
+        // Removed header buttons - no longer needed after UI update
         
         // Set up sticky categories RecyclerView
         if (binding.rvCategoriesSticky != null) {
@@ -589,30 +570,7 @@ public class HomeFragment extends BaseFragment {
     }
     
     private void updateProfileName() {
-        if (binding.tvProfileName != null) {
-            UserRegistration.Data userData = sessionManager.getUser();
-            if (userData != null && userData.getLastActiveProfile() != null) {
-                String profileName = userData.getLastActiveProfile().getName();
-                if (profileName != null && !profileName.isEmpty()) {
-                    binding.tvProfileName.setText("Hi, " + profileName);
-                    // Set profile avatar with first letter
-                    if (binding.tvProfileAvatar != null) {
-                        String firstLetter = profileName.substring(0, 1).toUpperCase();
-                        binding.tvProfileAvatar.setText(firstLetter);
-                    }
-                } else {
-                    binding.tvProfileName.setText("Hi, User");
-                    if (binding.tvProfileAvatar != null) {
-                        binding.tvProfileAvatar.setText("U");
-                    }
-                }
-            } else {
-                binding.tvProfileName.setText("Hi, User");
-                if (binding.tvProfileAvatar != null) {
-                    binding.tvProfileAvatar.setText("U");
-                }
-            }
-        }
+        // Profile name display removed from header - no longer needed after UI update
     }
     
     // Removed old navigation and dropdown methods - replaced with horizontal category list

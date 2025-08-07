@@ -47,9 +47,9 @@
                 android:paddingTop="10dp"
                 android:paddingBottom="25dp"
                 android:visibility="visible"
-
                 tools:visibility="gone">
 
+                <!-- Home -->
                 <LinearLayout
                     android:id="@+id/btn_home"
                     android:layout_width="0dp"
@@ -70,19 +70,18 @@
                         style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="5sp"
+                        android:layout_marginTop="5dp"
                         android:fontFamily="@font/outfit_regular"
-
                         android:gravity="center"
                         android:text="@string/home"
                         android:textColor="@{currentPosition == 0 ? @color/app_color : @color/text_color_light}"
                         android:textSize="@dimen/_12sp" />
 
-
                 </LinearLayout>
 
+                <!-- Search -->
                 <LinearLayout
-                    android:id="@+id/btn_discover"
+                    android:id="@+id/btn_search_nav"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -90,14 +89,14 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:id="@+id/img_discover"
+                        android:id="@+id/img_search_nav"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_search"
                         android:tint="@{currentPosition == 1 ? @color/app_color : @color/text_color_light}" />
 
                     <TextView
-                        android:id="@+id/tv_discover"
+                        android:id="@+id/tv_search_nav"
                         style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -106,14 +105,13 @@
                         android:gravity="center"
                         android:text="@string/search"
                         android:textColor="@{currentPosition == 1 ? @color/app_color : @color/text_color_light}"
-                        android:textSize="@dimen/_12sp"
-                        tools:text="vvndvjdbjvbdhvdbvjdzbu" />
-
+                        android:textSize="@dimen/_12sp" />
 
                 </LinearLayout>
 
+                <!-- Subscriptions -->
                 <LinearLayout
-                    android:id="@+id/btn_tv"
+                    android:id="@+id/btn_subscriptions"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -121,28 +119,27 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:id="@+id/img_tv"
+                        android:id="@+id/img_subscriptions"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_tv"
+                        android:src="@drawable/ic_bookmark_not"
                         android:tint="@{currentPosition == 2 ? @color/app_color : @color/text_color_light}" />
 
                     <TextView
-                        android:id="@+id/tv_tv"
+                        android:id="@+id/tv_subscriptions"
                         style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-
                         android:fontFamily="@font/outfit_regular"
                         android:gravity="center"
-                        android:text="@string/live_tv"
+                        android:text="Subscriptions"
                         android:textColor="@{currentPosition == 2 ? @color/app_color : @color/text_color_light}"
                         android:textSize="@dimen/_12sp" />
 
-
                 </LinearLayout>
 
+                <!-- Watch List -->
                 <LinearLayout
                     android:id="@+id/btn_watch"
                     android:layout_width="0dp"
@@ -170,6 +167,49 @@
                         android:textColor="@{currentPosition == 3 ? @color/app_color : @color/text_color_light}"
                         android:textSize="@dimen/_12sp" />
 
+                </LinearLayout>
+
+                <!-- Profile -->
+                <LinearLayout
+                    android:id="@+id/btn_profile"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <!-- Profile Avatar -->
+                    <androidx.cardview.widget.CardView
+                        android:id="@+id/nav_profile_avatar"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        app:cardCornerRadius="10dp"
+                        app:cardElevation="0dp"
+                        android:backgroundTint="@{currentPosition == 4 ? @color/app_color : @color/download_yellow}">
+
+                        <TextView
+                            android:id="@+id/nav_profile_initial"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:gravity="center"
+                            android:textColor="@color/app_black"
+                            android:textSize="10sp"
+                            android:textStyle="bold"
+                            android:text="U" />
+
+                    </androidx.cardview.widget.CardView>
+
+                    <TextView
+                        android:id="@+id/tv_profile"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:gravity="center"
+                        android:text="Profile"
+                        android:textColor="@{currentPosition == 4 ? @color/app_color : @color/text_color_light}"
+                        android:textSize="@dimen/_12sp" />
 
                 </LinearLayout>
             </LinearLayout>
