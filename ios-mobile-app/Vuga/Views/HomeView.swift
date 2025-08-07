@@ -79,7 +79,6 @@ struct HomeView: View {
                 vm.selectedRecentlyWatched = nil
                 fetchRecentlyWatchedContent()
             }
-            TopBar(isBlur: false)
         }
         .onChange(of: selectedTab, perform: { newValue in
                 if newValue == Tab.home {
@@ -169,42 +168,54 @@ struct HomeView: View {
                         .background(Color.searchBg)
                         .clipShape(Circle())
                 }
+                
+                // Profile Avatar (matches Android design)
+                Button(action: {
+                    selectedTab = .profile
+                }) {
+                    Circle()
+                        .fill(Color.textLight)
+                        .frame(width: 33, height: 33)
+                        .overlay(
+                            Text(getProfileFirstLetter())
+                                .outfitSemiBold(16)
+                                .foregroundColor(.bg)
+                        )
+                }
             }
         }
         .padding(.horizontal, 15)
     }
     
-    // Horizontal Category List Component
-    @State private var selectedGenre: Genre?
+    // Helper function to get profile first letter
+    private func getProfileFirstLetter() -> String {
+        guard let profile = SessionManager.shared.getCurrentProfile(),
+              !profile.name.isEmpty else {
+            return "U"
+        }
+        return String(profile.name.prefix(1)).uppercased()
+    }
     
+    // Horizontal Category List Component - No persistent highlighting like Android
     private var horizontalCategoryList: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Section title
-            HStack {
-                Text("Categories")
-                    .outfitSemiBold(16)
-                    .foregroundColor(.text)
-                    .padding(.leading, 15)
-                Spacer()
-            }
-            
-            // Horizontal scrollable category list
+            // Horizontal scrollable category list (no section title to match Android)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 12) {
                     ForEach(vm.genres, id: \.id) { genre in
                         Button(action: {
-                            selectedGenre = genre
+                            // No persistent selection - just navigate like Android
                             Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
                         }) {
                             Text(genre.title ?? "")
                                 .outfitMedium(14)
-                                .foregroundColor(selectedGenre?.id == genre.id ? .text : .textLight)
+                                .foregroundColor(.textLight) // Always use textLight - no highlighting
                                 .padding(.horizontal, 20)
                                 .padding(.vertical, 8)
-                                .background(selectedGenre?.id == genre.id ? Color.base : Color.clear)
+                                .background(Color.clear) // Always clear background
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 15)
-                                        .stroke(selectedGenre?.id == genre.id ? Color.clear : Color.stroke, lineWidth: 1)
+                                        .stroke(Color.stroke, lineWidth: 1) // Always stroke
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 15))
                         }

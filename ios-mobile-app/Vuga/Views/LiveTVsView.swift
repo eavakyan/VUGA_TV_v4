@@ -13,8 +13,6 @@ struct LiveTVsView: View {
     @StateObject var vm = LiveTVsViewModel()
     var body: some View {
         VStack(spacing: 0) {
-            TopBar(isLiveTvView: true)
-            Divider()
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(vm.categories, id: \.id) { category in

@@ -30,6 +30,7 @@ extension String {
     static let search = "search"
     static let liveTV = "liveTV"
     static let watchlist = "watchlist"
+    static let subscriptions = "subscriptions"
     static let seeAll = "seeAll"
     static let trailer = "trailer"
     static let watchNow = "watchNow"

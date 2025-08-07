@@ -20,10 +20,15 @@ struct TabBarView: View {
                 HomeView(selectedTab: $selectedTab)
             case .search:
                 SearchView()
-            case .liveTV:
-                LiveTVsView()
+            case .subscriptions:
+                Text("Subscriptions View")
+                    .foregroundColor(.text)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.bg)
             case .watchlist:
                 WatchlistView()
+            case .profile:
+                ProfileView()
             }
             ZStack {
                 if shouldTab {
@@ -32,10 +37,9 @@ struct TabBarView: View {
                         HStack {
                             tabBtn(title: .home, image: .home, tab: .home)
                             tabBtn(title: .search, image: .search, tab: .search)
-                           if SessionManager.shared.getSetting()?.isLiveTvEnable == 1 {
-                                tabBtn(title: .liveTV, image: .liveTV, tab: .liveTV)
-                            }
+                            tabBtn(title: .subscriptions, image: .bookmark, tab: .subscriptions)
                             tabBtn(title: .watchlist, image: .save, tab: .watchlist)
+                            profileTabBtn()
                         }
                         .padding(.horizontal)
                     }
@@ -78,10 +82,43 @@ struct TabBarView: View {
             selectedTab = tab
         }
     }
+    
+    // Profile tab with avatar (matches Android design)
+    func profileTabBtn() -> some View {
+        VStack {
+            // Profile avatar circle with first letter
+            Circle()
+                .fill(selectedTab == .profile ? Color.base : Color.textLight)
+                .frame(width: 20, height: 20)
+                .overlay(
+                    Text(getProfileFirstLetter())
+                        .outfitSemiBold(10)
+                        .foregroundColor(.bg)
+                )
+            
+            Text("Profile")
+                .outfitRegular(12)
+        }
+        .foregroundColor(selectedTab == .profile ? .base : .textLight)
+        .maxWidthFrame()
+        .frame(height: 65)
+        .onTap {
+            selectedTab = .profile
+        }
+    }
+    
+    // Helper function to get profile first letter
+    private func getProfileFirstLetter() -> String {
+        guard let profile = SessionManager.shared.getCurrentProfile(),
+              !profile.name.isEmpty else {
+            return "U"
+        }
+        return String(profile.name.prefix(1)).uppercased()
+    }
 }
 
 enum Tab : Int {
-    case home, search, liveTV, watchlist
+    case home, search, subscriptions, watchlist, profile
 }
 
 

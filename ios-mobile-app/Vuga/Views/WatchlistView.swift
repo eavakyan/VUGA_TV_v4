@@ -15,8 +15,6 @@ struct WatchlistView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-                TopBar()
-                Divider()
                 HStack(spacing: 0) {
                     ForEach(ContentType.allCases, id: \.self) { type in
                         ZStack {

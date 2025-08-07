@@ -12,8 +12,6 @@ struct SearchView: View {
     @StateObject var vm = SearchViewModel()
     var body: some View {
         VStack(spacing: 0) {
-            TopBar()
-            Divider()
             SearchTopView(vm: vm)
             ScrollView(showsIndicators: false) {
                 LazyVStack {

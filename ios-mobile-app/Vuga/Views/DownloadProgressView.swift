@@ -161,13 +161,43 @@ struct DownloadProgressView: View {
     }
     
     private var downloadSizeText: String {
-        // Always use source size as it's the most reliable
-        let totalSizeMB = Float(source.size ?? "0") ?? 0
+        // Parse size string which might contain units like "500 MB", "1.2 GB", etc.
+        let totalSizeMB = parseSizeToMB(source.size ?? "0")
         
         // Only update downloaded amount based on actual progress
         let downloadedSizeMB = totalSizeMB * progress
         
-        return String(format: "%.1f MB / %.0f MB", downloadedSizeMB, totalSizeMB)
+        // Format the display based on size
+        if totalSizeMB >= 1024 {
+            let totalSizeGB = totalSizeMB / 1024
+            let downloadedSizeGB = downloadedSizeMB / 1024
+            return String(format: "%.1f GB / %.1f GB", downloadedSizeGB, totalSizeGB)
+        } else {
+            return String(format: "%.1f MB / %.0f MB", downloadedSizeMB, totalSizeMB)
+        }
+    }
+    
+    private func parseSizeToMB(_ sizeString: String) -> Float {
+        let cleanSize = sizeString.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        
+        // Extract the numeric part
+        let components = cleanSize.components(separatedBy: .whitespaces)
+        guard let numericString = components.first,
+              let numericValue = Float(numericString) else {
+            return 0
+        }
+        
+        // Check for units and convert to MB
+        if cleanSize.contains("gb") {
+            return numericValue * 1024 // GB to MB
+        } else if cleanSize.contains("kb") {
+            return numericValue / 1024 // KB to MB
+        } else if cleanSize.contains("mb") || cleanSize.contains("m") {
+            return numericValue // Already in MB
+        } else {
+            // If no unit specified, assume MB
+            return numericValue
+        }
     }
     
     private func cancelDownload() {

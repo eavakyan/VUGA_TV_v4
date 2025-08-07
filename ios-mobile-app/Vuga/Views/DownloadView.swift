@@ -323,7 +323,7 @@ struct DownloadCardView : View {
                         Text(content.contentDuration ?? "")
                             .outfitLight()
                             .foregroundColor(.textLight)
-                        Text(content.sourceSize ?? "")
+                        Text(formatFileSize(content.sourceSize ?? ""))
                             .outfitLight()
                             .foregroundColor(.textLight)
                             .padding(.bottom,8)
@@ -344,7 +344,7 @@ struct DownloadCardView : View {
                             Text(content.episodeDuration ?? "")
                         }
                         .padding(.bottom,8)
-                        Text(content.sourceSize ?? "")
+                        Text(formatFileSize(content.sourceSize ?? ""))
                     }
                     .outfitLight(18)
                     .foregroundColor(.textLight)
@@ -499,6 +499,36 @@ struct DownloadCardView : View {
             break
         case .queued:
             break
+        }
+    }
+    
+    // Helper function to format file size from string with units
+    func formatFileSize(_ sizeString: String) -> String {
+        let cleanSize = sizeString.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+        
+        // If the string is already formatted or empty, return as is
+        if cleanSize.isEmpty || cleanSize == "0" {
+            return "0 MB"
+        }
+        
+        // Extract the numeric part
+        let components = cleanSize.components(separatedBy: .whitespaces)
+        guard let numericString = components.first,
+              let numericValue = Float(numericString) else {
+            // If we can't parse it, return the original string
+            return sizeString
+        }
+        
+        // Check for units and format appropriately
+        if cleanSize.contains("gb") {
+            return String(format: "%.1f GB", numericValue)
+        } else if cleanSize.contains("kb") {
+            return String(format: "%.0f KB", numericValue)
+        } else if cleanSize.contains("mb") || cleanSize.contains("m") {
+            return String(format: "%.0f MB", numericValue)
+        } else {
+            // If no unit specified, assume MB and format
+            return String(format: "%.0f MB", numericValue)
         }
     }
 }
