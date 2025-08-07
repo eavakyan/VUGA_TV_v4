@@ -37,7 +37,9 @@ class BaseViewModel : NSObject, ObservableObject {
         var params = params
         params[.userId] = myUser?.id ?? 0
         params[.appUserId] = myUser?.id ?? 0  // For V2 API compatibility
-        if let profileId = myUser?.lastActiveProfileId {
+        if let profileId = SessionManager.shared.currentProfile?.profileId {
+            params[.profileId] = profileId
+        } else if let profileId = myUser?.lastActiveProfileId {
             params[.profileId] = profileId
         }
         NetworkManager.callWebService(url: .updateProfile, params: params) { (obj: UserModel) in
@@ -73,7 +75,9 @@ class BaseViewModel : NSObject, ObservableObject {
             .contentId: contentId
         ]
         
-        if let profileId = user.lastActiveProfileId {
+        if let profileId = SessionManager.shared.currentProfile?.profileId {
+            params[.profileId] = profileId
+        } else if let profileId = user.lastActiveProfileId {
             params[.profileId] = profileId
         }
         
@@ -103,7 +107,9 @@ class BaseViewModel : NSObject, ObservableObject {
             .rating: rating
         ]
         
-        if let profileId = user.lastActiveProfileId {
+        if let profileId = SessionManager.shared.currentProfile?.profileId {
+            params[.profileId] = profileId
+        } else if let profileId = user.lastActiveProfileId {
             params[.profileId] = profileId
         }
         
@@ -129,7 +135,9 @@ class BaseViewModel : NSObject, ObservableObject {
             .deviceType: 1 // iOS
         ]
         
-        if let profileId = user.lastActiveProfileId {
+        if let profileId = SessionManager.shared.currentProfile?.profileId {
+            params[.profileId] = profileId
+        } else if let profileId = user.lastActiveProfileId {
             params[.profileId] = profileId
         }
         

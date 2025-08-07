@@ -33,9 +33,12 @@ class HomeViewModel : BaseViewModel {
          if !isForRefresh {
              startLoading()
          }
+        // Match Android behavior - only send user_id for home page data
         var params: [Params: Any] = [.userId : myUser?.id ?? 0]
-        if let profileId = myUser?.lastActiveProfileId {
-            params[.profileId] = profileId
+        
+        // Log profile info for debugging but don't send profile_id
+        if let profile = SessionManager.shared.currentProfile {
+            print("HomeViewModel - Current profile: ID=\(profile.profileId), name=\(profile.name), isKids=\(profile.isKids), isKidsProfile=\(profile.isKidsProfile ?? false)")
         }
         NetworkManager.callWebService(url: .fetchHomePageData, params: params, callbackSuccess: { [weak self] (obj: HomeModel) in
             guard let self = self else { return }
