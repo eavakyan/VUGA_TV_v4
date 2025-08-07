@@ -226,7 +226,7 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
             DispatchQueue.main.async {
                 downloadData.removeAll(where: {$0.sourceId == sourceId})
                 if let sourceUrl = ((self.downloadingContents[sourceId]?.source?.sourceURL) ?? self.downloadingContents[sourceId]?.content?.sourceUrl) {
-                    downloadData.append(DownloadData(data: resumeData, sourceId: sourceId, sourceURL: sourceUrl, contentId: Int(content?.flixyContent?.id ?? 0), episodeId: content?.episode?.id ?? 0, destinationName: sourceId + sourceUrl.lastPathComponent))
+                    downloadData.append(DownloadData(data: resumeData, sourceId: sourceId, sourceURL: sourceUrl, contentId: Int(content?.flixyContent?.id ?? 0), episodeId: content?.episode?.id ?? 0, destinationName: sourceId + sourceUrl.lastPathComponent, profileId: SessionManager.shared.currentProfile?.profileId ?? 0))
                 }
                 SessionManager.shared.setDownloadData(datum: downloadData)
             }
@@ -305,7 +305,7 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
                             print(downloadData)
                             
                             if let sourceUrl = ((content?.source?.sourceURL) ?? content?.content?.sourceUrl) {
-                                downloadData.append(DownloadData(data: resumeDataOrNil, sourceId: id, sourceURL: sourceUrl, contentId: Int(content?.flixyContent?.id ?? 0), episodeId: content?.episode?.id ?? 0, destinationName: id + sourceUrl.lastPathComponent))
+                                downloadData.append(DownloadData(data: resumeDataOrNil, sourceId: id, sourceURL: sourceUrl, contentId: Int(content?.flixyContent?.id ?? 0), episodeId: content?.episode?.id ?? 0, destinationName: id + sourceUrl.lastPathComponent, profileId: SessionManager.shared.currentProfile?.profileId ?? 0))
                             }
                             SessionManager.shared.setDownloadData(datum: downloadData)
                             self.resumeDownload(for: id)

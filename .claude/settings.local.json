@@ -36,7 +36,10 @@
       "Bash(mv:*)",
       "Bash(sed:*)",
       "Bash(xmllint:*)",
-      "Bash(/dev/null)"
+      "Bash(/dev/null)",
+      "Bash(xcodebuild:*)",
+      "Bash(xcrun swift:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

@@ -204,7 +204,7 @@ struct HomeView: View {
                                 .background(selectedGenre?.id == genre.id ? Color.base : Color.clear)
                                 .overlay(
                                     RoundedRectangle(cornerRadius: 15)
-                                        .stroke(selectedGenre?.id == genre.id ? Color.clear : Color.strokeColor, lineWidth: 1)
+                                        .stroke(selectedGenre?.id == genre.id ? Color.clear : Color.stroke, lineWidth: 1)
                                 )
                                 .clipShape(RoundedRectangle(cornerRadius: 15))
                         }
@@ -482,13 +482,12 @@ struct HomeView: View {
     
     // Helper function to get profile greeting
     private func getProfileGreeting() -> String {
-        guard let user = SessionManager.shared.getUser(),
-              let profile = user.lastActiveProfile else {
+        guard let profile = SessionManager.shared.getCurrentProfile(),
+              !profile.name.isEmpty else {
             return "Hi, User"
         }
         
-        let profileName = profile.name?.isEmpty == false ? profile.name! : "User"
-        return "Hi, \(profileName)"
+        return "Hi, \(profile.name)"
     }
     
     // Helper function to filter content by type

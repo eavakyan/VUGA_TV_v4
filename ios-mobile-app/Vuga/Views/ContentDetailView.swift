@@ -17,6 +17,29 @@ import MediaPlayer
 import GoogleCast
 import Combine
 
+// Temporary stub views - remove these when TrailerPlayerView and TrailerInlinePlayer are properly included in the target
+struct TrailerPlayerView: View {
+    let trailerUrl: String
+    
+    var body: some View {
+        Text("Trailer Player")
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black)
+    }
+}
+
+struct TrailerInlinePlayer: View {
+    let trailerUrl: String
+    
+    var body: some View {
+        Text("Inline Trailer")
+            .foregroundColor(.white)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(Color.black.opacity(0.8))
+    }
+}
+
 // Temporary rating components until import issue is resolved
 struct RatingDisplayView: View {
     let rating: Double
@@ -868,7 +891,7 @@ struct ContentDetailView: View {
         }
         
         // Otherwise, prepend the CDN base URL
-        return APIs.imageUrl + trailerUrl
+        return WebService.itemBaseURLs + trailerUrl
     }
     
 }
