@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="d-flex align-items-center justify-content-end">
-          <a class='me-2 btn btn-success px-4 py-2 text-white editContentModal' rel='{{$content->id}}' data-type='{{$content->type}}' data-title='{{$content->title}}' data-description='{{$content->description}}' data-duration='{{$content->duration}}' data-release_year='{{$content->release_year}}' data-ratings='{{$content->ratings}}' data-language_id='{{$content->language_id}}' data-genre_ids='{{$content->genre_ids}}' data-trailer_url='{{$content->trailer_url}}' data-vposter='{{ $content->vertical_poster }}' data-hposter='{{ $content->horizontal_poster }}'>{{ __('edit') }}</a>
+          <a class='me-2 btn btn-success px-4 py-2 text-white editContentModal' rel='{{$content->id}}' data-type='{{$content->type}}' data-title='{{$content->title}}' data-description='{{$content->description}}' data-duration='{{$content->duration}}' data-release_year='{{$content->release_year}}' data-ratings='{{$content->ratings}}' data-language_id='{{$content->language_id}}' data-genre_ids='{{$content->genre_ids}}' data-vposter='{{ $content->vertical_poster }}' data-hposter='{{ $content->horizontal_poster }}'>{{ __('edit') }}</a>
           <a class='btn btn-danger px-4 py-2 text-white deleteContent' rel='{{$content->id}}'>{{ __('delete') }}</a>
         </div>
       </div>
@@ -54,7 +54,24 @@
           <div class="card-header d-block d-md-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center">
               <h4 class="fw-normal m-0"> {{ __('sourceList') }} </h4>
-              <a href="https://youtu.be/{{ $content->trailer_url }}" target="_blank" rel="noopener noreferrer" class="bg-white theme-color px-3 fw-semibold rounded"> {{ __('trailer') }} </a>
+              @if($content->trailers && $content->trailers->count() > 0)
+                @php $primaryTrailer = $content->trailers->where('is_primary', 1)->first() ?? $content->trailers->first(); @endphp
+                <a href="{{ $primaryTrailer->trailer_url }}" target="_blank" rel="noopener noreferrer" class="bg-white theme-color px-3 fw-semibold rounded"> {{ $primaryTrailer->title ?? __('trailer') }} </a>
+                @if($content->trailers->count() > 1)
+                  <div class="dropdown d-inline-block ms-2">
+                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                      {{ __('moreTrailers') }} ({{ $content->trailers->count() - 1 }})
+                    </button>
+                    <ul class="dropdown-menu">
+                      @foreach($content->trailers->where('content_trailer_id', '!=', $primaryTrailer->content_trailer_id) as $trailer)
+                        <li><a class="dropdown-item" href="{{ $trailer->trailer_url }}" target="_blank">{{ $trailer->title }}</a></li>
+                      @endforeach
+                    </ul>
+                  </div>
+                @endif
+              @else
+                <span class="text-muted">{{ __('noTrailer') }}</span>
+              @endif
             </div>
             <button type="button" class="btn btn-primary text-light px-4 mt-2 mt-md-2" data-bs-toggle="modal" data-bs-target="#addSourceModal">
               {{ __('addMovieSource') }}

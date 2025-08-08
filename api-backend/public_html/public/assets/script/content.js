@@ -6,16 +6,115 @@ $(document).ready(function () {
         if (type == "2") {
             $("#edit_duration").closest(".col").hide();
             $("#edit_duration").prop("required", false);
-
-            $("#edit_trailer_url").closest(".col").hide();
-            $("#edit_trailer_url").prop("required", false);
         } else {
             $("#edit_duration").closest(".col").show();
             $("#edit_duration").prop("required", true);
-
-            $("#edit_trailer_url").closest(".col").show();
-            $("#edit_trailer_url").prop("required", true);
         }
+    }
+
+    // Trailer management functions
+    var trailerIndex = 0;
+    
+    function addTrailerItem(container, title, url, isPrimary, isEdit) {
+        // Set default values
+        title = title || '';
+        url = url || '';
+        isPrimary = isPrimary || false;
+        isEdit = isEdit || false;
+        
+        var index = trailerIndex++;
+        var prefix = isEdit ? 'edit_' : '';
+        var requiredAttr = (!isEdit && index === 0) ? 'required' : '';
+        var checkedAttr = isPrimary ? 'checked' : '';
+        var removeButton = index > 0 ? '<button type="button" class="btn btn-sm btn-danger remove-trailer-btn">&times;</button>' : '';
+        
+        var trailerHtml = 
+            '<div class="trailer-item mb-2" data-index="' + index + '">' +
+                '<div class="row align-items-end">' +
+                    '<div class="col-md-4">' +
+                        '<input type="text" class="form-control" name="' + prefix + 'trailer_titles[]" ' +
+                               'placeholder="Trailer Title" value="' + title + '">' +
+                    '</div>' +
+                    '<div class="col-md-6">' +
+                        '<input type="text" class="form-control trailer-url" name="' + prefix + 'trailer_urls[]" ' +
+                               'placeholder="YouTube URL, MP4, HLS or other video URL" value="' + url + '" ' + requiredAttr + '>' +
+                    '</div>' +
+                    '<div class="col-md-2">' +
+                        '<div class="d-flex align-items-center">' +
+                            '<div class="form-check me-2">' +
+                                '<input class="form-check-input primary-trailer" type="radio" ' +
+                                       'name="' + prefix + 'primary_trailer" value="' + index + '" ' + checkedAttr + '>' +
+                                '<label class="form-check-label">Primary</label>' +
+                            '</div>' +
+                            removeButton +
+                        '</div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        
+        container.append(trailerHtml);
+    }
+    
+    // Add trailer button handlers
+    $(document).on('click', '.add-trailer-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var container = $('#trailers-container');
+        if (container.length) {
+            addTrailerItem(container, '', '', false, false);
+        }
+        return false;
+    });
+    
+    $(document).on('click', '.add-trailer-btn-edit', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var container = $('#edit-trailers-container');
+        if (container.length) {
+            addTrailerItem(container, '', '', false, true);
+        }
+        return false;
+    });
+    
+    // Remove trailer button handler
+    $(document).on('click', '.remove-trailer-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var $trailerItem = $(this).closest('.trailer-item');
+        var wasPrimary = $trailerItem.find('.primary-trailer').is(':checked');
+        $trailerItem.remove();
+        
+        // If this was the primary trailer, make the first remaining one primary
+        if (wasPrimary) {
+            $('.trailer-item:first .primary-trailer').prop('checked', true);
+        }
+        return false;
+    });
+    
+    // Load trailers for edit modal
+    function loadTrailersForEdit(contentId) {
+        $.ajax({
+            type: 'GET',
+            url: `${domainUrl}api/v2/content-trailers/${contentId}`,
+            success: function(response) {
+                const container = $('#edit-trailers-container');
+                container.empty();
+                
+                if (response.data && response.data.length > 0) {
+                    response.data.forEach((trailer, index) => {
+                        addTrailerItem(container, trailer.title, trailer.trailer_url, 
+                                     trailer.is_primary == 1, true);
+                    });
+                } else {
+                    // Add default empty trailer if none exist
+                    addTrailerItem(container, 'Trailer', '', true, true);
+                }
+            },
+            error: function() {
+                // Add default empty trailer on error
+                addTrailerItem($('#edit-trailers-container'), 'Trailer', '', true, true);
+            }
+        });
     }
 
     $("#moviesTable").dataTable({
@@ -168,7 +267,7 @@ $(document).ready(function () {
         var ratings = $(this).data("ratings");
         var language_id = $(this).data("language_id");
         var genre_ids = $(this).data("genre_ids");
-        var trailer_url = $(this).data("trailer_url");
+        // trailer_url removed - will be loaded via AJAX
         var vposter = $(this).data("vposter");
         var hposter = $(this).data("hposter");
 
@@ -194,7 +293,8 @@ $(document).ready(function () {
 
         $("#edit_selectGenre").val(genreArray).selectric("refresh");
 
-        $("#edit_trailer_url").val(trailer_url);
+        // Load trailers for this content
+        loadTrailersForEdit(id);
         $("#edit_vertical_poster").attr("src", `${vposter}`);
         $("#edit_horizontalPosterImg").attr("src", `${hposter}`);
 
@@ -209,6 +309,27 @@ $(document).ready(function () {
         checkUserType(function (e) {
             let editformData = new FormData($("#editContentForm")[0]);
             editformData.append("content_id", id);
+            
+            // Collect trailer data
+            const trailerData = [];
+            $('.trailer-item').each(function(index) {
+                const title = $(this).find('input[name="edit_trailer_titles[]"]').val() || 
+                             $(this).find('input[name="trailer_titles[]"]').val();
+                const url = $(this).find('input[name="edit_trailer_urls[]"]').val() || 
+                           $(this).find('input[name="trailer_urls[]"]').val();
+                const isPrimary = $(this).find('.primary-trailer').is(':checked');
+                
+                if (url.trim()) {
+                    trailerData.push({
+                        title: title || 'Trailer',
+                        url: url.trim(),
+                        is_primary: isPrimary
+                    });
+                }
+            });
+            
+            editformData.append('trailers', JSON.stringify(trailerData));
+            
             $.ajax({
                 type: "POST",
                 url: `${domainUrl}updateContent`,
@@ -226,6 +347,84 @@ $(document).ready(function () {
                     }
                 },
             });
+        });
+    });
+    
+    // Handle add content form submission (for new content)
+    $(document).on("submit", "#addContentForm", function (e) {
+        e.preventDefault();
+        checkUserType(function (e) {
+            let formData = new FormData($("#addContentForm")[0]);
+            
+            // Collect trailer data for new content
+            const trailerData = [];
+            $('#trailers-container .trailer-item').each(function(index) {
+                const title = $(this).find('input[name="trailer_titles[]"]').val();
+                const url = $(this).find('input[name="trailer_urls[]"]').val();
+                const isPrimary = $(this).find('.primary-trailer').is(':checked');
+                
+                if (url.trim()) {
+                    trailerData.push({
+                        title: title || 'Trailer',
+                        url: url.trim(),
+                        is_primary: isPrimary
+                    });
+                }
+            });
+            
+            formData.append('trailers', JSON.stringify(trailerData));
+            
+            $.ajax({
+                type: "POST",
+                url: `${domainUrl}addNewContent`,
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    if (response.status) {
+                        showSuccessToast();
+                        $("#moviesTable").DataTable().ajax.reload(null, false);
+                        $("#seriesTable").DataTable().ajax.reload(null, false);
+                        $("#addContentModal").modal("hide");
+                        $("#addContentForm")[0].reset();
+                        // Reset trailer container
+                        $('#trailers-container').empty();
+                        addTrailerItem($('#trailers-container'), 'Trailer', '', true);
+                    } else {
+                        somethingWentWrongToast();
+                    }
+                },
+            });
+        });
+    });
+    
+    // Initialize trailer container on page load
+    if ($('#trailers-container').length) {
+        addTrailerItem($('#trailers-container'), 'Trailer', '', true);
+    }
+    
+    // Additional button handlers for safety (in case event delegation doesn't work)
+    $('#addContentModal').on('shown.bs.modal', function() {
+        $('.add-trailer-btn').off('click.trailer').on('click.trailer', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var container = $('#trailers-container');
+            if (container.length) {
+                addTrailerItem(container, '', '', false, false);
+            }
+            return false;
+        });
+    });
+    
+    $('#editContentModal').on('shown.bs.modal', function() {
+        $('.add-trailer-btn-edit').off('click.trailer').on('click.trailer', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var container = $('#edit-trailers-container');
+            if (container.length) {
+                addTrailerItem(container, '', '', false, true);
+            }
+            return false;
         });
     });
 

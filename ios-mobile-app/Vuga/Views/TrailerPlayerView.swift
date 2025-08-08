@@ -10,10 +10,33 @@ import AVKit
 import WebKit
 
 struct TrailerPlayerView: View {
-    let trailerUrl: String
+    let content: VugaContent?
+    let trailerUrl: String?
+    let specificTrailer: TrailerModel?
+    
     @Environment(\.presentationMode) var presentationMode
     @State private var isYouTubeUrl = false
     @State private var youTubeVideoId: String?
+    @State private var effectiveTrailerUrl: String = ""
+    
+    // Multiple initializers for different use cases
+    init(content: VugaContent) {
+        self.content = content
+        self.trailerUrl = nil
+        self.specificTrailer = nil
+    }
+    
+    init(trailerUrl: String) {
+        self.content = nil
+        self.trailerUrl = trailerUrl
+        self.specificTrailer = nil
+    }
+    
+    init(trailer: TrailerModel) {
+        self.content = nil
+        self.trailerUrl = nil
+        self.specificTrailer = trailer
+    }
     
     var body: some View {
         ZStack {
@@ -23,10 +46,20 @@ struct TrailerPlayerView: View {
                 // YouTube player using WebView
                 YouTubeWebView(videoId: videoId)
                     .edgesIgnoringSafeArea(.all)
-            } else {
+            } else if !effectiveTrailerUrl.isEmpty {
                 // Regular video player for CDN URLs
-                VideoPlayer(player: AVPlayer(url: URL(string: trailerUrl)!))
+                VideoPlayer(player: AVPlayer(url: URL(string: effectiveTrailerUrl)!))
                     .edgesIgnoringSafeArea(.all)
+            } else {
+                // No trailer available
+                VStack {
+                    Image(systemName: "video.slash")
+                        .font(.system(size: 50))
+                        .foregroundColor(.gray)
+                    Text("No trailer available")
+                        .foregroundColor(.gray)
+                        .padding()
+                }
             }
             
             // Close button
@@ -49,15 +82,37 @@ struct TrailerPlayerView: View {
             }
         }
         .onAppear {
+            setupTrailerUrl()
             analyzeTrailerUrl()
+        }
+    }
+    
+    private func setupTrailerUrl() {
+        // Determine effective trailer URL based on input
+        if let trailer = specificTrailer {
+            // Use specific trailer
+            effectiveTrailerUrl = trailer.effectiveTrailerUrl
+        } else if let content = content {
+            // Use content's primary trailer
+            effectiveTrailerUrl = TrailerUtils.getEffectiveTrailerUrl(for: content) ?? ""
+        } else if let trailerUrl = trailerUrl {
+            // Use provided trailer URL
+            effectiveTrailerUrl = trailerUrl
         }
     }
     
     private func analyzeTrailerUrl() {
         // Check if it's a YouTube URL
-        if trailerUrl.contains("youtube.com") || trailerUrl.contains("youtu.be") || trailerUrl.contains("youtube-nocookie.com") {
+        if effectiveTrailerUrl.contains("youtube.com") || effectiveTrailerUrl.contains("youtu.be") || effectiveTrailerUrl.contains("youtube-nocookie.com") {
             isYouTubeUrl = true
-            youTubeVideoId = extractYouTubeVideoId(from: trailerUrl)
+            // Try to get YouTube ID from trailer object first
+            if let trailer = specificTrailer, !trailer.effectiveYoutubeId.isEmpty {
+                youTubeVideoId = trailer.effectiveYoutubeId
+            } else if let content = content, let youtubeId = TrailerUtils.getEffectiveYouTubeId(for: content) {
+                youTubeVideoId = youtubeId
+            } else {
+                youTubeVideoId = extractYouTubeVideoId(from: effectiveTrailerUrl)
+            }
         } else {
             isYouTubeUrl = false
         }

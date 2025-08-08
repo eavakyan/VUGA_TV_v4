@@ -17,8 +17,8 @@
         android:orientation="vertical">
 
         <RelativeLayout
-            android:layout_width="190dp"
-            android:layout_height="120dp">
+            android:layout_width="133dp"
+            android:layout_height="84dp">
 
 
             <androidx.constraintlayout.utils.widget.ImageFilterView

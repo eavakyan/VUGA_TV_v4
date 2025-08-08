@@ -56,27 +56,36 @@ class ContentTrailer extends Model
     }
 
     /**
-     * Get YouTube embed URL
+     * Get YouTube embed URL (only for YouTube videos)
      */
     public function getEmbedUrlAttribute()
     {
-        return "https://www.youtube.com/embed/{$this->youtube_id}";
+        if ($this->youtube_id) {
+            return "https://www.youtube.com/embed/{$this->youtube_id}";
+        }
+        return null;
     }
 
     /**
-     * Get YouTube watch URL
+     * Get YouTube watch URL (only for YouTube videos)
      */
     public function getWatchUrlAttribute()
     {
-        return "https://www.youtube.com/watch?v={$this->youtube_id}";
+        if ($this->youtube_id) {
+            return "https://www.youtube.com/watch?v={$this->youtube_id}";
+        }
+        return null;
     }
 
     /**
-     * Get YouTube thumbnail URL
+     * Get YouTube thumbnail URL (only for YouTube videos)
      */
     public function getThumbnailUrlAttribute()
     {
-        return "https://img.youtube.com/vi/{$this->youtube_id}/maxresdefault.jpg";
+        if ($this->youtube_id) {
+            return "https://img.youtube.com/vi/{$this->youtube_id}/maxresdefault.jpg";
+        }
+        return null;
     }
 
     /**
@@ -141,20 +150,22 @@ class ContentTrailer extends Model
     }
 
     /**
-     * Create a new trailer from URL
+     * Create a new trailer from URL (supports YouTube, MP4, HLS, etc.)
      */
     public static function createFromUrl($contentId, $url, $title = null, $isPrimary = false, $sortOrder = 0)
     {
+        // Extract YouTube ID if it's a YouTube URL, otherwise leave null
         $youtubeId = self::extractYouTubeId($url);
         
-        if (!$youtubeId) {
-            throw new \InvalidArgumentException('Invalid YouTube URL or ID');
+        // Validate that we have a valid URL
+        if (empty($url) || !filter_var($url, FILTER_VALIDATE_URL)) {
+            throw new \InvalidArgumentException('Invalid URL provided');
         }
         
         $trailer = new self([
             'content_id' => $contentId,
             'title' => $title ?: 'Trailer',
-            'youtube_id' => $youtubeId,
+            'youtube_id' => $youtubeId, // Can be null for non-YouTube URLs
             'trailer_url' => $url,
             'is_primary' => $isPrimary,
             'sort_order' => $sortOrder
@@ -167,5 +178,35 @@ class ContentTrailer extends Model
         }
         
         return $trailer;
+    }
+    
+    /**
+     * Check if this trailer is a YouTube video
+     */
+    public function isYouTube()
+    {
+        return !empty($this->youtube_id);
+    }
+    
+    /**
+     * Get the type of trailer (youtube, mp4, hls, other)
+     */
+    public function getTrailerType()
+    {
+        if ($this->isYouTube()) {
+            return 'youtube';
+        }
+        
+        $extension = strtolower(pathinfo($this->trailer_url, PATHINFO_EXTENSION));
+        
+        if (in_array($extension, ['mp4', 'mov', 'avi', 'webm'])) {
+            return 'video';
+        }
+        
+        if (in_array($extension, ['m3u8', 'm3u'])) {
+            return 'hls';
+        }
+        
+        return 'other';
     }
 }

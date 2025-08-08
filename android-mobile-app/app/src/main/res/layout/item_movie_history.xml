@@ -22,8 +22,8 @@
             apps:cardUseCompatPadding="true">
 
             <FrameLayout
-                android:layout_width="175dp"
-                android:layout_height="100dp">
+                android:layout_width="123dp"
+                android:layout_height="70dp">
 
                 <androidx.constraintlayout.utils.widget.ImageFilterView
                     android:layout_width="match_parent"
@@ -64,7 +64,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.appcompat.widget.LinearLayoutCompat
-            android:layout_width="175dp"
+            android:layout_width="123dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="5dp"
             android:gravity="center">

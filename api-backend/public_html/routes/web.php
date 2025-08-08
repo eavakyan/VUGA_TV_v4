@@ -39,6 +39,7 @@ Route::post('addNewContent', [ContentController::class, 'addNewContent'])->middl
 Route::post('updateContent', [ContentController::class, 'updateContent'])->middleware(['checkLogin'])->name('updateContent');
 Route::post('deleteContent', [ContentController::class, 'deleteContent'])->middleware(['checkLogin'])->name('deleteContent');
 Route::post('notifyContent', [ContentController::class, 'notifyContent'])->middleware(['checkLogin'])->name('notifyContent');
+Route::get('api/v2/content-trailers/{id}', [ContentController::class, 'getContentTrailers'])->middleware(['checkLogin'])->name('getContentTrailers');
 
 // Series
 Route::post('fetchSeriesList', [ContentController::class, 'fetchSeriesList'])->middleware(['checkLogin'])->name('fetchSeriesList');

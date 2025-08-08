@@ -196,10 +196,28 @@
                     <input name="duration" type="text" class="form-control" id="duration" aria-describedby="duration" required>
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="trailer_url" class="form-label">{{ __('youtubeID') }} (GUMDnD*****)</label>
-                    <input name="trailer_url" type="text" class="form-control" id="trailer_url" aria-describedby="trailer_url" required>
+                    <label class="form-label">{{ __('trailers') }}</label>
+                    <div id="trailers-container">
+                      <div class="trailer-item mb-2" data-index="0">
+                        <div class="row align-items-end">
+                          <div class="col-md-4">
+                            <input type="text" class="form-control" name="trailer_titles[]" placeholder="{{ __('trailerTitle') }}" value="Trailer">
+                          </div>
+                          <div class="col-md-6">
+                            <input type="text" class="form-control trailer-url" name="trailer_urls[]" placeholder="{{ __('videoURL') }}" required>
+                          </div>
+                          <div class="col-md-2">
+                            <div class="form-check">
+                              <input class="form-check-input primary-trailer" type="radio" name="primary_trailer" value="0" checked>
+                              <label class="form-check-label">{{ __('primary') }}</label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary add-trailer-btn mt-2">{{ __('addAnotherTrailer') }}</button>
                   </div>
                 </div>
               </div>
@@ -313,10 +331,13 @@
                     <input name="duration" type="text" class="form-control" id="edit_duration" aria-describedby="duration" required="">
                   </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-12">
                   <div class="form-group">
-                    <label for="trailer_url" class="form-label">{{ __('youtubeID') }} (GUMDnD*****)</label>
-                    <input name="trailer_url" type="text" class="form-control" id="edit_trailer_url" aria-describedby="trailer_url" required="">
+                    <label class="form-label">{{ __('trailers') }}</label>
+                    <div id="edit-trailers-container">
+                      <!-- Trailers will be loaded dynamically -->
+                    </div>
+                    <button type="button" class="btn btn-sm btn-secondary add-trailer-btn-edit mt-2">{{ __('addAnotherTrailer') }}</button>
                   </div>
                 </div>
               </div>

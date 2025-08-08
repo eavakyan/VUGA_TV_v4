@@ -237,7 +237,7 @@ struct HomeView: View {
                             VStack(spacing: 0) {
                                 ZStack(alignment: .center) {
                                     KFImage(recently.type == .movie ? recently.thumbnail.addBaseURL() : recently.episodeHorizontalPoster.addBaseURL())
-                                        .resizeFillTo(width: 210, height: 130, radius: 10)
+                                        .resizeFillTo(width: 147, height: 91, radius: 10)
                                     
                                     Image(systemName: "play.fill")
                                         .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
@@ -286,7 +286,7 @@ struct HomeView: View {
                                         Navigation.pushToSwiftUiView(ContentDetailView(contentId: Int(recently.contentID)))
                                     }
                             }
-                                .frame(width: 210, alignment: .leading)
+                                .frame(width: 147, alignment: .leading)
                         }
                         .onTap {
                             vm.selectedRecentlyWatched = recently
@@ -331,7 +331,7 @@ struct HomeView: View {
                     ForEach(vm.topContents, id: \.id) { topContent in
                         ZStack(alignment: .bottomTrailing) {
                             KFImage(topContent.content?.verticalPoster?.addBaseURL())
-                                .resizeFillTo(width: 140, height: 200,radius: 5)
+                                .resizeFillTo(width: 98, height: 140,radius: 5)
                                 .addStroke(radius: 5)
                                 .padding(.bottom,45)
                                 .overlay(
@@ -370,7 +370,7 @@ struct HomeView: View {
                     ForEach(vm.wishlists, id: \.id) { content in
                         VStack(alignment: .leading,spacing: 0) {
                             KFImage(content.horizontalPoster?.addBaseURL())
-                                .resizeFillTo(width: 210, height: 130,radius: 10)
+                                .resizeFillTo(width: 147, height: 91,radius: 10)
                                 .addStroke(radius: 10)
                                 .overlay(
                                     TypeTagForVugaContent(content: content)
@@ -383,7 +383,7 @@ struct HomeView: View {
                                 .outfitSemiBold(18)
                                 .foregroundColor(.text)
                                 .padding(.top,5)
-                                .frame(width: 210,alignment: .leading)
+                                .frame(width: 147,alignment: .leading)
                             HStack(spacing: 7) {
                                 HStack(spacing: 5) {
                                     Image.star
@@ -420,7 +420,7 @@ struct HomeView: View {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     let feature = vm.featured[index]
                     KFImage(feature.verticalPoster?.addBaseURL())
-                        .resizeFillTo(width: Device.width * 0.75, height: Device.width * 1.03, radius: 15)
+                        .resizeFillTo(width: Device.width * 0.525, height: Device.width * 0.721, radius: 15)
                         .addStroke(radius: 15)
                         .maxFrame(.top)
                         .padding(.top)
@@ -545,7 +545,7 @@ struct ContentVerticalCard: View {
     var content: VugaContent
     var body: some View {
         KFImage(content.verticalPoster?.addBaseURL())
-            .resizeFillTo(width: 140, height: 200, radius: 5)
+            .resizeFillTo(width: 98, height: 140, radius: 5)
             .addStroke(radius: 5)
             .onTap {
                 Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id))

@@ -39,7 +39,20 @@
       "Bash(/dev/null)",
       "Bash(xcodebuild:*)",
       "Bash(xcrun swift:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(echo \"TrailerModel.swift references: $(grep -c \"TrailerModel.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerUtils.swift references: $(grep -c \"TrailerUtils.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerModel.swift references: $(grep -c \"TrailerModel.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerUtils.swift references: $(grep -c \"TrailerUtils.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerPlayerView.swift: $(grep -c \"TrailerPlayerView.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerInlinePlayer.swift: $(grep -c \"TrailerInlinePlayer.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerUtils.swift: $(grep -c \"TrailerUtils.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerModel.swift: $(grep -c \"TrailerModel.swift\" Vuga.xcodeproj/project.pbxproj)\")",
+      "Bash(echo \"TrailerModel.swift: $(grep -c \"TrailerModel.swift\" Vuga.xcodeproj/project.pbxproj) references\")",
+      "Bash(echo:*)",
+      "Bash(echo \"TrailerPlayerView.swift: $(grep -c \"TrailerPlayerView.swift\" Vuga.xcodeproj/project.pbxproj) references\")",
+      "Bash(echo \"TrailerInlinePlayer.swift: $(grep -c \"TrailerInlinePlayer.swift\" Vuga.xcodeproj/project.pbxproj) references\")",
+      "Bash(rg:*)"
     ],
     "deny": []
   }

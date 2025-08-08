@@ -818,9 +818,9 @@ class ContentController extends Controller
             $profile = \App\Models\V2\AppUserProfile::find($profileId);
             if ($profile && $profile->app_user_id == $userId) {
                 return [
-                    'is_in_watchlist' => $profile->watchlist()->where('content_id', $contentId)->exists(),
-                    'is_favorite' => $profile->favorites()->where('content_id', $contentId)->exists(),
-                    'user_rating' => $profile->ratings()->where('content_id', $contentId)->value('rating'),
+                    'is_in_watchlist' => $profile->watchlist()->where('app_user_watchlist.content_id', $contentId)->exists(),
+                    'is_favorite' => $profile->favorites()->where('app_profile_favorite.content_id', $contentId)->exists(),
+                    'user_rating' => $profile->ratings()->where('app_profile_rating.content_id', $contentId)->value('rating'),
                     'watch_history' => AppUserWatchHistory::where('profile_id', $profileId)
                                                           ->where('content_id', $contentId)
                                                           ->whereNull('episode_id')

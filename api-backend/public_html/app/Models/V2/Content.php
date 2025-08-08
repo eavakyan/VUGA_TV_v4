@@ -15,7 +15,6 @@ class Content extends BaseModel
         'release_year',
         'ratings',
         'language_id',
-        // 'trailer_url', // DEPRECATED: Use trailers relationship instead
         'vertical_poster',
         'horizontal_poster',
         'genre_ids',
@@ -126,24 +125,7 @@ class Content extends BaseModel
                     ->orderBy('sort_order');
     }
     
-    /**
-     * Get trailer URL (backward compatibility)
-     * Returns the primary trailer's URL or null
-     */
-    public function getTrailerUrlAttribute()
-    {
-        $primaryTrailer = $this->primaryTrailer;
-        return $primaryTrailer ? $primaryTrailer->trailer_url : null;
-    }
-    
-    /**
-     * Get primary trailer YouTube ID (backward compatibility)
-     */
-    public function getTrailerYoutubeIdAttribute()
-    {
-        $primaryTrailer = $this->primaryTrailer;
-        return $primaryTrailer ? $primaryTrailer->youtube_id : null;
-    }
+    // Backward compatibility getters removed - use trailers relationship instead
     
     /**
      * Get profiles who have this content in their watchlist

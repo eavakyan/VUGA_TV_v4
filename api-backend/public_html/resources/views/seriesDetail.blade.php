@@ -14,7 +14,7 @@
           <h4 class="fw-normal ms-3 mb-0"> {{ $content->title }} </h4>
         </div>
         <div class="d-flex align-items-center justify-content-between">
-          <a class='me-2 btn btn-success px-4 py-2 text-white editContentModal' rel='{{$content->id}}' data-type='{{$content->type}}' data-title='{{$content->title}}' data-description='{{$content->description}}' data-duration='{{$content->duration}}' data-release_year='{{$content->release_year}}' data-ratings='{{$content->ratings}}' data-language_id='{{$content->language_id}}' data-genre_ids='{{$content->genre_ids}}' data-trailer_url='{{$content->trailer_url}}' data-vposter='{{ $content->vertical_poster }}' data-hposter='{{ $content->horizontal_poster }}'>{{ __('edit') }}</a>
+          <a class='me-2 btn btn-success px-4 py-2 text-white editContentModal' rel='{{$content->id}}' data-type='{{$content->type}}' data-title='{{$content->title}}' data-description='{{$content->description}}' data-duration='{{$content->duration}}' data-release_year='{{$content->release_year}}' data-ratings='{{$content->ratings}}' data-language_id='{{$content->language_id}}' data-genre_ids='{{$content->genre_ids}}' data-vposter='{{ $content->vertical_poster }}' data-hposter='{{ $content->horizontal_poster }}'>{{ __('edit') }}</a>
           <a class='btn btn-danger px-4 py-2 text-white deleteContent' rel='{{$content->id}}'>{{ __('delete') }}</a>
         </div>
       </div>
@@ -70,7 +70,12 @@
                 <h4 class="fw-normal m-0">
                   <span id="seasonBadge"> {{ $seasons->first() ? $seasons->first()->title : ""  }} </span>
                 </h4>
-                <a href="https://youtu.be/{{ $seasons->first() ? $seasons->first()->trailer_url : ''  }}" target="_blank" rel="noopener noreferrer" id="youtube_id" class="bg-white theme-color px-3 fw-semibold rounded"> {{ __('trailer') }} </a>
+                @if($content->trailers && $content->trailers->count() > 0)
+                  @php $primaryTrailer = $content->trailers->where('is_primary', 1)->first() ?? $content->trailers->first(); @endphp
+                  <a href="{{ $primaryTrailer->trailer_url }}" target="_blank" rel="noopener noreferrer" id="youtube_id" class="bg-white theme-color px-3 fw-semibold rounded"> {{ $primaryTrailer->title ?? __('trailer') }} </a>
+                @else
+                  <span class="text-muted">{{ __('noTrailer') }}</span>
+                @endif
               </div>
               <button type="button" class="btn btn-primary text-light px-4" data-bs-toggle="modal" data-bs-target="#addEpisodeModal">
                 {{ __('addEpisode') }}

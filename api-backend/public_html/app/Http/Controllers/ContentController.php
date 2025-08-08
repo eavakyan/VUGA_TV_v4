@@ -618,7 +618,6 @@ class ContentController extends Controller
         $content->ratings = $request->ratings;
         $content->language_id = $request->language_id;
         $content->genre_ids = implode(',', $request->genre_ids);
-        $content->trailer_url = $request->trailer_url;
 
         // Handle vertical poster
         if ($request->hasFile('vertical_poster')) {
@@ -644,6 +643,11 @@ class ContentController extends Controller
 
         $content->save();
 
+        // Handle trailers for new content
+        if ($request->has('trailers')) {
+            $this->updateContentTrailers($content->content_id, $request->trailers);
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Content Added Successfully',
@@ -667,7 +671,10 @@ class ContentController extends Controller
         $content->ratings = $request->ratings;
         $content->language_id = $request->language_id;
         $content->genre_ids = implode(',', $request->genre_ids);
-        $content->trailer_url = $request->trailer_url;
+        // Handle trailers
+        if ($request->has('trailers')) {
+            $this->updateContentTrailers($content->content_id, $request->trailers);
+        }
 
         if ($request->hasFile('vertical_poster')) {
             GlobalFunction::deleteFile($content->vertical_poster);
@@ -762,7 +769,7 @@ class ContentController extends Controller
 
     public function contentDetailView(Request $request)
     {
-        $content = Content::where('content_id', $request->id)->where('type', Constants::movie)->first();
+        $content = Content::with('trailers')->where('content_id', $request->id)->where('type', Constants::movie)->first();
         if ($content == null) {
             return response()->json([
                 'status' => false,
@@ -931,6 +938,44 @@ class ContentController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Content Update Successfully',
+        ]);
+    }
+    
+    private function updateContentTrailers($contentId, $trailersJson)
+    {
+        $trailers = json_decode($trailersJson, true);
+        if (!$trailers) return;
+        
+        // Delete existing trailers
+        \App\Models\V2\ContentTrailer::where('content_id', $contentId)->delete();
+        
+        // Add new trailers
+        foreach ($trailers as $index => $trailerData) {
+            $trailer = new \App\Models\V2\ContentTrailer();
+            $trailer->content_id = $contentId;
+            $trailer->title = $trailerData['title'] ?? 'Trailer';
+            
+            // Extract YouTube ID if it's a YouTube URL, otherwise leave null
+            $youtubeId = \App\Models\V2\ContentTrailer::extractYouTubeId($trailerData['url']);
+            $trailer->youtube_id = $youtubeId; // This can be null for non-YouTube URLs
+            
+            $trailer->trailer_url = $trailerData['url'];
+            $trailer->is_primary = $trailerData['is_primary'] ? 1 : 0;
+            $trailer->sort_order = $index;
+            $trailer->save();
+        }
+    }
+    
+    public function getContentTrailers($id)
+    {
+        $trailers = \App\Models\V2\ContentTrailer::where('content_id', $id)
+                    ->orderBy('sort_order')
+                    ->orderBy('content_trailer_id')
+                    ->get();
+        
+        return response()->json([
+            'status' => true,
+            'data' => $trailers
         ]);
     }
 
@@ -1293,7 +1338,7 @@ class ContentController extends Controller
 
     public function seriesDetailView(Request $request)
     {
-        $content = Content::where('content_id', $request->id)->where('type', Constants::series)->first();
+        $content = Content::with('trailers')->where('content_id', $request->id)->where('type', Constants::series)->first();
         if ($content == null) {
             return response()->json([
                 'status' => false,

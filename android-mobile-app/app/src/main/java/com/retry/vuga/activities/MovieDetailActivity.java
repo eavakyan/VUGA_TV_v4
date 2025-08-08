@@ -60,6 +60,7 @@ import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.CustomDialogBuilder;
 import com.retry.vuga.utils.Global;
+import com.retry.vuga.utils.TrailerUtils;
 import com.retry.vuga.utils.UniversalCastButton;
 import com.retry.vuga.utils.UniversalCastManager;
 import com.retry.vuga.utils.adds.MyRewardAds;
@@ -1190,7 +1191,7 @@ public class MovieDetailActivity extends BaseActivity {
         }
         if (contentItem.getType() == 1) {
 
-            trailerUrl = contentItem.getTrailerUrl();
+            trailerUrl = TrailerUtils.getEffectiveTrailerUrl(contentItem);
         } else {
             trailerUrl = contentItem.getSeasons().isEmpty() ? "" : contentItem.getSeasons().get(0).getTrailerUrl();
 
@@ -1829,8 +1830,8 @@ public class MovieDetailActivity extends BaseActivity {
             return;
         }
         
-        String trailerUrl = contentItem.getTrailerUrl();
-        Log.d("Trailer", "Trailer URL: " + trailerUrl);
+        String trailerUrl = TrailerUtils.getEffectiveTrailerUrl(contentItem);
+        Log.d("Trailer", "Effective Trailer URL: " + trailerUrl);
         
         if (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null")) {
             Log.d("Trailer", "No trailer URL available, showing poster");

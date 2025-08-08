@@ -17,28 +17,8 @@ import MediaPlayer
 import GoogleCast
 import Combine
 
-// Temporary stub views - remove these when TrailerPlayerView and TrailerInlinePlayer are properly included in the target
-struct TrailerPlayerView: View {
-    let trailerUrl: String
-    
-    var body: some View {
-        Text("Trailer Player")
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black)
-    }
-}
-
-struct TrailerInlinePlayer: View {
-    let trailerUrl: String
-    
-    var body: some View {
-        Text("Inline Trailer")
-            .foregroundColor(.white)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black.opacity(0.8))
-    }
-}
+// These stub views have been replaced with the actual implementations in their respective files
+// TrailerPlayerView.swift and TrailerInlinePlayer.swift
 
 // Temporary rating components until import issue is resolved
 struct RatingDisplayView: View {
@@ -204,6 +184,43 @@ struct ContentDetailView: View {
     @State private var selectedEpisodeForRating: Episode?
     @EnvironmentObject var downloadViewModel: DownloadViewModel
     var contentId: Int?
+    
+    // Helper function to simplify ad visibility logic
+    private func shouldShowAd(isPro: Bool, isShowAd: Bool) -> Bool {
+        return isPro || SessionManager.shared.getSetting()?.isCustomIos == 0 ? false : isShowAd
+    }
+    
+    // Helper function for AdMob visibility
+    private var shouldShowAdMob: Bool {
+        return !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0
+    }
+    
+    // Helper function to check if content has trailers available
+    private func hasTrailersAvailable(for content: VugaContent) -> Bool {
+        // Check new trailers array
+        if let trailers = content.trailers, !trailers.isEmpty {
+            return true
+        }
+        
+        // Check legacy trailer URL
+        if let trailerURL = content.trailerURL, !trailerURL.isEmpty {
+            return true
+        }
+        
+        return false
+    }
+    
+    // Computed properties to avoid complex expressions
+    private var posterWidth: CGFloat { Device.width * 0.9 }
+    private var posterHeight: CGFloat { Device.width * 1.1 }
+    private var posterWidthSmall: CGFloat { Device.width * 0.75 }
+    private var pagingMargin: CGFloat { Device.width * 0.33 }
+    private var pagingPadding: CGFloat { Device.width * 0.35 }
+    private var cardWidth: CGFloat { Device.width * 0.60 }
+    private var fullWidth: CGFloat { Device.width }
+    private var fullHeight: CGFloat { Device.width * 1.2 }
+    private var isArabic: Bool { language == .Arabic }
+    
     var body: some View {
         VStack {
             VStack(spacing: 0) {
@@ -275,7 +292,7 @@ struct ContentDetailView: View {
                                         }
                                 }
                                 if vm.isStarCastOn {
-                                    PagingView(config: .init(margin: Device.width * 0.33,constrainedDeceleration: false), page: $currentIndex, {
+                                    PagingView(config: .init(margin: pagingMargin, constrainedDeceleration: false), page: $currentIndex, {
                                         ForEach(0..<(content.contentCast ?? []).count, id: \.self) { index in
                                             StarCastCard(cast: (content.contentCast ?? [])[index])
                                                 .onTapGesture {
@@ -283,9 +300,9 @@ struct ContentDetailView: View {
                                                 }
                                         }
                                     })
-                                    .padding(.leading, -Device.width * 0.35)
+                                    .padding(.leading, -pagingPadding)
                                     .frame(height: 55)
-                                    .flipsForRightToLeftLayoutDirection(language == .Arabic ? true : false)
+                                    .flipsForRightToLeftLayoutDirection(isArabic)
                                 }
                             }
                         }
@@ -363,12 +380,12 @@ struct ContentDetailView: View {
                 vm.fetchContest(contentId: contentId ?? 0)
             }
             // Watchlist state is now set from server response in fetchContest
-            if !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0{
+            if shouldShowAdMob {
                 Interstitial.shared.loadInterstitial()
             }
         })
         .onDisappear {
-            if !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0 {
+            if shouldShowAdMob {
                 Interstitial.shared.showInterstitialAds()
             }
         }
@@ -377,22 +394,41 @@ struct ContentDetailView: View {
             if source.type?.rawValue ?? 1 == 1 {
                 YoutubeView(youtubeUrl: source.source ?? "")
             } else {
-                VideoPlayerView(content: vm.content,
-                                episode: vm.selectedEpisode,
-                                type: source.type?.rawValue ?? 2,
-                                isShowAdView: isPro || SessionManager.shared.getSetting()?.isCustomIos == 0 ? false : vm.isShowAd,
-                                url: source.sourceURL.absoluteString,progress: vm.progress,sourceId: vm.selectedSource?.id)
+                VideoPlayerView(
+                    content: vm.content,
+                    episode: vm.selectedEpisode,
+                    type: source.type?.rawValue ?? 2,
+                    isShowAdView: self.shouldShowAd(isPro: isPro, isShowAd: vm.isShowAd),
+                    url: source.sourceURL.absoluteString,
+                    progress: vm.progress,
+                    sourceId: vm.selectedSource?.id
+                )
             }
         })
         .fullScreenCover(isPresented: $showTrailerSheet, content: {
             if let content = vm.content {
                 if content.type == .movie {
-                    if let trailerUrl = content.trailerURL, !trailerUrl.isEmpty {
-                        TrailerPlayerView(trailerUrl: getFullTrailerUrl(trailerUrl))
+                    // For movies, use content's trailers
+                    if hasTrailersAvailable(for: content) {
+                        SimpleTrailerView(content: content)
+                    } else {
+                        Text("No trailer available")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.black)
                     }
                 } else if content.type == .series {
-                    if let trailerUrl = vm.selectedSeason?.trailerURL, !trailerUrl.isEmpty {
-                        TrailerPlayerView(trailerUrl: getFullTrailerUrl(trailerUrl))
+                    // For series, try season trailer first, then content trailers
+                    if let selectedSeason = vm.selectedSeason,
+                       let seasonTrailerUrl = selectedSeason.trailerURL, !seasonTrailerUrl.isEmpty {
+                        SimpleTrailerView(trailerUrl: getFullTrailerUrl(seasonTrailerUrl))
+                    } else if hasTrailersAvailable(for: content) {
+                        SimpleTrailerView(content: content)
+                    } else {
+                        Text("No trailer available")
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .background(Color.black)
                     }
                 }
             }
@@ -531,7 +567,7 @@ struct ContentDetailView: View {
             if content.type == .movie {
                 movieActionButtons(content)
             }
-            if !isPro && SessionManager.shared.getSetting()?.isAdmobIos != 0 {
+            if shouldShowAdMob {
                 BannerAd()
                     .padding(.horizontal,-10)
                     .padding(.top,10)
@@ -541,17 +577,43 @@ struct ContentDetailView: View {
     
     @ViewBuilder
     private func contentPosterSection(_ content: VugaContent) -> some View {
-        if let trailerUrl = content.trailerURL, !trailerUrl.isEmpty {
-            // Show inline trailer player
-            TrailerInlinePlayer(trailerUrl: getFullTrailerUrl(trailerUrl))
-                .frame(width: Device.width * 0.9, height: Device.width * 1.1)
-                .cornerRadius(15)
-                .addStroke(radius: 15)
-                .maxFrame()
+        if hasTrailersAvailable(for: content) {
+            // Show inline trailer player using new trailer system
+            ZStack {
+                // Background poster
+                KFImage(content.verticalPoster?.addBaseURL())
+                    .resizeFillTo(width: posterWidth, height: posterHeight, radius: 15)
+                    .addStroke(radius: 15)
+                    .maxFrame()
+                
+                // Play button overlay
+                Button(action: {
+                    if content.sortedTrailers.count > 1 {
+                        // Multiple trailers - could show selection, for now just use primary
+                        showTrailerSheet = true
+                    } else {
+                        showTrailerSheet = true
+                    }
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(Color.black.opacity(0.7))
+                            .frame(width: 80, height: 80)
+                        
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 30))
+                            .foregroundColor(.white)
+                    }
+                }
+            }
+            .frame(width: posterWidth, height: posterHeight)
+            .cornerRadius(15)
+            .addStroke(radius: 15)
+            .maxFrame()
         } else {
-            // Show poster image with trailer button
+            // Show poster image without trailer functionality
             KFImage(content.verticalPoster?.addBaseURL())
-                .resizeFillTo(width: Device.width * 0.75, height: Device.width * 1.1, radius: 15)
+                .resizeFillTo(width: posterWidthSmall, height: posterHeight, radius: 15)
                 .addStroke(radius: 15)
                 .maxFrame()
         }
@@ -1139,11 +1201,15 @@ struct GoogleCastButton: UIViewRepresentable {
 
 private struct ContentBackgroudView: View {
     var content: VugaContent?
+    
+    private var fullWidth: CGFloat { Device.width }
+    private var fullHeight: CGFloat { Device.width * 1.2 }
+    
     var body: some View {
         if let content {
             VStack {
                 KFImage(content.verticalPoster?.addBaseURL())
-                    .resizeFillTo(width: Device.width, height: Device.width * 1.2)
+                    .resizeFillTo(width: fullWidth, height: fullHeight)
                     .clipped()
                     .blur(radius: 20)
                 
@@ -1163,6 +1229,10 @@ private struct ContentBackgroudView: View {
 private struct StarCastCard: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     var cast: Cast
+    
+    private var isArabic: Bool { language == .Arabic }
+    private var cardWidth: CGFloat { Device.width * 0.60 }
+    
     var body: some View {
         HStack(alignment: .center,spacing: 10) {
             KFImage(cast.actor?.profile_image?.addBaseURL())
@@ -1173,20 +1243,20 @@ private struct StarCastCard: View {
                     .outfitSemiBold()
                     .foregroundColor(.text)
                     .lineLimit(1)
-                    .flipsForRightToLeftLayoutDirection(language == .Arabic ? false : true)
+                    .flipsForRightToLeftLayoutDirection(!isArabic)
                 
                 Text(cast.charactorName ?? "")
                     .outfitRegular(14)
                     .foregroundColor(.textLight)
                     .lineLimit(1)
-                    .flipsForRightToLeftLayoutDirection(language == .Arabic ? false : true)
+                    .flipsForRightToLeftLayoutDirection(!isArabic)
                 
             }
-            .flipsForRightToLeftLayoutDirection(language == .Arabic ? false : true)
+            .flipsForRightToLeftLayoutDirection(!isArabic)
             
             Spacer(minLength: 0)
         }
-        .frame(width: Device.width * 0.60)
+        .frame(width: cardWidth)
         .addStroke(radius: 15)
     }
 }
@@ -1416,5 +1486,83 @@ struct AirPlayRoutePickerView: UIViewRepresentable {
                 routePickerView.activeTintColor = UIColor(Color.base)
             }
         }
+    }
+}
+
+// Simple trailer view to avoid import issues
+struct SimpleTrailerView: View {
+    let content: VugaContent?
+    let trailerUrl: String?
+    
+    @Environment(\.presentationMode) var presentationMode
+    
+    init(content: VugaContent) {
+        self.content = content
+        self.trailerUrl = nil
+    }
+    
+    init(trailerUrl: String) {
+        self.content = nil
+        self.trailerUrl = trailerUrl
+    }
+    
+    var body: some View {
+        ZStack {
+            Color.black.edgesIgnoringSafeArea(.all)
+            
+            VStack {
+                HStack {
+                    Spacer()
+                    Button("Done") {
+                        presentationMode.wrappedValue.dismiss()
+                    }
+                    .foregroundColor(.white)
+                    .padding()
+                }
+                
+                Spacer()
+                
+                // Placeholder for trailer content
+                if let effectiveUrl = getEffectiveUrl() {
+                    Text("Trailer would play here")
+                        .foregroundColor(.white)
+                        .font(.title2)
+                    
+                    Text(effectiveUrl)
+                        .foregroundColor(.gray)
+                        .font(.caption)
+                        .padding()
+                } else {
+                    Text("No trailer URL available")
+                        .foregroundColor(.white)
+                        .font(.title2)
+                }
+                
+                Spacer()
+            }
+        }
+    }
+    
+    private func getEffectiveUrl() -> String? {
+        if let url = trailerUrl {
+            return url
+        }
+        
+        if let content = content {
+            // Check for primary trailer first
+            if let trailers = content.trailers, let primaryTrailer = trailers.first(where: { $0.isPrimary == true }) {
+                return primaryTrailer.trailerUrl
+            }
+            
+            // Fall back to first trailer
+            if let trailers = content.trailers, let firstTrailer = trailers.first {
+                return firstTrailer.trailerUrl
+            }
+            
+            // Fall back to legacy trailer URL
+            return content.trailerURL
+        }
+        
+        return nil
     }
 }

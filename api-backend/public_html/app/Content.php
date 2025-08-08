@@ -37,6 +37,11 @@ class Content extends Model
         return $this->hasMany(Season::class, 'content_id', 'content_id');
     }
 
+    public function trailers()
+    {
+        return $this->hasMany(\App\Models\V2\ContentTrailer::class, 'content_id', 'content_id');
+    }
+
     // Add accessor for backward compatibility with 'id' field
     public function getIdAttribute()
     {
