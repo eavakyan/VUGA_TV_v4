@@ -10,6 +10,7 @@ import Kingfisher
 import Marquee
 import ExpandableText
 import AVKit
+import WebKit
 import BranchSDK
 import Flow
 import WrappingStack
@@ -219,6 +220,7 @@ struct ContentDetailView: View {
     private var cardWidth: CGFloat { Device.width * 0.60 }
     private var fullWidth: CGFloat { Device.width }
     private var fullHeight: CGFloat { Device.width * 1.2 }
+    private var smallPosterWidth: CGFloat { Device.width * 0.5 }
     private var isArabic: Bool { language == .Arabic }
     
     var body: some View {
@@ -578,45 +580,45 @@ struct ContentDetailView: View {
     @ViewBuilder
     private func contentPosterSection(_ content: VugaContent) -> some View {
         if hasTrailersAvailable(for: content) {
-            // Show inline trailer player using new trailer system
-            ZStack {
-                // Background poster
-                KFImage(content.verticalPoster?.addBaseURL())
-                    .resizeFillTo(width: posterWidth, height: posterHeight, radius: 15)
+            // Auto-playing trailer at top (no poster below)
+            if let trailerUrl = getEffectiveTrailerUrl(for: content) {
+                InlineTrailerView(trailerUrl: trailerUrl)
+                    .frame(width: posterWidth, height: posterWidth * 9/16) // 16:9 aspect ratio
+                    .cornerRadius(15)
+                    .clipped()
                     .addStroke(radius: 15)
-                    .maxFrame()
-                
-                // Play button overlay
-                Button(action: {
-                    if content.sortedTrailers.count > 1 {
-                        // Multiple trailers - could show selection, for now just use primary
-                        showTrailerSheet = true
-                    } else {
-                        showTrailerSheet = true
-                    }
-                }) {
-                    ZStack {
-                        Circle()
-                            .fill(Color.black.opacity(0.7))
-                            .frame(width: 80, height: 80)
-                        
-                        Image(systemName: "play.fill")
-                            .font(.system(size: 30))
-                            .foregroundColor(.white)
-                    }
-                }
             }
-            .frame(width: posterWidth, height: posterHeight)
-            .cornerRadius(15)
-            .addStroke(radius: 15)
-            .maxFrame()
         } else {
-            // Show poster image without trailer functionality
+            // Show full-size poster when no trailer exists
             KFImage(content.verticalPoster?.addBaseURL())
-                .resizeFillTo(width: posterWidthSmall, height: posterHeight, radius: 15)
+                .resizeFillTo(width: posterWidth, height: posterHeight, radius: 15)
                 .addStroke(radius: 15)
                 .maxFrame()
         }
+    }
+    
+    // Helper function to get effective trailer URL - ONLY uses trailer_url field
+    private func getEffectiveTrailerUrl(for content: VugaContent) -> String? {
+        // Only use the trailer_url field from content_trailer table
+        
+        // Check primary trailer first
+        if let primaryTrailer = content.primaryTrailer,
+           let trailerUrl = primaryTrailer.trailerUrl,
+           !trailerUrl.isEmpty {
+            return trailerUrl
+        }
+        
+        // Check any trailer in the array
+        if let trailers = content.trailers {
+            for trailer in trailers {
+                if let trailerUrl = trailer.trailerUrl, !trailerUrl.isEmpty {
+                    return trailerUrl
+                }
+            }
+        }
+        
+        // No trailer URL found
+        return nil
     }
     
     @ViewBuilder
@@ -1549,14 +1551,25 @@ struct SimpleTrailerView: View {
         }
         
         if let content = content {
-            // Check for primary trailer first
+            // Check for primary trailer first, prioritizing direct URLs over YouTube
             if let trailers = content.trailers, let primaryTrailer = trailers.first(where: { $0.isPrimary == true }) {
-                return primaryTrailer.trailerUrl
+                // Prioritize trailer_url (MP4) over YouTube
+                if let trailerUrl = primaryTrailer.trailerUrl, !trailerUrl.isEmpty {
+                    return trailerUrl
+                }
+                // Fall back to YouTube if no direct URL
+                if let youtubeId = primaryTrailer.youtubeId, !youtubeId.isEmpty {
+                    return "https://www.youtube.com/watch?v=\(youtubeId)"
+                }
             }
             
-            // Fall back to first trailer
-            if let trailers = content.trailers, let firstTrailer = trailers.first {
-                return firstTrailer.trailerUrl
+            // Fall back to any trailer with a URL
+            if let trailers = content.trailers {
+                for trailer in trailers {
+                    if let trailerUrl = trailer.trailerUrl, !trailerUrl.isEmpty {
+                        return trailerUrl
+                    }
+                }
             }
             
             // Fall back to legacy trailer URL
@@ -1564,5 +1577,140 @@ struct SimpleTrailerView: View {
         }
         
         return nil
+    }
+}
+
+// Inline trailer view for auto-playing trailers
+struct InlineTrailerView: View {
+    let trailerUrl: String
+    @State private var isYouTubeUrl = false
+    @State private var youTubeVideoId: String?
+    @State private var player: AVPlayer?
+    @State private var isPlaying = false
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                if isYouTubeUrl, let videoId = youTubeVideoId {
+                    // YouTube player using WebView
+                    YouTubeEmbedView(videoId: videoId)
+                } else if let player = player {
+                    // Regular video player for CDN URLs
+                    VideoPlayer(player: player)
+                        .disabled(false)
+                } else {
+                    // Loading state
+                    Color.black
+                        .overlay(
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.5)
+                        )
+                }
+            }
+        }
+        .onAppear {
+            analyzeAndSetupTrailer()
+        }
+        .onDisappear {
+            player?.pause()
+        }
+    }
+    
+    private func analyzeAndSetupTrailer() {
+        // Check if it's a YouTube URL
+        if trailerUrl.contains("youtube.com") || trailerUrl.contains("youtu.be") {
+            isYouTubeUrl = true
+            youTubeVideoId = extractYouTubeVideoId(from: trailerUrl)
+        } else {
+            isYouTubeUrl = false
+            setupVideoPlayer()
+        }
+    }
+    
+    private func setupVideoPlayer() {
+        guard let url = URL(string: trailerUrl) else { return }
+        
+        let playerItem = AVPlayerItem(url: url)
+        player = AVPlayer(playerItem: playerItem)
+        
+        // Set up looping
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { _ in
+            self.player?.seek(to: .zero)
+            self.player?.play()
+        }
+        
+        // Auto-start playing
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.player?.play()
+            self.isPlaying = true
+        }
+    }
+    
+    private func extractYouTubeVideoId(from url: String) -> String? {
+        if url.contains("youtube.com/watch?v=") {
+            let components = URLComponents(string: url)
+            return components?.queryItems?.first(where: { $0.name == "v" })?.value
+        } else if url.contains("youtu.be/") {
+            let components = url.components(separatedBy: "youtu.be/")
+            if components.count > 1 {
+                return components[1].components(separatedBy: "?").first
+            }
+        } else if url.contains("youtube.com/embed/") {
+            let components = url.components(separatedBy: "embed/")
+            if components.count > 1 {
+                return components[1].components(separatedBy: "?").first
+            }
+        }
+        return url
+    }
+}
+
+// YouTube embed view
+struct YouTubeEmbedView: UIViewRepresentable {
+    let videoId: String
+    
+    func makeUIView(context: Context) -> WKWebView {
+        let configuration = WKWebViewConfiguration()
+        configuration.allowsInlineMediaPlayback = true
+        configuration.mediaTypesRequiringUserActionForPlayback = []
+        
+        let webView = WKWebView(frame: .zero, configuration: configuration)
+        webView.backgroundColor = .black
+        webView.scrollView.isScrollEnabled = false
+        
+        return webView
+    }
+    
+    func updateUIView(_ webView: WKWebView, context: Context) {
+        let embedHTML = """
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                body { margin: 0; padding: 0; background: black; }
+                .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+                .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+            </style>
+        </head>
+        <body>
+            <div class="video-container">
+                <iframe 
+                    src="https://www.youtube.com/embed/\(videoId)?autoplay=1&loop=1&playlist=\(videoId)&playsinline=1&mute=1&controls=1"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
+                    allowfullscreen>
+                </iframe>
+            </div>
+        </body>
+        </html>
+        """
+        
+        webView.loadHTMLString(embedHTML, baseURL: nil)
     }
 }

@@ -47,6 +47,8 @@ struct DownloadingContent {
     var episode: Episode?
     var flixyContent: VugaContent?
     var sourceUrl: URL?
+    var totalBytesWritten: Int64 = 0
+    var totalBytesExpectedToWrite: Int64 = 0
 }
 
 
@@ -280,6 +282,13 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         var downloadData = SessionManager.shared.getDownloadData()
         
         if self.downloadingContents[id] != nil {
+            // Update byte counts
+            DispatchQueue.main.async {
+                self.downloadingContents[id]?.totalBytesWritten = totalBytesWritten
+                self.downloadingContents[id]?.totalBytesExpectedToWrite = totalBytesExpectedToWrite
+                self.downloadingContents[id]?.progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
+            }
+            
             guard var progressInfo = progressDictionary[downloadTask] else { return }
             let progress = Double(totalBytesWritten) / Double(totalBytesExpectedToWrite)
             progressInfo.progress = progress
@@ -287,7 +296,6 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
                 print("Progress for task \(downloadTask): \(progressInfo.currentProgressIndex) \(self.progressIntervals[progressInfo.currentProgressIndex] * 100)%")
                 progressDictionary[downloadTask]?.currentProgressIndex += 1
                 DispatchQueue.main.async {
-                    self.downloadingContents[id]?.progress = Float(totalBytesWritten) / Float(totalBytesExpectedToWrite)
                     if let activity = self.downloadingContents[id]?.activity {
                         self.update(activity: activity, progress: progress)
                     }

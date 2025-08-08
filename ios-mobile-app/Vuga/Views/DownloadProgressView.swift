@@ -161,19 +161,35 @@ struct DownloadProgressView: View {
     }
     
     private var downloadSizeText: String {
-        // Parse size string which might contain units like "500 MB", "1.2 GB", etc.
-        let totalSizeMB = parseSizeToMB(source.size ?? "0")
-        
-        // Only update downloaded amount based on actual progress
-        let downloadedSizeMB = totalSizeMB * progress
-        
-        // Format the display based on size
-        if totalSizeMB >= 1024 {
-            let totalSizeGB = totalSizeMB / 1024
-            let downloadedSizeGB = downloadedSizeMB / 1024
-            return String(format: "%.1f GB / %.1f GB", downloadedSizeGB, totalSizeGB)
+        // Use actual byte counts if available
+        if let downloadingContent = downloadingContent,
+           downloadingContent.totalBytesExpectedToWrite > 0 {
+            
+            let totalBytes = downloadingContent.totalBytesExpectedToWrite
+            let downloadedBytes = downloadingContent.totalBytesWritten
+            
+            // Convert to appropriate units
+            if totalBytes >= 1024 * 1024 * 1024 { // GB
+                let totalGB = Double(totalBytes) / (1024 * 1024 * 1024)
+                let downloadedGB = Double(downloadedBytes) / (1024 * 1024 * 1024)
+                return String(format: "%.1f GB / %.1f GB", downloadedGB, totalGB)
+            } else { // MB
+                let totalMB = Double(totalBytes) / (1024 * 1024)
+                let downloadedMB = Double(downloadedBytes) / (1024 * 1024)
+                return String(format: "%.1f MB / %.0f MB", downloadedMB, totalMB)
+            }
         } else {
-            return String(format: "%.1f MB / %.0f MB", downloadedSizeMB, totalSizeMB)
+            // Fallback to old method if byte counts not available
+            let totalSizeMB = parseSizeToMB(source.size ?? "0")
+            let downloadedSizeMB = totalSizeMB * progress
+            
+            if totalSizeMB >= 1024 {
+                let totalSizeGB = totalSizeMB / 1024
+                let downloadedSizeGB = downloadedSizeMB / 1024
+                return String(format: "%.1f GB / %.1f GB", downloadedSizeGB, totalSizeGB)
+            } else {
+                return String(format: "%.1f MB / %.0f MB", downloadedSizeMB, totalSizeMB)
+            }
         }
     }
     

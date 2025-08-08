@@ -237,7 +237,7 @@ struct HomeView: View {
                             VStack(spacing: 0) {
                                 ZStack(alignment: .center) {
                                     KFImage(recently.type == .movie ? recently.thumbnail.addBaseURL() : recently.episodeHorizontalPoster.addBaseURL())
-                                        .resizeFillTo(width: 147, height: 91, radius: 10)
+                                        .resizeFillTo(width: 118, height: 73, radius: 10)
                                     
                                     Image(systemName: "play.fill")
                                         .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
@@ -286,7 +286,7 @@ struct HomeView: View {
                                         Navigation.pushToSwiftUiView(ContentDetailView(contentId: Int(recently.contentID)))
                                     }
                             }
-                                .frame(width: 147, alignment: .leading)
+                                .frame(width: 118, alignment: .leading)
                         }
                         .onTap {
                             vm.selectedRecentlyWatched = recently
@@ -370,7 +370,7 @@ struct HomeView: View {
                     ForEach(vm.wishlists, id: \.id) { content in
                         VStack(alignment: .leading,spacing: 0) {
                             KFImage(content.horizontalPoster?.addBaseURL())
-                                .resizeFillTo(width: 147, height: 91,radius: 10)
+                                .resizeFillTo(width: 118, height: 73,radius: 10)
                                 .addStroke(radius: 10)
                                 .overlay(
                                     TypeTagForVugaContent(content: content)
@@ -383,7 +383,7 @@ struct HomeView: View {
                                 .outfitSemiBold(18)
                                 .foregroundColor(.text)
                                 .padding(.top,5)
-                                .frame(width: 147,alignment: .leading)
+                                .frame(width: 118,alignment: .leading)
                             HStack(spacing: 7) {
                                 HStack(spacing: 5) {
                                     Image.star

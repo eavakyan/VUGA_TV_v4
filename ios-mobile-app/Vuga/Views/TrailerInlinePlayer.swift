@@ -95,6 +95,12 @@ struct TrailerInlinePlayer: View {
             self.player?.play()
         }
         
+        // Auto-start playing after player is ready
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            self.player?.play()
+            self.isPlaying = true
+        }
+        
         // Auto-hide controls after 3 seconds
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
             withAnimation {
@@ -185,7 +191,7 @@ struct YouTubeInlineWebView: UIViewRepresentable {
         <body>
             <div class="video-container">
                 <iframe 
-                    src="https://www.youtube.com/embed/\(videoId)?autoplay=0&loop=1&playlist=\(videoId)&playsinline=1&rel=0&showinfo=0&modestbranding=1&controls=1"
+                    src="https://www.youtube.com/embed/\(videoId)?autoplay=1&loop=1&playlist=\(videoId)&playsinline=1&rel=0&showinfo=0&modestbranding=1&controls=1&mute=1"
                     frameborder="0"
                     allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                     allowfullscreen>
