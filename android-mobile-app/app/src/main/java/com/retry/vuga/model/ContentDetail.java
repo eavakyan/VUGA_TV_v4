@@ -72,6 +72,12 @@ public class ContentDetail {
         @SerializedName("trailer_url")
         private String trailerUrl;
 
+        @SerializedName("trailer_youtube_id")
+        private String trailerYoutubeId;
+
+        @SerializedName("trailers")
+        private List<Trailer> trailers;
+
         @SerializedName("vertical_poster")
         private String verticalPoster;
 
@@ -238,6 +244,64 @@ public class ContentDetail {
 
         public void setTrailerUrl(String trailerUrl) {
             this.trailerUrl = trailerUrl;
+        }
+
+        public String getTrailerYoutubeId() {
+            return trailerYoutubeId == null ? "" : trailerYoutubeId;
+        }
+
+        public void setTrailerYoutubeId(String trailerYoutubeId) {
+            this.trailerYoutubeId = trailerYoutubeId;
+        }
+
+        public List<Trailer> getTrailers() {
+            return trailers == null ? new ArrayList<>() : trailers;
+        }
+
+        public void setTrailers(List<Trailer> trailers) {
+            this.trailers = trailers;
+        }
+
+        // Get primary trailer from the trailers list
+        public Trailer getPrimaryTrailer() {
+            List<Trailer> trailerList = getTrailers();
+            for (Trailer trailer : trailerList) {
+                if (trailer.isPrimary()) {
+                    return trailer;
+                }
+            }
+            // Return first trailer if no primary trailer found
+            return trailerList.isEmpty() ? null : trailerList.get(0);
+        }
+
+        // Get all non-primary trailers
+        public List<Trailer> getAdditionalTrailers() {
+            List<Trailer> trailerList = getTrailers();
+            List<Trailer> additionalTrailers = new ArrayList<>();
+            for (Trailer trailer : trailerList) {
+                if (!trailer.isPrimary()) {
+                    additionalTrailers.add(trailer);
+                }
+            }
+            return additionalTrailers;
+        }
+
+        // Backward compatibility: if trailerUrl is empty, get from primary trailer
+        public String getEffectiveTrailerUrl() {
+            if (trailerUrl != null && !trailerUrl.isEmpty()) {
+                return trailerUrl;
+            }
+            Trailer primaryTrailer = getPrimaryTrailer();
+            return primaryTrailer != null ? primaryTrailer.getTrailerUrl() : "";
+        }
+
+        // Backward compatibility: if trailerYoutubeId is empty, get from primary trailer
+        public String getEffectiveTrailerYoutubeId() {
+            if (trailerYoutubeId != null && !trailerYoutubeId.isEmpty()) {
+                return trailerYoutubeId;
+            }
+            Trailer primaryTrailer = getPrimaryTrailer();
+            return primaryTrailer != null ? primaryTrailer.getYoutubeId() : "";
         }
 
         public String getTitle() {

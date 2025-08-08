@@ -15,7 +15,7 @@ class Content extends BaseModel
         'release_year',
         'ratings',
         'language_id',
-        'trailer_url',
+        // 'trailer_url', // DEPRECATED: Use trailers relationship instead
         'vertical_poster',
         'horizontal_poster',
         'genre_ids',
@@ -104,6 +104,45 @@ class Content extends BaseModel
     public function ageLimits()
     {
         return $this->belongsToMany(AgeLimit::class, 'content_age_limit', 'content_id', 'age_limit_id');
+    }
+    
+    /**
+     * Get the content's trailers
+     */
+    public function trailers()
+    {
+        return $this->hasMany(ContentTrailer::class, 'content_id')
+                    ->orderBy('is_primary', 'desc')
+                    ->orderBy('sort_order');
+    }
+    
+    /**
+     * Get the primary trailer for this content
+     */
+    public function primaryTrailer()
+    {
+        return $this->hasOne(ContentTrailer::class, 'content_id')
+                    ->where('is_primary', true)
+                    ->orderBy('sort_order');
+    }
+    
+    /**
+     * Get trailer URL (backward compatibility)
+     * Returns the primary trailer's URL or null
+     */
+    public function getTrailerUrlAttribute()
+    {
+        $primaryTrailer = $this->primaryTrailer;
+        return $primaryTrailer ? $primaryTrailer->trailer_url : null;
+    }
+    
+    /**
+     * Get primary trailer YouTube ID (backward compatibility)
+     */
+    public function getTrailerYoutubeIdAttribute()
+    {
+        $primaryTrailer = $this->primaryTrailer;
+        return $primaryTrailer ? $primaryTrailer->youtube_id : null;
     }
     
     /**

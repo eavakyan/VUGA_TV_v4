@@ -75,6 +75,15 @@ Route::prefix('v2')->group(function () {
         Route::post('/increase-download', [V2\ContentController::class, 'increaseContentDownload']);
         Route::post('/episode/increase-view', [V2\ContentController::class, 'increaseEpisodeView']);
         Route::post('/episode/increase-download', [V2\ContentController::class, 'increaseEpisodeDownload']);
+        
+        // Trailer Management
+        Route::post('/trailers', [V2\ContentTrailerController::class, 'getContentTrailers']);
+        Route::post('/trailer/primary', [V2\ContentTrailerController::class, 'getPrimaryTrailer']);
+        Route::post('/trailer/add', [V2\ContentTrailerController::class, 'addTrailer']);
+        Route::post('/trailer/update', [V2\ContentTrailerController::class, 'updateTrailer']);
+        Route::post('/trailer/delete', [V2\ContentTrailerController::class, 'deleteTrailer']);
+        Route::post('/trailer/set-primary', [V2\ContentTrailerController::class, 'setPrimaryTrailer']);
+        Route::post('/trailer/reorder', [V2\ContentTrailerController::class, 'reorderTrailers']);
     });
     
     // Watch History & Progress

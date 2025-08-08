@@ -25,6 +25,8 @@ struct VugaContent: Codable {
     let languageID: Int?
     let downloadLink: String?
     let trailerURL: String?
+    let trailerYoutubeId: String?
+    let trailers: [TrailerModel]?
     let verticalPoster, horizontalPoster, genreIDS: String?
     var isFeatured, totalView, totalDownload, totalShare: Int?
     let actorIDS: String?
@@ -48,6 +50,8 @@ struct VugaContent: Codable {
         case languageID = "language_id"
         case downloadLink = "download_link"
         case trailerURL = "trailer_url"
+        case trailerYoutubeId = "trailer_youtube_id"
+        case trailers
         case verticalPoster = "vertical_poster"
         case horizontalPoster = "horizontal_poster"
         case genreIDS = "genre_ids"
@@ -108,6 +112,53 @@ struct VugaContent: Codable {
         }
         
         return true // No restrictions if age not set
+    }
+    
+    // MARK: - Trailer Helpers
+    
+    // Get primary trailer from trailers list
+    var primaryTrailer: TrailerModel? {
+        return trailers?.primaryTrailer
+    }
+    
+    // Get all trailers sorted properly
+    var sortedTrailers: [TrailerModel] {
+        return trailers?.sortedTrailers ?? []
+    }
+    
+    // Get additional (non-primary) trailers
+    var additionalTrailers: [TrailerModel] {
+        return trailers?.additionalTrailers ?? []
+    }
+    
+    // Backward compatibility: Get effective trailer URL
+    var effectiveTrailerURL: String? {
+        // Use the existing trailerURL if available
+        if let trailerURL = trailerURL, !trailerURL.isEmpty {
+            return trailerURL
+        }
+        // Otherwise get from primary trailer
+        return primaryTrailer?.effectiveTrailerUrl
+    }
+    
+    // Backward compatibility: Get effective trailer YouTube ID
+    var effectiveTrailerYoutubeId: String? {
+        // Use the existing trailerYoutubeId if available
+        if let trailerYoutubeId = trailerYoutubeId, !trailerYoutubeId.isEmpty {
+            return trailerYoutubeId
+        }
+        // Otherwise get from primary trailer
+        return primaryTrailer?.effectiveYoutubeId
+    }
+    
+    // Get trailer thumbnail URL (for UI)
+    var trailerThumbnailURL: String? {
+        return primaryTrailer?.effectiveThumbnailUrl
+    }
+    
+    // Check if content has trailers
+    var hasTrailers: Bool {
+        return !(trailers?.isEmpty ?? true) || !(trailerURL?.isEmpty ?? true)
     }
     
     // Get age rating display color

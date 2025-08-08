@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V2;
 use App\Http\Controllers\Controller;
 use App\Models\V2\Content;
 use App\Models\V2\ContentGenre;
+use App\Models\V2\ContentTrailer;
 use App\Models\V2\Genre;
 use App\Models\V2\AppLanguage;
 use App\Models\V2\TopContent;
@@ -142,6 +143,7 @@ class ContentController extends Controller
             'language',
             'genres',
             'sources',
+            'trailers',
             'casts.actor',
             'subtitles',
             'seasons.episodes.sources',
@@ -426,6 +428,7 @@ class ContentController extends Controller
             'language',
             'genres',
             'sources',
+            'trailers',
             'casts.actor',
             'subtitles.language',
             'seasons.episodes.sources',
@@ -929,6 +932,36 @@ class ContentController extends Controller
             $data['age_rating'] = $content->ageLimits->first()->code;
             $data['min_age'] = $content->ageLimits->max('min_age');
             $data['age_limits'] = $content->ageLimits;
+        }
+        
+        // Add trailer information for backward compatibility
+        if ($content->relationLoaded('trailers')) {
+            // Get primary trailer for backward compatibility
+            $primaryTrailer = $content->trailers->where('is_primary', true)->first();
+            if ($primaryTrailer) {
+                $data['trailer_url'] = $primaryTrailer->trailer_url;
+                $data['trailer_youtube_id'] = $primaryTrailer->youtube_id;
+            } else {
+                // If no primary trailer, get first trailer
+                $firstTrailer = $content->trailers->first();
+                if ($firstTrailer) {
+                    $data['trailer_url'] = $firstTrailer->trailer_url;
+                    $data['trailer_youtube_id'] = $firstTrailer->youtube_id;
+                }
+            }
+            // Include all trailers in detailed format
+            $data['trailers'] = $content->trailers->map(function($trailer) {
+                return [
+                    'content_trailer_id' => $trailer->content_trailer_id,
+                    'title' => $trailer->title,
+                    'youtube_id' => $trailer->youtube_id,
+                    'trailer_url' => $trailer->trailer_url,
+                    'embed_url' => $trailer->embed_url,
+                    'thumbnail_url' => $trailer->thumbnail_url,
+                    'is_primary' => $trailer->is_primary,
+                    'sort_order' => $trailer->sort_order
+                ];
+            });
         }
         
         // Convert duration back to string if needed for backward compatibility
