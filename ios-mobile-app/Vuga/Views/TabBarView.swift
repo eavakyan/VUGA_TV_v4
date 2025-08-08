@@ -28,7 +28,7 @@ struct TabBarView: View {
             case .watchlist:
                 WatchlistView()
             case .profile:
-                ProfileView()
+                ProfileView(selectedTab: $selectedTab)
             }
             ZStack {
                 if shouldTab {

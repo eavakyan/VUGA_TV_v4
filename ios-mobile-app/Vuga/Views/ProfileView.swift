@@ -14,9 +14,29 @@ struct ProfileView: View {
     @AppStorage(SessionKeys.isPro) var isPro = false
     @FetchRequest(sortDescriptors: []) var downloads : FetchedResults<DownloadContent>
     @StateObject var vm = ProfileViewModel()
+    @Binding var selectedTab: Tab
+    
+    init(selectedTab: Binding<Tab> = .constant(.profile)) {
+        self._selectedTab = selectedTab
+    }
+    
     var body: some View {
         VStack(spacing: 0) {
-            BackBarView(title: String.profile.localized(language))
+            // Custom header bar with working back button
+            HStack {
+                BackButton(onTap: {
+                    selectedTab = .home
+                })
+                Spacer()
+                Text(String.profile.localized(language))
+                    .outfitSemiBold(20)
+                    .foregroundColor(.text)
+                Spacer()
+                BackButton()
+                    .hidden()
+            }
+            .frame(height: 50)
+            .padding(.horizontal)
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
                     HStack(alignment: .top) {
