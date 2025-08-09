@@ -180,6 +180,7 @@ struct ContentDetailView: View {
     @State private var showRatingSheet = false
     @State private var currentUserRating: Double = 0
     @State private var showLoginAlert = false
+    @State private var shouldPlayTrailer = true
     @State private var showEpisodeRatingSheet = false
     @State private var currentEpisodeRating: Double = 0
     @State private var selectedEpisodeForRating: Episode?
@@ -326,6 +327,9 @@ struct ContentDetailView: View {
                                         }
                                     )
                                     .onTap {
+                                            // Stop trailer playback when episode is clicked
+                                            shouldPlayTrailer = false
+                                            
                                             // Check age restrictions first
                                             let currentProfile = SessionManager.shared.getCurrentProfile()
                                             if !content.isAppropriateFor(profile: currentProfile) {
@@ -385,6 +389,8 @@ struct ContentDetailView: View {
             if shouldShowAdMob {
                 Interstitial.shared.loadInterstitial()
             }
+            // Resume trailer playback when returning to content detail screen
+            shouldPlayTrailer = true
         })
         .onDisappear {
             if shouldShowAdMob {
@@ -582,7 +588,7 @@ struct ContentDetailView: View {
         if hasTrailersAvailable(for: content) {
             // Auto-playing trailer at top (no poster below)
             if let trailerUrl = getEffectiveTrailerUrl(for: content) {
-                InlineTrailerView(trailerUrl: trailerUrl)
+                InlineTrailerView(trailerUrl: trailerUrl, shouldPlay: $shouldPlayTrailer)
                     .frame(width: posterWidth, height: posterWidth * 9/16) // 16:9 aspect ratio
                     .cornerRadius(15)
                     .clipped()
@@ -739,6 +745,9 @@ struct ContentDetailView: View {
     }
     
     private func handlePlayAction(_ content: VugaContent) {
+        // Stop trailer playback when Watch Now is clicked
+        shouldPlayTrailer = false
+        
         // Check age restrictions first
         let currentProfile = SessionManager.shared.getCurrentProfile()
         if !content.isAppropriateFor(profile: currentProfile) {
@@ -1583,21 +1592,29 @@ struct SimpleTrailerView: View {
 // Inline trailer view for auto-playing trailers
 struct InlineTrailerView: View {
     let trailerUrl: String
+    @Binding var shouldPlay: Bool
     @State private var isYouTubeUrl = false
     @State private var youTubeVideoId: String?
     @State private var player: AVPlayer?
     @State private var isPlaying = false
+    @State private var isUserInteracting = false
     
     var body: some View {
         GeometryReader { geometry in
             ZStack {
                 if isYouTubeUrl, let videoId = youTubeVideoId {
                     // YouTube player using WebView
-                    YouTubeEmbedView(videoId: videoId)
+                    YouTubeEmbedView(videoId: videoId, shouldPlay: shouldPlay)
+                        .onTapGesture {
+                            togglePlayback()
+                        }
                 } else if let player = player {
                     // Regular video player for CDN URLs
                     VideoPlayer(player: player)
                         .disabled(false)
+                        .onTapGesture {
+                            togglePlayback()
+                        }
                 } else {
                     // Loading state
                     Color.black
@@ -1607,6 +1624,13 @@ struct InlineTrailerView: View {
                                 .scaleEffect(1.5)
                         )
                 }
+                
+                // Add a transparent overlay to capture taps on the video player
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        togglePlayback()
+                    }
             }
         }
         .onAppear {
@@ -1614,6 +1638,29 @@ struct InlineTrailerView: View {
         }
         .onDisappear {
             player?.pause()
+        }
+        .onChange(of: shouldPlay) { newValue in
+            // Only respond to external changes if user is not interacting
+            if !isUserInteracting {
+                if newValue {
+                    player?.play()
+                    isPlaying = true
+                } else {
+                    player?.pause()
+                    isPlaying = false
+                }
+            }
+        }
+    }
+    
+    private func togglePlayback() {
+        isUserInteracting = true
+        shouldPlay.toggle()
+        isPlaying = shouldPlay
+        
+        // Reset user interaction flag after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+            isUserInteracting = false
         }
     }
     
@@ -1640,14 +1687,18 @@ struct InlineTrailerView: View {
             object: playerItem,
             queue: .main
         ) { _ in
-            self.player?.seek(to: .zero)
-            self.player?.play()
+            if self.shouldPlay {
+                self.player?.seek(to: .zero)
+                self.player?.play()
+            }
         }
         
-        // Auto-start playing
+        // Auto-start playing if shouldPlay is true
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-            self.player?.play()
-            self.isPlaying = true
+            if self.shouldPlay {
+                self.player?.play()
+                self.isPlaying = true
+            }
         }
     }
     
@@ -1673,6 +1724,7 @@ struct InlineTrailerView: View {
 // YouTube embed view
 struct YouTubeEmbedView: UIViewRepresentable {
     let videoId: String
+    var shouldPlay: Bool = true
     
     func makeUIView(context: Context) -> WKWebView {
         let configuration = WKWebViewConfiguration()
@@ -1683,34 +1735,160 @@ struct YouTubeEmbedView: UIViewRepresentable {
         webView.backgroundColor = .black
         webView.scrollView.isScrollEnabled = false
         
+        context.coordinator.webView = webView
+        
         return webView
     }
     
     func updateUIView(_ webView: WKWebView, context: Context) {
-        let embedHTML = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-                body { margin: 0; padding: 0; background: black; }
-                .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
-                .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-            </style>
-        </head>
-        <body>
-            <div class="video-container">
-                <iframe 
-                    src="https://www.youtube.com/embed/\(videoId)?autoplay=1&loop=1&playlist=\(videoId)&playsinline=1&mute=1&controls=1"
-                    frameborder="0"
-                    allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen>
-                </iframe>
-            </div>
-        </body>
-        </html>
-        """
-        
-        webView.loadHTMLString(embedHTML, baseURL: nil)
+        // Only reload HTML if we haven't loaded it yet
+        if !context.coordinator.isLoaded {
+            let embedHTML = """
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                    body { margin: 0; padding: 0; background: black; }
+                    .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
+                    #player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+                    .click-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: transparent; cursor: pointer; }
+                    .play-icon {
+                        position: absolute;
+                        top: 50%;
+                        left: 50%;
+                        transform: translate(-50%, -50%);
+                        width: 60px;
+                        height: 60px;
+                        background: rgba(0, 0, 0, 0.7);
+                        border-radius: 50%;
+                        display: none;
+                        z-index: 11;
+                        pointer-events: none;
+                    }
+                    .play-icon::after {
+                        content: '';
+                        position: absolute;
+                        top: 50%;
+                        left: 55%;
+                        transform: translate(-50%, -50%);
+                        width: 0;
+                        height: 0;
+                        border-left: 20px solid white;
+                        border-top: 12px solid transparent;
+                        border-bottom: 12px solid transparent;
+                    }
+                    .paused .play-icon { display: block; }
+                </style>
+            </head>
+            <body>
+                <div class="video-container" id="container">
+                    <div id="player"></div>
+                    <div class="play-icon"></div>
+                </div>
+                <script>
+                    var tag = document.createElement('script');
+                    tag.src = "https://www.youtube.com/iframe_api";
+                    var firstScriptTag = document.getElementsByTagName('script')[0];
+                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                    
+                    var player;
+                    function onYouTubeIframeAPIReady() {
+                        player = new YT.Player('player', {
+                            height: '100%',
+                            width: '100%',
+                            videoId: '\(videoId)',
+                            playerVars: {
+                                'playsinline': 1,
+                                'autoplay': \(shouldPlay ? 1 : 0),
+                                'mute': 1,
+                                'loop': 1,
+                                'playlist': '\(videoId)',
+                                'controls': 0,
+                                'modestbranding': 1,
+                                'rel': 0,
+                                'showinfo': 0
+                            },
+                            events: {
+                                'onReady': onPlayerReady,
+                                'onStateChange': onPlayerStateChange
+                            }
+                        });
+                    }
+                    
+                    function onPlayerReady(event) {
+                        if (\(shouldPlay ? "true" : "false")) {
+                            event.target.playVideo();
+                        }
+                        
+                        // Add click handler after player is ready
+                        var playerElement = document.getElementById('player');
+                        if (playerElement) {
+                            // Create an overlay div to capture clicks
+                            var overlay = document.createElement('div');
+                            overlay.className = 'click-overlay';
+                            overlay.addEventListener('click', function(e) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (player && player.getPlayerState) {
+                                    var state = player.getPlayerState();
+                                    var container = document.getElementById('container');
+                                    if (state == YT.PlayerState.PLAYING) {
+                                        player.pauseVideo();
+                                        container.classList.add('paused');
+                                    } else {
+                                        player.playVideo();
+                                        container.classList.remove('paused');
+                                    }
+                                }
+                            });
+                            playerElement.parentNode.appendChild(overlay);
+                        }
+                    }
+                    
+                    function pauseVideo() {
+                        if (player && player.pauseVideo) {
+                            player.pauseVideo();
+                        }
+                    }
+                    
+                    function playVideo() {
+                        if (player && player.playVideo) {
+                            player.playVideo();
+                        }
+                    }
+                    
+                    function onPlayerStateChange(event) {
+                        var container = document.getElementById('container');
+                        if (event.data == YT.PlayerState.PLAYING) {
+                            container.classList.remove('paused');
+                        } else if (event.data == YT.PlayerState.PAUSED) {
+                            container.classList.add('paused');
+                        }
+                    }
+                </script>
+            </body>
+            </html>
+            """
+            
+            webView.loadHTMLString(embedHTML, baseURL: nil)
+            context.coordinator.isLoaded = true
+        } else {
+            // Control playback through JavaScript
+            if shouldPlay {
+                webView.evaluateJavaScript("playVideo()", completionHandler: nil)
+            } else {
+                webView.evaluateJavaScript("pauseVideo()", completionHandler: nil)
+            }
+        }
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator()
+    }
+    
+    class Coordinator: NSObject {
+        var webView: WKWebView?
+        var isLoaded = false
     }
 }

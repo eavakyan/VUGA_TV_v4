@@ -189,7 +189,7 @@ class SessionManager: ObservableObject {
     }
     func setBooleanValue(value: Bool, key: String) {
         UserDefaults.standard.set(value, forKey: key)
-        UserDefaults.standard.synchronize()
+        // synchronize() is deprecated and unnecessary in iOS 12+
     }
     
     //MARK:  String
@@ -202,7 +202,7 @@ class SessionManager: ObservableObject {
     }
     func setStringValue(value: String, key: String) {
         UserDefaults.standard.set(value, forKey: key)
-        UserDefaults.standard.synchronize()
+        // synchronize() is deprecated and unnecessary in iOS 12+
     }
     
     //MARK: Int
@@ -212,7 +212,7 @@ class SessionManager: ObservableObject {
     func setIntegerValue(value: Int, key: String) {
         
         UserDefaults.standard.set(value, forKey: key)
-        UserDefaults.standard.synchronize()
+        // synchronize() is deprecated and unnecessary in iOS 12+
     }
     
     //MARK: Float
@@ -221,7 +221,7 @@ class SessionManager: ObservableObject {
     }
     func setFloatValue(value: Float, key: String) {
         UserDefaults.standard.set(value, forKey: key)
-        UserDefaults.standard.synchronize()
+        // synchronize() is deprecated and unnecessary in iOS 12+
     }
     
     
@@ -233,7 +233,7 @@ class SessionManager: ObservableObject {
         // Clear all UserDefaults
         let domain = Bundle.main.bundleIdentifier!
         UserDefaults.standard.removePersistentDomain(forName: domain)
-        UserDefaults.standard.synchronize()
+        // synchronize() is deprecated and unnecessary in iOS 12+
         
         // Reset published properties to nil
         currentUser = nil
