@@ -130,29 +130,17 @@ class HomeViewModel : BaseViewModel {
             }
         }
         
-        // Get current date and 6 months ago
+        // Get current date
         let currentDate = Date()
-        let sixMonthsAgo = Calendar.current.date(byAdding: .month, value: -6, to: currentDate) ?? currentDate
         
-        // Filter content by release year or created date
+        // Filter content by release year only
         let currentYear = Calendar.current.component(.year, from: currentDate)
         
         let filteredContent = allContent.filter { content in
-            // First check if release year is current year
-            if let releaseYear = content.releaseYear, releaseYear == currentYear {
-                return true
+            // Only include content with release year matching current year
+            if let releaseYear = content.releaseYear {
+                return releaseYear == currentYear
             }
-            
-            // Otherwise check if created within last 6 months
-            if let createdAtString = content.createdAt {
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
-                
-                if let createdDate = dateFormatter.date(from: createdAtString) {
-                    return createdDate >= sixMonthsAgo
-                }
-            }
-            
             return false
         }
         
