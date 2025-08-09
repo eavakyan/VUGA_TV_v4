@@ -30,6 +30,7 @@ struct ContentView: View {
                     .hideNavigationbar()
             }
             .navigationViewStyle(StackNavigationViewStyle())
+            .ignoresSafeArea(.container, edges: [])
             
             if !isConnectedToInternet {
                 OfflineView()

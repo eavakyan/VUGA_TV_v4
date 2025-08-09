@@ -70,7 +70,12 @@ struct TabBarView: View {
             if !vm.isDownloading {
                 vm.startNextDownload()
             }
-            // Tab bar initialization
+            
+            // Ensure proper initial state
+            DispatchQueue.main.async {
+                // Force a refresh to ensure views are properly positioned
+                shouldTab = true
+            }
         })
     }
     

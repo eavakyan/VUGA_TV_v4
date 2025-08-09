@@ -141,7 +141,7 @@ struct RatingBottomSheet: View {
                 .padding(.top, 10)
             
             // Title
-            Text("Rate \(isEpisode ? "Episode" : contentType == .movie ? "Movie" : "Series")")
+            Text("Rate \(isEpisode ? "Episode" : contentType == .movie ? "Movie" : "TV Show")")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.white)
             

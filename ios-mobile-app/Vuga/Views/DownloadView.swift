@@ -142,7 +142,7 @@ struct DownloadCardView : View {
     @State var isShowWatchNowDialog = false
     @State var isDeleting = false
     @State var isShowDialog = false
-    var isForSeriesView = false
+    var isForTVShowsView = false
     var content: DownloadContent
     @State var process : Double = 0
     var isOffLineView = false
@@ -153,7 +153,7 @@ struct DownloadCardView : View {
         downloadViewModel.downloadingContents[content.downloadId ?? ""]?.downloadStatus
     }
     
-    func seriesDownloadCount() -> String {
+    func tvShowsDownloadCount() -> String {
         let fetchRequest: NSFetchRequest<DownloadContent> = DownloadContent.fetchRequest()
         let currentProfileId = SessionManager.shared.currentProfile?.profileId ?? 0
         fetchRequest.predicate = NSPredicate(format: "profileId == %d AND contentId == %@", currentProfileId, content.contentId ?? "")
@@ -168,11 +168,11 @@ struct DownloadCardView : View {
     
     var body: some View {
         VStack {
-            if isOffLineView && content.type == .series && !isForSeriesView {
-                NavigationLink(destination: content.type == .series ? SeriesDownloadView(content: content) : nil, label: {
+            if isOffLineView && content.type == .series && !isForTVShowsView {
+                NavigationLink(destination: content.type == .series ? TVShowsDownloadView(content: content) : nil, label: {
                     downloadCard
                 }).buttonStyle(.myPlain)
-            } else if (isOffLineView && (content.type == .movie || isForSeriesView)) || !isOffLineView {
+            } else if (isOffLineView && (content.type == .movie || isForTVShowsView)) || !isOffLineView {
                 downloadCard
                     .onTap {
                         onCardTap()
@@ -269,8 +269,8 @@ struct DownloadCardView : View {
         HStack(spacing: 9) {
             ZStack() {
                 ZStack {
-                    if content.type == .series && !isForSeriesView {
-                        KFImage(isForSeriesView ? content.episodeHorizontalPoster.addBaseURL() : content.thumbnail.addBaseURL())
+                    if content.type == .series && !isForTVShowsView {
+                        KFImage(isForTVShowsView ? content.episodeHorizontalPoster.addBaseURL() : content.thumbnail.addBaseURL())
                             .resizeFillTo(width: 140, height: 90, compressSize: 2)
                             .cornerRadius(radius: 12)
                             .opacity(1)
@@ -279,10 +279,10 @@ struct DownloadCardView : View {
                     }
                     if content.type != .all {
                         ZStack {
-                            KFImage(isForSeriesView ? content.episodeHorizontalPoster.addBaseURL() : content.thumbnail.addBaseURL())
+                            KFImage(isForTVShowsView ? content.episodeHorizontalPoster.addBaseURL() : content.thumbnail.addBaseURL())
                                 .resizeFillTo(width: 150, height: 105, compressSize: 2)
                                 .overlay(
-                                    typeTag(content: content, isForSeriesView: isForSeriesView)
+                                    typeTag(content: content, isForTVShowsView: isForTVShowsView)
                                     ,alignment: .topLeading
                                 )
                             VStack {
@@ -299,7 +299,7 @@ struct DownloadCardView : View {
                         .frame(width: 150)
                                             }
                 }
-                if isForSeriesView {
+                if isForTVShowsView {
                     Image.play
                         .resizeFitTo(size: 12)
                         .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
@@ -328,13 +328,13 @@ struct DownloadCardView : View {
                             .foregroundColor(.textLight)
                             .padding(.bottom,8)
                     }
-                } else if !isForSeriesView && content.type == .series{
-                    Text("\(seriesDownloadCount()) Episode\(seriesDownloadCount() == "1" ? "" : "s")")
+                } else if !isForTVShowsView && content.type == .series{
+                    Text("\(tvShowsDownloadCount()) Episode\(tvShowsDownloadCount() == "1" ? "" : "s")")
                         .outfitLight()
                         .foregroundColor(.textLight)
                 }
                 
-                if isForSeriesView {
+                if isForTVShowsView {
                     VStack(alignment: .leading) {
                         HStack {
                             Text("S\(content.seasonNo ?? "") E\(content.episodeNo ?? "")")
@@ -360,7 +360,7 @@ struct DownloadCardView : View {
                     VStack{
                     }
                 case .downloading:
-                    if let progress = downloadContent?.progress, content.type == .movie || isForSeriesView {
+                    if let progress = downloadContent?.progress, content.type == .movie || isForTVShowsView {
                         PieProgress(progress: progress)
                             .frame(width: 25,height: 25)
                             .onTap {
@@ -368,7 +368,7 @@ struct DownloadCardView : View {
                             }
                     }
                 case .paused:
-                    if content.type == .movie || isForSeriesView {
+                    if content.type == .movie || isForTVShowsView {
                         Image(.downloadPause)
                             .resizeFitTo(size: 16)
                             .padding([.vertical,.leading])
@@ -381,13 +381,13 @@ struct DownloadCardView : View {
                         
                     }
                 case .queued:
-                    if content.type == .movie || isForSeriesView {
+                    if content.type == .movie || isForTVShowsView {
                         Image.timer
                             .resizeFitTo(size: 16, renderingMode: .template)
                             .foregroundColor(.text)
                     }
                 }
-                if content.type == .movie || isForSeriesView {
+                if content.type == .movie || isForTVShowsView {
                     if downloadStatus != .downloading && downloadStatus != .paused && downloadStatus != .queued {
                         Image.options
                             .font(.system(size: 16))
@@ -395,13 +395,13 @@ struct DownloadCardView : View {
                                 showWatchVideoDialog()
                             }
                     }
-                } else if content.type == .series && !isForSeriesView {
+                } else if content.type == .series && !isForTVShowsView {
                     Image.back
                         .resizeFitTo(size: 13)
                         .foregroundColor(.text)
                         .rotationEffect(Angle(degrees: 180))
                         .onTap {
-                            nvToSeriesDownload()
+                            nvToTVShowsDownload()
                         }
                 }
             }
@@ -409,16 +409,16 @@ struct DownloadCardView : View {
     }
     
     func onCardTap() {
-        if downloadStatus != .downloading && downloadStatus != .paused && downloadStatus != .queued && (content.type == .movie || content.type == .series && isForSeriesView){
+        if downloadStatus != .downloading && downloadStatus != .paused && downloadStatus != .queued && (content.type == .movie || content.type == .series && isForTVShowsView){
             isVideoStart = true
-        } else if content.type == .series && !isForSeriesView {
-            nvToSeriesDownload()
+        } else if content.type == .series && !isForTVShowsView {
+            nvToTVShowsDownload()
             print("Download is not complete")
         }
     }
     
-    func nvToSeriesDownload() {
-        Navigation.pushToSwiftUiView(SeriesDownloadView(content: content))
+    func nvToTVShowsDownload() {
+        Navigation.pushToSwiftUiView(TVShowsDownloadView(content: content))
     }
     
 //    func resetAllDialog() {

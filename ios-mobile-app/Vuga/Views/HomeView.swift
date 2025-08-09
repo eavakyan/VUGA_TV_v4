@@ -18,6 +18,8 @@ struct HomeView: View {
     @State private var progress: CGFloat = 0
     @State var isVideoStart = false
     @State var startLoading = false
+    @State private var scrollToTop = false
+    @State private var hasInitiallyScrolled = false
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \RecentlyWatched.date, ascending: false)]
     )
@@ -42,47 +44,76 @@ struct HomeView: View {
     
     var body: some View {
         ZStack(alignment: .top){
-            ScrollView(showsIndicators: false) {
-                VStack {
-                    // Header with Logo and Profile Name
-                    headerWithLogoAndProfile
-                        .padding(.top, 10) // Fixed top padding for proper spacing
-                    
-                    // Navigation Menu Row with horizontal category list
-                    horizontalCategoryList
-                        .padding(.bottom, 10)
-                    
-                    if vm.featured.isNotEmpty {
-                        topBar
-                            .frame(height: Device.height * 0.6)
-                    }
-                    LazyVStack {
-                        if recentlyWatchedContents.isNotEmpty && !vm.isLoading && vm.featured.isNotEmpty{
-                            recentlyWatched
-                        }
+            ScrollViewReader { proxy in
+                ScrollView(showsIndicators: false) {
+                    VStack {
+                        // Header with Logo and Profile Name
+                        headerWithLogoAndProfile
+                            .padding(.top, 10) // Fixed top padding for proper spacing
+                            .id("top") // Add ID for scroll anchor
                         
-                        if vm.wishlists.isNotEmpty {
-                            watchlistCard
+                        // Navigation Menu Row with horizontal category list
+                        horizontalCategoryList
+                            .padding(.bottom, 10)
+                        
+                        if vm.featured.isNotEmpty {
+                            topBar
+                                .frame(height: Device.height * 0.6)
                         }
-                        topTenContent
-                        ForEach(vm.genres, id: \.id) { genre in
-                            GenreHomeCard(vm: vm, genre: genre)
+                        LazyVStack {
+                            if recentlyWatchedContents.isNotEmpty && !vm.isLoading && vm.featured.isNotEmpty{
+                                recentlyWatched
+                            }
+                            
+                            if vm.wishlists.isNotEmpty {
+                                watchlistCard
+                            }
+                            topTenContent
+                            ForEach(vm.genres, id: \.id) { genre in
+                                GenreHomeCard(vm: vm, genre: genre)
+                            }
+                        }
+                        .ignoresSafeArea(.all,edges: .top)
+                    }
+                    .padding(.top, 0) // Remove duplicate top padding
+                }
+                .refreshable {
+                    vm.isForRefresh = true
+                    vm.fetchData()
+                    vm.selectedRecentlyWatched = nil
+                    fetchRecentlyWatchedContent()
+                }
+                .onAppear {
+                    // Initial scroll to top with a delay to ensure content is loaded
+                    if !hasInitiallyScrolled {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                            withAnimation(.easeOut(duration: 0.1)) {
+                                proxy.scrollTo("top", anchor: .top)
+                            }
+                            hasInitiallyScrolled = true
+                        }
+                    } else {
+                        // For subsequent appearances, scroll immediately
+                        withAnimation(.easeOut(duration: 0.1)) {
+                            proxy.scrollTo("top", anchor: .top)
                         }
                     }
-                    .ignoresSafeArea(.all,edges: .top)
                 }
-                .padding(.top, 0) // Remove duplicate top padding
-            }
-            .refreshable {
-                vm.isForRefresh = true
-                vm.fetchData()
-                vm.selectedRecentlyWatched = nil
-                fetchRecentlyWatchedContent()
+                .onChange(of: scrollToTop) { shouldScroll in
+                    if shouldScroll {
+                        withAnimation(.easeOut(duration: 0.1)) {
+                            proxy.scrollTo("top", anchor: .top)
+                        }
+                        scrollToTop = false
+                    }
+                }
             }
         }
         .onChange(of: selectedTab, perform: { newValue in
                 if newValue == Tab.home {
                     progress = 0
+                    // Trigger scroll to top when returning to home tab
+                    scrollToTop = true
                 }
         })
         .fullScreenCover(item: $vm.selectedRecentlyWatched, content: { _ in
@@ -125,7 +156,7 @@ struct HomeView: View {
                 
                 Text(getProfileGreeting())
                     .outfitSemiBold(18)
-                    .foregroundColor(.text)
+                    .foregroundColor(Color("textColor"))
             }
             
             Spacer()
@@ -139,9 +170,9 @@ struct HomeView: View {
                 }) {
                     Image(systemName: "airplayvideo")
                         .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.textLight)
+                        .foregroundColor(Color("textLight"))
                         .frame(width: 35, height: 35)
-                        .background(Color.searchBg)
+                        .background(Color("searchBg"))
                         .clipShape(Circle())
                 }
                 
@@ -151,9 +182,9 @@ struct HomeView: View {
                 }) {
                     Image.download
                         .resizeFitTo(size: 16, renderingMode: .template)
-                        .foregroundColor(.textLight)
+                        .foregroundColor(Color("textLight"))
                         .frame(width: 35, height: 35)
-                        .background(Color.searchBg)
+                        .background(Color("searchBg"))
                         .clipShape(Circle())
                 }
                 
@@ -163,9 +194,9 @@ struct HomeView: View {
                 }) {
                     Image.search
                         .resizeFitTo(size: 16, renderingMode: .template)
-                        .foregroundColor(.textLight)
+                        .foregroundColor(Color("textLight"))
                         .frame(width: 35, height: 35)
-                        .background(Color.searchBg)
+                        .background(Color("searchBg"))
                         .clipShape(Circle())
                 }
                 
@@ -179,7 +210,7 @@ struct HomeView: View {
                         .overlay(
                             Text(getProfileFirstLetter())
                                 .outfitSemiBold(16)
-                                .foregroundColor(.bg)
+                                .foregroundColor(Color("bgColor"))
                         )
                 }
             }
@@ -203,9 +234,9 @@ struct HomeView: View {
                 HStack(spacing: 12) {
                     // TV Shows button
                     Button(action: {
-                        // Switch to search tab and filter for series
+                        // Switch to search tab and filter for TV shows
                         selectedTab = .search
-                        // Post notification to set search filter for series
+                        // Post notification to set search filter for TV shows
                         NotificationCenter.default.post(
                             name: .setSearchFilter, 
                             object: nil,
@@ -214,13 +245,13 @@ struct HomeView: View {
                     }) {
                         Text("TV Shows")
                             .outfitMedium(14)
-                            .foregroundColor(.textLight)
+                            .foregroundColor(Color("textLight"))
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)
                             .background(Color.clear)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.stroke, lineWidth: 1)
+                                    .stroke(Color("stroke"), lineWidth: 1)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
@@ -238,13 +269,13 @@ struct HomeView: View {
                     }) {
                         Text("Movies")
                             .outfitMedium(14)
-                            .foregroundColor(.textLight)
+                            .foregroundColor(Color("textLight"))
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)
                             .background(Color.clear)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.stroke, lineWidth: 1)
+                                    .stroke(Color("stroke"), lineWidth: 1)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
@@ -256,13 +287,13 @@ struct HomeView: View {
                     }) {
                         Text("Live TV")
                             .outfitMedium(14)
-                            .foregroundColor(.textLight)
+                            .foregroundColor(Color("textLight"))
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)
                             .background(Color.clear)
                             .overlay(
                                 RoundedRectangle(cornerRadius: 15)
-                                    .stroke(Color.stroke, lineWidth: 1)
+                                    .stroke(Color("stroke"), lineWidth: 1)
                             )
                             .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
@@ -298,13 +329,13 @@ struct HomeView: View {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 10))
                         }
-                        .foregroundColor(.textLight)
+                        .foregroundColor(Color("textLight"))
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
                         .background(Color.clear)
                         .overlay(
                             RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color.stroke, lineWidth: 1)
+                                .stroke(Color("stroke"), lineWidth: 1)
                         )
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
@@ -354,7 +385,7 @@ struct HomeView: View {
                                         Spacer()
                                         ProgressView(value: recently.progress / recently.totalDuration)
                                             .progressViewStyle(LinearProgressViewStyle())
-                                            .tint(.base)
+                                            .tint(Color("baseColor"))
                                     }
                                 }
                             }
@@ -364,7 +395,7 @@ struct HomeView: View {
                                 Text(recently.name ?? "")
                                     .lineLimit(1)
                                     .outfitSemiBold(18)
-                                    .foregroundColor(.text)
+                                    .foregroundColor(Color("textColor"))
                                     .padding(.top, 5)
                                 Spacer(minLength: 5)
                                 Image.info
@@ -447,7 +478,7 @@ struct HomeView: View {
             Heading(title: .watchlist,content: {
                 Text(String.seeAll.localized(language))
                     .outfitLight(16)
-                    .foregroundColor(.textLight)
+                    .foregroundColor(Color("textLight"))
                     .onTap {
                         selectedTab = .watchlist
                     }
@@ -469,7 +500,7 @@ struct HomeView: View {
                             Text(content.title ?? "")
                                 .lineLimit(1)
                                 .outfitSemiBold(18)
-                                .foregroundColor(.text)
+                                .foregroundColor(Color("textColor"))
                                 .padding(.top,5)
                                 .frame(width: 118,alignment: .leading)
                             HStack(spacing: 7) {
@@ -479,13 +510,13 @@ struct HomeView: View {
                                     Text(content.ratingString)
                                         .outfitLight(16)
                                 }
-                                .foregroundColor(.rating)
+                                .foregroundColor(Color("rating"))
                                 Rectangle()
                                     .frame(width: 1, height: 15)
-                                    .foregroundColor(.textLight)
+                                    .foregroundColor(Color("textLight"))
                                 Text(verbatim: "\(content.releaseYear ?? 0)")
                                     .outfitLight(17)
-                                    .foregroundColor(.textLight)
+                                    .foregroundColor(Color("textLight"))
                             }
                             
                             .padding(.top,3)
@@ -503,80 +534,165 @@ struct HomeView: View {
     }
     
     private var topBar : some View {
-        ZStack(alignment: .center) {
-            TabView(selection: $vm.selectedImageIndex) {
-                ForEach(0..<vm.featured.count, id: \.self) { index in
-                    let feature = vm.featured[index]
-                    KFImage(feature.verticalPoster?.addBaseURL())
-                        .resizeFillTo(width: Device.width * 0.65, height: Device.width * 0.9, radius: 15)
-                        .addStroke(radius: 15)
-                        .maxFrame(.top)
-                        .padding(.top)
-                        .onTapGesture {
-                            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id))
-                        }
-                }
-            }
-            .tabViewStyle(.page(indexDisplayMode: .never))
-            if let feature = vm.featured[safe: vm.selectedImageIndex] {
-                VStack(alignment: .center, spacing: 3) {
-                    Spacer()
-                    Text(feature.title ?? "")
-                        .outfitSemiBold(24)
-                        .foregroundColor(.text)
-                        .lineLimit(1)
-                        .padding([.top,.horizontal])
-                    WrappingHStack(id: \.self,horizontalSpacing: 8) {
-                        let fliteredArray = feature.genres.prefix(4)
-                        ForEach(fliteredArray.indices, id: \.self) { index in
-                            HStack(alignment: .center) {
-                                Text(feature.genres[index].title ?? "")
-                                    .outfitLight()
-                                    .foregroundColor(.textLight)
-                                if fliteredArray.count != index + 1{
-                                    Circle()
-                                        .fill(.textLight.opacity(0.6))
-                                        .frame(width: 4,height: 4)
-                                }
-                            }
-                        }
-                    }
-                    .padding(.bottom,5)
-                    HStack {
-                        HStack {
-                            Image.star
-                                .resizeFitTo(size: 16)
-                            Text(feature.ratingString)
-                                .outfitSemiBold()
-                        }
-                        .foregroundColor(.rating)
-                        Rectangle()
-                            .frame(width: 1, height: 15)
-                            .foregroundColor(.textLight)
-                        
-                        Text(verbatim: "\(feature.releaseYear ?? 2020)")
-                            .outfitSemiBold()
-                            .foregroundColor(.textLight)
-                    }
-                }
-                .animation(.default,value: vm.selectedImageIndex)
+        ZStack(alignment: .bottom) {
+            featuredContentTabView
+            pageIndicator
+        }
+        .overlay(Color("bgColor").opacity(progress).allowsHitTesting(progress == 0 ? false : true))
+    }
+    
+    private var featuredContentTabView: some View {
+        TabView(selection: $vm.selectedImageIndex) {
+            ForEach(0..<vm.featured.count, id: \.self) { index in
+                featuredContentCard(feature: vm.featured[index])
             }
         }
-        .overlay(Color.bg.opacity(progress).allowsHitTesting(progress == 0 ? false : true))
-        .background(
-                        KFImage(vm.featured[safe: vm.selectedImageIndex]?.verticalPoster?.addBaseURL())
-                            .resizeFillTo(width: Device.width, height: Device.height)
-                            .clipped()
-                            .blur(radius: 10)
-                            .opacity(0.3)
-                            .overlay(
-                                LinearGradient(colors: [.clear,.clear,.bg], startPoint: .top, endPoint: .bottom)
-                                    .frame(height: Device.height)
-                                ,alignment: .bottom
-                            )
-                            .animation(.default,value: vm.selectedImageIndex)
-                            .allowsHitTesting(false)
-                    )
+        .tabViewStyle(.page(indexDisplayMode: .never))
+    }
+    
+    private func featuredContentCard(feature: VugaContent) -> some View {
+        ZStack(alignment: .bottom) {
+            featuredPosterImage(feature: feature)
+            gradientOverlay
+            featuredContentInfo(feature: feature)
+        }
+        .onTapGesture {
+            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id))
+        }
+    }
+    
+    private func featuredPosterImage(feature: VugaContent) -> some View {
+        KFImage(feature.horizontalPoster?.addBaseURL() ?? feature.verticalPoster?.addBaseURL())
+            .resizable()
+            .aspectRatio(contentMode: .fill)
+            .frame(width: Device.width, height: Device.height * 0.6)
+            .clipped()
+    }
+    
+    private var gradientOverlay: some View {
+        LinearGradient(
+            colors: [.clear, .clear, .black.opacity(0.3), .black.opacity(0.8)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+        .frame(height: Device.height * 0.6)
+    }
+    
+    private func featuredContentInfo(feature: VugaContent) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            featuredTitle(feature: feature)
+            featuredMetadata(feature: feature)
+            playButton(feature: feature)
+        }
+        .padding(.horizontal, 20)
+        .padding(.bottom, 30)
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+    
+    private func featuredTitle(feature: VugaContent) -> some View {
+        Text(feature.title ?? "")
+            .outfitBold(32)
+            .foregroundColor(.white)
+            .lineLimit(2)
+            .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 2)
+    }
+    
+    private func featuredMetadata(feature: VugaContent) -> some View {
+        HStack(spacing: 15) {
+            ratingView(feature: feature)
+            yearView(feature: feature)
+            genreTag(feature: feature)
+        }
+    }
+    
+    private func ratingView(feature: VugaContent) -> some View {
+        HStack(spacing: 5) {
+            Image.star
+                .resizeFitTo(size: 18)
+            Text(feature.ratingString)
+                .outfitSemiBold(16)
+        }
+        .foregroundColor(.yellow)
+    }
+    
+    private func yearView(feature: VugaContent) -> some View {
+        Text(verbatim: "\(feature.releaseYear ?? 2020)")
+            .outfitSemiBold(16)
+            .foregroundColor(.white.opacity(0.9))
+    }
+    
+    private func genreTag(feature: VugaContent) -> some View {
+        Group {
+            if let firstGenre = feature.genres.first {
+                Text(firstGenre.title ?? "")
+                    .outfitMedium(14)
+                    .foregroundColor(.white.opacity(0.8))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(15)
+            }
+        }
+    }
+    
+    private func playButton(feature: VugaContent) -> some View {
+        Button(action: {
+            handlePlayAction(feature: feature)
+        }) {
+            HStack(spacing: 8) {
+                playIcon
+                Text("Play Now")
+                    .outfitSemiBold(18)
+                    .foregroundColor(.white)
+            }
+        }
+        .padding(.top, 10)
+    }
+    
+    private var playIcon: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white.opacity(0.3))
+                .frame(width: 50, height: 50)
+            
+            Image(systemName: "play.fill")
+                .font(.system(size: 20))
+                .foregroundColor(.white)
+                .offset(x: 2)
+        }
+    }
+    
+    private func handlePlayAction(feature: VugaContent) {
+        if let sources = feature.contentSources, !sources.isEmpty,
+           let firstSource = sources.first {
+            let sourceType = firstSource.type?.rawValue ?? 0
+            let sourceId = firstSource.id ?? 0
+            let url = firstSource.media?.file ?? firstSource.source ?? ""
+            Navigation.pushToSwiftUiView(
+                VideoPlayerView(
+                    type: sourceType,
+                    isShowAdView: false,
+                    isForDownloads: false,
+                    url: url,
+                    progress: 0,
+                    sourceId: sourceId
+                )
+            )
+        } else {
+            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id))
+        }
+    }
+    
+    private var pageIndicator: some View {
+        HStack(spacing: 8) {
+            ForEach(0..<vm.featured.count, id: \.self) { index in
+                Circle()
+                    .fill(vm.selectedImageIndex == index ? Color.white : Color.white.opacity(0.5))
+                    .frame(width: 8, height: 8)
+                    .animation(.easeInOut, value: vm.selectedImageIndex)
+            }
+        }
+        .padding(.bottom, 10)
     }
     
     // Helper function to get profile greeting
@@ -606,7 +722,7 @@ struct GenreHomeCard : View {
             Heading(title: genre.title ?? "",content: {
                 Text(String.seeAll.localized(language))
                     .outfitLight(16)
-                    .foregroundColor(.textLight)
+                    .foregroundColor(Color("textLight"))
                     .onTap {
                         Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
                     }
@@ -654,7 +770,7 @@ struct StrokeTextLabel: UIViewRepresentable {
                 NSAttributedString.Key.paragraphStyle: attributedStringParagraphStyle,
                 NSAttributedString.Key.strokeWidth: -1.0,
                 NSAttributedString.Key.strokeColor: UIColor.white,
-                NSAttributedString.Key.foregroundColor: UIColor.bg.withAlphaComponent(0.4),
+                NSAttributedString.Key.foregroundColor: UIColor(Color("bgColor")).withAlphaComponent(0.4),
                 NSAttributedString.Key.font: UIFont(name: "SFUIDisplay-Heavy", size: 110)!
             ]
         )
@@ -676,13 +792,13 @@ struct TypeTagForVugaContent: View {
         HStack {
             Text(content?.type?.title.localized(language) ?? "")
                 .outfitRegular(12)
-                .foregroundColor(.text)
+                .foregroundColor(Color("textColor"))
                 .padding(.trailing, 10)
                 .padding(.bottom, 2)
                 .padding(.leading,24)
         }
         .frame(width: 68, height: 30)
-            .background(Color.bg)
+            .background(Color("bgColor"))
             .clipShape(Capsule(style: .continuous))
             .addStroke(radius: 100)
             .padding(.top, 10)
@@ -692,20 +808,20 @@ struct TypeTagForVugaContent: View {
 
 struct typeTag: View {
     var content: DownloadContent
-    var isForSeriesView: Bool
+    var isForTVShowsView: Bool
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     var body: some View {
-        if !isForSeriesView {
+        if !isForTVShowsView {
             HStack {
                 Text(content.type.title.localized(language))
                     .outfitRegular(12)
-                    .foregroundColor(.text)
+                    .foregroundColor(Color("textColor"))
                     .padding(.trailing, 10)
                     .padding(.bottom, 2)
                     .padding(.leading,24)
             }
             .frame(width: 68, height: 30)
-                .background(Color.bg)
+                .background(Color("bgColor"))
                 .clipShape(Capsule(style: .continuous))
                 .addStroke(radius: 100)
                 .padding(.top, 10)

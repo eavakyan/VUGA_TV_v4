@@ -1,5 +1,5 @@
 //
-//  SeriesDownloadView.swift
+//  TVShowsDownloadView.swift
 //  Vuga
 //
 //  Created by Arpit Kakdiya on 11/07/24.
@@ -7,15 +7,15 @@
 
 import SwiftUI
 
-struct SeriesDownloadView: View {
+struct TVShowsDownloadView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @SectionedFetchRequest private var downloads: SectionedFetchResults<String, DownloadContent>
     var content : DownloadContent
     init(content: DownloadContent) {
         self.content = content
         let currentProfileId = SessionManager.shared.currentProfile?.profileId ?? 0
-        let seriesSection = SectionedFetchRequest<String,DownloadContent>(sectionIdentifier: \.seasonNo!, sortDescriptors: [SortDescriptor(\.seasonNo,order: .forward)],predicate: NSPredicate(format: "contentId == %@ AND profileId == %d", content.contentId ?? "", currentProfileId))
-        self._downloads = seriesSection
+        let tvShowsSection = SectionedFetchRequest<String,DownloadContent>(sectionIdentifier: \.seasonNo!, sortDescriptors: [SortDescriptor(\.seasonNo,order: .forward)],predicate: NSPredicate(format: "contentId == %@ AND profileId == %d", content.contentId ?? "", currentProfileId))
+        self._downloads = tvShowsSection
     }
     var body: some View {
         VStack {
@@ -25,10 +25,10 @@ struct SeriesDownloadView: View {
                     ForEach(downloads) { download in
                         Text("Season \(download.first?.seasonNo ?? "")")
                             .outfitSemiBold(20)
-                            .foregroundColor(.text)
+                            .foregroundColor(Color("textColor"))
                             .padding(.horizontal)
                         ForEach(download) { down in
-                                DownloadCardView(isForSeriesView: true, content: down)
+                                DownloadCardView(isForTVShowsView: true, content: down)
                                     .padding(.horizontal,5)
                         }
                     }

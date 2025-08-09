@@ -90,7 +90,7 @@ struct RatingBottomSheet: View {
                 .padding(.top, 10)
             
             // Title
-            Text("Rate \(isEpisode ? "Episode" : contentType == .movie ? "Movie" : "Series")")
+            Text("Rate \(isEpisode ? "Episode" : contentType == .movie ? "Movie" : "TV Show")")
                 .font(.system(size: 20, weight: .bold))
                 .foregroundColor(.white)
             
@@ -420,7 +420,7 @@ struct ContentDetailView: View {
                             .background(Color.black)
                     }
                 } else if content.type == .series {
-                    // For series, try season trailer first, then content trailers
+                    // For TV shows, try season trailer first, then content trailers
                     if let selectedSeason = vm.selectedSeason,
                        let seasonTrailerUrl = selectedSeason.trailerURL, !seasonTrailerUrl.isEmpty {
                         SimpleTrailerView(trailerUrl: getFullTrailerUrl(seasonTrailerUrl))
@@ -886,7 +886,7 @@ struct ContentDetailView: View {
                         }
                     }
                 } else if content.type == .series {
-                    // For series, play the first episode of the selected season
+                    // For TV shows, play the first episode of the selected season
                     if let selectedSeason = vm.selectedSeason,
                        let episodes = selectedSeason.episodes,
                        !episodes.isEmpty {

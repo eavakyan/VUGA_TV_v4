@@ -146,7 +146,7 @@ struct NetworkContentView: View {
         case "MediaTeka":
             return "Premium streaming content from MediaTeka"
         case "HBO":
-            return "Home of award-winning series, movies, and documentaries"
+            return "Home of award-winning TV shows, movies, and documentaries"
         default:
             return "Exclusive content from \(networkName)"
         }
@@ -205,7 +205,7 @@ struct NetworkContentGridItem: View {
             
             HStack(spacing: 5) {
                 if content.type == .series {
-                    Text("Series")
+                    Text("TV Shows")
                         .outfitLight(10)
                         .foregroundColor(.base)
                         .padding(.horizontal, 6)
