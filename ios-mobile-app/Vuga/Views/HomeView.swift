@@ -58,7 +58,7 @@ struct HomeView: View {
                         
                         if vm.featured.isNotEmpty {
                             topBar
-                                .frame(height: Device.height * 0.6)
+                                .frame(height: UIScreen.main.bounds.width * 0.80 * 1.5)
                         }
                         LazyVStack {
                             if recentlyWatchedContents.isNotEmpty && !vm.isLoading && vm.featured.isNotEmpty{
@@ -546,107 +546,127 @@ struct HomeView: View {
             TabView(selection: $vm.selectedImageIndex) {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     featuredContentCard(feature: vm.featured[index])
-                        .frame(width: geometry.size.width * 0.80)
+                        .frame(width: geometry.size.width * 0.80, height: geometry.size.height)
                         .padding(.horizontal, geometry.size.width * 0.10)
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
-            .frame(width: geometry.size.width, height: Device.height * 0.6)
+            .frame(width: geometry.size.width, height: geometry.size.height)
         }
-        .frame(height: Device.height * 0.6)
+        .frame(height: UIScreen.main.bounds.width * 0.80 * 1.5) // 80% width with 2:3 aspect ratio
     }
     
     private func featuredContentCard(feature: VugaContent) -> some View {
-        ZStack {
-            // Poster image
-            featuredPosterImage(feature: feature)
-            
-            // Gradient overlay for better text visibility
-            LinearGradient(
-                colors: [.clear, .black.opacity(0.2), .black.opacity(0.7)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            
-            // Content overlay centered
-            VStack(spacing: 16) {
-                Spacer()
+        GeometryReader { geometry in
+            ZStack {
+                // Poster image with vertical aspect ratio
+                featuredPosterImage(feature: feature)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
                 
-                // Title
-                Text(feature.title ?? "")
-                    .outfitBold(28)
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-                    .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
+                // Gradient overlay for better text visibility
+                LinearGradient(
+                    colors: [.clear, .black.opacity(0.2), .black.opacity(0.7)],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
                 
-                // Action buttons
-                HStack(spacing: 12) {
-                    // WATCH NOW button
-                    Button(action: {
-                        handlePlayAction(feature: feature)
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "play.fill")
-                                .font(.system(size: 14))
-                            Text("WATCH NOW")
-                                .outfitSemiBold(14)
-                                .tracking(0.5)
+                // Content overlay centered
+                VStack(spacing: 16) {
+                    Spacer()
+                    
+                    // Title
+                    Text(feature.title ?? "")
+                        .outfitBold(28)
+                        .foregroundColor(.white)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.center)
+                        .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
+                    
+                    // Action buttons
+                    HStack(spacing: 12) {
+                        // WATCH NOW button
+                        Button(action: {
+                            handlePlayAction(feature: feature)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 14))
+                                Text("WATCH NOW")
+                                    .outfitSemiBold(14)
+                                    .tracking(0.5)
+                            }
+                            .foregroundColor(Color.gray.opacity(0.9))
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.white)
+                            .clipShape(Capsule())
                         }
-                        .foregroundColor(Color.gray.opacity(0.9))
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(Color.white)
-                        .clipShape(Capsule())
+                        
+                        // + MY LIST button
+                        Button(action: {
+                            handleWatchlistAction(feature: feature)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: isInWatchlist(contentId: feature.id ?? 0) ? "checkmark" : "plus")
+                                    .font(.system(size: 14, weight: .bold))
+                                Text("MY LIST")
+                                    .outfitSemiBold(14)
+                                    .tracking(0.5)
+                            }
+                            .foregroundColor(.white)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 12)
+                            .background(Color.gray.opacity(0.3))
+                            .overlay(
+                                Capsule()
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                            .clipShape(Capsule())
+                        }
                     }
                     
-                    // + MY LIST button
-                    Button(action: {
-                        handleWatchlistAction(feature: feature)
-                    }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: isInWatchlist(contentId: feature.id ?? 0) ? "checkmark" : "plus")
-                                .font(.system(size: 14, weight: .bold))
-                            Text("MY LIST")
-                                .outfitSemiBold(14)
-                                .tracking(0.5)
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 12)
-                        .background(Color.gray.opacity(0.3))
-                        .overlay(
-                            Capsule()
-                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                        )
-                        .clipShape(Capsule())
-                    }
+                    Spacer().frame(height: 40)
                 }
-                
-                Spacer().frame(height: 40)
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
+            .cornerRadius(12)
+            .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
         }
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
     }
     
     private func featuredPosterImage(feature: VugaContent) -> some View {
-        KFImage(feature.horizontalPoster?.addBaseURL() ?? feature.verticalPoster?.addBaseURL())
+        KFImage(feature.verticalPoster?.addBaseURL() ?? feature.horizontalPoster?.addBaseURL())
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(height: Device.height * 0.6)
             .clipped()
     }
     
     private func handlePlayAction(feature: VugaContent) {
+        // Check if we already have content sources
         if let sources = feature.contentSources, !sources.isEmpty,
            let firstSource = sources.first {
-            let sourceType = firstSource.type?.rawValue ?? 0
-            let sourceId = firstSource.id ?? 0
-            let url = firstSource.media?.file ?? firstSource.source ?? ""
+            playVideoDirectly(source: firstSource, content: feature)
+        } else {
+            // Need to fetch content details to get sources
+            fetchAndPlayContent(contentId: feature.id ?? 0, content: feature)
+        }
+    }
+    
+    private func playVideoDirectly(source: Source, content: VugaContent) {
+        let sourceType = source.type?.rawValue ?? 0
+        let sourceId = source.id ?? 0
+        let url = source.sourceURL.absoluteString
+        
+        print("HomeView: Playing video directly - sourceType: \(sourceType), url: \(url)")
+        
+        // Check if it's a YouTube video (type 1)
+        if sourceType == 1 {
+            Navigation.pushToSwiftUiView(YoutubeView(youtubeUrl: source.source ?? ""))
+        } else {
             Navigation.pushToSwiftUiView(
                 VideoPlayerView(
+                    content: content,
+                    episode: nil,
                     type: sourceType,
                     isShowAdView: false,
                     isForDownloads: false,
@@ -655,9 +675,43 @@ struct HomeView: View {
                     sourceId: sourceId
                 )
             )
-        } else {
-            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id ?? 0))
         }
+    }
+    
+    private func fetchAndPlayContent(contentId: Int, content: VugaContent) {
+        print("HomeView: Fetching content details for direct play - contentId: \(contentId)")
+        
+        var params: [Params: Any] = [.contentId: contentId]
+        if let userId = vm.myUser?.id {
+            params[.appUserId] = userId
+        }
+        if let profileId = vm.myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        // Show loading indicator
+        vm.startLoading()
+        
+        NetworkManager.callWebService(url: .fetchContentDetails, params: params, callbackSuccess: { (obj: ContentModel) in
+            vm.stopLoading()
+            
+            if let fullContent = obj.data,
+               let sources = fullContent.contentSources,
+               !sources.isEmpty,
+               let firstSource = sources.first {
+                // Play the first available source
+                playVideoDirectly(source: firstSource, content: fullContent)
+            } else {
+                // Fallback to content detail view if no sources available
+                print("HomeView: No sources found, navigating to ContentDetailView")
+                Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: contentId))
+            }
+        }, callbackFailure: { error in
+            vm.stopLoading()
+            print("HomeView: Failed to fetch content details: \(error)")
+            // Fallback to content detail view on error
+            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: contentId))
+        })
     }
     
     private func handleWatchlistAction(feature: VugaContent) {
