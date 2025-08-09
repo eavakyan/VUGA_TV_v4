@@ -49,7 +49,7 @@ struct HomeView: View {
         ZStack(alignment: .top){
             ScrollViewReader { proxy in
                 ScrollView(showsIndicators: false) {
-                    VStack {
+                    VStack(spacing: 0) {
                         // Header with Logo and Profile Name
                         headerWithLogoAndProfile
                             .padding(.top, 0) // Moved higher on the page
@@ -57,11 +57,12 @@ struct HomeView: View {
                         
                         // Navigation Menu Row with horizontal category list
                         horizontalCategoryList
-                            .padding(.bottom, 5)
+                            .padding(.top, 5)
+                            .padding(.bottom, 0)
                         
                         if vm.featured.isNotEmpty {
                             topBar
-                                .frame(height: UIScreen.main.bounds.width * 0.95 * 1.5)
+                                .frame(height: UIScreen.main.bounds.width * 0.95 * 1.4)
                         }
                         LazyVStack {
                             if vm.newReleases.isNotEmpty {
@@ -192,9 +193,9 @@ struct HomeView: View {
     
     // Navigation buttons for TV Shows, Movies, Live TV, Networks
     private var horizontalCategoryList: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 4) {
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 12) {
+                HStack(spacing: 2) {
                     // TV Shows button
                     Button(action: {
                         // Switch to search tab and filter for TV shows
@@ -209,14 +210,14 @@ struct HomeView: View {
                         Text("TV Shows")
                             .outfitMedium(14)
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
                             .background(Color.clear)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color("stroke"), lineWidth: 1)
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     
                     // Movies button
@@ -233,14 +234,14 @@ struct HomeView: View {
                         Text("Movies")
                             .outfitMedium(14)
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
                             .background(Color.clear)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color("stroke"), lineWidth: 1)
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     
                     // Live TV button
@@ -251,14 +252,14 @@ struct HomeView: View {
                         Text("Live TV")
                             .outfitMedium(14)
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 8)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 4)
                             .background(Color.clear)
                             .overlay(
-                                RoundedRectangle(cornerRadius: 15)
+                                RoundedRectangle(cornerRadius: 10)
                                     .stroke(Color("stroke"), lineWidth: 1)
                             )
-                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                     }
                     
                     // Categories button with menu
@@ -293,8 +294,8 @@ struct HomeView: View {
                                 .font(.system(size: 10))
                         }
                         .foregroundColor(.white)
-                        .padding(.horizontal, 20)
-                        .padding(.vertical, 8)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 4)
                         .background(Color.clear)
                         .overlay(
                             RoundedRectangle(cornerRadius: 15)
@@ -503,43 +504,7 @@ struct HomeView: View {
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 10) {
                     ForEach(vm.newReleases, id: \.id) { content in
-                        VStack(alignment: .leading,spacing: 0) {
-                            KFImage(content.horizontalPoster?.addBaseURL())
-                                .resizeFillTo(width: 118, height: 73,radius: 10)
-                                .addStroke(radius: 10)
-                                .overlay(
-                                    TypeTagForVugaContent(content: content)
-                                    ,alignment: .topLeading
-                                )
-                                .cornerRadius(radius: 15)
-
-                            Text(content.title ?? "")
-                                .lineLimit(1)
-                                .outfitSemiBold(18)
-                                .foregroundColor(Color("textColor"))
-                                .padding(.top,5)
-                                .frame(width: 118,alignment: .leading)
-                            HStack(spacing: 7) {
-                                HStack(spacing: 5) {
-                                    Image.star
-                                        .resizeFitTo(size: 12)
-                                    Text(content.ratingString)
-                                        .outfitLight(16)
-                                }
-                                .foregroundColor(Color("rating"))
-                                Rectangle()
-                                    .frame(width: 1, height: 15)
-                                    .foregroundColor(.white)
-                                Text(verbatim: "\(content.releaseYear ?? 0)")
-                                    .outfitLight(17)
-                                    .foregroundColor(.white)
-                            }
-                            
-                            .padding(.top,3)
-                        }
-                        .onTap {
-                            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
-                        }
+                        ContentVerticalCard(vm: vm, content: content)
                         
                     }
                 }
