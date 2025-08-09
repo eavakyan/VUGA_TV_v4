@@ -66,6 +66,17 @@ struct SearchView: View {
         .overlay(GenreSheet(isOn: $vm.isGenreSheet, selectedGenre: $vm.selectedGenre))
         .animation(.default, value: vm.isGenreSheet)
         .animation(.default, value: vm.isLanguageSheet)
+        .onReceive(NotificationCenter.default.publisher(for: .setSearchFilter)) { notification in
+            if let userInfo = notification.userInfo,
+               let contentType = userInfo["contentType"] as? ContentType {
+                // Set the content type filter
+                vm.contentType = contentType
+                // Clear any existing search keyword
+                vm.keyword = ""
+                // Trigger search
+                vm.searchContent()
+            }
+        }
     }
 }
 

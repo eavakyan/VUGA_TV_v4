@@ -71,6 +71,8 @@ class Device {
 extension NSNotification.Name {
     static var hideTabbar = NSNotification.Name.init("hideTabbar")
     static var showTabbar = NSNotification.Name.init("showTabbar")
+    static var tabSelected = NSNotification.Name.init("tabSelected")
+    static var setSearchFilter = NSNotification.Name.init("setSearchFilter")
 }
 
 struct DocumentsDirectory {

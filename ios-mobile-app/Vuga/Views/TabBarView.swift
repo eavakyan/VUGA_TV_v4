@@ -37,7 +37,7 @@ struct TabBarView: View {
                         HStack {
                             tabBtn(title: .home, image: .home, tab: .home)
                             tabBtn(title: .search, image: .search, tab: .search)
-                            tabBtn(title: .subscriptions, image: .bookmark, tab: .subscriptions)
+                            tabBtn(title: .subscriptions, image: .grid, tab: .subscriptions)
                             tabBtn(title: .watchlist, image: .save, tab: .watchlist)
                             profileTabBtn()
                         }
@@ -58,6 +58,11 @@ struct TabBarView: View {
         .onReceive(NotificationCenter.default.publisher(for: .showTabbar, object: nil)) { _ in
             shouldTab = true
         }
+        .onReceive(NotificationCenter.default.publisher(for: .tabSelected, object: nil)) { notification in
+            if let tab = notification.object as? Tab {
+                selectedTab = tab
+            }
+        }
         .onAppear(perform: {
             for content in downloads {
                 vm.setDownloadContentFromCoredata(content: content)
@@ -65,6 +70,7 @@ struct TabBarView: View {
             if !vm.isDownloading {
                 vm.startNextDownload()
             }
+            // Tab bar initialization
         })
     }
     

@@ -129,6 +129,7 @@ struct VideoPlayerView: View {
                     print("play end")
                 })
                 .onAppear {
+                    
                     print("ROTATION : \(UIDevice.current.orientation)")
                     UIDevice.current.setValue(UIInterfaceOrientation.portrait.rawValue, forKey: "orientation")
                     AppDelegate.orientationLock = .landscapeRight
@@ -173,6 +174,7 @@ struct VideoPlayerView: View {
                     }
                 }
                 .onDisappear(perform: {
+                    
                     vm.pause()
                     vm.state = .stoped
                 })

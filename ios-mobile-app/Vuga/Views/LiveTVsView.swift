@@ -13,6 +13,25 @@ struct LiveTVsView: View {
     @StateObject var vm = LiveTVsViewModel()
     var body: some View {
         VStack(spacing: 0) {
+            // Header
+            HStack {
+                Button(action: {
+                    Navigation.pop()
+                }) {
+                    Image.back
+                        .resizeFitTo(size: 24, renderingMode: .template)
+                        .foregroundColor(.text)
+                }
+                
+                Text("Live TV")
+                    .outfitSemiBold(24)
+                    .foregroundColor(.text)
+                
+                Spacer()
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 10)
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
                     ForEach(vm.categories, id: \.id) { category in
@@ -55,10 +74,13 @@ struct LiveTVsView: View {
                     }
                 })
                 .padding(10)
+                .padding(.bottom, 20) // Reduced padding since global tab bar handles spacing
             })
         }
         .loaderView(vm.isLoading)
         .noDataFound(!vm.isLoading && vm.categories.isEmpty)
+        .addBackground()
+        .hideNavigationbar()
         .fullScreenCover(item: $vm.selectedChannel, content: {_ in
             if vm.selectedChannel?.type?.rawValue ?? 0 == 1 {
                 YoutubeView(youtubeUrl: vm.selectedChannel?.source ?? "")

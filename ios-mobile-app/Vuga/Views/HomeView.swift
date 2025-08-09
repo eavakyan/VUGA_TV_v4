@@ -196,29 +196,117 @@ struct HomeView: View {
         return String(profile.name.prefix(1)).uppercased()
     }
     
-    // Horizontal Category List Component - No persistent highlighting like Android
+    // Navigation buttons for TV Shows, Movies, Live TV, Networks
     private var horizontalCategoryList: some View {
         VStack(alignment: .leading, spacing: 8) {
-            // Horizontal scrollable category list (no section title to match Android)
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 12) {
-                    ForEach(vm.genres, id: \.id) { genre in
-                        Button(action: {
-                            // No persistent selection - just navigate like Android
-                            Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
-                        }) {
-                            Text(genre.title ?? "")
-                                .outfitMedium(14)
-                                .foregroundColor(.textLight) // Always use textLight - no highlighting
-                                .padding(.horizontal, 20)
-                                .padding(.vertical, 8)
-                                .background(Color.clear) // Always clear background
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 15)
-                                        .stroke(Color.stroke, lineWidth: 1) // Always stroke
-                                )
-                                .clipShape(RoundedRectangle(cornerRadius: 15))
+                HStack(spacing: 12) {
+                    // TV Shows button
+                    Button(action: {
+                        // Switch to search tab and filter for series
+                        selectedTab = .search
+                        // Post notification to set search filter for series
+                        NotificationCenter.default.post(
+                            name: .setSearchFilter, 
+                            object: nil,
+                            userInfo: ["contentType": ContentType.series]
+                        )
+                    }) {
+                        Text("TV Shows")
+                            .outfitMedium(14)
+                            .foregroundColor(.textLight)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 8)
+                            .background(Color.clear)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.stroke, lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
+                    
+                    // Movies button
+                    Button(action: {
+                        // Switch to search tab and filter for movies
+                        selectedTab = .search
+                        // Post notification to set search filter for movies
+                        NotificationCenter.default.post(
+                            name: .setSearchFilter, 
+                            object: nil,
+                            userInfo: ["contentType": ContentType.movie]
+                        )
+                    }) {
+                        Text("Movies")
+                            .outfitMedium(14)
+                            .foregroundColor(.textLight)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 8)
+                            .background(Color.clear)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.stroke, lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
+                    
+                    // Live TV button
+                    Button(action: {
+                        // Navigate to existing Live TV view if available
+                        Navigation.pushToSwiftUiView(LiveTVsView())
+                    }) {
+                        Text("Live TV")
+                            .outfitMedium(14)
+                            .foregroundColor(.textLight)
+                            .padding(.horizontal, 20)
+                            .padding(.vertical, 8)
+                            .background(Color.clear)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 15)
+                                    .stroke(Color.stroke, lineWidth: 1)
+                            )
+                            .clipShape(RoundedRectangle(cornerRadius: 15))
+                    }
+                    
+                    // Categories button with menu
+                    Menu {
+                        // All genre categories
+                        ForEach(vm.genres, id: \.id) { genre in
+                            Button(genre.title ?? "") {
+                                Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                            }
                         }
+                        
+                        Divider()
+                        
+                        // Network options
+                        Button("MediaTeka") {
+                            // Navigate to MediaTeka content
+                            if let genre = vm.genres.first {
+                                Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                            }
+                        }
+                        Button("HBO") {
+                            // Navigate to HBO content
+                            if let genre = vm.genres.first {
+                                Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                            }
+                        }
+                    } label: {
+                        HStack(spacing: 4) {
+                            Text("Categories")
+                                .outfitMedium(14)
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 10))
+                        }
+                        .foregroundColor(.textLight)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 8)
+                        .background(Color.clear)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 15)
+                                .stroke(Color.stroke, lineWidth: 1)
+                        )
+                        .clipShape(RoundedRectangle(cornerRadius: 15))
                     }
                 }
                 .padding(.horizontal, 15)
@@ -420,7 +508,7 @@ struct HomeView: View {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     let feature = vm.featured[index]
                     KFImage(feature.verticalPoster?.addBaseURL())
-                        .resizeFillTo(width: Device.width * 0.525, height: Device.width * 0.721, radius: 15)
+                        .resizeFillTo(width: Device.width * 0.65, height: Device.width * 0.9, radius: 15)
                         .addStroke(radius: 15)
                         .maxFrame(.top)
                         .padding(.top)

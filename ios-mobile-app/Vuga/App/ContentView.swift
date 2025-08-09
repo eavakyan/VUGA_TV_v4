@@ -12,6 +12,7 @@ import Network
 
 struct ContentView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
+    @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
     @StateObject var downloadModel = DownloadViewModel()
     @StateObject var networkMonitor = NetworkMonitor()
     @StateObject var vm = SplashViewModel()
@@ -29,9 +30,12 @@ struct ContentView: View {
                     .hideNavigationbar()
             }
             .navigationViewStyle(StackNavigationViewStyle())
+            
             if !isConnectedToInternet {
-                    OfflineView()
+                OfflineView()
             }
+            
+            // Removed global tab bar for now - will implement differently
         }
         .onOpenURL(perform: { url in
             Branch.getInstance().handleDeepLink(url)

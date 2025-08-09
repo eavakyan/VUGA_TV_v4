@@ -69,6 +69,7 @@ extension Image {
     static let noData               = Image("noData")
     static let languageSearch       = Image("language_search")
     static let info                 = Image(systemName: "info.circle")
+    static let grid                 = Image(systemName: "square.grid.2x2")
     
     func resizeFitTo(size: CGFloat,renderingMode: TemplateRenderingMode = .original ,radius: CGFloat = 0) -> some View {
         self.resizable()
