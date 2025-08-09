@@ -522,7 +522,7 @@ struct HomeView: View {
                             .padding(.top,3)
                         }
                         .onTap {
-                            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id))
+                            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
                         }
                         
                     }
@@ -542,124 +542,101 @@ struct HomeView: View {
     }
     
     private var featuredContentTabView: some View {
-        TabView(selection: $vm.selectedImageIndex) {
-            ForEach(0..<vm.featured.count, id: \.self) { index in
-                featuredContentCard(feature: vm.featured[index])
+        GeometryReader { geometry in
+            TabView(selection: $vm.selectedImageIndex) {
+                ForEach(0..<vm.featured.count, id: \.self) { index in
+                    featuredContentCard(feature: vm.featured[index])
+                        .frame(width: geometry.size.width * 0.80)
+                        .padding(.horizontal, geometry.size.width * 0.10)
+                }
             }
+            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
+            .frame(width: geometry.size.width, height: Device.height * 0.6)
         }
-        .tabViewStyle(.page(indexDisplayMode: .never))
+        .frame(height: Device.height * 0.6)
     }
     
     private func featuredContentCard(feature: VugaContent) -> some View {
-        ZStack(alignment: .bottom) {
+        ZStack {
+            // Poster image
             featuredPosterImage(feature: feature)
-            gradientOverlay
-            featuredContentInfo(feature: feature)
+            
+            // Gradient overlay for better text visibility
+            LinearGradient(
+                colors: [.clear, .black.opacity(0.2), .black.opacity(0.7)],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            
+            // Content overlay centered
+            VStack(spacing: 16) {
+                Spacer()
+                
+                // Title
+                Text(feature.title ?? "")
+                    .outfitBold(28)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.center)
+                    .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
+                
+                // Action buttons
+                HStack(spacing: 12) {
+                    // WATCH NOW button
+                    Button(action: {
+                        handlePlayAction(feature: feature)
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 14))
+                            Text("WATCH NOW")
+                                .outfitSemiBold(14)
+                                .tracking(0.5)
+                        }
+                        .foregroundColor(Color.gray.opacity(0.9))
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.white)
+                        .clipShape(Capsule())
+                    }
+                    
+                    // + MY LIST button
+                    Button(action: {
+                        handleWatchlistAction(feature: feature)
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: isInWatchlist(contentId: feature.id ?? 0) ? "checkmark" : "plus")
+                                .font(.system(size: 14, weight: .bold))
+                            Text("MY LIST")
+                                .outfitSemiBold(14)
+                                .tracking(0.5)
+                        }
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 12)
+                        .background(Color.gray.opacity(0.3))
+                        .overlay(
+                            Capsule()
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                        .clipShape(Capsule())
+                    }
+                }
+                
+                Spacer().frame(height: 40)
+            }
+            .padding(.horizontal)
         }
-        .onTapGesture {
-            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id))
-        }
+        .cornerRadius(12)
+        .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
     }
     
     private func featuredPosterImage(feature: VugaContent) -> some View {
         KFImage(feature.horizontalPoster?.addBaseURL() ?? feature.verticalPoster?.addBaseURL())
             .resizable()
             .aspectRatio(contentMode: .fill)
-            .frame(width: Device.width, height: Device.height * 0.6)
+            .frame(height: Device.height * 0.6)
             .clipped()
-    }
-    
-    private var gradientOverlay: some View {
-        LinearGradient(
-            colors: [.clear, .clear, .black.opacity(0.3), .black.opacity(0.8)],
-            startPoint: .top,
-            endPoint: .bottom
-        )
-        .frame(height: Device.height * 0.6)
-    }
-    
-    private func featuredContentInfo(feature: VugaContent) -> some View {
-        VStack(alignment: .leading, spacing: 8) {
-            featuredTitle(feature: feature)
-            featuredMetadata(feature: feature)
-            playButton(feature: feature)
-        }
-        .padding(.horizontal, 20)
-        .padding(.bottom, 30)
-        .frame(maxWidth: .infinity, alignment: .leading)
-    }
-    
-    private func featuredTitle(feature: VugaContent) -> some View {
-        Text(feature.title ?? "")
-            .outfitBold(32)
-            .foregroundColor(.white)
-            .lineLimit(2)
-            .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 2)
-    }
-    
-    private func featuredMetadata(feature: VugaContent) -> some View {
-        HStack(spacing: 15) {
-            ratingView(feature: feature)
-            yearView(feature: feature)
-            genreTag(feature: feature)
-        }
-    }
-    
-    private func ratingView(feature: VugaContent) -> some View {
-        HStack(spacing: 5) {
-            Image.star
-                .resizeFitTo(size: 18)
-            Text(feature.ratingString)
-                .outfitSemiBold(16)
-        }
-        .foregroundColor(.yellow)
-    }
-    
-    private func yearView(feature: VugaContent) -> some View {
-        Text(verbatim: "\(feature.releaseYear ?? 2020)")
-            .outfitSemiBold(16)
-            .foregroundColor(.white.opacity(0.9))
-    }
-    
-    private func genreTag(feature: VugaContent) -> some View {
-        Group {
-            if let firstGenre = feature.genres.first {
-                Text(firstGenre.title ?? "")
-                    .outfitMedium(14)
-                    .foregroundColor(.white.opacity(0.8))
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 4)
-                    .background(Color.white.opacity(0.2))
-                    .cornerRadius(15)
-            }
-        }
-    }
-    
-    private func playButton(feature: VugaContent) -> some View {
-        Button(action: {
-            handlePlayAction(feature: feature)
-        }) {
-            HStack(spacing: 8) {
-                playIcon
-                Text("Play Now")
-                    .outfitSemiBold(18)
-                    .foregroundColor(.white)
-            }
-        }
-        .padding(.top, 10)
-    }
-    
-    private var playIcon: some View {
-        ZStack {
-            Circle()
-                .fill(Color.white.opacity(0.3))
-                .frame(width: 50, height: 50)
-            
-            Image(systemName: "play.fill")
-                .font(.system(size: 20))
-                .foregroundColor(.white)
-                .offset(x: 2)
-        }
     }
     
     private func handlePlayAction(feature: VugaContent) {
@@ -679,8 +656,26 @@ struct HomeView: View {
                 )
             )
         } else {
-            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id))
+            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id ?? 0))
         }
+    }
+    
+    private func handleWatchlistAction(feature: VugaContent) {
+        guard SessionManager.shared.currentUser != nil else {
+            Navigation.pushToSwiftUiView(LoginView())
+            return
+        }
+        
+        vm.toggleWatchlist(contentId: feature.id ?? 0) { success, message in
+            if success {
+                // Refresh the watchlist data
+                vm.fetchData()
+            }
+        }
+    }
+    
+    private func isInWatchlist(contentId: Int) -> Bool {
+        return vm.myUser?.checkIsAddedToWatchList(contentId: contentId) ?? false
     }
     
     private var pageIndicator: some View {
@@ -752,7 +747,7 @@ struct ContentVerticalCard: View {
             .resizeFillTo(width: 98, height: 140, radius: 5)
             .addStroke(radius: 5)
             .onTap {
-                Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id))
+                Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
             }
     }
 }

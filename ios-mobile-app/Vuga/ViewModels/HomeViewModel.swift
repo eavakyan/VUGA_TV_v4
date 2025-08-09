@@ -76,6 +76,41 @@ class HomeViewModel : BaseViewModel {
             print("HomeViewModel fetchData error: \(error)")
         })
     }
+    
+    func toggleWatchlist(contentId: Int, completion: @escaping (Bool, String?) -> Void) {
+        guard let userId = myUser?.id else {
+            completion(false, "Please login to add to watchlist")
+            return
+        }
+        
+        let params: [Params: Any] = [
+            .appUserId: userId,
+            .contentId: contentId
+        ]
+        
+        if let profileId = SessionManager.shared.currentProfile?.profileId {
+            var updatedParams = params
+            updatedParams[.profileId] = profileId
+            
+            NetworkManager.callWebService(url: .toggleWatchlist, params: updatedParams) { [weak self] (obj: UserModel) in
+                if let user = obj.data {
+                    self?.myUser = user
+                    completion(true, obj.message)
+                } else {
+                    completion(false, obj.message)
+                }
+            }
+        } else {
+            NetworkManager.callWebService(url: .toggleWatchlist, params: params) { [weak self] (obj: UserModel) in
+                if let user = obj.data {
+                    self?.myUser = user
+                    completion(true, obj.message)
+                } else {
+                    completion(false, obj.message)
+                }
+            }
+        }
+    }
 }
 
 

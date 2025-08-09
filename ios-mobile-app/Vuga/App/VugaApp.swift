@@ -8,6 +8,7 @@
 import SwiftUI
 import ActivityKit
 import AVKit
+import GoogleSignIn
 
 @main
 struct VugaApp: App {
@@ -15,6 +16,10 @@ struct VugaApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .onOpenURL { url in
+                    // Handle Google Sign-In callback
+                    GIDSignIn.sharedInstance.handle(url)
+                }
         }
     }
 }

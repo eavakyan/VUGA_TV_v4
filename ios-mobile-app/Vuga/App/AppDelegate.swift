@@ -10,6 +10,7 @@ import FirebaseMessaging
 import Firebase
 import GoogleMobileAds
 import GoogleCast
+import GoogleSignIn
 
 import SwiftUI
 // import RevenueCat - Disabled temporarily
@@ -112,6 +113,11 @@ class AppDelegate : NSObject,UIApplicationDelegate { // PurchasesDelegate {
 
 extension AppDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
+        // Handle Google Sign-In callback
+        if GIDSignIn.sharedInstance.handle(url) {
+            return true
+        }
+        
         // Handle TV authentication deep links
         if url.scheme == "vuga" && url.host == "auth" && url.pathComponents.count >= 3 && url.pathComponents[1] == "tv" {
             let sessionToken = url.pathComponents[2]

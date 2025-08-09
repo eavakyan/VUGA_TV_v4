@@ -123,17 +123,22 @@ extension Data {
             callbackSuccess(jsonData)
         } catch let DecodingError.dataCorrupted(context) {
             print(context)
+            callbackFailure(DecodingError.dataCorrupted(context))
         } catch let DecodingError.keyNotFound(key, context) {
             print("Key '\(key)' not found:", context.debugDescription)
             print("codingPath:", context.codingPath)
+            callbackFailure(DecodingError.keyNotFound(key, context))
         } catch let DecodingError.valueNotFound(value, context) {
             print("Value '\(value)' not found:", context.debugDescription)
             print("codingPath:", context.codingPath)
+            callbackFailure(DecodingError.valueNotFound(value, context))
         } catch let DecodingError.typeMismatch(type, context)  {
             print("Type '\(type)' mismatch:", context.debugDescription)
             print("codingPath:", context.codingPath)
+            callbackFailure(DecodingError.typeMismatch(type, context))
         } catch {
             print("error: ", error)
+            callbackFailure(error)
         }
     }
     

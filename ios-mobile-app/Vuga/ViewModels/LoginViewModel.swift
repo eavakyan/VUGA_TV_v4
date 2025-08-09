@@ -42,7 +42,11 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
                                      .smsConsent: smsConsent ? 1 : 0
         ]
         
-        NetworkManager.callWebService(url: .userRegistration, params: params) { (obj: UserModel) in
+        print("LoginViewModel: Calling user registration API with params: \(params)")
+        
+        NetworkManager.callWebService(url: .userRegistration, params: params, callbackSuccess: { [weak self] (obj: UserModel) in
+            guard let self = self else { return }
+            
             print("LoginViewModel: User registration response - status: \(obj.status ?? false)")
             print("LoginViewModel: Response message: \(obj.message ?? "")")
             
@@ -56,12 +60,24 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
                     self.isLoggedIn = shouldLogin
                     completion(user)
                     self.proModel.passUserIdToRevenueCat()
+                    // Stop loading will be called by the caller if needed
                 }
             } else {
                 print("LoginViewModel: No user data in response - message: \(obj.message ?? "no message")")
-                self.stopLoading()
+                DispatchQueue.main.async {
+                    self.stopLoading()
+                    self.toast(title: obj.message ?? "Registration failed")
+                }
             }
-        }
+        }, callbackFailure: { [weak self] error in
+            guard let self = self else { return }
+            
+            print("LoginViewModel: User registration API error: \(error.localizedDescription)")
+            DispatchQueue.main.async {
+                self.stopLoading()
+                self.toast(title: "Network error: \(error.localizedDescription)")
+            }
+        })
     }
     
     // MARK: - Validation Methods
@@ -266,24 +282,80 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
     }
     
     func googleSignIn() {
-        guard let clientID = FirebaseApp.app()?.options.clientID,let controller = UIApplication.shared.keyWindow?.rootViewController else { return }
+        guard let clientID = FirebaseApp.app()?.options.clientID else { 
+            print("LoginViewModel: Firebase clientID not found")
+            return 
+        }
+        
+        // Get the root view controller using the modern approach
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+              let window = windowScene.windows.first,
+              let controller = window.rootViewController else { 
+            print("LoginViewModel: Root view controller not found")
+            return 
+        }
+        
+        print("LoginViewModel: Starting Google Sign-In")
         startLoading()
+        
+        // Add a timeout to prevent indefinite loading
+        var timeoutWorkItem: DispatchWorkItem?
+        timeoutWorkItem = DispatchWorkItem { [weak self] in
+            if self?.isLoading == true {
+                print("LoginViewModel: Google Sign-In timeout")
+                DispatchQueue.main.async {
+                    self?.stopLoading()
+                    self?.toast(title: "Google Sign-In timed out. Please try again.")
+                }
+            }
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 30, execute: timeoutWorkItem!)
+        
         let config = GIDConfiguration(clientID: clientID)
         GIDSignIn.sharedInstance.configuration = config
         
-        GIDSignIn.sharedInstance.signIn(withPresenting: controller) {  result, error in
-            if let error {
-                print(error.localizedDescription)
-                self.stopLoading()
+        GIDSignIn.sharedInstance.signIn(withPresenting: controller) { [weak self] result, error in
+            timeoutWorkItem?.cancel() // Cancel timeout if sign-in completes
+            guard let self = self else { return }
+            
+            if let error = error {
+                print("LoginViewModel: Google Sign-In error: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    self.stopLoading()
+                    self.toast(title: "Google Sign-In failed: \(error.localizedDescription)")
+                }
                 return
             }
             
             guard let user = result?.user.profile else {
-                self.stopLoading()
+                print("LoginViewModel: No user profile returned from Google Sign-In")
+                DispatchQueue.main.async {
+                    self.stopLoading()
+                    self.toast(title: "Could not get user information from Google")
+                }
                 return
             }
             
-            self.registerUser(identity: user.email, email: user.email, fullName: "\(user.givenName ?? "") \(user.familyName ?? "")", loginType: .gmail)
+            print("LoginViewModel: Google Sign-In successful for: \(user.email)")
+            let fullName = [user.givenName, user.familyName]
+                .compactMap { $0 }
+                .joined(separator: " ")
+                .trimmingCharacters(in: .whitespaces)
+            
+            // Use default name if none provided
+            let finalName = fullName.isEmpty ? "Google User" : fullName
+            
+            self.registerUser(
+                identity: user.email, 
+                email: user.email, 
+                fullName: finalName, 
+                loginType: .gmail
+            ) { [weak self] registeredUser in
+                // Ensure loading stops after registration completes
+                DispatchQueue.main.async {
+                    self?.stopLoading()
+                }
+            }
         }
     }
     
