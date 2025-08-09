@@ -57,13 +57,17 @@ struct HomeView: View {
                         
                         // Navigation Menu Row with horizontal category list
                         horizontalCategoryList
-                            .padding(.bottom, 10)
+                            .padding(.bottom, 5)
                         
                         if vm.featured.isNotEmpty {
                             topBar
                                 .frame(height: UIScreen.main.bounds.width * 0.95 * 1.5)
                         }
                         LazyVStack {
+                            if vm.newReleases.isNotEmpty {
+                                newReleasesCard
+                            }
+                            
                             if recentlyWatchedContents.isNotEmpty && !vm.isLoading && vm.featured.isNotEmpty{
                                 recentlyWatched
                             }
@@ -204,7 +208,7 @@ struct HomeView: View {
                     }) {
                         Text("TV Shows")
                             .outfitMedium(14)
-                            .foregroundColor(Color("textLight"))
+                            .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)
                             .background(Color.clear)
@@ -228,7 +232,7 @@ struct HomeView: View {
                     }) {
                         Text("Movies")
                             .outfitMedium(14)
-                            .foregroundColor(Color("textLight"))
+                            .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)
                             .background(Color.clear)
@@ -246,7 +250,7 @@ struct HomeView: View {
                     }) {
                         Text("Live TV")
                             .outfitMedium(14)
-                            .foregroundColor(Color("textLight"))
+                            .foregroundColor(.white)
                             .padding(.horizontal, 20)
                             .padding(.vertical, 8)
                             .background(Color.clear)
@@ -288,7 +292,7 @@ struct HomeView: View {
                             Image(systemName: "chevron.down")
                                 .font(.system(size: 10))
                         }
-                        .foregroundColor(Color("textLight"))
+                        .foregroundColor(.white)
                         .padding(.horizontal, 20)
                         .padding(.vertical, 8)
                         .background(Color.clear)
@@ -472,10 +476,63 @@ struct HomeView: View {
                                 .foregroundColor(Color("rating"))
                                 Rectangle()
                                     .frame(width: 1, height: 15)
-                                    .foregroundColor(Color("textLight"))
+                                    .foregroundColor(.white)
                                 Text(verbatim: "\(content.releaseYear ?? 0)")
                                     .outfitLight(17)
-                                    .foregroundColor(Color("textLight"))
+                                    .foregroundColor(.white)
+                            }
+                            
+                            .padding(.top,3)
+                        }
+                        .onTap {
+                            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
+                        }
+                        
+                    }
+                }
+                .padding(.horizontal, 10)
+            }
+        }
+        .padding(.top,10)
+    }
+    
+    private var newReleasesCard : some View {
+        VStack {
+            Heading(title: "New Releases")
+            .padding(.horizontal, 10)
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 10) {
+                    ForEach(vm.newReleases, id: \.id) { content in
+                        VStack(alignment: .leading,spacing: 0) {
+                            KFImage(content.horizontalPoster?.addBaseURL())
+                                .resizeFillTo(width: 118, height: 73,radius: 10)
+                                .addStroke(radius: 10)
+                                .overlay(
+                                    TypeTagForVugaContent(content: content)
+                                    ,alignment: .topLeading
+                                )
+                                .cornerRadius(radius: 15)
+
+                            Text(content.title ?? "")
+                                .lineLimit(1)
+                                .outfitSemiBold(18)
+                                .foregroundColor(Color("textColor"))
+                                .padding(.top,5)
+                                .frame(width: 118,alignment: .leading)
+                            HStack(spacing: 7) {
+                                HStack(spacing: 5) {
+                                    Image.star
+                                        .resizeFitTo(size: 12)
+                                    Text(content.ratingString)
+                                        .outfitLight(16)
+                                }
+                                .foregroundColor(Color("rating"))
+                                Rectangle()
+                                    .frame(width: 1, height: 15)
+                                    .foregroundColor(.white)
+                                Text(verbatim: "\(content.releaseYear ?? 0)")
+                                    .outfitLight(17)
+                                    .foregroundColor(.white)
                             }
                             
                             .padding(.top,3)

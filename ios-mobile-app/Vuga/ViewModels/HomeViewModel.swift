@@ -13,6 +13,7 @@ class HomeViewModel : BaseViewModel {
     @Published var topContents = [TopContent]()
     @Published var wishlists = [VugaContent]()
     @Published var genres = [Genre]()
+    @Published var newReleases = [VugaContent]()
     @Published var selectedImageIndex = 0
     @Published var selectedRecentlyWatched: RecentlyWatched?
     @Published var deleteSelectedRecentlyWatched: RecentlyWatched?
@@ -71,6 +72,9 @@ class HomeViewModel : BaseViewModel {
             self.wishlists = obj.watchlist ?? []
             self.genres = obj.genreContents ?? []
             self.topContents = obj.topContents ?? []
+            
+            // Extract new releases from all genre contents
+            self.extractNewReleases(from: obj.genreContents ?? [])
         }, callbackFailure: { error in
             self.stopLoading()
             print("HomeViewModel fetchData error: \(error)")
@@ -113,6 +117,72 @@ class HomeViewModel : BaseViewModel {
                     completion(false, obj.message)
                 }
             }
+        }
+    }
+    
+    private func extractNewReleases(from genres: [Genre]) {
+        var allContent: [VugaContent] = []
+        
+        // Collect all content from all genres
+        for genre in genres {
+            if let contents = genre.contents {
+                allContent.append(contentsOf: contents)
+            }
+        }
+        
+        // Get current date and 6 months ago
+        let currentDate = Date()
+        let sixMonthsAgo = Calendar.current.date(byAdding: .month, value: -6, to: currentDate) ?? currentDate
+        
+        // Filter content by release year or created date
+        let currentYear = Calendar.current.component(.year, from: currentDate)
+        
+        let filteredContent = allContent.filter { content in
+            // First check if release year is current year
+            if let releaseYear = content.releaseYear, releaseYear == currentYear {
+                return true
+            }
+            
+            // Otherwise check if created within last 6 months
+            if let createdAtString = content.createdAt {
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
+                
+                if let createdDate = dateFormatter.date(from: createdAtString) {
+                    return createdDate >= sixMonthsAgo
+                }
+            }
+            
+            return false
+        }
+        
+        // Remove duplicates based on content ID
+        var uniqueContent: [VugaContent] = []
+        var seenIds = Set<Int>()
+        
+        for content in filteredContent {
+            if let id = content.id, !seenIds.contains(id) {
+                seenIds.insert(id)
+                uniqueContent.append(content)
+            }
+        }
+        
+        self.newReleases = uniqueContent.sorted { content1, content2 in
+            guard let date1String = content1.createdAt,
+                  let date2String = content2.createdAt else { return false }
+            
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
+            
+            guard let date1 = dateFormatter.date(from: date1String),
+                  let date2 = dateFormatter.date(from: date2String) else { return false }
+            
+            return date1 > date2
+        }
+        
+        // Limit to 20 items for performance
+        if self.newReleases.count > 20 {
+            self.newReleases = Array(self.newReleases.prefix(20))
         }
     }
 }
