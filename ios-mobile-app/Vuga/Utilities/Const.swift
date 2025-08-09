@@ -43,7 +43,7 @@ struct SessionKeys {
 //MARK: - Limits
 struct Limits {
     static var pagination = 20
-    static var featureSecond = 5
+    static var featureSecond = 4
     static var videoControlsDuration = 3
     static var skipVideoSeconds = 10
 }

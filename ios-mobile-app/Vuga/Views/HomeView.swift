@@ -52,7 +52,7 @@ struct HomeView: View {
                     VStack {
                         // Header with Logo and Profile Name
                         headerWithLogoAndProfile
-                            .padding(.top, 10) // Fixed top padding for proper spacing
+                            .padding(.top, 0) // Moved higher on the page
                             .id("top") // Add ID for scroll anchor
                         
                         // Navigation Menu Row with horizontal category list
@@ -61,7 +61,7 @@ struct HomeView: View {
                         
                         if vm.featured.isNotEmpty {
                             topBar
-                                .frame(height: UIScreen.main.bounds.width * 0.75 * 1.5)
+                                .frame(height: UIScreen.main.bounds.width * 0.95 * 1.5)
                         }
                         LazyVStack {
                             if recentlyWatchedContents.isNotEmpty && !vm.isLoading && vm.featured.isNotEmpty{
@@ -164,58 +164,14 @@ struct HomeView: View {
             
             Spacer()
             
-            // Right side - Action icons
-            HStack(spacing: 12) {
-                // Stream-casting icon
-                Button(action: {
-                    // Handle casting - placeholder
-                    print("Casting tapped")
-                }) {
-                    Image(systemName: "airplayvideo")
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(Color("textLight"))
-                        .frame(width: 35, height: 35)
-                        .background(Color("searchBg"))
-                        .clipShape(Circle())
-                }
-                
-                // Downloads icon
-                Button(action: {
-                    Navigation.pushToSwiftUiView(DownloadView())
-                }) {
-                    Image.download
-                        .resizeFitTo(size: 16, renderingMode: .template)
-                        .foregroundColor(Color("textLight"))
-                        .frame(width: 35, height: 35)
-                        .background(Color("searchBg"))
-                        .clipShape(Circle())
-                }
-                
-                // Search icon
-                Button(action: {
-                    selectedTab = .search
-                }) {
-                    Image.search
-                        .resizeFitTo(size: 16, renderingMode: .template)
-                        .foregroundColor(Color("textLight"))
-                        .frame(width: 35, height: 35)
-                        .background(Color("searchBg"))
-                        .clipShape(Circle())
-                }
-                
-                // Profile Avatar (matches Android design)
-                Button(action: {
-                    selectedTab = .profile
-                }) {
-                    Circle()
-                        .fill(Color.textLight)
-                        .frame(width: 33, height: 33)
-                        .overlay(
-                            Text(getProfileFirstLetter())
-                                .outfitSemiBold(16)
-                                .foregroundColor(Color("bgColor"))
-                        )
-                }
+            // Right side - Download icon only
+            Button(action: {
+                Navigation.pushToSwiftUiView(DownloadView())
+            }) {
+                Image.download
+                    .resizeFitTo(size: 24, renderingMode: .template)
+                    .foregroundColor(.white)
+                    .frame(width: 44, height: 44)
             }
         }
         .padding(.horizontal, 15)
@@ -549,14 +505,14 @@ struct HomeView: View {
             TabView(selection: $vm.selectedImageIndex) {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     featuredContentCard(feature: vm.featured[index])
-                        .frame(width: geometry.size.width * 0.75, height: geometry.size.height * 0.9)
-                        .padding(.horizontal, geometry.size.width * 0.125)
+                        .frame(width: geometry.size.width * 0.95, height: geometry.size.height * 0.9)
+                        .padding(.horizontal, geometry.size.width * 0.025)
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
-        .frame(height: UIScreen.main.bounds.width * 0.75 * 1.5) // 75% width with 2:3 aspect ratio
+        .frame(height: UIScreen.main.bounds.width * 0.95 * 1.5) // 95% width with 2:3 aspect ratio
     }
     
     private func featuredContentCard(feature: VugaContent) -> some View {
@@ -586,21 +542,21 @@ struct HomeView: View {
                         .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
                     
                     // Action buttons
-                    HStack(spacing: 10) {
+                    VStack(spacing: 10) {
                         // WATCH NOW button
                         Button(action: {
                             handlePlayAction(feature: feature)
                         }) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: 6) {
                                 Image(systemName: "play.fill")
-                                    .font(.system(size: 11))
+                                    .font(.system(size: 14))
                                 Text("WATCH NOW")
-                                    .outfitSemiBold(11)
-                                    .tracking(0.3)
+                                    .outfitSemiBold(14)
+                                    .tracking(0.5)
                             }
                             .foregroundColor(Color.gray.opacity(0.9))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
                             .background(Color.white)
                             .clipShape(Capsule())
                         }
@@ -609,16 +565,16 @@ struct HomeView: View {
                         Button(action: {
                             handleWatchlistAction(feature: feature)
                         }) {
-                            HStack(spacing: 4) {
+                            HStack(spacing: 6) {
                                 Image(systemName: isInWatchlist(contentId: feature.id ?? 0) ? "checkmark" : "plus")
-                                    .font(.system(size: 11, weight: .bold))
+                                    .font(.system(size: 14, weight: .bold))
                                 Text("MY LIST")
-                                    .outfitSemiBold(11)
-                                    .tracking(0.3)
+                                    .outfitSemiBold(14)
+                                    .tracking(0.5)
                             }
                             .foregroundColor(.white)
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
                             .background(Color.gray.opacity(0.3))
                             .overlay(
                                 Capsule()
@@ -627,6 +583,7 @@ struct HomeView: View {
                             .clipShape(Capsule())
                         }
                     }
+                    .padding(.horizontal, 20)
                     
                     Spacer().frame(height: 20)
                 }
