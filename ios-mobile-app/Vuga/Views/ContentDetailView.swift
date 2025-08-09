@@ -1597,7 +1597,8 @@ struct InlineTrailerView: View {
     @State private var youTubeVideoId: String?
     @State private var player: AVPlayer?
     @State private var isPlaying = false
-    @State private var isUserInteracting = false
+    @State private var showControls = true
+    @State private var hideControlsWorkItem: DispatchWorkItem?
     
     var body: some View {
         GeometryReader { geometry in
@@ -1605,16 +1606,10 @@ struct InlineTrailerView: View {
                 if isYouTubeUrl, let videoId = youTubeVideoId {
                     // YouTube player using WebView
                     YouTubeEmbedView(videoId: videoId, shouldPlay: shouldPlay)
-                        .onTapGesture {
-                            togglePlayback()
-                        }
                 } else if let player = player {
                     // Regular video player for CDN URLs
                     VideoPlayer(player: player)
                         .disabled(false)
-                        .onTapGesture {
-                            togglePlayback()
-                        }
                 } else {
                     // Loading state
                     Color.black
@@ -1625,11 +1620,51 @@ struct InlineTrailerView: View {
                         )
                 }
                 
-                // Add a transparent overlay to capture taps on the video player
+                // Controls overlay
+                if showControls {
+                    VStack {
+                        Spacer()
+                        
+                        // Control bar at bottom
+                        HStack(spacing: 20) {
+                            // Play/Pause button
+                            Button(action: {
+                                togglePlayback()
+                            }) {
+                                Image(systemName: shouldPlay ? "pause.fill" : "play.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.white)
+                                    .frame(width: 44, height: 44)
+                                    .background(Circle().fill(Color.black.opacity(0.6)))
+                            }
+                            
+                            Spacer()
+                        }
+                        .padding(.horizontal, 20)
+                        .padding(.vertical, 15)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [Color.black.opacity(0), Color.black.opacity(0.7)]),
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                    }
+                    .transition(.opacity)
+                }
+                
+                // Tap gesture to show/hide controls
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {
-                        togglePlayback()
+                        withAnimation(.easeInOut(duration: 0.3)) {
+                            showControls.toggle()
+                        }
+                        
+                        // Auto-hide controls after 3 seconds if playing
+                        if showControls && shouldPlay {
+                            scheduleHideControls()
+                        }
                     }
             }
         }
@@ -1638,14 +1673,24 @@ struct InlineTrailerView: View {
         }
         .onDisappear {
             player?.pause()
+            hideControlsWorkItem?.cancel()
         }
         .onChange(of: shouldPlay) { newValue in
-            // Only respond to external changes if user is not interacting
-            if !isUserInteracting {
+            print("InlineTrailerView: onChange shouldPlay: \(newValue)")
+            
+            // For YouTube videos, control through JavaScript
+            if isYouTubeUrl {
+                // This will be handled by the YouTubeEmbedView's updateUIView
+                print("InlineTrailerView: YouTube onChange - handled by YouTubeEmbedView")
+            }
+            // For regular videos, only respond to external changes (not from togglePlayback)
+            else if player?.timeControlStatus != (newValue ? .playing : .paused) {
                 if newValue {
+                    print("InlineTrailerView: onChange calling player.play()")
                     player?.play()
                     isPlaying = true
                 } else {
+                    print("InlineTrailerView: onChange calling player.pause()")
                     player?.pause()
                     isPlaying = false
                 }
@@ -1654,14 +1699,57 @@ struct InlineTrailerView: View {
     }
     
     private func togglePlayback() {
-        isUserInteracting = true
+        print("InlineTrailerView: togglePlayback called, current shouldPlay: \(shouldPlay)")
+        
+        // Toggle the state
         shouldPlay.toggle()
         isPlaying = shouldPlay
         
-        // Reset user interaction flag after a short delay
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            isUserInteracting = false
+        print("InlineTrailerView: After toggle, shouldPlay: \(shouldPlay), isYouTubeUrl: \(isYouTubeUrl)")
+        
+        // Control playback immediately
+        if isYouTubeUrl {
+            // For YouTube, the onChange will handle it through evaluateJavaScript
+            print("InlineTrailerView: YouTube video - will be handled by onChange")
+        } else {
+            // For regular videos, control directly
+            if shouldPlay {
+                print("InlineTrailerView: Calling player.play()")
+                player?.play()
+            } else {
+                print("InlineTrailerView: Calling player.pause()")
+                player?.pause()
+            }
         }
+        
+        // Show controls when pausing, hide after delay when playing
+        withAnimation(.easeInOut(duration: 0.3)) {
+            showControls = true
+        }
+        
+        if shouldPlay {
+            scheduleHideControls()
+        } else {
+            // Cancel auto-hide when paused
+            hideControlsWorkItem?.cancel()
+        }
+    }
+    
+    private func scheduleHideControls() {
+        // Cancel any existing work item
+        hideControlsWorkItem?.cancel()
+        
+        // Create new work item to hide controls
+        let workItem = DispatchWorkItem {
+            withAnimation(.easeInOut(duration: 0.3)) {
+                showControls = false
+            }
+        }
+        
+        hideControlsWorkItem = workItem
+        
+        // Schedule to hide after 3 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3, execute: workItem)
     }
     
     private func analyzeAndSetupTrailer() {
@@ -1698,6 +1786,8 @@ struct InlineTrailerView: View {
             if self.shouldPlay {
                 self.player?.play()
                 self.isPlaying = true
+                // Auto-hide controls when starting playback
+                self.scheduleHideControls()
             }
         }
     }
@@ -1752,39 +1842,11 @@ struct YouTubeEmbedView: UIViewRepresentable {
                     body { margin: 0; padding: 0; background: black; }
                     .video-container { position: relative; padding-bottom: 56.25%; height: 0; }
                     #player { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
-                    .click-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; background: transparent; cursor: pointer; }
-                    .play-icon {
-                        position: absolute;
-                        top: 50%;
-                        left: 50%;
-                        transform: translate(-50%, -50%);
-                        width: 60px;
-                        height: 60px;
-                        background: rgba(0, 0, 0, 0.7);
-                        border-radius: 50%;
-                        display: none;
-                        z-index: 11;
-                        pointer-events: none;
-                    }
-                    .play-icon::after {
-                        content: '';
-                        position: absolute;
-                        top: 50%;
-                        left: 55%;
-                        transform: translate(-50%, -50%);
-                        width: 0;
-                        height: 0;
-                        border-left: 20px solid white;
-                        border-top: 12px solid transparent;
-                        border-bottom: 12px solid transparent;
-                    }
-                    .paused .play-icon { display: block; }
                 </style>
             </head>
             <body>
                 <div class="video-container" id="container">
                     <div id="player"></div>
-                    <div class="play-icon"></div>
                 </div>
                 <script>
                     var tag = document.createElement('script');
@@ -1807,7 +1869,8 @@ struct YouTubeEmbedView: UIViewRepresentable {
                                 'controls': 0,
                                 'modestbranding': 1,
                                 'rel': 0,
-                                'showinfo': 0
+                                'showinfo': 0,
+                                'fs': 0
                             },
                             events: {
                                 'onReady': onPlayerReady,
@@ -1821,29 +1884,7 @@ struct YouTubeEmbedView: UIViewRepresentable {
                             event.target.playVideo();
                         }
                         
-                        // Add click handler after player is ready
-                        var playerElement = document.getElementById('player');
-                        if (playerElement) {
-                            // Create an overlay div to capture clicks
-                            var overlay = document.createElement('div');
-                            overlay.className = 'click-overlay';
-                            overlay.addEventListener('click', function(e) {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (player && player.getPlayerState) {
-                                    var state = player.getPlayerState();
-                                    var container = document.getElementById('container');
-                                    if (state == YT.PlayerState.PLAYING) {
-                                        player.pauseVideo();
-                                        container.classList.add('paused');
-                                    } else {
-                                        player.playVideo();
-                                        container.classList.remove('paused');
-                                    }
-                                }
-                            });
-                            playerElement.parentNode.appendChild(overlay);
-                        }
+                        // Click handling is now done at the SwiftUI level
                     }
                     
                     function pauseVideo() {
@@ -1859,12 +1900,7 @@ struct YouTubeEmbedView: UIViewRepresentable {
                     }
                     
                     function onPlayerStateChange(event) {
-                        var container = document.getElementById('container');
-                        if (event.data == YT.PlayerState.PLAYING) {
-                            container.classList.remove('paused');
-                        } else if (event.data == YT.PlayerState.PAUSED) {
-                            container.classList.add('paused');
-                        }
+                        // State change handling for future use
                     }
                 </script>
             </body>
