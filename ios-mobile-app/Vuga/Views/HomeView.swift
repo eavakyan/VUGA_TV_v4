@@ -524,15 +524,28 @@ struct HomeView: View {
     
     private var featuredContentTabView: some View {
         GeometryReader { geometry in
-            TabView(selection: $vm.selectedImageIndex.animation(.easeInOut(duration: 2.0))) {
+            ZStack {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     featuredContentCard(feature: vm.featured[index])
                         .frame(width: geometry.size.width * 0.95, height: geometry.size.height * 0.9)
-                        .padding(.horizontal, geometry.size.width * 0.025)
+                        .offset(x: CGFloat(index - vm.selectedImageIndex) * geometry.size.width)
                 }
             }
-            .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(width: geometry.size.width, height: geometry.size.height)
+            .clipped()
+            .gesture(
+                DragGesture()
+                    .onEnded { value in
+                        let threshold = geometry.size.width * 0.3
+                        withAnimation(.easeInOut(duration: 6.0)) {
+                            if value.translation.width > threshold && vm.selectedImageIndex > 0 {
+                                vm.selectedImageIndex -= 1
+                            } else if value.translation.width < -threshold && vm.selectedImageIndex < vm.featured.count - 1 {
+                                vm.selectedImageIndex += 1
+                            }
+                        }
+                    }
+            )
         }
         .frame(height: UIScreen.main.bounds.width * 0.95 * 1.5) // 95% width with 2:3 aspect ratio
     }
@@ -776,7 +789,7 @@ struct HomeView: View {
                 Circle()
                     .fill(vm.selectedImageIndex == index ? Color.white : Color.white.opacity(0.5))
                     .frame(width: 8, height: 8)
-                    .animation(.easeInOut, value: vm.selectedImageIndex)
+                    .animation(.easeInOut(duration: 6.0), value: vm.selectedImageIndex)
             }
         }
         .padding(.bottom, 10)
