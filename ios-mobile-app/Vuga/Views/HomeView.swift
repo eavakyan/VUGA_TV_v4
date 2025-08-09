@@ -58,7 +58,7 @@ struct HomeView: View {
                         
                         if vm.featured.isNotEmpty {
                             topBar
-                                .frame(height: UIScreen.main.bounds.width * 0.80 * 1.5)
+                                .frame(height: UIScreen.main.bounds.width * 0.75 * 1.5)
                         }
                         LazyVStack {
                             if recentlyWatchedContents.isNotEmpty && !vm.isLoading && vm.featured.isNotEmpty{
@@ -546,14 +546,14 @@ struct HomeView: View {
             TabView(selection: $vm.selectedImageIndex) {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     featuredContentCard(feature: vm.featured[index])
-                        .frame(width: geometry.size.width * 0.80, height: geometry.size.height)
-                        .padding(.horizontal, geometry.size.width * 0.10)
+                        .frame(width: geometry.size.width * 0.75, height: geometry.size.height * 0.9)
+                        .padding(.horizontal, geometry.size.width * 0.125)
                 }
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .never))
             .frame(width: geometry.size.width, height: geometry.size.height)
         }
-        .frame(height: UIScreen.main.bounds.width * 0.80 * 1.5) // 80% width with 2:3 aspect ratio
+        .frame(height: UIScreen.main.bounds.width * 0.75 * 1.5) // 75% width with 2:3 aspect ratio
     }
     
     private func featuredContentCard(feature: VugaContent) -> some View {
@@ -571,33 +571,33 @@ struct HomeView: View {
                 )
                 
                 // Content overlay centered
-                VStack(spacing: 16) {
+                VStack(spacing: 12) {
                     Spacer()
                     
                     // Title
                     Text(feature.title ?? "")
-                        .outfitBold(28)
+                        .outfitBold(20)
                         .foregroundColor(.white)
                         .lineLimit(2)
                         .multilineTextAlignment(.center)
                         .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
                     
                     // Action buttons
-                    HStack(spacing: 12) {
+                    HStack(spacing: 10) {
                         // WATCH NOW button
                         Button(action: {
                             handlePlayAction(feature: feature)
                         }) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 4) {
                                 Image(systemName: "play.fill")
-                                    .font(.system(size: 14))
+                                    .font(.system(size: 11))
                                 Text("WATCH NOW")
-                                    .outfitSemiBold(14)
-                                    .tracking(0.5)
+                                    .outfitSemiBold(11)
+                                    .tracking(0.3)
                             }
                             .foregroundColor(Color.gray.opacity(0.9))
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                             .background(Color.white)
                             .clipShape(Capsule())
                         }
@@ -606,16 +606,16 @@ struct HomeView: View {
                         Button(action: {
                             handleWatchlistAction(feature: feature)
                         }) {
-                            HStack(spacing: 6) {
+                            HStack(spacing: 4) {
                                 Image(systemName: isInWatchlist(contentId: feature.id ?? 0) ? "checkmark" : "plus")
-                                    .font(.system(size: 14, weight: .bold))
+                                    .font(.system(size: 11, weight: .bold))
                                 Text("MY LIST")
-                                    .outfitSemiBold(14)
-                                    .tracking(0.5)
+                                    .outfitSemiBold(11)
+                                    .tracking(0.3)
                             }
                             .foregroundColor(.white)
-                            .padding(.horizontal, 20)
-                            .padding(.vertical, 12)
+                            .padding(.horizontal, 16)
+                            .padding(.vertical, 8)
                             .background(Color.gray.opacity(0.3))
                             .overlay(
                                 Capsule()
@@ -625,7 +625,7 @@ struct HomeView: View {
                         }
                     }
                     
-                    Spacer().frame(height: 40)
+                    Spacer().frame(height: 20)
                 }
                 .padding(.horizontal)
             }
@@ -642,37 +642,51 @@ struct HomeView: View {
     }
     
     private func handlePlayAction(feature: VugaContent) {
+        print("HomeView: handlePlayAction called for content: \(feature.title ?? "Unknown")")
+        print("HomeView: Content ID: \(feature.id ?? 0)")
+        print("HomeView: Has content sources: \(feature.contentSources != nil)")
+        print("HomeView: Content sources count: \(feature.contentSources?.count ?? 0)")
+        
         // Check if we already have content sources
         if let sources = feature.contentSources, !sources.isEmpty,
            let firstSource = sources.first {
+            print("HomeView: Found existing sources, playing directly")
             playVideoDirectly(source: firstSource, content: feature)
         } else {
             // Need to fetch content details to get sources
+            print("HomeView: No sources found, fetching content details")
             fetchAndPlayContent(contentId: feature.id ?? 0, content: feature)
         }
     }
     
     private func playVideoDirectly(source: Source, content: VugaContent) {
         let sourceType = source.type?.rawValue ?? 0
-        let sourceId = source.id ?? 0
-        let url = source.sourceURL.absoluteString
         
-        print("HomeView: Playing video directly - sourceType: \(sourceType), url: \(url)")
+        print("HomeView: Playing video directly - sourceType: \(sourceType), sourceId: \(source.id ?? 0)")
+        print("HomeView: Source URL: \(source.sourceURL.absoluteString)")
         
-        // Check if it's a YouTube video (type 1)
+        // Create a temporary ContentDetailViewModel to handle the source selection
+        let tempVM = ContentDetailViewModel()
+        tempVM.content = content
+        tempVM.selectedSource = source
+        
+        // Navigate to the appropriate view
         if sourceType == 1 {
+            // YouTube video
+            print("HomeView: Playing YouTube video")
             Navigation.pushToSwiftUiView(YoutubeView(youtubeUrl: source.source ?? ""))
         } else {
+            // Regular video player
+            print("HomeView: Playing regular video")
             Navigation.pushToSwiftUiView(
                 VideoPlayerView(
                     content: content,
                     episode: nil,
                     type: sourceType,
                     isShowAdView: false,
-                    isForDownloads: false,
-                    url: url,
+                    url: source.sourceURL.absoluteString,
                     progress: 0,
-                    sourceId: sourceId
+                    sourceId: source.id
                 )
             )
         }
@@ -685,8 +699,12 @@ struct HomeView: View {
         if let userId = vm.myUser?.id {
             params[.appUserId] = userId
         }
-        if let profileId = vm.myUser?.lastActiveProfileId {
+        if let profileId = SessionManager.shared.currentProfile?.profileId {
             params[.profileId] = profileId
+            print("HomeView: Using profile ID: \(profileId)")
+        } else if let profileId = vm.myUser?.lastActiveProfileId {
+            params[.profileId] = profileId
+            print("HomeView: Using last active profile ID: \(profileId)")
         }
         
         // Show loading indicator
@@ -695,15 +713,48 @@ struct HomeView: View {
         NetworkManager.callWebService(url: .fetchContentDetails, params: params, callbackSuccess: { (obj: ContentModel) in
             vm.stopLoading()
             
-            if let fullContent = obj.data,
-               let sources = fullContent.contentSources,
-               !sources.isEmpty,
-               let firstSource = sources.first {
-                // Play the first available source
-                playVideoDirectly(source: firstSource, content: fullContent)
+            print("HomeView: Content details response - status: \(obj.status ?? false)")
+            print("HomeView: Content title: \(obj.data?.title ?? "nil")")
+            print("HomeView: Content sources count: \(obj.data?.contentSources?.count ?? 0)")
+            
+            if let fullContent = obj.data {
+                if let sources = fullContent.contentSources, !sources.isEmpty {
+                    print("HomeView: Found \(sources.count) sources")
+                    if let firstSource = sources.first {
+                        print("HomeView: First source - type: \(firstSource.type?.rawValue ?? -1), url: \(firstSource.source ?? "nil")")
+                        // Play the first available source
+                        playVideoDirectly(source: firstSource, content: fullContent)
+                    }
+                } else {
+                    // No sources available
+                    print("HomeView: No sources found in content details")
+                    print("HomeView: Content type: \(fullContent.type?.rawValue ?? -1)")
+                    print("HomeView: Has seasons: \(fullContent.seasons != nil)")
+                    
+                    // For TV shows, we might need to get episode sources
+                    if fullContent.type == .series, let seasons = fullContent.seasons, !seasons.isEmpty {
+                        print("HomeView: This is a TV show with \(seasons.count) seasons")
+                        
+                        // Try to play the first episode of the first season
+                        if let firstSeason = seasons.first,
+                           let episodes = firstSeason.episodes,
+                           !episodes.isEmpty,
+                           let firstEpisode = episodes.first,
+                           let episodeSources = firstEpisode.sources,
+                           !episodeSources.isEmpty,
+                           let firstSource = episodeSources.first {
+                            print("HomeView: Playing first episode of TV show")
+                            // Pass the original content - the video player will handle episode info
+                            playVideoDirectly(source: firstSource, content: fullContent)
+                            return
+                        }
+                    }
+                    
+                    // Fallback to content detail view
+                    Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: contentId))
+                }
             } else {
-                // Fallback to content detail view if no sources available
-                print("HomeView: No sources found, navigating to ContentDetailView")
+                print("HomeView: No content data in response")
                 Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: contentId))
             }
         }, callbackFailure: { error in
