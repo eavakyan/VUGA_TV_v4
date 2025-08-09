@@ -63,7 +63,7 @@ class HomeViewModel : BaseViewModel {
                     .sink { [weak self] _ in
                         DispatchQueue.main.async { [weak self] in
                             guard let self = self, self.featured.isNotEmpty else { return }
-                            withAnimation(.easeInOut(duration: 0.8)) {
+                            withAnimation {
                                 self.selectedImageIndex = (self.selectedImageIndex + 1) % self.featured.count
                             }
                         }

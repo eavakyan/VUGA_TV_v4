@@ -524,7 +524,7 @@ struct HomeView: View {
     
     private var featuredContentTabView: some View {
         GeometryReader { geometry in
-            TabView(selection: $vm.selectedImageIndex) {
+            TabView(selection: $vm.selectedImageIndex.animation(.easeInOut(duration: 2.0))) {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     featuredContentCard(feature: vm.featured[index])
                         .frame(width: geometry.size.width * 0.95, height: geometry.size.height * 0.9)
