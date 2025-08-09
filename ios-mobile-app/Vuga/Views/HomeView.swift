@@ -542,7 +542,7 @@ struct HomeView: View {
                         .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
                     
                     // Action buttons
-                    VStack(spacing: 10) {
+                    HStack(spacing: 10) {
                         // WATCH NOW button
                         Button(action: {
                             handlePlayAction(feature: feature)
@@ -560,6 +560,7 @@ struct HomeView: View {
                             .background(Color.white)
                             .clipShape(Capsule())
                         }
+                        .frame(width: geometry.size.width * 0.45)
                         
                         // + MY LIST button
                         Button(action: {
@@ -582,8 +583,8 @@ struct HomeView: View {
                             )
                             .clipShape(Capsule())
                         }
+                        .frame(width: geometry.size.width * 0.45)
                     }
-                    .padding(.horizontal, 20)
                     
                     Spacer().frame(height: 20)
                 }
