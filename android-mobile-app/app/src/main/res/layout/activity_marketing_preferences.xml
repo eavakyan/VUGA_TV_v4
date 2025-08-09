@@ -1,0 +1,262 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_black"
+        tools:context=".activities.MarketingPreferencesActivity">
+
+        <!-- Header -->
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin_top"
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingHorizontal="10dp">
+
+            <LinearLayout
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <include layout="@layout/lout_back_btn" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <TextView
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="40dp"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:text="Marketing Preferences"
+                android:textSize="@dimen/_20sp" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+        </LinearLayout>
+
+        <!-- Content -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/header"
+            android:layout_above="@id/btn_save"
+            android:layout_margin="20dp"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <!-- Info Card -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_for_profile_tab"
+                    android:orientation="vertical"
+                    android:padding="20dp"
+                    android:layout_marginBottom="20dp">
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:text="Communication Preferences"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:text="Choose how you'd like to receive updates and special offers from us."
+                        android:textColor="@color/text_color_light"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Email Consent -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_for_profile_tab"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:layout_marginBottom="10dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="16dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_mail"
+                                app:tint="@color/app_color" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:fontFamily="@font/outfit_medium"
+                                android:text="Email Updates"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="Receive news, updates and special offers via email"
+                            android:textColor="@color/text_color_light"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/cb_email_consent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/app_color" />
+                </LinearLayout>
+
+                <!-- SMS Consent -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_for_profile_tab"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="20dp"
+                    android:layout_marginBottom="20dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical"
+                        android:layout_marginEnd="16dp">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_message"
+                                app:tint="@color/app_color" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10dp"
+                                android:fontFamily="@font/outfit_medium"
+                                android:text="SMS Updates"
+                                android:textSize="16sp" />
+                        </LinearLayout>
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="Receive updates and alerts via SMS"
+                            android:textColor="@color/text_color_light"
+                            android:textSize="13sp" />
+                    </LinearLayout>
+
+                    <CheckBox
+                        android:id="@+id/cb_sms_consent"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:buttonTint="@color/app_color" />
+                </LinearLayout>
+
+                <!-- Privacy Info -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_for_profile_tab"
+                    android:alpha="0.6"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:fontFamily="@font/outfit_medium"
+                        android:text="Privacy Information"
+                        android:textSize="14sp" />
+
+                    <TextView
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:fontFamily="@font/outfit_regular"
+                        android:text="We respect your privacy and will only send you communications you've opted in to receive. You can update your preferences at any time."
+                        android:textColor="@color/text_color_light"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- Save Button -->
+        <TextView
+            android:id="@+id/btn_save"
+            style="@style/TextViewLocal"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/btn_login_height"
+            android:layout_alignParentBottom="true"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_round_rect_10"
+            android:backgroundTint="@color/app_color"
+            android:gravity="center"
+            android:text="Save Preferences"
+            android:textSize="@dimen/_18sp"
+            android:visibility="gone" />
+
+        <!-- Loader -->
+        <include
+            android:id="@+id/loader"
+            layout="@layout/lout_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
+    </RelativeLayout>
+</layout>

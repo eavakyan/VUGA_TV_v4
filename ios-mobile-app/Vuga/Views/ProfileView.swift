@@ -30,7 +30,7 @@ struct ProfileView: View {
                 Spacer()
                 Text(String.profile.localized(language))
                     .outfitSemiBold(20)
-                    .foregroundColor(.text)
+                    .foregroundColor(Color("textColor"))
                 Spacer()
                 BackButton()
                     .hidden()
@@ -55,7 +55,7 @@ struct ProfileView: View {
                         } else {
                             Image.person
                                 .resizeFitTo(size: 110,renderingMode: .template)
-                                .foregroundColor(.text)
+                                .foregroundColor(Color("textColor"))
                         }
                         Spacer()
                         Image.edit
@@ -74,6 +74,10 @@ struct ProfileView: View {
                         }
                     }
                     MySpaceFieldCardWithSwitch(icon: .notification, title: .notifications,isNotificationCard: true)
+                    
+                    ProfileFieldCard(icon: .mail, title: "Marketing Preferences"){
+                        Navigation.pushToSwiftUiView(MarketingPreferencesView())
+                    }
                     
                     ProfileFieldCard(icon: .downloads, title: .downloads){
                             Navigation.pushToSwiftUiView(DownloadView())
@@ -111,7 +115,7 @@ struct ProfileView: View {
                         ProfileFieldCard(icon: .logout, title: .logout){
                             vm.isLogoutDialogShow = true
                         }
-                        ProfileFieldCard(icon: .delete, title: .deleteMyAccount,titleColor: .base){
+                        ProfileFieldCard(icon: .delete, title: .deleteMyAccount,titleColor: Color("baseColor")){
                             vm.isDeleteDialogShow = true
                         }
                     } else {
@@ -125,16 +129,23 @@ struct ProfileView: View {
         }
         .hideNavigationbar()
         .customAlert(isPresented: $vm.isLogoutDialogShow){
-            DialogCard(icon: Image.logout, title: .areYouSure, subTitle: .logoutDes, buttonTitle: .logout, onClose: {
-                withAnimation {
-                    vm.isLogoutDialogShow = false
-                }
-            },onButtonTap: {
-                deleteDownloadData()
-                vm.isLogoutDialogShow = false
-                vm.logOutMyAc()
-            })
-            .animation(.default, value: vm.isLogoutDialogShow)
+            if vm.isLoggingOut {
+                // Show progress dialog during logout
+                LogoutProgressView(progress: vm.logoutProgress, statusMessage: vm.logoutStatusMessage)
+                    .animation(.default, value: vm.isLogoutDialogShow)
+            } else {
+                // Show confirmation dialog
+                DialogCard(icon: Image.logout, title: .areYouSure, subTitle: .logoutDes, buttonTitle: .logout, onClose: {
+                    withAnimation {
+                        vm.isLogoutDialogShow = false
+                    }
+                },onButtonTap: {
+                    // Start logout process without clearing downloads first
+                    // Downloads will be preserved for offline viewing
+                    vm.logOutMyAc()
+                })
+                .animation(.default, value: vm.isLogoutDialogShow)
+            }
         }
         .customAlert(isPresented: $vm.isDeleteDialogShow){
             DialogCard(icon: Image.delete, title: .areYouSure, subTitle: .deleteAccountDes, buttonTitle: .deleteMyAccount, onClose: {
@@ -205,10 +216,10 @@ struct ProfileProCard: View {
                 HStack(spacing: 5) {
                     Text(String.becomeA.localized(language))
                         .outfitRegular(14)
-                        .foregroundColor(.text)
+                        .foregroundColor(Color("textColor"))
                     Text(String.pro.localized(language))
                         .outfitSemiBold(14)
-                        .foregroundColor(.base)
+                        .foregroundColor(Color("baseColor"))
                 }
                 Spacer()
             }
@@ -226,7 +237,7 @@ struct ProfileProCard: View {
             )
             .clipped()
             .contentShape(Rectangle())
-            .background(Color.bg)
+            .background(Color("bgColor"))
             .customCornerRadius(radius: 16)
             .overlay(content: {
                 RoundedRectangle(cornerRadius: 17)
@@ -240,9 +251,10 @@ struct ProfileProCard: View {
 
 struct ProfileFieldCard: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
+    @State private var isPressed = false
     let icon: Image
     let title: String
-    var titleColor : Color = .text
+    var titleColor : Color = Color("textColor")
     var onTap: ()->() = {}
     
     var body: some View {
@@ -259,10 +271,26 @@ struct ProfileFieldCard: View {
                     .fixedSize(horizontal: true, vertical: false)
             }
             .frame(maxWidth: .infinity,alignment: .leading)
-            .onTap(completion: onTap)
         }
         .padding(17)
         .addbgToProfileCard()
+        .scaleEffect(isPressed ? 0.95 : 1.0)
+        .opacity(isPressed ? 0.6 : 1.0)
+        .animation(.easeInOut(duration: 0.1), value: isPressed)
+        .onTapGesture {
+            // Provide immediate visual feedback
+            isPressed = true
+            
+            // Haptic feedback
+            let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+            impactFeedback.impactOccurred()
+            
+            // Reset visual state and execute action
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                isPressed = false
+                onTap()
+            }
+        }
     }
 }
 
@@ -282,11 +310,11 @@ struct MySpaceFieldCardWithSwitch: View {
                 HStack(spacing: 12) {
                     icon
                         .resizeFitTo(width: 20, height: 20, renderingMode: .template)
-                        .foregroundColor(.text)
+                        .foregroundColor(Color("textColor"))
                         .frame(width: 20)
                     VStack(alignment: .leading) {
                         Text(title.localized(language))
-                            .foregroundColor(.text)
+                            .foregroundColor(Color("textColor"))
                             .outfitRegular(14)
                             .fixedSize(horizontal: true, vertical: false)
                     }
@@ -370,6 +398,45 @@ struct HtmlWebView: UIViewRepresentable {
     }
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
+    }
+}
+
+// MARK: - Logout Progress View
+struct LogoutProgressView: View {
+    let progress: Float
+    let statusMessage: String
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            // Logo or icon
+            Image.logout
+                .resizeFitTo(width: 50, height: 50, renderingMode: .template)
+                .foregroundColor(Color("baseColor"))
+            
+            // Status message
+            Text(statusMessage)
+                .font(.system(size: 16, weight: .medium))
+                .foregroundColor(Color("textColor"))
+                .multilineTextAlignment(.center)
+                .animation(.easeInOut(duration: 0.3), value: statusMessage)
+            
+            // Progress bar
+            ProgressView(value: progress)
+                .progressViewStyle(LinearProgressViewStyle(tint: .base))
+                .frame(height: 6)
+                .scaleEffect(x: 1, y: 1.5, anchor: .center)
+                .animation(.linear(duration: 0.3), value: progress)
+            
+            // Percentage text
+            Text("\(Int(progress * 100))%")
+                .font(.system(size: 14, weight: .regular))
+                .foregroundColor(.textLight)
+        }
+        .padding(30)
+        .background(Color("bgColor"))
+        .cornerRadius(20)
+        .frame(maxWidth: 300)
+        .shadow(color: Color.black.opacity(0.1), radius: 10, x: 0, y: 5)
     }
 }
 

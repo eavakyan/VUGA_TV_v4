@@ -25,6 +25,14 @@
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconName</key>
+			<string>AppIcon</string>
+		</dict>
+	</dict>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-0482996021014353~5361423681</string>
 	<key>Item0</key>

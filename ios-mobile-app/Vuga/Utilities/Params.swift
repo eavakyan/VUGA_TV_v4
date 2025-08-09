@@ -46,4 +46,6 @@ enum Params: String {
     case lastWatchedPosition = "last_watched_position"
     case totalDuration = "total_duration"
     case completed = "completed"
+    case emailConsent = "email_consent"
+    case smsConsent = "sms_consent"
 }

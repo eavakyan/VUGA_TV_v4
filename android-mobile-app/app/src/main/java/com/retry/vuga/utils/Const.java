@@ -71,6 +71,8 @@ public class Const {
         public static final String language_id = "language_id";
         public static final String type = "type";
         public static final String profile_image = "profile_image";
+        public static final String email_consent = "email_consent";
+        public static final String sms_consent = "sms_consent";
 
 
     }

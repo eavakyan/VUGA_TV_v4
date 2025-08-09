@@ -67,6 +67,9 @@ struct LoginView: View, KeyboardReadable {
                 }
             }
         }.padding() , alignment: .topLeading)
+        .onAppear {
+            vm.clearValidationErrors()
+        }
         .addBackground()
         .loaderView(vm.isLoading)
     }
@@ -74,11 +77,137 @@ struct LoginView: View, KeyboardReadable {
     var signUpView: some View {
         VStack {
             VStack(spacing: 15) {
-                MyTextField(placeholder: .fullName, text: $vm.fullname)
-                MyTextField(placeholder: .email, text: $vm.email)
-                    .keyboardType(.emailAddress)
-                MySecuredTextField(placeholder: .password, text: $vm.password)
-                MySecuredTextField(placeholder: .confirmPassword, text: $vm.confirmPassword)
+                VStack(alignment: .leading, spacing: 5) {
+                    MyTextField(placeholder: .fullName, text: $vm.fullname)
+                        .onChange(of: vm.fullname) { _ in
+                            if vm.showValidationErrors {
+                                _ = vm.validateFullName()
+                            }
+                        }
+                    if !vm.fullnameError.isEmpty && vm.showValidationErrors {
+                        Text(vm.fullnameError)
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 5)
+                            .animation(.easeInOut(duration: 0.2), value: vm.fullnameError)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 5) {
+                    MyTextField(placeholder: .email, text: $vm.email)
+                        .keyboardType(.emailAddress)
+                        .onChange(of: vm.email) { _ in
+                            if vm.showValidationErrors {
+                                _ = vm.validateEmail()
+                            }
+                        }
+                    if !vm.emailError.isEmpty && vm.showValidationErrors {
+                        Text(vm.emailError)
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 5)
+                            .animation(.easeInOut(duration: 0.2), value: vm.emailError)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 5) {
+                    MySecuredTextField(placeholder: .password, text: $vm.password)
+                        .onChange(of: vm.password) { _ in
+                            if vm.showValidationErrors {
+                                _ = vm.validatePassword()
+                                if !vm.confirmPassword.isEmpty {
+                                    _ = vm.validateConfirmPassword()
+                                }
+                            }
+                        }
+                    
+                    // Password strength indicator
+                    if !vm.password.isEmpty {
+                        PasswordStrengthView(password: vm.password)
+                            .padding(.horizontal, 5)
+                            .animation(.easeInOut(duration: 0.2), value: vm.password)
+                    }
+                    
+                    if !vm.passwordError.isEmpty && vm.showValidationErrors {
+                        Text(vm.passwordError)
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 5)
+                            .animation(.easeInOut(duration: 0.2), value: vm.passwordError)
+                    }
+                }
+                
+                VStack(alignment: .leading, spacing: 5) {
+                    MySecuredTextField(placeholder: .confirmPassword, text: $vm.confirmPassword)
+                        .onChange(of: vm.confirmPassword) { _ in
+                            if vm.showValidationErrors {
+                                _ = vm.validateConfirmPassword()
+                            }
+                        }
+                    if !vm.confirmPasswordError.isEmpty && vm.showValidationErrors {
+                        Text(vm.confirmPasswordError)
+                            .font(.system(size: 12))
+                            .foregroundColor(.red)
+                            .padding(.horizontal, 5)
+                            .animation(.easeInOut(duration: 0.2), value: vm.confirmPasswordError)
+                    }
+                }
+                
+                // Marketing Consent Section
+                VStack(alignment: .leading, spacing: 12) {
+                    // Email consent
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: vm.emailConsent ? "checkmark.square.fill" : "square")
+                            .font(.system(size: 22))
+                            .foregroundColor(vm.emailConsent ? .base : .textLight)
+                            .onTapGesture {
+                                vm.emailConsent.toggle()
+                            }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Email Updates")
+                                .outfitMedium(14)
+                                .foregroundColor(.text)
+                            Text("Receive news, updates and special offers via email")
+                                .outfitRegular(12)
+                                .foregroundColor(.textLight)
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        vm.emailConsent.toggle()
+                    }
+                    
+                    // SMS consent
+                    HStack(alignment: .top, spacing: 12) {
+                        Image(systemName: vm.smsConsent ? "checkmark.square.fill" : "square")
+                            .font(.system(size: 22))
+                            .foregroundColor(vm.smsConsent ? .base : .textLight)
+                            .onTapGesture {
+                                vm.smsConsent.toggle()
+                            }
+                        
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("SMS Updates")
+                                .outfitMedium(14)
+                                .foregroundColor(.text)
+                            Text("Receive updates and alerts via SMS")
+                                .outfitRegular(12)
+                                .foregroundColor(.textLight)
+                                .multilineTextAlignment(.leading)
+                        }
+                        
+                        Spacer()
+                    }
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        vm.smsConsent.toggle()
+                    }
+                }
+                .padding(.top, 8)
             }
             .padding(.bottom)
             
@@ -217,4 +346,64 @@ struct LoginButton: View {
         .cornerRadius(radius: 16)
         .onTap(completion: onTap)
     }
+}
+
+struct PasswordStrengthView: View {
+    let password: String
+    
+    var strength: PasswordStrength {
+        calculatePasswordStrength(password)
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 4) {
+                ForEach(0..<4) { index in
+                    RoundedRectangle(cornerRadius: 2)
+                        .fill(index < strength.level ? strength.color : Color.gray.opacity(0.3))
+                        .frame(height: 4)
+                }
+            }
+            
+            Text(strength.text)
+                .font(.system(size: 11))
+                .foregroundColor(strength.color)
+        }
+    }
+    
+    func calculatePasswordStrength(_ password: String) -> PasswordStrength {
+        var score = 0
+        
+        // Length check
+        if password.count >= 8 { score += 1 }
+        if password.count >= 12 { score += 1 }
+        
+        // Character variety checks
+        let hasUppercase = password.range(of: "[A-Z]", options: .regularExpression) != nil
+        let hasLowercase = password.range(of: "[a-z]", options: .regularExpression) != nil
+        let hasNumbers = password.range(of: "[0-9]", options: .regularExpression) != nil
+        let hasSpecial = password.range(of: "[!@#$%^&*(),.?\":{}|<>]", options: .regularExpression) != nil
+        
+        if hasUppercase { score += 1 }
+        if hasLowercase { score += 1 }
+        if hasNumbers { score += 1 }
+        if hasSpecial { score += 1 }
+        
+        // Determine strength based on score
+        if score <= 2 {
+            return PasswordStrength(level: 1, color: .red, text: "Weak password")
+        } else if score <= 4 {
+            return PasswordStrength(level: 2, color: .orange, text: "Fair password")
+        } else if score <= 5 {
+            return PasswordStrength(level: 3, color: .yellow, text: "Good password")
+        } else {
+            return PasswordStrength(level: 4, color: .green, text: "Strong password")
+        }
+    }
+}
+
+struct PasswordStrength {
+    let level: Int
+    let color: Color
+    let text: String
 }

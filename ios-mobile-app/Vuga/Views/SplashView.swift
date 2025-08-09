@@ -12,7 +12,7 @@ struct SplashView: View {
     @StateObject var vm : SplashViewModel
     @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
     @AppStorage(SessionKeys.myUser) var myUser : User? = nil
-    @State private var showProfileSelection = false
+    @State private var showProfileSelection = true  // Default to true to show profile selection
     
     var body: some View {
         if !vm.isSettingDataLoaded {
@@ -21,6 +21,8 @@ struct SplashView: View {
                 .addBackground()
                 .onAppear {
                     print("SplashView: onAppear - fetching settings and profile")
+                    // Clear the current profile to ensure profile selection is shown
+                    SessionManager.shared.clearProfile()
                     vm.fetchSettings()
                     vm.fetchProfile()
                 }
@@ -43,17 +45,18 @@ struct SplashView: View {
                 }
         } else if isLoggedIn {
             if showProfileSelection {
-                ProfileSelectionView()
-                    .onDisappear {
-                        showProfileSelection = false
-                    }
+                ProfileSelectionView(onProfileSelected: {
+                    // Profile was selected, transition to main app
+                    showProfileSelection = false
+                })
             } else {
                 TabBarView()
             }
         } else {
             LoginView()
                 .onAppear {
-                    showProfileSelection = false
+                    // Reset to true for next login
+                    showProfileSelection = true
                 }
         }
     }
@@ -62,6 +65,8 @@ struct SplashView: View {
         // Always show profile selection on app start if logged in
         print("SplashView: checkProfileSelection - isLoggedIn: \(isLoggedIn)")
         if isLoggedIn {
+            // Clear any saved profile to ensure selection screen is shown
+            SessionManager.shared.clearProfile()
             DispatchQueue.main.async {
                 print("SplashView: Setting showProfileSelection to true")
                 self.showProfileSelection = true

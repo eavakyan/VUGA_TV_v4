@@ -62,7 +62,7 @@ struct VugaLiveActivityApp: Widget {
     func dynamicIslandExpandedLeadingView(context: ActivityViewContext<VugaLiveActivityAttributes>) -> some View {
         let imageContainer = destination.appendingPathComponent(context.attributes.imageUrl)
         return VStack(alignment: .leading,spacing: 8) {
-            Image(.logoHorizontal)
+            Image("logo_horizontal")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 40,height: 15)
@@ -75,7 +75,7 @@ struct VugaLiveActivityApp: Widget {
                     .frame(width: 70, height: 50)
                     .clipShape(RoundedRectangle(cornerRadius: 6, style: .continuous))
             }
-            Image(.logo)
+            Image("logo")
                 .resizable()
                 .aspectRatio(contentMode: .fit)
                 .frame(width: 1,height: 1)
@@ -124,7 +124,7 @@ struct VugaLiveActivityApp: Widget {
     
     //MARK: Compact Views
     func compactLeadingView(context: ActivityViewContext<VugaLiveActivityAttributes>) -> some View {
-        Image(.logo)
+        Image("logo")
             .resizable()
             .aspectRatio(contentMode: .fit)
             .frame(width: 25,height: 25)
@@ -150,7 +150,7 @@ struct LockScreenView: View {
             VStack(alignment: .leading) {
                 VStack {
                     HStack {
-                        Image(.logoHorizontal)
+                        Image("logo_horizontal")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(width: 50,height: 15)

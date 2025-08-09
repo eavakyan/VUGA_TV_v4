@@ -57,8 +57,12 @@ class ProfileSelectionViewModel: BaseViewModel {
     }
     
     func selectProfile(_ profile: Profile) {
-        guard let userId = myUser?.id else { return }
+        guard let userId = myUser?.id else { 
+            print("ProfileSelectionViewModel: selectProfile - No user ID found")
+            return 
+        }
         
+        print("ProfileSelectionViewModel: Selecting profile \(profile.name) with ID \(profile.profileId)")
         startLoading()
         let params: [Params: Any] = [
             .userId: userId,
@@ -68,13 +72,17 @@ class ProfileSelectionViewModel: BaseViewModel {
         NetworkManager.callWebService(url: .selectProfile, params: params) { [weak self] (obj: ProfileResponse) in
             self?.stopLoading()
             
+            print("ProfileSelectionViewModel: Select profile response - status: \(obj.status), message: \(obj.message)")
+            
             if obj.status {
                 // Update SessionManager's current profile immediately
                 SessionManager.shared.currentProfile = profile
                 self?.selectedProfile = profile
+                print("ProfileSelectionViewModel: Profile selected successfully")
             } else {
                 self?.showError = true
                 self?.errorMessage = obj.message
+                print("ProfileSelectionViewModel: Failed to select profile - \(obj.message)")
             }
         }
     }
@@ -134,15 +142,11 @@ class ProfileSelectionViewModel: BaseViewModel {
                 if let newProfile = obj.profile {
                     // Add the new profile to the list
                     self?.profiles = [newProfile]
-                    // Automatically select the new profile without triggering errors
-                    SessionManager.shared.currentProfile = newProfile
-                    self?.selectedProfile = newProfile
+                    // Don't auto-select during creation - let user choose
                 } else if let newProfiles = obj.profiles, !newProfiles.isEmpty {
                     // Some APIs return profiles array instead of single profile
                     self?.profiles = newProfiles
-                    // Select the first profile without triggering errors
-                    SessionManager.shared.currentProfile = newProfiles[0]
-                    self?.selectedProfile = newProfiles[0]
+                    // Don't auto-select during creation - let user choose
                 } else {
                     // If no profile returned, just create a temporary one locally
                     print("ProfileSelectionViewModel: No profile returned from create API, showing empty state")

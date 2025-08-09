@@ -229,6 +229,12 @@ public class EmailLoginActivity extends BaseActivity {
                                     hashMap.put(Const.ApiKey.identity, RequestBody.create(Objects.requireNonNull(user.getEmail()), MediaType.parse("text/plain")));
                                     hashMap.put(Const.ApiKey.device_token, RequestBody.create(sessionManager.getFireBaseToken() == null ? "123" : sessionManager.getFireBaseToken(), MediaType.parse("text/plain")));
                                     hashMap.put(Const.ApiKey.device_type, RequestBody.create(String.valueOf(1), MediaType.parse("text/plain")));
+                                    
+                                    // Add consent parameters
+                                    boolean emailConsent = binding.cbEmailConsent.isChecked();
+                                    boolean smsConsent = binding.cbSmsConsent.isChecked();
+                                    hashMap.put(Const.ApiKey.email_consent, RequestBody.create(String.valueOf(emailConsent ? 1 : 0), MediaType.parse("text/plain")));
+                                    hashMap.put(Const.ApiKey.sms_consent, RequestBody.create(String.valueOf(smsConsent ? 1 : 0), MediaType.parse("text/plain")));
 
                                     user.sendEmailVerification();
                                     Toast.makeText(EmailLoginActivity.this, R.string.verification_link_sent, Toast.LENGTH_LONG).show();

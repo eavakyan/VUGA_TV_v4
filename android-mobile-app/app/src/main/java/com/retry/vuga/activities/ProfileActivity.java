@@ -89,6 +89,10 @@ public class ProfileActivity extends BaseActivity {
                     Uri.parse("http://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID)));
 
         });
+        binding.loutMarketing.setOnClickListener(v -> {
+            startActivity(new Intent(this, MarketingPreferencesActivity.class));
+        });
+
         binding.loutDownloads.setOnClickListener(v -> {
             startActivity(new Intent(this, DownloadsActivity.class));
 

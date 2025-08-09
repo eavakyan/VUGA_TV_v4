@@ -213,9 +213,17 @@ class SessionManager: ObservableObject {
     
     //MARK: Clear
     func clear() {
+        // Clear current profile first
+        clearProfile()
+        
+        // Clear all UserDefaults
         let domain = Bundle.main.bundleIdentifier!
         UserDefaults.standard.removePersistentDomain(forName: domain)
         UserDefaults.standard.synchronize()
+        
+        // Reset published properties to nil
+        currentUser = nil
+        currentProfile = nil
     }
     
     // MARK: - User Management

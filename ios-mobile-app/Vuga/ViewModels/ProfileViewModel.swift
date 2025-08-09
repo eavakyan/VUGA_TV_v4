@@ -23,6 +23,11 @@ class ProfileViewModel : BaseViewModel {
     @Published var selectedAge: Int?
     @Published var isKidsProfile: Bool = false
     @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
+    
+    // Logout progress tracking
+    @Published var isLoggingOut = false
+    @Published var logoutProgress: Float = 0.0
+    @Published var logoutStatusMessage = ""
 
     
     func deleteMyAc() {
@@ -48,27 +53,34 @@ class ProfileViewModel : BaseViewModel {
     }
 
     func logOutMyAc() {
+        guard !isLoggingOut else { return }
+        
         print("ProfileViewModel logOutMyAc - userId: \(myUser?.id ?? 0)")
+        
+        isLoggingOut = true
+        logoutProgress = 0.0
+        logoutStatusMessage = "Signing out..."
         
         // If user is not logged in (userId = 0), just clear session locally
         if myUser?.id == nil || myUser?.id == 0 {
             print("User not logged in, clearing session locally")
-            self.isLogoutDialogShow = false
-            self.isLoggedIn = false
-            SessionManager.shared.clear()
-            // Force app restart by dispatching to main queue
-            DispatchQueue.main.async {
-                // Force navigation to root and restart app flow
-                if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                   let window = windowScene.windows.first {
-                    window.rootViewController = UIHostingController(rootView: ContentView())
-                    window.makeKeyAndVisible()
+            logoutProgress = 0.5
+            logoutStatusMessage = "Clearing local session..."
+            
+            DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+                SessionManager.shared.clear()
+                
+                DispatchQueue.main.async {
+                    self?.completeLogout()
                 }
             }
             return
         }
         
-        startLoading()
+        // Start with API call
+        logoutProgress = 0.1
+        logoutStatusMessage = "Contacting server..."
+        
         let params : [Params: Any] = [.userId : myUser?.id ?? 0]
         NetworkManager.callWebService(url: .logOut, params: params, callbackSuccess: { [weak self] (obj: DeleteAccountModel) in
             print("Logout Response:")
@@ -76,25 +88,65 @@ class ProfileViewModel : BaseViewModel {
             print("Message: \(obj.message ?? "")")
             
             if obj.status == true {
-                self?.isLogoutDialogShow = false
-                self?.isLoggedIn = false
-                SessionManager.shared.clear()
-                // Force app restart by dispatching to main queue
-                DispatchQueue.main.async {
-                    // RevenueCat disabled - directly restart app flow
-                    // Force navigation to root and restart app flow
-                    if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
-                       let window = windowScene.windows.first {
-                        window.rootViewController = UIHostingController(rootView: ContentView())
-                        window.makeKeyAndVisible()
+                self?.logoutProgress = 0.5
+                self?.logoutStatusMessage = "Clearing local data..."
+                
+                // Clear session asynchronously
+                DispatchQueue.global(qos: .userInitiated).async {
+                    SessionManager.shared.clear()
+                    
+                    DispatchQueue.main.async {
+                        self?.completeLogout()
                     }
                 }
+            } else {
+                self?.handleLogoutError("Logout failed: \(obj.message ?? "Unknown error")")
             }
-            self?.stopLoading()
-        }, callbackFailure: { error in
-            self.stopLoading()
+        }, callbackFailure: { [weak self] error in
             print("ProfileViewModel logOutMyAc error: \(error)")
+            // Even if API fails, clear local session
+            self?.logoutProgress = 0.5
+            self?.logoutStatusMessage = "Clearing local data..."
+            
+            DispatchQueue.global(qos: .userInitiated).async {
+                SessionManager.shared.clear()
+                
+                DispatchQueue.main.async {
+                    self?.completeLogout()
+                }
+            }
         })
+    }
+    
+    private func completeLogout() {
+        logoutProgress = 1.0
+        logoutStatusMessage = "Redirecting..."
+        
+        // Small delay to show completion
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.isLogoutDialogShow = false
+            self.isLoggedIn = false
+            self.isLoggingOut = false
+            self.logoutProgress = 0.0
+            self.logoutStatusMessage = ""
+            
+            // Force app restart
+            if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+               let window = windowScene.windows.first {
+                window.rootViewController = UIHostingController(rootView: ContentView())
+                window.makeKeyAndVisible()
+            }
+        }
+    }
+    
+    private func handleLogoutError(_ message: String) {
+        logoutStatusMessage = message
+        isLoggingOut = false
+        
+        // Auto-dismiss error after 2 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self.isLogoutDialogShow = false
+        }
     }
     
     // MARK: - Age Restrictions

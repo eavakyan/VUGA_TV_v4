@@ -301,6 +301,93 @@
 
                             />
 
+                        <!-- Marketing Consent Section -->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:orientation="vertical">
+
+                            <!-- Email Consent -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="8dp"
+                                android:gravity="center_vertical">
+
+                                <CheckBox
+                                    android:id="@+id/cb_email_consent"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:checked="true"
+                                    android:buttonTint="@color/app_color" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="8dp"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Email Updates"
+                                        android:textColor="@color/text_color"
+                                        android:fontFamily="@font/outfit_medium"
+                                        android:textSize="14sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Receive news, updates and special offers via email"
+                                        android:textColor="@color/text_color_light"
+                                        android:fontFamily="@font/outfit_regular"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+
+                            <!-- SMS Consent -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:padding="8dp"
+                                android:gravity="center_vertical">
+
+                                <CheckBox
+                                    android:id="@+id/cb_sms_consent"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:checked="true"
+                                    android:buttonTint="@color/app_color" />
+
+                                <LinearLayout
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="8dp"
+                                    android:orientation="vertical">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="SMS Updates"
+                                        android:textColor="@color/text_color"
+                                        android:fontFamily="@font/outfit_medium"
+                                        android:textSize="14sp" />
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="Receive updates and alerts via SMS"
+                                        android:textColor="@color/text_color_light"
+                                        android:fontFamily="@font/outfit_regular"
+                                        android:textSize="12sp" />
+                                </LinearLayout>
+                            </LinearLayout>
+                        </LinearLayout>
 
                         <TextView
                             android:id="@+id/btn_register"

@@ -27,6 +27,10 @@ struct User: Codable {
     let profiles: [Profile]?
     let lastActiveProfileId: Int?
     let lastActiveProfile: Profile?
+    let smsConsent: Bool?
+    let emailConsent: Bool?
+    let smsConsentDate: String?
+    let emailConsentDate: String?
 
     enum CodingKeys: String, CodingKey {
         case id = "app_user_id"
@@ -45,6 +49,10 @@ struct User: Codable {
         case profiles
         case lastActiveProfileId = "last_active_profile_id"
         case lastActiveProfile = "last_active_profile"
+        case smsConsent = "sms_consent"
+        case emailConsent = "email_consent"
+        case smsConsentDate = "sms_consent_date"
+        case emailConsentDate = "email_consent_date"
     }
     
     var watchlistIds : [Int] {

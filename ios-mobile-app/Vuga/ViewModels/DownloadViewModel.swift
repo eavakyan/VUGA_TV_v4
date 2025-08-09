@@ -506,6 +506,7 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         notificationContent.title = "Download Completed"
         notificationContent.body = contentType == .series ? "Great news! S\(seasonNo ?? "") E\(episodeNo ?? "") of \(name) has been successfully downloaded. Enjoy!" : "\(name) is now available to watch offline. Enjoy the show!"
         notificationContent.sound = UNNotificationSound.default
+        // App icon will be shown automatically by iOS from the app bundle
         
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: notificationContent, trigger: nil)
         UNUserNotificationCenter.current().add(request)

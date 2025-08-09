@@ -52,7 +52,9 @@
       "Bash(echo:*)",
       "Bash(echo \"TrailerPlayerView.swift: $(grep -c \"TrailerPlayerView.swift\" Vuga.xcodeproj/project.pbxproj) references\")",
       "Bash(echo \"TrailerInlinePlayer.swift: $(grep -c \"TrailerInlinePlayer.swift\" Vuga.xcodeproj/project.pbxproj) references\")",
-      "Bash(rg:*)"
+      "Bash(rg:*)",
+      "Bash(./create_notification_icons.sh:*)",
+      "Bash(cat:*)"
     ],
     "deny": []
   }

@@ -19,9 +19,18 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
     @Published var password = ""
     @Published var confirmPassword = ""
     @Published var selectedScreen = LoginScreenType.mainScreen
+    @Published var emailConsent = true  // Default to true (opt-out approach)
+    @Published var smsConsent = true    // Default to true (opt-out approach)
     @StateObject var proModel = ProViewModel()
     
-    func registerUser(identity: String, email: String, fullName: String, loginType: LoginType, shouldLogin: Bool = true,completion: @escaping (User)->() = { _ in }){
+    // Validation error messages
+    @Published var fullnameError = ""
+    @Published var emailError = ""
+    @Published var passwordError = ""
+    @Published var confirmPasswordError = ""
+    @Published var showValidationErrors = false
+    
+    func registerUser(identity: String, email: String, fullName: String, loginType: LoginType, shouldLogin: Bool = true, emailConsent: Bool = false, smsConsent: Bool = false, completion: @escaping (User)->() = { _ in }){
         
         let params: [Params: Any] = [.identity : identity,
                                      .email: email,
@@ -29,6 +38,8 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
                                      .loginType: loginType.rawValue,
                                      .deviceType: DeviceType.iOS.rawValue,
                                      .deviceToken : WebService.deviceToken.isEmpty ? "---" : WebService.deviceToken,
+                                     .emailConsent: emailConsent ? 1 : 0,
+                                     .smsConsent: smsConsent ? 1 : 0
         ]
         
         NetworkManager.callWebService(url: .userRegistration, params: params) { (obj: UserModel) in
@@ -53,21 +64,157 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
         }
     }
     
+    // MARK: - Validation Methods
+    
+    func validateFullName() -> Bool {
+        fullnameError = ""
+        
+        if fullname.isEmpty {
+            fullnameError = "Full name is required"
+            return false
+        }
+        
+        if fullname.count < 2 {
+            fullnameError = "Full name must be at least 2 characters"
+            return false
+        }
+        
+        if fullname.count > 50 {
+            fullnameError = "Full name must be less than 50 characters"
+            return false
+        }
+        
+        // Check for valid characters (letters and spaces only)
+        let nameRegex = "^[a-zA-Z ]+$"
+        let namePredicate = NSPredicate(format: "SELF MATCHES %@", nameRegex)
+        if !namePredicate.evaluate(with: fullname) {
+            fullnameError = "Full name can only contain letters and spaces"
+            return false
+        }
+        
+        return true
+    }
+    
+    func validateEmail() -> Bool {
+        emailError = ""
+        
+        if email.isEmpty {
+            emailError = "Email is required"
+            return false
+        }
+        
+        // Email regex validation
+        let emailRegex = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
+        let emailPredicate = NSPredicate(format: "SELF MATCHES %@", emailRegex)
+        if !emailPredicate.evaluate(with: email) {
+            emailError = "Please enter a valid email address"
+            return false
+        }
+        
+        return true
+    }
+    
+    func validatePassword() -> Bool {
+        passwordError = ""
+        
+        if password.isEmpty {
+            passwordError = "Password is required"
+            return false
+        }
+        
+        if password.count < 8 {
+            passwordError = "Password must be at least 8 characters"
+            return false
+        }
+        
+        if password.count > 100 {
+            passwordError = "Password is too long"
+            return false
+        }
+        
+        // Check for at least one uppercase letter
+        let uppercaseRegex = ".*[A-Z]+.*"
+        if !NSPredicate(format: "SELF MATCHES %@", uppercaseRegex).evaluate(with: password) {
+            passwordError = "Password must contain at least one uppercase letter"
+            return false
+        }
+        
+        // Check for at least one lowercase letter
+        let lowercaseRegex = ".*[a-z]+.*"
+        if !NSPredicate(format: "SELF MATCHES %@", lowercaseRegex).evaluate(with: password) {
+            passwordError = "Password must contain at least one lowercase letter"
+            return false
+        }
+        
+        // Check for at least one number
+        let numberRegex = ".*[0-9]+.*"
+        if !NSPredicate(format: "SELF MATCHES %@", numberRegex).evaluate(with: password) {
+            passwordError = "Password must contain at least one number"
+            return false
+        }
+        
+        // Check for at least one special character
+        let specialRegex = ".*[!@#$%^&*(),.?\":{}|<>]+.*"
+        if !NSPredicate(format: "SELF MATCHES %@", specialRegex).evaluate(with: password) {
+            passwordError = "Password must contain at least one special character (!@#$%^&*)"
+            return false
+        }
+        
+        return true
+    }
+    
+    func validateConfirmPassword() -> Bool {
+        confirmPasswordError = ""
+        
+        if confirmPassword.isEmpty {
+            confirmPasswordError = "Please confirm your password"
+            return false
+        }
+        
+        if password != confirmPassword {
+            confirmPasswordError = "Passwords do not match"
+            return false
+        }
+        
+        return true
+    }
+    
+    func validateAllFields() -> Bool {
+        let isFullNameValid = validateFullName()
+        let isEmailValid = validateEmail()
+        let isPasswordValid = validatePassword()
+        let isConfirmPasswordValid = validateConfirmPassword()
+        
+        showValidationErrors = true
+        
+        return isFullNameValid && isEmailValid && isPasswordValid && isConfirmPasswordValid
+    }
+    
+    func clearValidationErrors() {
+        fullnameError = ""
+        emailError = ""
+        passwordError = ""
+        confirmPasswordError = ""
+        showValidationErrors = false
+    }
+    
     func creatAccount(){
         let language = LocalizationService.shared.language
-        startLoading()
-        if password != confirmPassword {
-            toast(title: .passwordMismatched.localized(language))
-            stopLoading()
+        
+        // Validate all fields first
+        guard validateAllFields() else {
+            // Show validation errors inline - no toast needed
             return
         }
+        
+        startLoading()
         Auth.auth().createUser(withEmail: email, password: password) { [self] result, err in
             if let err {
                 stopLoading()
                 self.toast(title: err.localizedDescription)
                 return
             }
-            registerUser(identity: email, email: email, fullName: fullname, loginType: .email, shouldLogin: false) { user in
+            registerUser(identity: email, email: email, fullName: fullname, loginType: .email, shouldLogin: false, emailConsent: self.emailConsent, smsConsent: self.smsConsent) { user in
                 self.stopLoading()
                 result?.user.sendEmailVerification(completion: { [self] err in
                     if let err {

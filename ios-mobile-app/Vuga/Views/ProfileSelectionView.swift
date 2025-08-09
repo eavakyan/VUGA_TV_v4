@@ -7,6 +7,7 @@ struct ProfileSelectionView: View {
     @State private var showCreateProfile = false
     @State private var isEditMode = false
     @State private var selectedProfile: Profile?
+    var onProfileSelected: (() -> Void)?
     
     var body: some View {
         ZStack {
@@ -28,6 +29,7 @@ struct ProfileSelectionView: View {
                     ], spacing: 20) {
                         ForEach(viewModel.profiles, id: \.profileId) { profile in
                             ProfileItem(profile: profile, isEditMode: isEditMode) {
+                                print("ProfileSelectionView: Profile tapped - \(profile.name)")
                                 if isEditMode {
                                     selectedProfile = profile
                                     showCreateProfile = true
@@ -90,7 +92,9 @@ struct ProfileSelectionView: View {
         }
         .onChange(of: viewModel.selectedProfile) { profile in
             if profile != nil {
-                // Dismiss profile selection after profile is selected
+                // Notify that a profile was selected
+                onProfileSelected?()
+                // Dismiss the view if presented as a sheet
                 dismiss()
             }
         }

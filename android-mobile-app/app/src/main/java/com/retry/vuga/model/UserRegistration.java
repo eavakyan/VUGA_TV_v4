@@ -83,6 +83,12 @@ public class UserRegistration {
         
         @SerializedName("last_active_profile_id")
         private Integer lastActiveProfileId;
+        
+        @SerializedName("email_consent")
+        private Boolean emailConsent;
+        
+        @SerializedName("sms_consent")
+        private Boolean smsConsent;
 
         public String getWatchlist_content_ids() {
             return watchlist_content_ids == null ? "" : watchlist_content_ids;
@@ -266,6 +272,22 @@ public class UserRegistration {
         
         public void setKids(boolean kids) {
             isKids = kids;
+        }
+        
+        public boolean isEmailConsent() {
+            return emailConsent != null ? emailConsent : false;
+        }
+        
+        public void setEmailConsent(Boolean emailConsent) {
+            this.emailConsent = emailConsent;
+        }
+        
+        public boolean isSmsConsent() {
+            return smsConsent != null ? smsConsent : false;
+        }
+        
+        public void setSmsConsent(Boolean smsConsent) {
+            this.smsConsent = smsConsent;
         }
     }
 
