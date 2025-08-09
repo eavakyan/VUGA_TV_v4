@@ -15,7 +15,7 @@ struct ContentModel: Codable {
 }
 
 // MARK: - Content
-struct VugaContent: Codable {
+struct VugaContent: Codable, Identifiable {
     let id: Int?
     let title, description: String?
     let type: ContentType?

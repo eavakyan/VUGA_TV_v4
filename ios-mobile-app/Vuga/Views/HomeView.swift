@@ -11,6 +11,8 @@ import ScalingHeaderScrollView
 import WrappingStack
 import CoreData
 
+
+
 struct HomeView: View {
     @AppStorage(SessionKeys.language) private var language = LocalizationService.shared.language
     @StateObject private var vm = HomeViewModel()
@@ -20,6 +22,7 @@ struct HomeView: View {
     @State var startLoading = false
     @State private var scrollToTop = false
     @State private var hasInitiallyScrolled = false
+    @State private var selectedFeaturedContent: VugaContent?
     @FetchRequest(
         sortDescriptors: [NSSortDescriptor(keyPath: \RecentlyWatched.date, ascending: false)]
     )
@@ -664,11 +667,6 @@ struct HomeView: View {
         
         print("HomeView: Playing video directly - sourceType: \(sourceType), sourceId: \(source.id ?? 0)")
         print("HomeView: Source URL: \(source.sourceURL.absoluteString)")
-        
-        // Create a temporary ContentDetailViewModel to handle the source selection
-        let tempVM = ContentDetailViewModel()
-        tempVM.content = content
-        tempVM.selectedSource = source
         
         // Navigate to the appropriate view
         if sourceType == 1 {
