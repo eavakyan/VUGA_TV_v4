@@ -3,33 +3,55 @@ import SwiftUI
 
 class ProfileSelectionViewModel: BaseViewModel {
     @Published var profiles: [Profile] = []
-    @Published var showError = false
+    @Published private var _showError = false
     @Published var errorMessage = ""
     @Published var selectedProfile: Profile?
+    private var isAutoCreatingProfile = false
+    private var isLoadingProfiles = false
+    
+    // Computed property to control when errors should actually be shown
+    var showError: Bool {
+        get { _showError && !isAutoCreatingProfile && !isLoading }
+        set { _showError = newValue }
+    }
     
     func loadProfiles() {
+        // Prevent multiple simultaneous loads
+        guard !isLoadingProfiles else { return }
+        
         guard let userId = myUser?.id else { 
-            print("ProfileSelectionViewModel: No user ID found")
+            print("ProfileSelectionViewModel: No user ID found - user might not be logged in")
+            // If there's no user, we can't load or create profiles
+            // Don't show error during initial load
             return 
         }
         
+        isLoadingProfiles = true
         startLoading()
         showError = false
+        errorMessage = ""
         
         let params: [Params: Any] = [.userId: userId]
         print("ProfileSelectionViewModel: Loading profiles for user \(userId)")
         
         NetworkManager.callWebService(url: .getUserProfiles, params: params) { [weak self] (obj: ProfileResponse) in
+            self?.isLoadingProfiles = false
             self?.stopLoading()
             
-            print("ProfileSelectionViewModel: Received response - status: \(obj.status), profiles count: \(obj.profiles?.count ?? 0)")
+            // Always ensure no error is shown during profile loading
+            self?.showError = false
             
-            if obj.status {
+            print("ProfileSelectionViewModel: Received response - status: \(obj.status), profiles count: \(obj.profiles?.count ?? 0), message: \(obj.message)")
+            
+            if obj.status && !(obj.profiles?.isEmpty ?? true) {
+                // We have profiles, use them
                 self?.profiles = obj.profiles ?? []
             } else {
-                self?.showError = true
-                self?.errorMessage = obj.message
-                print("ProfileSelectionViewModel: Error - \(obj.message)")
+                // No profiles or error - create default profile
+                print("ProfileSelectionViewModel: No profiles or error occurred. Creating default profile.")
+                self?.isAutoCreatingProfile = true
+                self?.profiles = [] // Clear any existing profiles
+                self?.createDefaultProfile()
             }
         }
     }
@@ -74,6 +96,63 @@ class ProfileSelectionViewModel: BaseViewModel {
             } else {
                 self?.showError = true
                 self?.errorMessage = obj.message ?? "Failed to delete profile"
+            }
+        }
+    }
+    
+    private func createDefaultProfile() {
+        guard let userId = myUser?.id else { return }
+        
+        // Ensure no error is shown during auto-creation
+        showError = false
+        
+        // Get user's name or use a default
+        let profileName = myUser?.fullname ?? "Profile 1"
+        
+        startLoading()
+        
+        let params: [Params: Any] = [
+            .userId: userId,
+            .name: profileName,
+            .avatarId: 1, // Default avatar
+            .isKids: 0 // Not a kids profile
+        ]
+        
+        print("ProfileSelectionViewModel: Creating default profile with name: \(profileName)")
+        
+        NetworkManager.callWebService(url: .createProfile, params: params) { [weak self] (obj: ProfileResponse) in
+            self?.stopLoading()
+            self?.isAutoCreatingProfile = false
+            
+            // Always ensure no error is shown
+            self?.showError = false
+            
+            print("ProfileSelectionViewModel: Create profile response - status: \(obj.status), message: \(obj.message)")
+            
+            if obj.status {
+                // Profile created successfully
+                if let newProfile = obj.profile {
+                    // Add the new profile to the list
+                    self?.profiles = [newProfile]
+                    // Automatically select the new profile without triggering errors
+                    SessionManager.shared.currentProfile = newProfile
+                    self?.selectedProfile = newProfile
+                } else if let newProfiles = obj.profiles, !newProfiles.isEmpty {
+                    // Some APIs return profiles array instead of single profile
+                    self?.profiles = newProfiles
+                    // Select the first profile without triggering errors
+                    SessionManager.shared.currentProfile = newProfiles[0]
+                    self?.selectedProfile = newProfiles[0]
+                } else {
+                    // If no profile returned, just create a temporary one locally
+                    print("ProfileSelectionViewModel: No profile returned from create API, showing empty state")
+                    self?.profiles = []
+                }
+            } else {
+                // If creation failed, log it but don't show error popup during auto-creation
+                print("ProfileSelectionViewModel: Failed to create default profile - \(obj.message)")
+                // Just show empty profiles so user can manually create one
+                self?.profiles = []
             }
         }
     }
