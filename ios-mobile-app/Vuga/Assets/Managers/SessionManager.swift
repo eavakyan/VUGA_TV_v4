@@ -45,6 +45,20 @@ class SessionManager: ObservableObject {
     init() {
         loadUser()
         loadProfile()
+        // Also sync with @AppStorage user if available
+        syncWithAppStorage()
+    }
+    
+    func syncWithAppStorage() {
+        // Try to load user from @AppStorage if SessionManager doesn't have it
+        if currentUser == nil {
+            let userDefaults = UserDefaults.standard
+            if let appStorageUserData = userDefaults.string(forKey: SessionKeys.myUser),
+               let user = Optional<User>(rawValue: appStorageUserData) {
+                print("SessionManager: Syncing user from @AppStorage")
+                currentUser = user
+            }
+        }
     }
     
     func setSetting(data: Setting){

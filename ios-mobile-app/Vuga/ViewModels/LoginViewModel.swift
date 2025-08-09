@@ -57,6 +57,8 @@ class LoginViewModel : BaseViewModel, ASAuthorizationControllerDelegate {
                     print("LoginViewModel: Setting user and login state - userId: \(user.id ?? 0), shouldLogin: \(shouldLogin)")
                     print("LoginViewModel: User has \(user.profiles?.count ?? 0) profiles")
                     self.myUser = user
+                    // Also update SessionManager to keep it in sync
+                    SessionManager.shared.currentUser = user
                     self.isLoggedIn = shouldLogin
                     completion(user)
                     self.proModel.passUserIdToRevenueCat()

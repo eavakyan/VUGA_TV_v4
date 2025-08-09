@@ -95,6 +95,8 @@ class HomeViewModel : BaseViewModel {
             NetworkManager.callWebService(url: .toggleWatchlist, params: updatedParams) { [weak self] (obj: UserModel) in
                 if let user = obj.data {
                     self?.myUser = user
+                    // Also update SessionManager to keep it in sync
+                    SessionManager.shared.currentUser = user
                     completion(true, obj.message)
                 } else {
                     completion(false, obj.message)
@@ -104,6 +106,8 @@ class HomeViewModel : BaseViewModel {
             NetworkManager.callWebService(url: .toggleWatchlist, params: params) { [weak self] (obj: UserModel) in
                 if let user = obj.data {
                     self?.myUser = user
+                    // Also update SessionManager to keep it in sync
+                    SessionManager.shared.currentUser = user
                     completion(true, obj.message)
                 } else {
                     completion(false, obj.message)

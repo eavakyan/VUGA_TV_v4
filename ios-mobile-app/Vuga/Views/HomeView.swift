@@ -661,15 +661,24 @@ struct HomeView: View {
     }
     
     private func handleWatchlistAction(feature: VugaContent) {
-        guard SessionManager.shared.currentUser != nil else {
+        // Check if user is logged in using vm.myUser instead of SessionManager
+        guard vm.myUser != nil else {
+            print("HomeView: No user logged in, navigating to LoginView")
             Navigation.pushToSwiftUiView(LoginView())
             return
         }
         
+        print("HomeView: Toggling watchlist for content ID: \(feature.id ?? 0)")
         vm.toggleWatchlist(contentId: feature.id ?? 0) { success, message in
+            print("HomeView: Watchlist toggle result - success: \(success), message: \(message ?? "nil")")
             if success {
                 // Refresh the watchlist data
                 vm.fetchData()
+            } else {
+                // Show error message if toggle failed
+                if let message = message {
+                    makeToast(title: message)
+                }
             }
         }
     }
