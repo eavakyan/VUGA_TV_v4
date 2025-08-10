@@ -200,7 +200,7 @@ struct HomeView: View {
                 .outfitMedium(15)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 50)
+                .frame(height: 40)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -223,7 +223,7 @@ struct HomeView: View {
                 .outfitMedium(15)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 50)
+                .frame(height: 40)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -246,7 +246,7 @@ struct HomeView: View {
                 .outfitMedium(15)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 50)
+                .frame(height: 40)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -291,7 +291,7 @@ struct HomeView: View {
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 50)
+                .frame(height: 40)
                 .background(Color.clear)
             }
             .buttonStyle(PlainButtonStyle())
