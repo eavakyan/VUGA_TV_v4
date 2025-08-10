@@ -292,4 +292,29 @@ class SessionManager: ObservableObject {
     func setCurrentProfile(_ profile: Profile) {
         currentProfile = profile
     }
+    
+    // MARK: - Profile Caching
+    func cacheProfiles(_ profiles: [Profile]) {
+        do {
+            let data = try JSONEncoder().encode(profiles)
+            UserDefaults.standard.set(data, forKey: "cachedProfiles")
+        } catch {
+            print("Failed to cache profiles: \(error)")
+        }
+    }
+    
+    func getCachedProfiles() -> [Profile]? {
+        if let data = UserDefaults.standard.data(forKey: "cachedProfiles") {
+            do {
+                return try JSONDecoder().decode([Profile].self, from: data)
+            } catch {
+                print("Failed to load cached profiles: \(error)")
+            }
+        }
+        return nil
+    }
+    
+    func clearCachedProfiles() {
+        UserDefaults.standard.removeObject(forKey: "cachedProfiles")
+    }
 }

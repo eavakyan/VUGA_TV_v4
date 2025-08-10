@@ -57,8 +57,8 @@ struct HomeView: View {
                         
                         // Navigation Menu Row with horizontal category list
                         horizontalCategoryList
-                            .padding(.top, 8)
-                            .padding(.bottom, 8)
+                            .padding(.top, 4)
+                            .padding(.bottom, 4)
                             .zIndex(10) // Ensure it's above the featured content slider
                         
                         if vm.featured.isNotEmpty {
@@ -200,7 +200,7 @@ struct HomeView: View {
                 .outfitMedium(15)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(height: 35)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -223,7 +223,7 @@ struct HomeView: View {
                 .outfitMedium(15)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(height: 35)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -246,7 +246,7 @@ struct HomeView: View {
                 .outfitMedium(15)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(height: 35)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -291,7 +291,7 @@ struct HomeView: View {
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 40)
+                .frame(height: 35)
                 .background(Color.clear)
             }
             .buttonStyle(PlainButtonStyle())

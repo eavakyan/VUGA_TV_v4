@@ -27,27 +27,37 @@ struct ProfileSelectionView: View {
                         GridItem(.flexible()),
                         GridItem(.flexible())
                     ], spacing: 20) {
-                        ForEach(viewModel.profiles, id: \.profileId) { profile in
-                            ProfileItem(profile: profile, isEditMode: isEditMode) {
-                                print("ProfileSelectionView: Profile tapped - \(profile.name)")
-                                if isEditMode {
-                                    selectedProfile = profile
-                                    showCreateProfile = true
-                                } else {
-                                    viewModel.selectProfile(profile)
-                                }
-                            } onDelete: {
-                                if viewModel.profiles.count > 1 {
-                                    viewModel.deleteProfile(profile)
-                                }
+                        // Force top alignment by using a custom layout
+                        if viewModel.isLoading && viewModel.profiles.isEmpty {
+                            // Skeleton loading state
+                            ForEach(0..<4, id: \.self) { _ in
+                                ProfileSkeletonView()
                             }
-                        }
-                        
-                        // Add Profile button
-                        if viewModel.profiles.count < 4 && !isEditMode {
-                            AddProfileButton {
-                                selectedProfile = nil
-                                showCreateProfile = true
+                        } else {
+                            ForEach(viewModel.profiles, id: \.profileId) { profile in
+                                ProfileItem(profile: profile, isEditMode: isEditMode) {
+                                    print("ProfileSelectionView: Profile tapped - \(profile.name)")
+                                    if isEditMode {
+                                        selectedProfile = profile
+                                        showCreateProfile = true
+                                    } else {
+                                        viewModel.selectProfile(profile)
+                                    }
+                                } onDelete: {
+                                    if viewModel.profiles.count > 1 {
+                                        viewModel.deleteProfile(profile)
+                                    }
+                                }
+                                .frame(maxWidth: .infinity, alignment: .top)
+                            }
+                            
+                            // Add Profile button
+                            if viewModel.profiles.count < 4 && !isEditMode {
+                                AddProfileButton {
+                                    selectedProfile = nil
+                                    showCreateProfile = true
+                                }
+                                .frame(maxWidth: .infinity, alignment: .top)
                             }
                         }
                     }
@@ -83,7 +93,14 @@ struct ProfileSelectionView: View {
             }
         }
         .onAppear {
+            // Load profiles immediately when view appears
             viewModel.loadProfiles()
+        }
+        .task {
+            // Pre-load profiles in background for faster appearance
+            if viewModel.profiles.isEmpty {
+                viewModel.loadProfiles()
+            }
         }
         .sheet(isPresented: $showCreateProfile) {
             CreateProfileView(profile: selectedProfile) {
@@ -108,6 +125,36 @@ struct ProfileSelectionView: View {
     }
 }
 
+struct ProfileSkeletonView: View {
+    var body: some View {
+        VStack(spacing: 10) {
+            // Skeleton avatar
+            Circle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 100, height: 100)
+                .overlay(
+                    Circle()
+                        .stroke(Color.gray.opacity(0.5), lineWidth: 1)
+                )
+            
+            // Skeleton name
+            Rectangle()
+                .fill(Color.gray.opacity(0.3))
+                .frame(width: 80, height: 16)
+                .cornerRadius(8)
+            
+            // Skeleton kids badge (optional)
+            Rectangle()
+                .fill(Color.gray.opacity(0.2))
+                .frame(width: 40, height: 12)
+                .cornerRadius(6)
+        }
+        .onTapGesture {
+            // Disabled during loading
+        }
+    }
+}
+
 struct ProfileItem: View {
     let profile: Profile
     let isEditMode: Bool
@@ -115,7 +162,8 @@ struct ProfileItem: View {
     let onDelete: () -> Void
     
     var body: some View {
-        VStack(spacing: 10) {
+        VStack(alignment: .center, spacing: 10) {
+            // Content starts at top, no spacer needed
             ZStack(alignment: .topTrailing) {
                 // Profile Avatar
                 if profile.avatarType == "default" || profile.avatarType == "color" {
