@@ -57,22 +57,7 @@ class HomeViewModel : BaseViewModel {
             self.featured = obj.featured ?? []
             
 //            self.topContents = obj.topContents ?? []
-<<<<<<< HEAD
-            if self.featured.isNotEmpty {
-                self.cancellable = Timer.publish(every: TimeInterval(Limits.featureSecond), on: .main, in: .common)
-                    .autoconnect()
-                    .sink { [weak self] _ in
-                        DispatchQueue.main.async { [weak self] in
-                            guard let self = self, self.featured.isNotEmpty else { return }
-                            withAnimation(.easeInOut(duration: 2.0)) {
-                                self.selectedImageIndex = (self.selectedImageIndex + 1) % self.featured.count
-                            }
-                        }
-                    }
-            }            
-=======
-            // Auto-sliding removed - slider now only responds to user gestures            
->>>>>>> de588a7 (GPT-5 changes to featured slider)
+            // Auto-sliding removed - slider now only responds to user gestures
             self.wishlists = obj.watchlist ?? []
             self.genres = obj.genreContents ?? []
             self.topContents = obj.topContents ?? []

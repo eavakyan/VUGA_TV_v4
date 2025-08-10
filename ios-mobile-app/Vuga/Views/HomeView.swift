@@ -502,27 +502,23 @@ struct HomeView: View {
                     featuredContentCard(feature: vm.featured[index])
                         .frame(width: geometry.size.width * 0.95, height: geometry.size.height * 0.9)
                         .offset(x: CGFloat(index - vm.selectedImageIndex) * geometry.size.width)
-<<<<<<< HEAD
-=======
                         .animation(.easeInOut(duration: 0.6), value: vm.selectedImageIndex)
->>>>>>> de588a7 (GPT-5 changes to featured slider)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .clipped()
-            .gesture(
+            .simultaneousGesture(
                 DragGesture()
                     .onEnded { value in
-                        let threshold = geometry.size.width * 0.3
-<<<<<<< HEAD
-                        withAnimation(.easeInOut(duration: 6.0)) {
-=======
-                        withAnimation(.easeInOut(duration: 0.6)) {
->>>>>>> de588a7 (GPT-5 changes to featured slider)
-                            if value.translation.width > threshold && vm.selectedImageIndex > 0 {
-                                vm.selectedImageIndex -= 1
-                            } else if value.translation.width < -threshold && vm.selectedImageIndex < vm.featured.count - 1 {
-                                vm.selectedImageIndex += 1
+                        // Only respond to horizontal gestures
+                        if abs(value.translation.width) > abs(value.translation.height) {
+                            let threshold = geometry.size.width * 0.3
+                            withAnimation(.easeInOut(duration: 0.6)) {
+                                if value.translation.width > threshold && vm.selectedImageIndex > 0 {
+                                    vm.selectedImageIndex -= 1
+                                } else if value.translation.width < -threshold && vm.selectedImageIndex < vm.featured.count - 1 {
+                                    vm.selectedImageIndex += 1
+                                }
                             }
                         }
                     }
@@ -809,11 +805,7 @@ struct HomeView: View {
                 Circle()
                     .fill(vm.selectedImageIndex == index ? Color.white : Color.white.opacity(0.5))
                     .frame(width: 8, height: 8)
-<<<<<<< HEAD
-                    .animation(.easeInOut(duration: 6.0), value: vm.selectedImageIndex)
-=======
                     .animation(.easeInOut(duration: 0.6), value: vm.selectedImageIndex)
->>>>>>> de588a7 (GPT-5 changes to featured slider)
             }
         }
         .padding(.bottom, 10)
