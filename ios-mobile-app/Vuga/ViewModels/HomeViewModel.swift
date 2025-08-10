@@ -57,6 +57,7 @@ class HomeViewModel : BaseViewModel {
             self.featured = obj.featured ?? []
             
 //            self.topContents = obj.topContents ?? []
+<<<<<<< HEAD
             if self.featured.isNotEmpty {
                 self.cancellable = Timer.publish(every: TimeInterval(Limits.featureSecond), on: .main, in: .common)
                     .autoconnect()
@@ -69,6 +70,9 @@ class HomeViewModel : BaseViewModel {
                         }
                     }
             }            
+=======
+            // Auto-sliding removed - slider now only responds to user gestures            
+>>>>>>> de588a7 (GPT-5 changes to featured slider)
             self.wishlists = obj.watchlist ?? []
             self.genres = obj.genreContents ?? []
             self.topContents = obj.topContents ?? []

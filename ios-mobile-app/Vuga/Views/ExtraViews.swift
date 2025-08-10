@@ -254,8 +254,8 @@ struct Heading<Content: View>: View {
     var body: some View {
         HStack {
             Text(title.localized(language))
-                .outfitSemiBold(20)
-                .foregroundColor(.text)
+                .outfitMedium(14)
+                .foregroundColor(.white)
             Spacer()
             if content != nil {
                 (self.content!)()

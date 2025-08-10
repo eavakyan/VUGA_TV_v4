@@ -57,8 +57,8 @@ struct HomeView: View {
                         
                         // Navigation Menu Row with horizontal category list
                         horizontalCategoryList
-                            .padding(.top, 5)
-                            .padding(.bottom, 0)
+                            .padding(.top, 20)
+                            .padding(.bottom, 20)
                         
                         if vm.featured.isNotEmpty {
                             topBar
@@ -193,120 +193,93 @@ struct HomeView: View {
     
     // Navigation buttons for TV Shows, Movies, Live TV, Networks
     private var horizontalCategoryList: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 2) {
-                    // TV Shows button
-                    Button(action: {
-                        // Switch to search tab and filter for TV shows
-                        selectedTab = .search
-                        // Post notification to set search filter for TV shows
-                        NotificationCenter.default.post(
-                            name: .setSearchFilter, 
-                            object: nil,
-                            userInfo: ["contentType": ContentType.series]
-                        )
-                    }) {
-                        Text("TV Shows")
-                            .outfitMedium(14)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.clear)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color("stroke"), lineWidth: 1)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
+        HStack(spacing: 0) {
+            // TV Shows button
+            Button(action: {
+                // Switch to search tab and filter for TV shows
+                selectedTab = .search
+                // Post notification to set search filter for TV shows
+                NotificationCenter.default.post(
+                    name: .setSearchFilter, 
+                    object: nil,
+                    userInfo: ["contentType": ContentType.series]
+                )
+            }) {
+                Text("TV Shows")
+                    .outfitMedium(14)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+            }
+            .contentShape(Rectangle())
                     
-                    // Movies button
-                    Button(action: {
-                        // Switch to search tab and filter for movies
-                        selectedTab = .search
-                        // Post notification to set search filter for movies
-                        NotificationCenter.default.post(
-                            name: .setSearchFilter, 
-                            object: nil,
-                            userInfo: ["contentType": ContentType.movie]
-                        )
-                    }) {
-                        Text("Movies")
-                            .outfitMedium(14)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.clear)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color("stroke"), lineWidth: 1)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
+            // Movies button
+            Button(action: {
+                // Switch to search tab and filter for movies
+                selectedTab = .search
+                // Post notification to set search filter for movies
+                NotificationCenter.default.post(
+                    name: .setSearchFilter, 
+                    object: nil,
+                    userInfo: ["contentType": ContentType.movie]
+                )
+            }) {
+                Text("Movies")
+                    .outfitMedium(14)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+            }
+            .contentShape(Rectangle())
                     
-                    // Live TV button
-                    Button(action: {
-                        // Navigate to existing Live TV view if available
-                        Navigation.pushToSwiftUiView(LiveTVsView())
-                    }) {
-                        Text("Live TV")
-                            .outfitMedium(14)
-                            .foregroundColor(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 4)
-                            .background(Color.clear)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 10)
-                                    .stroke(Color("stroke"), lineWidth: 1)
-                            )
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                    }
+            // Live TV button
+            Button(action: {
+                // Navigate to existing Live TV view if available
+                Navigation.pushToSwiftUiView(LiveTVsView())
+            }) {
+                Text("Live TV")
+                    .outfitMedium(14)
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+            }
+            .contentShape(Rectangle())
                     
-                    // Categories button with menu
-                    Menu {
-                        // All genre categories
-                        ForEach(vm.genres, id: \.id) { genre in
-                            Button(genre.title ?? "") {
-                                Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
-                            }
-                        }
-                        
-                        Divider()
-                        
-                        // Network options
-                        Button("MediaTeka") {
-                            // Navigate to MediaTeka content
-                            if let genre = vm.genres.first {
-                                Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
-                            }
-                        }
-                        Button("HBO") {
-                            // Navigate to HBO content
-                            if let genre = vm.genres.first {
-                                Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
-                            }
-                        }
-                    } label: {
-                        HStack(spacing: 4) {
-                            Text("Categories")
-                                .outfitMedium(14)
-                            Image(systemName: "chevron.down")
-                                .font(.system(size: 10))
-                        }
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 10)
-                        .padding(.vertical, 4)
-                        .background(Color.clear)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 15)
-                                .stroke(Color("stroke"), lineWidth: 1)
-                        )
-                        .clipShape(RoundedRectangle(cornerRadius: 15))
+            // Categories button with menu
+            Menu {
+                // All genre categories
+                ForEach(vm.genres, id: \.id) { genre in
+                    Button(genre.title ?? "") {
+                        Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
                     }
                 }
-                .padding(.horizontal, 15)
+                
+                Divider()
+                
+                // Network options
+                Button("MediaTeka") {
+                    // Navigate to MediaTeka content
+                    if let genre = vm.genres.first {
+                        Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                    }
+                }
+                Button("HBO") {
+                    // Navigate to HBO content
+                    if let genre = vm.genres.first {
+                        Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                    }
+                }
+            } label: {
+                HStack(spacing: 4) {
+                    Text("Categories")
+                        .outfitMedium(14)
+                    Image(systemName: "chevron.down")
+                        .font(.system(size: 10))
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
             }
+            .contentShape(Rectangle())
         }
+        .padding(.horizontal, 15)
+        .frame(height: 44)
     }
     
     private var recentlyWatched: some View {
@@ -320,7 +293,7 @@ struct HomeView: View {
                             VStack(spacing: 0) {
                                 ZStack(alignment: .center) {
                                     KFImage(recently.type == .movie ? recently.thumbnail.addBaseURL() : recently.episodeHorizontalPoster.addBaseURL())
-                                        .resizeFillTo(width: 118, height: 73, radius: 10)
+                                        .resizeFillTo(width: 170, height: 105, radius: 10)
                                     
                                     Image(systemName: "play.fill")
                                         .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
@@ -441,8 +414,8 @@ struct HomeView: View {
         VStack {
             Heading(title: .watchlist,content: {
                 Text(String.seeAll.localized(language))
-                    .outfitLight(16)
-                    .foregroundColor(Color("textLight"))
+                    .outfitMedium(14)
+                    .foregroundColor(.white)
                     .onTap {
                         selectedTab = .watchlist
                     }
@@ -453,7 +426,7 @@ struct HomeView: View {
                     ForEach(vm.wishlists, id: \.id) { content in
                         VStack(alignment: .leading,spacing: 0) {
                             KFImage(content.horizontalPoster?.addBaseURL())
-                                .resizeFillTo(width: 118, height: 73,radius: 10)
+                                .resizeFillTo(width: 170, height: 105,radius: 10)
                                 .addStroke(radius: 10)
                                 .overlay(
                                     TypeTagForVugaContent(content: content)
@@ -529,6 +502,10 @@ struct HomeView: View {
                     featuredContentCard(feature: vm.featured[index])
                         .frame(width: geometry.size.width * 0.95, height: geometry.size.height * 0.9)
                         .offset(x: CGFloat(index - vm.selectedImageIndex) * geometry.size.width)
+<<<<<<< HEAD
+=======
+                        .animation(.easeInOut(duration: 0.6), value: vm.selectedImageIndex)
+>>>>>>> de588a7 (GPT-5 changes to featured slider)
                 }
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
@@ -537,7 +514,11 @@ struct HomeView: View {
                 DragGesture()
                     .onEnded { value in
                         let threshold = geometry.size.width * 0.3
+<<<<<<< HEAD
                         withAnimation(.easeInOut(duration: 6.0)) {
+=======
+                        withAnimation(.easeInOut(duration: 0.6)) {
+>>>>>>> de588a7 (GPT-5 changes to featured slider)
                             if value.translation.width > threshold && vm.selectedImageIndex > 0 {
                                 vm.selectedImageIndex -= 1
                             } else if value.translation.width < -threshold && vm.selectedImageIndex < vm.featured.count - 1 {
@@ -553,9 +534,48 @@ struct HomeView: View {
     private func featuredContentCard(feature: VugaContent) -> some View {
         GeometryReader { geometry in
             ZStack {
-                // Poster image with vertical aspect ratio
-                featuredPosterImage(feature: feature)
-                    .frame(width: geometry.size.width, height: geometry.size.height)
+                // Extended background with blurred edges
+                HStack(spacing: 0) {
+                    // Left edge extension
+                    featuredPosterImage(feature: feature)
+                        .frame(width: 50)
+                        .blur(radius: 20)
+                        .scaleEffect(1.2)
+                        .clipped()
+                    
+                    // Main poster image
+                    featuredPosterImage(feature: feature)
+                        .frame(width: geometry.size.width - 100, height: geometry.size.height)
+                        .clipped()
+                    
+                    // Right edge extension
+                    featuredPosterImage(feature: feature)
+                        .frame(width: 50)
+                        .blur(radius: 20)
+                        .scaleEffect(1.2)
+                        .clipped()
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height)
+                
+                // Enhanced gradient overlay for better edge blending
+                HStack(spacing: 0) {
+                    LinearGradient(
+                        colors: [.black.opacity(0.6), .clear],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: 60)
+                    
+                    Color.clear
+                        .frame(width: geometry.size.width - 120)
+                    
+                    LinearGradient(
+                        colors: [.clear, .black.opacity(0.6)],
+                        startPoint: .leading,
+                        endPoint: .trailing
+                    )
+                    .frame(width: 60)
+                }
                 
                 // Gradient overlay for better text visibility
                 LinearGradient(
@@ -789,7 +809,11 @@ struct HomeView: View {
                 Circle()
                     .fill(vm.selectedImageIndex == index ? Color.white : Color.white.opacity(0.5))
                     .frame(width: 8, height: 8)
+<<<<<<< HEAD
                     .animation(.easeInOut(duration: 6.0), value: vm.selectedImageIndex)
+=======
+                    .animation(.easeInOut(duration: 0.6), value: vm.selectedImageIndex)
+>>>>>>> de588a7 (GPT-5 changes to featured slider)
             }
         }
         .padding(.bottom, 10)
@@ -821,8 +845,8 @@ struct GenreHomeCard : View {
         VStack {
             Heading(title: genre.title ?? "",content: {
                 Text(String.seeAll.localized(language))
-                    .outfitLight(16)
-                    .foregroundColor(Color("textLight"))
+                    .outfitMedium(14)
+                    .foregroundColor(.white)
                     .onTap {
                         Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
                     }
@@ -849,7 +873,7 @@ struct ContentVerticalCard: View {
     var content: VugaContent
     var body: some View {
         KFImage(content.verticalPoster?.addBaseURL())
-            .resizeFillTo(width: 98, height: 140, radius: 5)
+            .resizeFillTo(width: 125, height: 178, radius: 5)
             .addStroke(radius: 5)
             .onTap {
                 Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
