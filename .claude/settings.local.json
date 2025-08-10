@@ -55,7 +55,11 @@
       "Bash(rg:*)",
       "Bash(./create_notification_icons.sh:*)",
       "Bash(cat:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(git checkout:*)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)",
+      "Bash(git branch:*)"
     ],
     "deny": []
   }
