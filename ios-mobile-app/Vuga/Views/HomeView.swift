@@ -59,6 +59,7 @@ struct HomeView: View {
                         horizontalCategoryList
                             .padding(.top, 8)
                             .padding(.bottom, 8)
+                            .zIndex(10) // Ensure it's above the featured content slider
                         
                         if vm.featured.isNotEmpty {
                             topBar
@@ -195,64 +196,67 @@ struct HomeView: View {
     private var horizontalCategoryList: some View {
         HStack(spacing: 6) {
             // TV Shows button
-            Button(action: {
-                print("TV Shows button tapped")
-                // Switch to search tab and filter for TV shows
-                selectedTab = .search
-                // Post notification to set search filter for TV shows
-                NotificationCenter.default.post(
-                    name: .setSearchFilter, 
-                    object: nil,
-                    userInfo: ["contentType": ContentType.series]
-                )
-            }) {
-                Text("TV Shows")
-                    .outfitMedium(15)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.clear)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .scaleEffect(1.0)
+            Text("TV Shows")
+                .outfitMedium(15)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.clear)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    print("TV Shows button tapped")
+                    // Add haptic feedback
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                    impactFeedback.impactOccurred()
+                    // Switch to search tab and filter for TV shows
+                    selectedTab = .search
+                    // Post notification to set search filter for TV shows
+                    NotificationCenter.default.post(
+                        name: .setSearchFilter, 
+                        object: nil,
+                        userInfo: ["contentType": ContentType.series]
+                    )
+                }
                     
             // Movies button
-            Button(action: {
-                print("Movies button tapped")
-                // Switch to search tab and filter for movies
-                selectedTab = .search
-                // Post notification to set search filter for movies
-                NotificationCenter.default.post(
-                    name: .setSearchFilter, 
-                    object: nil,
-                    userInfo: ["contentType": ContentType.movie]
-                )
-            }) {
-                Text("Movies")
-                    .outfitMedium(15)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.clear)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .scaleEffect(1.0)
+            Text("Movies")
+                .outfitMedium(15)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.clear)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    print("Movies button tapped")
+                    // Add haptic feedback
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                    impactFeedback.impactOccurred()
+                    // Switch to search tab and filter for movies
+                    selectedTab = .search
+                    // Post notification to set search filter for movies
+                    NotificationCenter.default.post(
+                        name: .setSearchFilter, 
+                        object: nil,
+                        userInfo: ["contentType": ContentType.movie]
+                    )
+                }
                     
             // Live TV button
-            Button(action: {
-                print("Live TV button tapped")
-                // Navigate to existing Live TV view if available
-                Navigation.pushToSwiftUiView(LiveTVsView())
-            }) {
-                Text("Live TV")
-                    .outfitMedium(15)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 50)
-                    .background(Color.clear)
-            }
-            .buttonStyle(PlainButtonStyle())
-            .scaleEffect(1.0)
+            Text("Live TV")
+                .outfitMedium(15)
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.clear)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    print("Live TV button tapped")
+                    // Add haptic feedback
+                    let impactFeedback = UIImpactFeedbackGenerator(style: .light)
+                    impactFeedback.impactOccurred()
+                    // Navigate to existing Live TV view if available
+                    Navigation.pushToSwiftUiView(LiveTVsView())
+                }
                     
             // Categories button with menu
             Menu {
@@ -295,6 +299,8 @@ struct HomeView: View {
         }
         .padding(.horizontal, 12)
         .allowsHitTesting(true)
+        .zIndex(10) // High z-index to ensure it's above everything
+        .background(Color("bgColor")) // Black background to match the app
     }
     
     private var recentlyWatched: some View {
@@ -507,7 +513,7 @@ struct HomeView: View {
             featuredContentTabView
             pageIndicator
         }
-        .overlay(Color("bgColor").opacity(progress).allowsHitTesting(progress == 0 ? false : true))
+        .overlay(Color("bgColor").opacity(progress).allowsHitTesting(false))
     }
     
     private var featuredContentTabView: some View {
