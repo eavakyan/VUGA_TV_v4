@@ -57,8 +57,8 @@ struct HomeView: View {
                         
                         // Navigation Menu Row with horizontal category list
                         horizontalCategoryList
-                            .padding(.top, 20)
-                            .padding(.bottom, 20)
+                            .padding(.top, 8)
+                            .padding(.bottom, 8)
                         
                         if vm.featured.isNotEmpty {
                             topBar
@@ -193,9 +193,10 @@ struct HomeView: View {
     
     // Navigation buttons for TV Shows, Movies, Live TV, Networks
     private var horizontalCategoryList: some View {
-        HStack(spacing: 0) {
+        HStack(spacing: 6) {
             // TV Shows button
             Button(action: {
+                print("TV Shows button tapped")
                 // Switch to search tab and filter for TV shows
                 selectedTab = .search
                 // Post notification to set search filter for TV shows
@@ -206,14 +207,18 @@ struct HomeView: View {
                 )
             }) {
                 Text("TV Shows")
-                    .outfitMedium(14)
+                    .outfitMedium(15)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.clear)
             }
-            .contentShape(Rectangle())
+            .buttonStyle(PlainButtonStyle())
+            .scaleEffect(1.0)
                     
             // Movies button
             Button(action: {
+                print("Movies button tapped")
                 // Switch to search tab and filter for movies
                 selectedTab = .search
                 // Post notification to set search filter for movies
@@ -224,23 +229,30 @@ struct HomeView: View {
                 )
             }) {
                 Text("Movies")
-                    .outfitMedium(14)
+                    .outfitMedium(15)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.clear)
             }
-            .contentShape(Rectangle())
+            .buttonStyle(PlainButtonStyle())
+            .scaleEffect(1.0)
                     
             // Live TV button
             Button(action: {
+                print("Live TV button tapped")
                 // Navigate to existing Live TV view if available
                 Navigation.pushToSwiftUiView(LiveTVsView())
             }) {
                 Text("Live TV")
-                    .outfitMedium(14)
+                    .outfitMedium(15)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
+                    .frame(height: 50)
+                    .background(Color.clear)
             }
-            .contentShape(Rectangle())
+            .buttonStyle(PlainButtonStyle())
+            .scaleEffect(1.0)
                     
             // Categories button with menu
             Menu {
@@ -269,17 +281,20 @@ struct HomeView: View {
             } label: {
                 HStack(spacing: 4) {
                     Text("Categories")
-                        .outfitMedium(14)
+                        .outfitMedium(15)
                     Image(systemName: "chevron.down")
                         .font(.system(size: 10))
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
+                .frame(height: 50)
+                .background(Color.clear)
             }
-            .contentShape(Rectangle())
+            .buttonStyle(PlainButtonStyle())
+            .scaleEffect(1.0)
         }
-        .padding(.horizontal, 15)
-        .frame(height: 44)
+        .padding(.horizontal, 12)
+        .allowsHitTesting(true)
     }
     
     private var recentlyWatched: some View {
@@ -414,7 +429,7 @@ struct HomeView: View {
         VStack {
             Heading(title: .watchlist,content: {
                 Text(String.seeAll.localized(language))
-                    .outfitMedium(14)
+                    .outfitMedium(15)
                     .foregroundColor(.white)
                     .onTap {
                         selectedTab = .watchlist
@@ -837,7 +852,7 @@ struct GenreHomeCard : View {
         VStack {
             Heading(title: genre.title ?? "",content: {
                 Text(String.seeAll.localized(language))
-                    .outfitMedium(14)
+                    .outfitMedium(15)
                     .foregroundColor(.white)
                     .onTap {
                         Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
