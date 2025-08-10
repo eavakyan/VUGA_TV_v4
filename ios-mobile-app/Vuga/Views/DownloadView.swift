@@ -281,10 +281,7 @@ struct DownloadCardView : View {
                         ZStack {
                             KFImage(isForTVShowsView ? content.episodeHorizontalPoster.addBaseURL() : content.thumbnail.addBaseURL())
                                 .resizeFillTo(width: 150, height: 105, compressSize: 2)
-                                .overlay(
-                                    typeTag(content: content, isForTVShowsView: isForTVShowsView)
-                                    ,alignment: .topLeading
-                                )
+                                // Removed type overlay per requirement
                             VStack {
                                 Spacer()
                                 if selectedRecentlyViewed != nil && content.downloadId == selectedRecentlyViewed?.downloadId {

@@ -165,6 +165,7 @@ struct ContentDetailView: View {
     @AppStorage(SessionKeys.hasShownAirPlayGuidance) var hasShownAirPlayGuidance = false
     @StateObject var vm = ContentDetailViewModel()
     var homeVm : HomeViewModel?
+    var initialProgress: Double? = nil
     @State var showTrailerSheet = false
     @State private var currentIndex : Int = 0
     @State var episodeIncreaseTotalView = 0
@@ -391,6 +392,10 @@ struct ContentDetailView: View {
             }
             // Resume trailer playback when returning to content detail screen
             shouldPlayTrailer = true
+            // Apply initial progress if provided (e.g., from Recently Watched)
+            if let p = initialProgress, p > 0 {
+                vm.progress = p
+            }
         })
         .onDisappear {
             if shouldShowAdMob {
@@ -574,6 +579,45 @@ struct ContentDetailView: View {
             contentRatingSection(content)
             if content.type == .movie {
                 movieActionButtons(content)
+            }
+            // Continue section appears when opened from Recently Watched
+            if vm.progress > 0 {
+                VStack(spacing: 8) {
+                    HStack(spacing: 12) {
+                        PlayButton(size: 24)
+                        Text("Continue Watching")
+                            .outfitRegular(18)
+                    }
+                    .padding(10)
+                    .maxWidthFrame()
+                    .background(Color(hexString: "511B1B"))
+                    .cornerRadius(12)
+                    .addStroke(radius: 12, color: .base.opacity(0.3))
+                    .onTap {
+                        // Resume from vm.progress
+                        handlePlayAction(content)
+                    }
+                    
+                    HStack(spacing: 12) {
+                        Image.clock
+                            .resizeFitTo(size: 18)
+                        Text("Watch from Start")
+                            .outfitRegular(18)
+                    }
+                    .padding(10)
+                    .maxWidthFrame()
+                    .background(Color.bg)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12)
+                            .stroke(Color.text.opacity(0.3), lineWidth: 1)
+                    )
+                    .cornerRadius(12)
+                    .onTap {
+                        vm.progress = 0
+                        handlePlayAction(content)
+                    }
+                }
+                .padding(.top, 4)
             }
             if shouldShowAdMob {
                 BannerAd()

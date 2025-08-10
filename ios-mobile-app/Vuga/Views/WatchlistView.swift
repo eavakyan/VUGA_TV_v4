@@ -114,10 +114,6 @@ struct ContentHorizontalCard<ContentV: View>: View {
                 .resizeFillTo(width: 150, height: 105, compressSize: 2)
                 .cornerRadius(radius: 15)
                 .addStroke(radius: 15)
-                .overlay(
-                    TypeTagForVugaContent(content: content)
-                    ,alignment: .topLeading
-                )
                 .cornerRadius(radius: 15)
             VStack(alignment: .leading, spacing: 6,content: {
                 HStack {
@@ -162,7 +158,11 @@ struct ContentHorizontalCard<ContentV: View>: View {
             }
         }, alignment: .topTrailing)
         .onTap {
-            Navigation.pushToSwiftUiView(ContentDetailView(contentId: content.id))
+            if let id = content.id, id > 0 {
+                Navigation.pushToSwiftUiView(ContentDetailView(contentId: id))
+            } else {
+                print("WatchlistView: Invalid content ID, cannot open detail view")
+            }
         }
     }
 }

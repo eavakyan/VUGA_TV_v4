@@ -75,7 +75,7 @@ struct HomeView: View {
                             }
                             
                             if vm.wishlists.isNotEmpty {
-                                watchlistCard
+                                // Watchlist row removed per requirements
                             }
                             topTenContent
                             ForEach(vm.genres, id: \.id) { genre in
@@ -349,24 +349,18 @@ struct HomeView: View {
                             }
                             .cornerRadius(radius: 15)
                             .addStroke(radius: 15)
-                            HStack {
+                            VStack(alignment: .leading, spacing: 2) {
+                                // Line 1 + Line 2 simplified for Recently Watched: show title only per UX, no info icon
                                 Text(recently.name ?? "")
-                                    .lineLimit(1)
-                                    .outfitSemiBold(18)
-                                    .foregroundColor(Color("textColor"))
+                                    .lineLimit(2)
+                                    .outfitMedium(15)
+                                    .foregroundColor(.white)
                                     .padding(.top, 5)
-                                Spacer(minLength: 5)
-                                Image.info
-                                    .resizeFitTo(size: 20, renderingMode: .template)
-                                    .foregroundStyle(.white)
-                                    .onTap {
-                                        Navigation.pushToSwiftUiView(ContentDetailView(contentId: Int(recently.contentID)))
-                                    }
                             }
-                                .frame(width: 118, alignment: .leading)
+                            .frame(width: 118, alignment: .leading)
                         }
                         .onTap {
-                            vm.selectedRecentlyWatched = recently
+                            Navigation.pushToSwiftUiView(ContentDetailView(contentId: Int(recently.contentID)))
                         }
                     }
                 }
@@ -573,6 +567,7 @@ struct HomeView: View {
                         .clipped()
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
+                .allowsHitTesting(false)
                 
                 // Enhanced gradient overlay for better edge blending
                 HStack(spacing: 0) {
@@ -593,6 +588,7 @@ struct HomeView: View {
                     )
                     .frame(width: 60)
                 }
+                .allowsHitTesting(false)
                 
                 // Gradient overlay for better text visibility
                 LinearGradient(
@@ -600,6 +596,7 @@ struct HomeView: View {
                     startPoint: .top,
                     endPoint: .bottom
                 )
+                .allowsHitTesting(false)
                 
                 // Content overlay centered
                 VStack(spacing: 12) {
@@ -885,12 +882,103 @@ struct ContentVerticalCard: View {
      var vm : HomeViewModel?
     var content: VugaContent
     var body: some View {
-        KFImage(content.verticalPoster?.addBaseURL())
-            .resizeFillTo(width: 125, height: 178, radius: 5)
-            .addStroke(radius: 5)
-            .onTap {
-                Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
+        VStack(alignment: .leading, spacing: 4) {
+            KFImage(content.verticalPoster?.addBaseURL())
+                .resizeFillTo(width: 125, height: 178, radius: 5)
+                .addStroke(radius: 5)
+            // Metadata lines under poster
+            if content.type == .movie {
+                // Line 1: Release Year • Length (gray)
+                Text(movieLine1)
+                    .outfitLight(13)
+                    .foregroundColor(.textLight)
+                    .lineLimit(1)
+                // Line 2: Title (white)
+                Text(content.title ?? "")
+                    .outfitMedium(15)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+            } else if content.type == .series {
+                // TV Shows
+                HStack(spacing: 6) {
+                    Text(seriesEpisodeTitle)
+                        .outfitMedium(13)
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                    if let dateText = seriesEpisodeDateText {
+                        Text("• \(dateText)")
+                            .outfitLight(12)
+                            .foregroundColor(.textLight)
+                            .lineLimit(1)
+                    }
+                }
+                Text(content.title ?? "")
+                    .outfitMedium(15)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
             }
+        }
+        .frame(width: 125, alignment: .leading)
+        .onTap {
+            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
+        }
+    }
+}
+
+extension ContentVerticalCard {
+    private var movieLine1: String {
+        let year = content.releaseYear != nil ? String(content.releaseYear!) : ""
+        let length = formattedDuration(from: content.duration)
+        if !year.isEmpty && !length.isEmpty { return "\(year) • \(length)" }
+        if !year.isEmpty { return year }
+        return length
+    }
+    private var seriesEpisodeTitle: String {
+        if let season = content.seasons?.first, let ep = season.episodes?.first {
+            if let title = ep.title, !title.isEmpty { return title }
+            let sNum = season.title?.compactMap({ Int(String($0)) }).first ?? 1
+            let eNum = ep.number ?? 1
+            return "S\(sNum)E\(eNum)"
+        }
+        return content.title ?? ""
+    }
+    private var seriesEpisodeDateText: String? {
+        if let season = content.seasons?.first, let ep = season.episodes?.first, let dateStr = ep.createdAt, let date = isoDate(from: dateStr) {
+            return shortDateString(from: date)
+        }
+        return nil
+    }
+    private func formattedDuration(from duration: String?) -> String {
+        guard let duration = duration, !duration.isEmpty else { return "" }
+        // Handle formats like "120" (minutes) or "01:45:00"
+        if let minutes = Int(duration) {
+            if minutes >= 60 { return String(format: "%d hr %02d min", minutes / 60, minutes % 60) }
+            return "\(minutes) min"
+        }
+        let parts = duration.split(separator: ":").map { Int($0) ?? 0 }
+        if parts.count == 3 { return String(format: "%d hr %02d min", parts[0], parts[1]) }
+        if parts.count == 2 { return String(format: "%d hr %02d min", parts[0] / 60, parts[0] % 60) }
+        return duration
+    }
+    private func isoDate(from string: String) -> Date? {
+        let fmts = [
+            "yyyy-MM-dd'T'HH:mm:ssZ",
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd"
+        ]
+        for f in fmts {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = f
+            if let d = df.date(from: string) { return d }
+        }
+        return nil
+    }
+    private func shortDateString(from date: Date) -> String {
+        let df = DateFormatter()
+        df.dateStyle = .medium
+        df.timeStyle = .none
+        return df.string(from: date)
     }
 }
 

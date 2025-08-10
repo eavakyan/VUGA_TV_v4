@@ -7,6 +7,17 @@
 
 import Foundation
 
+// Helper CodingKey that can be created from arbitrary strings
+private struct DynamicCodingKeys: CodingKey {
+    var stringValue: String
+    var intValue: Int?
+    init?(stringValue: String) { self.stringValue = stringValue }
+    init?(intValue: Int) {
+        self.stringValue = String(intValue)
+        self.intValue = intValue
+    }
+}
+
 // MARK: - ContentModel
 struct ContentModel: Codable {
     let status: Bool?
@@ -78,7 +89,16 @@ struct VugaContent: Codable, Identifiable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
-        id = try container.decodeIfPresent(Int.self, forKey: .id)
+        // Prefer "content_id"; if absent, fallback to generic "id"
+        let decodedContentId = try container.decodeIfPresent(Int.self, forKey: .id)
+        var resolvedId = decodedContentId
+        if resolvedId == nil {
+            if let alt = try? decoder.container(keyedBy: DynamicCodingKeys.self),
+               let idKey = DynamicCodingKeys(stringValue: "id") {
+                resolvedId = try alt.decodeIfPresent(Int.self, forKey: idKey)
+            }
+        }
+        id = resolvedId
         title = try container.decodeIfPresent(String.self, forKey: .title)
         description = try container.decodeIfPresent(String.self, forKey: .description)
         type = try container.decodeIfPresent(ContentType.self, forKey: .type)
