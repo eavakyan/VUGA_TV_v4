@@ -63,7 +63,8 @@
       "Bash(php artisan tinker:*)",
       "Bash(php artisan:*)",
       "Bash(curl:*)",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(/Users/gene/Documents/dev/VUGA_TV_v4/api-backend/public_html/fix_urls.sh:*)"
     ],
     "deny": []
   }

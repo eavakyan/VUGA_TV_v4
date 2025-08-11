@@ -1,6 +1,41 @@
 @extends('include.app')
 @section('script')
 <script src="{{ asset('assets/script/topContents.js') }}"></script>
+<style>
+/* Dark theme styling for sort dropdown */
+#sortBy {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    border: 1px solid #444444 !important;
+}
+
+#sortBy:focus {
+    background-color: #333333 !important;
+    border-color: #007bff !important;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+#sortBy option {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+}
+
+/* Badge styling */
+.badge-primary {
+    background-color: #007bff !important;
+}
+
+.badge-info {
+    background-color: #17a2b8 !important;
+}
+
+/* Ensure rank numbers are visible */
+#topContentsTable tbody td:first-child {
+    font-weight: bold;
+    font-size: 1.1em;
+    color: #ffc107;
+}
+</style>
 @endsection
 
 @section('content')
@@ -10,9 +45,17 @@
             <div class="page-title w-100">
                 <div class="d-flex align-items-center justify-content-between">
                     <h4 class="mb-0 fw-semibold">{{ __('topContents') }}</h4>
-                    <button type="button" class="btn theme-bg theme-btn text-white" data-bs-toggle="modal" data-bs-target="#selectContentModal">
-                        {{ __('selectContent') }}
-                    </button>
+                    <div class="d-flex align-items-center">
+                        <label class="me-2 text-white">Sort by:</label>
+                        <select id="sortBy" class="form-select form-select-sm me-3" style="width: 150px;">
+                            <option value="views">Most Viewed</option>
+                            <option value="ratings">Highest Rated</option>
+                            <option value="manual">Manual Selection</option>
+                        </select>
+                        <button type="button" class="btn theme-bg theme-btn text-white" id="selectContentBtn" data-bs-toggle="modal" data-bs-target="#selectContentModal" style="display: none;">
+                            {{ __('selectContent') }}
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -20,8 +63,12 @@
             <table class="table table-striped w-100" id="topContentsTable">
                 <thead>
                     <tr>
-                        <th style="width: 10px !important;"> {{ __('order') }}</th>
+                        <th style="width: 50px !important;"> {{ __('rank') }}</th>
                         <th class="content-poster"> {{ __('poster') }}</th>
+                        <th> {{ __('title') }}</th>
+                        <th> {{ __('type') }}</th>
+                        <th> {{ __('views') }}</th>
+                        <th> {{ __('ratings') }}</th>
                         <th class="text-end" width="200px"> {{ __('action') }} </th>
                     </tr>
                 </thead>

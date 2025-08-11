@@ -541,6 +541,7 @@ class ContentController extends Controller
                 $horizontalPoster,
                 $item->title,
                 $item->ratings,
+                number_format($item->total_view),
                 $item->release_year,
                 $item->language->title,
                 $featured,
@@ -1318,6 +1319,7 @@ class ContentController extends Controller
                 $horizontalPoster,
                 $title,
                 $item->ratings,
+                number_format($item->total_view),
                 $item->release_year,
                 $item->language->title,
                 $featured,
@@ -1896,54 +1898,116 @@ class ContentController extends Controller
     public function topContents()
     {
         $topContents = TopContent::get()->pluck('content_id');
-        $contents = Content::whereNotIn('id', $topContents)->orderBy('created_at', 'DESC')->get();
+        $contents = Content::whereNotIn('content_id', $topContents)->orderBy('created_at', 'DESC')->get();
 
         return view('topContents', [
             'contents' => $contents,
         ]);     
     }
 
-    public function topContentsList()
+    public function topContentsList(Request $request)
     {
-        $query = TopContent::query();
+        $sortBy = $request->input('sortBy', 'manual');
+        $limit = $request->input('length', 20);
+        $start = $request->input('start', 0);
         
-        $query->orderBy('content_index', 'ASC');
-
-
-        $totalData = $query->count();
-
-        if (!empty($searchValue)) {
-            $query->where('title', 'LIKE', "%{$searchValue}%");
+        if ($sortBy === 'views') {
+            // Get top 20 content by views
+            $query = Content::where('is_show', 1)
+                ->orderBy('total_view', 'DESC')
+                ->orderBy('title', 'ASC');
+                
+            $totalData = Content::where('is_show', 1)->count();
+            $result = $query->limit($limit)->offset($start)->get();
+            
+            $data = $result->map(function ($item, $index) use ($start) {
+                $rank = $start + $index + 1;
+                $imageUrl = $item->vertical_poster ? $item->vertical_poster : './assets/img/default.png';
+                
+                $image = "<img data-fancybox src='{$imageUrl}' class='object-cover img-fluid vertical_poster_tbl img-border border-radius'>";
+                
+                $type = $item->type == 1 ? '<span class="badge badge-primary">Movie</span>' : '<span class="badge badge-info">Series</span>';
+                
+                $details = "<a href='contentList/{$item->content_id}' class='btn btn-info me-2 shadow-none text-white'>" . __('details') . "</a>";
+                
+                return [
+                    $rank,
+                    $image,
+                    $item->title,
+                    $type,
+                    number_format($item->total_view),
+                    $item->ratings,
+                    "<div class='text-end action'>{$details}</div>",
+                ];
+            });
+            
+        } elseif ($sortBy === 'ratings') {
+            // Get top 20 content by ratings
+            $query = Content::where('is_show', 1)
+                ->orderBy('ratings', 'DESC')
+                ->orderBy('total_view', 'DESC');
+                
+            $totalData = Content::where('is_show', 1)->count();
+            $result = $query->limit($limit)->offset($start)->get();
+            
+            $data = $result->map(function ($item, $index) use ($start) {
+                $rank = $start + $index + 1;
+                $imageUrl = $item->vertical_poster ? $item->vertical_poster : './assets/img/default.png';
+                
+                $image = "<img data-fancybox src='{$imageUrl}' class='object-cover img-fluid vertical_poster_tbl img-border border-radius'>";
+                
+                $type = $item->type == 1 ? '<span class="badge badge-primary">Movie</span>' : '<span class="badge badge-info">Series</span>';
+                
+                $details = "<a href='contentList/{$item->content_id}' class='btn btn-info me-2 shadow-none text-white'>" . __('details') . "</a>";
+                
+                return [
+                    $rank,
+                    $image,
+                    $item->title,
+                    $type,
+                    number_format($item->total_view),
+                    $item->ratings,
+                    "<div class='text-end action'>{$details}</div>",
+                ];
+            });
+            
+        } else {
+            // Manual selection mode
+            $query = TopContent::with('content')->orderBy('content_index', 'ASC');
+            $totalData = $query->count();
+            $result = $query->get();
+            
+            $data = $result->map(function ($item) {
+                if (!$item->content) {
+                    return null;
+                }
+                
+                $imageUrl = $item->content->vertical_poster ? $item->content->vertical_poster : './assets/img/default.png';
+                
+                $image = "<img data-fancybox src='{$imageUrl}' class='object-cover img-fluid vertical_poster_tbl img-border border-radius'>";
+                
+                $type = $item->content->type == 1 ? '<span class="badge badge-primary">Movie</span>' : '<span class="badge badge-info">Series</span>';
+                
+                $remove = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->top_content_id}'>" . __('delete') . "</a>";
+                
+                return [
+                    $item->content_index,
+                    $image,
+                    $item->content->title,
+                    $type,
+                    number_format($item->content->total_view),
+                    $item->content->ratings,
+                    "<div class='text-end action'>{$remove}</div>",
+                    'DT_RowId' => $item->top_content_id
+                ];
+            })->filter();
         }
 
-        $totalFiltered = $query->count();
-
-        $result = $query->get();
-
-        $data = $result->map(function ($item) {
-
-            $imageUrl = $item->content->vertical_poster ?  $item->content->vertical_poster : './assets/img/profile.svg';
-
-            $image = "<div class='d-flex align-items-center'>
-                    <img data-fancybox src='{$imageUrl}' class='object-cover img-fluid vertical_poster_tbl img-border border-radius'>
-                    <span class='ms-3'>{$item->content->title}</span>
-                  </div>";
-            $remove = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->top_content_id}'>" . __('delete') . "</a>";
-
-            $action = "<div class='text-end action'>{$remove}</div>";
-
-            return [
-                $item->content_index,
-                $image,
-                $action,
-                'DT_RowId' => $item->id
-            ];
-        });
-
         $json_data = [
+            "draw" => intval($request->input('draw', 1)),
             "recordsTotal" => intval($totalData),
-            "recordsFiltered" => intval($totalFiltered),
-            "data" => $data,
+            "recordsFiltered" => intval($totalData),
+            "data" => $data->values(),
         ];
 
         return response()->json($json_data);

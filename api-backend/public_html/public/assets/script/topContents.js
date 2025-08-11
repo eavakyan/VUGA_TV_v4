@@ -2,16 +2,17 @@ $(document).ready(function () {
     $(".sideBarli").removeClass("activeLi");
     $(".topContentsSideA").addClass("activeLi");
 
-    $("#topContentsTable").DataTable({
+    var table = $("#topContentsTable").DataTable({
         autoWidth: false,
         processing: true,
         serverSide: true,
         bLengthChange: false,
-        bInfo: false,
+        bInfo: true,
         bFilter: false,
-        bPaginate: false,
+        bPaginate: true,
+        pageLength: 20,
         serverMethod: "post",
-        aaSorting: [[0, "desc"]],
+        aaSorting: [[0, "asc"]],
         language: {
             paginate: {
                 next: '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="9 18 15 12 9 6"></polyline></svg>',
@@ -27,14 +28,38 @@ $(document).ready(function () {
         ],
         ajax: {
             url: `${domainUrl}/topContentsList`,
+            data: function(d) {
+                d.sortBy = $('#sortBy').val();
+            },
             error: (error) => {
                 console.log(error);
             },
         },
         drawCallback: function () {
-            makeSortable();
+            var sortBy = $('#sortBy').val();
+            if (sortBy === 'manual') {
+                makeSortable();
+                $('#selectContentBtn').show();
+            } else {
+                // Only destroy sortable if it was previously initialized
+                if ($("#topContentsTable tbody").hasClass("ui-sortable")) {
+                    $("#topContentsTable tbody").sortable("destroy");
+                }
+                $("#topContentsTable tbody").enableSelection();
+                $('#selectContentBtn').hide();
+            }
         },
     });
+    
+    // Handle sort change
+    $('#sortBy').on('change', function() {
+        table.ajax.reload();
+    });
+    
+    // Set initial state based on default selection
+    if ($('#sortBy').val() !== 'manual') {
+        $('#selectContentBtn').hide();
+    }
 
     function makeSortable() {
         $("#topContentsTable tbody")

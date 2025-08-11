@@ -129,6 +129,7 @@
                 <th class="content-poster"> {{ __('poster') }}</th>
                 <th> {{ __('title') }}</th>
                 <th> {{ __('ratings') }}</th>
+                <th> {{ __('views') }}</th>
                 <th> {{ __('releaseYear') }}</th>
                 <th> {{ __('language') }}</th>
                 <th> {{ __('featured') }}</th>
@@ -148,6 +149,7 @@
                 <th class="content-poster"> {{ __('poster') }}</th>
                 <th> {{ __('title') }}</th>
                 <th> {{ __('ratings') }}</th>
+                <th> {{ __('views') }}</th>
                 <th> {{ __('releaseYear') }}</th>
                 <th> {{ __('language') }}</th>
                 <th> {{ __('featured') }}</th>
