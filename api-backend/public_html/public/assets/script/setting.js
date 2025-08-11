@@ -43,7 +43,7 @@ $(document).ready(function () {
             let formData = new FormData($("#settingsForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}saveSettings`,
+                url: `${domainUrl}/saveSettings`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -63,7 +63,7 @@ $(document).ready(function () {
             let formData = new FormData($("#storageSettingForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}saveSettings`,
+                url: `${domainUrl}/saveSettings`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -84,7 +84,7 @@ $(document).ready(function () {
             let formData = new FormData($("#changePasswordForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}changePassword`,
+                url: `${domainUrl}/changePassword`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -102,7 +102,7 @@ $(document).ready(function () {
                             transitionOut: "fadeOutUp",
                             timeout: 3000,
                             animateInside: false,
-                            iconUrl: `${domainUrl}assets/img/x.svg`,
+                            iconUrl: `${domainUrl}/assets/img/x.svg`,
                         });
                     }
                 },
@@ -115,7 +115,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: `${domainUrl}saveSettings`,
+            url: `${domainUrl}/saveSettings`,
             data: {
                 is_live_tv_enable: isChecked,
             },
@@ -138,7 +138,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: `${domainUrl}saveSettings`,
+            url: `${domainUrl}/saveSettings`,
             data: {
                 is_admob_android: isChecked,
             },
@@ -161,7 +161,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: `${domainUrl}saveSettings`,
+            url: `${domainUrl}/saveSettings`,
             data: {
                 is_admob_ios: isChecked,
             },
@@ -183,7 +183,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: `${domainUrl}saveSettings`,
+            url: `${domainUrl}/saveSettings`,
             data: {
                 is_custom_android: isChecked,
             },
@@ -204,7 +204,7 @@ $(document).ready(function () {
 
         $.ajax({
             type: "POST",
-            url: `${domainUrl}saveSettings`,
+            url: `${domainUrl}/saveSettings`,
             data: {
                 is_custom_ios: isChecked,
             },

@@ -22,7 +22,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}actorsList`,
+            url: `${domainUrl}/actorsList`,
             error: (error) => {
                 console.log(error);
             },
@@ -35,7 +35,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addNewActorForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addNewActor`,
+                url: `${domainUrl}/addNewActor`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -84,7 +84,7 @@ $(document).ready(function () {
             editformData.append("actor_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateActor`,
+                url: `${domainUrl}/updateActor`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -115,7 +115,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteActor`,
+                        url: `${domainUrl}/deleteActor`,
                         dataType: "json",
                         data: {
                             actor_id: id,
@@ -365,13 +365,13 @@ $(document).ready(function () {
             let formData = new FormData($("#addNewActorFormTMDB")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addNewActor`,
+                url: `${domainUrl}/addNewActor`,
                 data: formData,
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     if (response.status) {
-                        window.location.href = `${domainUrl}actors`;
+                        window.location.href = `${domainUrl}/actors`;
                     }
                 },
             });

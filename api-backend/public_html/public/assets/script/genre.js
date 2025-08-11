@@ -22,7 +22,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}genresList`,
+            url: `${domainUrl}/genresList`,
             error: (error) => {
                 console.log(error);
             },
@@ -35,7 +35,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addGenreForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addGenre`,
+                url: `${domainUrl}/addGenre`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -71,7 +71,7 @@ $(document).ready(function () {
             editformData.append("genre_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateGenre`,
+                url: `${domainUrl}/updateGenre`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -102,7 +102,7 @@ $(document).ready(function () {
                     if (deleteValue) {
                         $.ajax({
                             type: "POST",
-                            url: `${domainUrl}deleteGenre`,
+                            url: `${domainUrl}/deleteGenre`,
                             dataType: "json",
                             data: {
                                 genre_id: id,

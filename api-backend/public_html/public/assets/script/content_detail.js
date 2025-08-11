@@ -134,7 +134,7 @@ $(document).ready(function () {
             editformData.append("content_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateContent`,
+                url: `${domainUrl}/updateContent`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -170,14 +170,14 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteContent`,
+                        url: `${domainUrl}/deleteContent`,
                         dataType: "json",
                         data: {
                             content_id: id,
                         },
                         success: function (response) {
                             if (response.status) {
-                                window.location.href = `${domainUrl}contentList`;
+                                window.location.href = `${domainUrl}/contentList`;
                             } else {
                                 somethingWentWrongToast();
                             }
@@ -224,7 +224,7 @@ $(document).ready(function () {
                 if (deleteValue == true) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteEpisode`,
+                        url: `${domainUrl}/deleteEpisode`,
                         data: {
                             episode_id: id,
                         },
@@ -232,7 +232,7 @@ $(document).ready(function () {
                         success: function (response) {
                             if (response.status) {
                                 window.location.href =
-                                    `${domainUrl}series/` + response.content_id;
+                                    `${domainUrl}/series/` + response.content_id;
                             } else {
                                 console.log(response.message);
                             }
@@ -264,7 +264,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchSourceList`,
+            url: `${domainUrl}/fetchSourceList`,
             data: {
                 content_id: id,
             },
@@ -280,7 +280,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addSourceForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addSource`,
+                url: `${domainUrl}/addSource`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -345,7 +345,7 @@ $(document).ready(function () {
             editformData.append("source_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateContentSource`,
+                url: `${domainUrl}/updateContentSource`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -376,7 +376,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteSource`,
+                        url: `${domainUrl}/deleteSource`,
                         dataType: "json",
                         data: {
                             source_id: id,
@@ -418,7 +418,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchCastList`,
+            url: `${domainUrl}/fetchCastList`,
             data: {
                 content_id: id,
             },
@@ -434,7 +434,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addCastForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addCast`,
+                url: `${domainUrl}/addCast`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -471,7 +471,7 @@ $(document).ready(function () {
             editformData.append("cast_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateCast`,
+                url: `${domainUrl}/updateCast`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -502,7 +502,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteCast`,
+                        url: `${domainUrl}/deleteCast`,
                         dataType: "json",
                         data: {
                             cast_id: id,
@@ -544,7 +544,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchSubtitleList`,
+            url: `${domainUrl}/fetchSubtitleList`,
             data: {
                 content_id: id,
             },
@@ -560,7 +560,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addSubtitleForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addSubtitle`,
+                url: `${domainUrl}/addSubtitle`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -592,7 +592,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteSubtitle`,
+                        url: `${domainUrl}/deleteSubtitle`,
                         dataType: "json",
                         data: {
                             subtitle_id: id,
@@ -620,7 +620,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addSeasonForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addSeason`,
+                url: `${domainUrl}/addSeason`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -685,7 +685,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchEpisodeList`,
+            url: `${domainUrl}/fetchEpisodeList`,
             data: function (d) {
                 d.season_id = currentSeasonId; // Use the dynamic season_id
             },
@@ -719,7 +719,7 @@ $(document).ready(function () {
             editformData.append("season_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateSeason`,
+                url: `${domainUrl}/updateSeason`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -748,7 +748,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteSeason`,
+                        url: `${domainUrl}/deleteSeason`,
                         dataType: "json",
                         data: {
                             season_id: id,
@@ -788,7 +788,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchEpisodeSourceList`,
+            url: `${domainUrl}/fetchEpisodeSourceList`,
             data: {
                 episode_id: episode_id_1,
             },
@@ -804,7 +804,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addEpisodeSourceForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addEpisodeSource`,
+                url: `${domainUrl}/addEpisodeSource`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -872,7 +872,7 @@ $(document).ready(function () {
             editformData.append("episode_source_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateEpisodeSource`,
+                url: `${domainUrl}/updateEpisodeSource`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -904,7 +904,7 @@ $(document).ready(function () {
                 if (deleteValue == true) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteEpisodeSource`,
+                        url: `${domainUrl}/deleteEpisodeSource`,
                         data: {
                             episode_source_id: id,
                         },
@@ -931,7 +931,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addEpisodeForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addEpisode`,
+                url: `${domainUrl}/addEpisode`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -977,7 +977,7 @@ $(document).ready(function () {
             editformData.append("episode_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateEpisode`,
+                url: `${domainUrl}/updateEpisode`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -1012,7 +1012,7 @@ $(document).ready(function () {
                     if (deleteValue == true) {
                         $.ajax({
                             type: "POST",
-                            url: `${domainUrl}deleteEpisode`,
+                            url: `${domainUrl}/deleteEpisode`,
                             data: {
                                 episode_id: id,
                             },
@@ -1053,7 +1053,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchEpisodeSubtitleList`,
+            url: `${domainUrl}/fetchEpisodeSubtitleList`,
             data: {
                 episode_id: episode_id_1,
             },
@@ -1069,7 +1069,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addEpisodeSubtitleForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addEpisodeSubtitle`,
+                url: `${domainUrl}/addEpisodeSubtitle`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -1100,7 +1100,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteEpisodeSubtitle`,
+                        url: `${domainUrl}/deleteEpisodeSubtitle`,
                         dataType: "json",
                         data: {
                             episode_subtitle_id: id,

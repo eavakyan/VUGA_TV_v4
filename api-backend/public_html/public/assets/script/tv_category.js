@@ -22,7 +22,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchTvCategoryList`,
+            url: `${domainUrl}/fetchTvCategoryList`,
             error: (error) => {
                 console.log(error);
             },
@@ -35,7 +35,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addTvCategoryForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addTvCategory`,
+                url: `${domainUrl}/addTvCategory`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -79,7 +79,7 @@ $(document).ready(function () {
             editformData.append("tv_category_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateTvCategory`,
+                url: `${domainUrl}/updateTvCategory`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -110,7 +110,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteTvCategory`,
+                        url: `${domainUrl}/deleteTvCategory`,
                         dataType: "json",
                         data: {
                             tv_category_id: id,

@@ -43,7 +43,7 @@
                 },
             ],
             ajax: {
-                url: `${domainUrl}fetchTvChannelList`,
+                url: `${domainUrl}/fetchTvChannelList`,
                 error: (error) => {
                     console.log(error);
                 },
@@ -56,7 +56,7 @@
                 let formData = new FormData($("#addTvChannelForm")[0]);
                 $.ajax({
                     type: "POST",
-                    url: `${domainUrl}addTvChannel`,
+                    url: `${domainUrl}/addTvChannel`,
                     data: formData,
                     contentType: false,
                     processData: false,
@@ -126,7 +126,7 @@
                 editformData.append("tv_channel_id", id);
                 $.ajax({
                     type: "POST",
-                    url: `${domainUrl}updateTvChannel`,
+                    url: `${domainUrl}/updateTvChannel`,
                     data: editformData,
                     contentType: false,
                     processData: false,
@@ -157,7 +157,7 @@
                     if (deleteValue) {
                         $.ajax({
                             type: "POST",
-                            url: `${domainUrl}deleteTvChannel`,
+                            url: `${domainUrl}/deleteTvChannel`,
                             dataType: "json",
                             data: {
                                 tv_channel_id: id,

@@ -9,7 +9,7 @@ $(document).ready(function () {
             let formData = new FormData($("#admobAndroidForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}admobAndroid`,
+                url: `${domainUrl}/admobAndroid`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -30,7 +30,7 @@ $(document).ready(function () {
             let formData = new FormData($("#admobiOSForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}admobiOS`,
+                url: `${domainUrl}/admobiOS`,
                 data: formData,
                 contentType: false,
                 processData: false,

@@ -13,7 +13,7 @@ $(document).ready(function () {
 
           $.ajax({
               type: "POST",
-              url: `${domainUrl}updatePrivacy`,
+              url: `${domainUrl}/updatePrivacy`,
               data: formData,
               contentType: false,
               processData: false,

@@ -258,7 +258,7 @@ $(document).ready(function () {
 
                         $.ajax({
                             type: "POST",
-                            url: `${domainUrl}addGenre`,
+                            url: `${domainUrl}/addGenre`,
                             data: { genres: genreNamesString },
                             success: function (genreResponse) {
                                 if (genreResponse.status) {
@@ -280,7 +280,7 @@ $(document).ready(function () {
                                         response.original_language;
                                     $.ajax({
                                         type: "POST",
-                                        url: `${domainUrl}addLanguage`,
+                                        url: `${domainUrl}/addLanguage`,
                                         data: {
                                             languageCode: originalLanguageCode,
                                         },
@@ -597,7 +597,7 @@ $(document).ready(function () {
 
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}addGenre`,
+                        url: `${domainUrl}/addGenre`,
                         data: { genres: genreNamesString },
                         success: function (genreResponse) {
                             if (genreResponse.status) {
@@ -620,7 +620,7 @@ $(document).ready(function () {
                                     response.original_language;
                                 $.ajax({
                                     type: "POST",
-                                    url: `${domainUrl}addLanguage`,
+                                    url: `${domainUrl}/addLanguage`,
                                     data: {
                                         languageCode: originalLanguageCode,
                                     },
@@ -720,13 +720,13 @@ $(document).ready(function () {
 
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addNewContent`,
+                url: `${domainUrl}/addNewContent`,
                 data: formData,
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     if (response.status) {
-                        window.location.href = `${domainUrl}contentList`;
+                        window.location.href = `${domainUrl}/contentList`;
                     }
                 },
             });
@@ -768,13 +768,13 @@ $(document).ready(function () {
 
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addNewContent`,
+                url: `${domainUrl}/addNewContent`,
                 data: formData,
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     if (response.status) {
-                        window.location.href = `${domainUrl}contentList?tab=series`;
+                        window.location.href = `${domainUrl}/contentList?tab=series`;
                     }
                 },
             });

@@ -199,7 +199,7 @@
         </div>
     </div>
 
-    <input type="hidden" value="{{ env('APP_URL')}}" id="appUrl">
+    <input type="hidden" value="{{ config('app.url') }}" id="appUrl">
     <input type="hidden" value="{{ env('TMDB_API_KEY')}}" id="TMDB_API_KEY">
 
     <script src="{{ asset('assets/js/jquery.min.js') }}"></script>

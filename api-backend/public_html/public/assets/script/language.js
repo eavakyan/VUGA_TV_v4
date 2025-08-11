@@ -22,7 +22,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}languagesList`,
+            url: `${domainUrl}/languagesList`,
             error: (error) => {
                 console.log(error);
             },
@@ -35,7 +35,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addLanguageForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addLanguage`,
+                url: `${domainUrl}/addLanguage`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -72,7 +72,7 @@ $(document).ready(function () {
             editformData.append("language_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateLanguage`,
+                url: `${domainUrl}/updateLanguage`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -105,7 +105,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteLanguage`,
+                        url: `${domainUrl}/deleteLanguage`,
                         dataType: "json",
                         data: {
                             language_id: id,

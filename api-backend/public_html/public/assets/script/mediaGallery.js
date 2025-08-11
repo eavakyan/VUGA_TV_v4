@@ -22,7 +22,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}mediaGalleryList`,
+            url: `${domainUrl}/mediaGalleryList`,
             error: (error) => {
                 console.log(error);
             },
@@ -35,7 +35,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addMediaForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addMedia`,
+                url: `${domainUrl}/addMedia`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -101,7 +101,7 @@ $(document).ready(function () {
             editformData.append("media_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateMedia`,
+                url: `${domainUrl}/updateMedia`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -134,7 +134,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteMedia`,
+                        url: `${domainUrl}/deleteMedia`,
                         dataType: "json",
                         data: {
                             media_id: id,

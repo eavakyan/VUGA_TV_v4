@@ -25,7 +25,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchCustomAdList`,
+            url: `${domainUrl}/fetchCustomAdList`,
             error: (error) => {
                 console.log(error);
             },
@@ -38,7 +38,7 @@ $(document).ready(function () {
         checkUserType(function (e) {
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}customAdOn`,
+                url: `${domainUrl}/customAdOn`,
                 dataType: "json",
                 data: {
                     ad_id: id,
@@ -57,7 +57,7 @@ $(document).ready(function () {
                            transitionOut: "fadeOutUp",
                            timeout: 4000,
                            animateInside: false,
-                           iconUrl: `${domainUrl}assets/img/x.svg`,
+                           iconUrl: `${domainUrl}/assets/img/x.svg`,
                        });
                     }
                 },
@@ -71,7 +71,7 @@ $(document).ready(function () {
         checkUserType(function (e) {
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}customAdOff`,
+                url: `${domainUrl}/customAdOff`,
                 dataType: "json",
                 data: {
                     ad_id: id,
@@ -103,7 +103,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addCustomAdForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addCustomAd`,
+                url: `${domainUrl}/addCustomAd`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -240,7 +240,7 @@ $(document).ready(function () {
             formData.append("custom_ad_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateCustomAd`,
+                url: `${domainUrl}/updateCustomAd`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -270,7 +270,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteCustomAd`,
+                        url: `${domainUrl}/deleteCustomAd`,
                         dataType: "json",
                         data: {
                             custom_ad_id: id,
@@ -311,7 +311,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchCustomAdImageSourceList`,
+            url: `${domainUrl}/fetchCustomAdImageSourceList`,
             data: {
                 custom_ad_id: id,
             },
@@ -327,7 +327,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addCustomAdSourceImageForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addCustomAdSourceImage`,
+                url: `${domainUrl}/addCustomAdSourceImage`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -374,7 +374,7 @@ $(document).ready(function () {
             formData.append("custom_ad_source_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateCustomAdSource`,
+                url: `${domainUrl}/updateCustomAdSource`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -404,7 +404,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteCustomAdSource`,
+                        url: `${domainUrl}/deleteCustomAdSource`,
                         dataType: "json",
                         data: {
                             custom_ad_source_id: id,
@@ -445,7 +445,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchCustomAdVideoSourceList`,
+            url: `${domainUrl}/fetchCustomAdVideoSourceList`,
             data: {
                 custom_ad_id: id,
             },
@@ -461,7 +461,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addCustomAdSourceVideoForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addCustomAdSourceVideo`,
+                url: `${domainUrl}/addCustomAdSourceVideo`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -503,7 +503,7 @@ $(document).ready(function () {
             formData.append("custom_ad_source_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateCustomAdSource`,
+                url: `${domainUrl}/updateCustomAdSource`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -533,7 +533,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteCustomAdSource`,
+                        url: `${domainUrl}/deleteCustomAdSource`,
                         dataType: "json",
                         data: {
                             custom_ad_source_id: id,
@@ -567,7 +567,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteCustomAd`,
+                        url: `${domainUrl}/deleteCustomAd`,
                         dataType: "json",
                         data: {
                             custom_ad_id: id,
@@ -576,7 +576,7 @@ $(document).ready(function () {
                             if (response.status) {
                                 // showSuccessToast();
                                 // $("#customAdTable").DataTable().ajax.reload(null, false);
-                                window.location.href = `${domainUrl}customAds`;
+                                window.location.href = `${domainUrl}/customAds`;
                                 
                             } else {
                                 somethingWentWrongToast();

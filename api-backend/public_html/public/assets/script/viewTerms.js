@@ -10,7 +10,7 @@ $(document).ready(function () {
           formData.append("content", quillContent); // Append the Quill editor's content
           $.ajax({
               type: "POST",
-              url: `${domainUrl}updateTerms`,
+              url: `${domainUrl}/updateTerms`,
               data: formData,
               contentType: false,
               processData: false,

@@ -23,7 +23,7 @@ $(document).ready(function () {
           },
       ],
       ajax: {
-          url: `${domainUrl}usersList`,
+          url: `${domainUrl}/usersList`,
           error: (error) => {
               console.log(error);
           },

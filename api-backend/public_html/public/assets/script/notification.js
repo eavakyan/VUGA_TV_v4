@@ -22,7 +22,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}notificationList`,
+            url: `${domainUrl}/notificationList`,
             error: (error) => {
                 console.log(error);
             },
@@ -35,7 +35,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addNotificationForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addNotification`,
+                url: `${domainUrl}/addNotification`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -74,7 +74,7 @@ $(document).ready(function () {
             editformData.append("notification_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateNotification`,
+                url: `${domainUrl}/updateNotification`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -106,7 +106,7 @@ $(document).ready(function () {
 
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}repeatNotification`,
+                url: `${domainUrl}/repeatNotification`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -141,7 +141,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteNotification`,
+                        url: `${domainUrl}/deleteNotification`,
                         dataType: "json",
                         data: {
                             notification_id: id,

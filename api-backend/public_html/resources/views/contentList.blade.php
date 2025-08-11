@@ -1,6 +1,45 @@
 @extends('include.app')
 @section('script')
 <script src="{{ asset('assets/script/content.js') }}"></script>
+<style>
+/* Dark theme styling for DataTables search */
+.dataTables_filter {
+    margin-bottom: 20px;
+}
+
+.dataTables_filter label {
+    color: #ffffff !important;
+    font-weight: 500;
+}
+
+.dataTables_filter input {
+    background-color: #2a2a2a !important;
+    color: #ffffff !important;
+    border: 1px solid #444444 !important;
+    padding: 8px 15px;
+    border-radius: 4px;
+    margin-left: 10px;
+    width: 250px;
+}
+
+.dataTables_filter input:focus {
+    background-color: #333333 !important;
+    border-color: #007bff !important;
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.dataTables_filter input::placeholder {
+    color: #999999 !important;
+}
+
+/* Ensure search appears for both tables */
+#moviesTable_filter,
+#seriesTable_filter {
+    display: block !important;
+    text-align: right;
+}
+</style>
 <script>
   document.addEventListener('DOMContentLoaded', function() {
 

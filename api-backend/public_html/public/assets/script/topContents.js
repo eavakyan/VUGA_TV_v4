@@ -26,7 +26,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}topContentsList`,
+            url: `${domainUrl}/topContentsList`,
             error: (error) => {
                 console.log(error);
             },
@@ -51,7 +51,7 @@ $(document).ready(function () {
 
     function saveOrder(order) {
         $.ajax({
-            url: `${domainUrl}saveOrder`,
+            url: `${domainUrl}/saveOrder`,
             method: "POST",
             data: {
                 order: order,
@@ -82,7 +82,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}removeFromTopContent`,
+                        url: `${domainUrl}/removeFromTopContent`,
                         dataType: "json",
                         data: {
                             top_content_id: id,
@@ -108,7 +108,7 @@ $(document).ready(function () {
             if (checked) {
                 $.ajax({
                     type: "POST",
-                    url: `${domainUrl}addToTopContent`,
+                    url: `${domainUrl}/addToTopContent`,
                     dataType: "json",
                     data: {content_id: id},
                     success: function (response) {

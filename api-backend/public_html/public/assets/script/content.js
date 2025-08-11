@@ -95,7 +95,7 @@ $(document).ready(function () {
     function loadTrailersForEdit(contentId) {
         $.ajax({
             type: 'GET',
-            url: `${domainUrl}api/v2/content-trailers/${contentId}`,
+            url: `${domainUrl}/api/v2/content-trailers/${contentId}`,
             success: function(response) {
                 const container = $('#edit-trailers-container');
                 container.empty();
@@ -123,7 +123,11 @@ $(document).ready(function () {
         serverSide: true,
         serverMethod: "post",
         aaSorting: [[0, "desc"]],
+        searching: true,
+        dom: 'lfrtip',
         language: {
+            search: "Search movies:",
+            searchPlaceholder: "Type to search...",
             paginate: {
                 next: '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="9 18 15 12 9 6"></polyline></svg>',
                 previous:
@@ -137,7 +141,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchMoviesList`,
+            url: `${domainUrl}/fetchMoviesList`,
             error: (error) => {
                 console.log(error);
             },
@@ -150,7 +154,7 @@ $(document).ready(function () {
         checkUserType(function (e) {
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}unfeatured`,
+                url: `${domainUrl}/unfeatured`,
                 dataType: "json",
                 data: {
                     content_id: id,
@@ -172,7 +176,7 @@ $(document).ready(function () {
         checkUserType(function (e) {
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}featured`,
+                url: `${domainUrl}/featured`,
                 dataType: "json",
                 data: {
                     content_id: id,
@@ -194,7 +198,7 @@ $(document).ready(function () {
         checkUserType(function (e) {
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}hideContent`,
+                url: `${domainUrl}/hideContent`,
                 dataType: "json",
                 data: {
                     content_id: id,
@@ -216,7 +220,7 @@ $(document).ready(function () {
         checkUserType(function (e) {
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}showContent`,
+                url: `${domainUrl}/showContent`,
                 dataType: "json",
                 data: {
                     content_id: id,
@@ -238,7 +242,7 @@ $(document).ready(function () {
             let formData = new FormData($("#addNewContentForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addNewContent`,
+                url: `${domainUrl}/addNewContent`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -332,7 +336,7 @@ $(document).ready(function () {
             
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}updateContent`,
+                url: `${domainUrl}/updateContent`,
                 data: editformData,
                 contentType: false,
                 processData: false,
@@ -376,7 +380,7 @@ $(document).ready(function () {
             
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}addNewContent`,
+                url: `${domainUrl}/addNewContent`,
                 data: formData,
                 contentType: false,
                 processData: false,
@@ -443,7 +447,7 @@ $(document).ready(function () {
                     
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}deleteContent`,
+                        url: `${domainUrl}/deleteContent`,
                         dataType: "json",
                         data: {
                             content_id: id,
@@ -471,7 +475,11 @@ $(document).ready(function () {
         serverSide: true,
         serverMethod: "post",
         aaSorting: [[0, "desc"]],
+        searching: true,
+        dom: 'lfrtip',
         language: {
+            search: "Search series:",
+            searchPlaceholder: "Type to search...",
             paginate: {
                 next: '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="9 18 15 12 9 6"></polyline></svg>',
                 previous:
@@ -485,7 +493,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}fetchSeriesList`,
+            url: `${domainUrl}/fetchSeriesList`,
             error: (error) => {
                 console.log(error);
             },
@@ -513,7 +521,7 @@ $(document).ready(function () {
         checkUserType(function (e) {
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}notifyContent`,
+                url: `${domainUrl}/notifyContent`,
                 dataType: "json",
                 data: {
                     content_id: id,
