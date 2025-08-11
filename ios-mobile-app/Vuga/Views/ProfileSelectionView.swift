@@ -27,38 +27,30 @@ struct ProfileSelectionView: View {
                         GridItem(.flexible()),
                         GridItem(.flexible())
                     ], spacing: 20) {
-                        // Force top alignment by using a custom layout
-                        if viewModel.isLoading && viewModel.profiles.isEmpty {
-                            // Skeleton loading state
-                            ForEach(0..<4, id: \.self) { _ in
-                                ProfileSkeletonView()
-                            }
-                        } else {
-                            ForEach(viewModel.profiles, id: \.profileId) { profile in
-                                ProfileItem(profile: profile, isEditMode: isEditMode) {
-                                    print("ProfileSelectionView: Profile tapped - \(profile.name)")
-                                    if isEditMode {
-                                        selectedProfile = profile
-                                        showCreateProfile = true
-                                    } else {
-                                        viewModel.selectProfile(profile)
-                                    }
-                                } onDelete: {
-                                    if viewModel.profiles.count > 1 {
-                                        viewModel.deleteProfile(profile)
-                                    }
-                                }
-                                .frame(maxWidth: .infinity, alignment: .top)
-                            }
-                            
-                            // Add Profile button
-                            if viewModel.profiles.count < 4 && !isEditMode {
-                                AddProfileButton {
-                                    selectedProfile = nil
+                        ForEach(viewModel.profiles, id: \.profileId) { profile in
+                            ProfileItem(profile: profile, isEditMode: isEditMode) {
+                                print("ProfileSelectionView: Profile tapped - \(profile.name)")
+                                if isEditMode {
+                                    selectedProfile = profile
                                     showCreateProfile = true
+                                } else {
+                                    viewModel.selectProfile(profile)
                                 }
-                                .frame(maxWidth: .infinity, alignment: .top)
+                            } onDelete: {
+                                if viewModel.profiles.count > 1 {
+                                    viewModel.deleteProfile(profile)
+                                }
                             }
+                            .frame(maxWidth: .infinity, alignment: .top)
+                        }
+                        
+                        // Add Profile button
+                        if viewModel.profiles.count < 4 && !isEditMode {
+                            AddProfileButton {
+                                selectedProfile = nil
+                                showCreateProfile = true
+                            }
+                            .frame(maxWidth: .infinity, alignment: .top)
                         }
                     }
                     .padding(.horizontal, 40)
@@ -87,20 +79,11 @@ struct ProfileSelectionView: View {
             }
             
             if viewModel.isLoading {
-                ProgressView()
-                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                    .scaleEffect(1.5)
+                LoadingOverlayView(title: "Loading profiles...")
             }
         }
         .onAppear {
-            // Load profiles immediately when view appears
             viewModel.loadProfiles()
-        }
-        .task {
-            // Pre-load profiles in background for faster appearance
-            if viewModel.profiles.isEmpty {
-                viewModel.loadProfiles()
-            }
         }
         .sheet(isPresented: $showCreateProfile) {
             CreateProfileView(profile: selectedProfile) {
@@ -125,33 +108,26 @@ struct ProfileSelectionView: View {
     }
 }
 
-struct ProfileSkeletonView: View {
+struct LoadingOverlayView: View {
+    var title: String
     var body: some View {
-        VStack(spacing: 10) {
-            // Skeleton avatar
-            Circle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 100, height: 100)
-                .overlay(
-                    Circle()
-                        .stroke(Color.gray.opacity(0.5), lineWidth: 1)
-                )
-            
-            // Skeleton name
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
-                .frame(width: 80, height: 16)
-                .cornerRadius(8)
-            
-            // Skeleton kids badge (optional)
-            Rectangle()
-                .fill(Color.gray.opacity(0.2))
-                .frame(width: 40, height: 12)
-                .cornerRadius(6)
+        ZStack {
+            Color.black.opacity(0.6).ignoresSafeArea()
+            VStack(spacing: 12) {
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.4)
+                Text(title)
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.white.opacity(0.9))
+            }
+            .padding(.horizontal, 20)
+            .padding(.vertical, 16)
+            .background(Color.black.opacity(0.7))
+            .cornerRadius(12)
+            .shadow(radius: 8)
         }
-        .onTapGesture {
-            // Disabled during loading
-        }
+        .allowsHitTesting(true)
     }
 }
 

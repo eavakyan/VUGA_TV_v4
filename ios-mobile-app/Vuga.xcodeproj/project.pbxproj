@@ -116,6 +116,7 @@
 		B05AC9522E3F04FF005EB298 /* DownloadProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9512E3F04FF005EB298 /* DownloadProgressView.swift */; };
 		B05AC9562E47A318005EB298 /* MarketingPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9552E47A318005EB298 /* MarketingPreferencesView.swift */; };
 		B05AC9582E47A35B005EB298 /* TrailerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9572E47A35B005EB298 /* TrailerUtils.swift */; };
+		B05AC95E2E494C67005EB298 /* SubscriptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC95D2E494C67005EB298 /* SubscriptionsView.swift */; };
 		B07147F72E26145000A53215 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B07147F62E26145000A53215 /* GoogleService-Info.plist */; };
 		B07147F82E26145000A53215 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B07147F62E26145000A53215 /* GoogleService-Info.plist */; };
 		B07A74952E35BFEF00E4BC93 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07A74942E35BFEF00E4BC93 /* APIClient.swift */; };
@@ -339,6 +340,7 @@
 		B05AC9512E3F04FF005EB298 /* DownloadProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DownloadProgressView.swift; sourceTree = "<group>"; };
 		B05AC9552E47A318005EB298 /* MarketingPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketingPreferencesView.swift; sourceTree = "<group>"; };
 		B05AC9572E47A35B005EB298 /* TrailerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerUtils.swift; sourceTree = "<group>"; };
+		B05AC95D2E494C67005EB298 /* SubscriptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionsView.swift; sourceTree = "<group>"; };
 		B07147F62E26145000A53215 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B07A74942E35BFEF00E4BC93 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		B0F1D7AE2E38951A006CBED0 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -744,6 +746,7 @@
 		C434A4802BEA0F6C0059889F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B05AC95D2E494C67005EB298 /* SubscriptionsView.swift */,
 				B05AC9552E47A318005EB298 /* MarketingPreferencesView.swift */,
 				B05AC9512E3F04FF005EB298 /* DownloadProgressView.swift */,
 				B05AC94F2E3F032A005EB298 /* AgeSettingsView.swift */,
@@ -1137,6 +1140,7 @@
 				B05AC9562E47A318005EB298 /* MarketingPreferencesView.swift in Sources */,
 				C491DD4D2BFCC12E0001DAF8 /* IntExtension.swift in Sources */,
 				C434A4842BEA19100059889F /* BaseViewModel.swift in Sources */,
+				B05AC95E2E494C67005EB298 /* SubscriptionsView.swift in Sources */,
 				2BA0FDD72C1978E2003D0450 /* IcloudDataManager.swift in Sources */,
 				2BCD28122C3822F20076D8ED /* PagingView.swift in Sources */,
 				2B9D9BD72C75CD0A0078A63E /* Vuga.xcdatamodeld in Sources */,

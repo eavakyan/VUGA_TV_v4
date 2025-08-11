@@ -21,10 +21,7 @@ struct TabBarView: View {
             case .search:
                 SearchView()
             case .subscriptions:
-                Text("Subscriptions View")
-                    .foregroundColor(.text)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(Color.bg)
+                SubscriptionsView()
             case .watchlist:
                 WatchlistView()
             case .profile:

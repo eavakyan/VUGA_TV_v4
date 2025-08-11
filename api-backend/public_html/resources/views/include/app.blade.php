@@ -100,6 +100,19 @@
                                 <span> {{ __('Bulk Import') }} </span>
                             </a>
                         </li>
+                        <li class="dropdown sideBarli distributorSideA">
+                            <a href="#" class="nav-link has-dropdown">
+                                <i data-feather="package"></i>
+                                <span> {{ __('Distributors') }} </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{ route('distributors.index') }}">Manage Distributors</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.distributors.content') }}">Assign Content</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.distributors.revenue') }}">Revenue Share</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.distributors.promos') }}">Promo Codes</a></li>
+                                <li><a class="nav-link" href="{{ route('admin.distributors.analytics') }}">Analytics</a></li>
+                            </ul>
+                        </li>
                         <li class="sideBarli actorSideA">
                             <a href="{{ route('actors') }}" class="nav-link">
                                 <i data-feather="star"></i>

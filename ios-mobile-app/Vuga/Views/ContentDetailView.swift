@@ -748,22 +748,54 @@ struct ContentDetailView: View {
     
     @ViewBuilder
     private func movieActionButtons(_ content: VugaContent) -> some View {
-        VStack(spacing: 10) {
-            // Play button
-            HStack(spacing: 12) {
-                PlayButton(size: 30)
-                Text(String.watchNow.localized(language))
-                    .outfitRegular(20)
+        VStack(spacing: 16) {
+            // Start Watching (always shown)
+            VStack(spacing: 6) {
+                ZStack {
+                    Circle().fill(Color.gray.opacity(0.25))
+                        .frame(width: 64, height: 64)
+                    Image(systemName: "play.fill")
+                        .font(.system(size: 26, weight: .bold))
+                        .foregroundColor(.white)
+                }
+                Text("Start Watching")
+                    .outfitRegular(16)
+                    .foregroundColor(.white)
             }
-            .padding(10)
-            .maxWidthFrame()
-            .background(Color(hexString: "511B1B"))
-            .cornerRadius(15)
-            .addStroke(radius: 15, color: .base.opacity(0.3))
-            .onTap {
-                handlePlayAction(content)
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 8)
+            .background(Color.gray.opacity(0.2))
+            .cornerRadius(14)
+            .addStroke(radius: 14, color: .white.opacity(0.2))
+            .onTap { handlePlayAction(content) }
+
+            // Continue Watching (only if progress)
+            if vm.progress > 0 {
+                VStack(spacing: 6) {
+                    ZStack {
+                        Circle().fill(Color.gray.opacity(0.18))
+                            .frame(width: 64, height: 64)
+                        Circle()
+                            .trim(from: 0, to: CGFloat(min(max(vm.progress, 0), 1)))
+                            .stroke(Color.white, style: StrokeStyle(lineWidth: 4, lineCap: .round))
+                            .rotationEffect(.degrees(-90))
+                            .frame(width: 64, height: 64)
+                        Image(systemName: "play.fill")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundColor(.white)
+                    }
+                    Text("Continue Watching")
+                        .outfitRegular(16)
+                        .foregroundColor(.white)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(Color.gray.opacity(0.2))
+                .cornerRadius(14)
+                .addStroke(radius: 14, color: .white.opacity(0.2))
+                .onTap { handlePlayAction(content) }
             }
-            
+
             // Download button
             if content.contentSources?.first?.isDownload == 1 {
                 HStack(spacing: 12) {

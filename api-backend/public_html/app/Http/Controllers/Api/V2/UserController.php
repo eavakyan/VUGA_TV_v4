@@ -174,6 +174,27 @@ class UserController extends Controller
         if ($request->has('device_token')) {
             $user->device_token = $request->device_token;
         }
+
+        // Persist contact preference consents
+        if ($request->has('email_consent')) {
+            $emailConsent = (int) $request->email_consent === 1 ? 1 : 0;
+            $user->email_consent = $emailConsent;
+            // Only set/update date when explicitly provided in request
+            $user->email_consent_date = now();
+            // Track IP for audit
+            if (property_exists($user, 'consent_ip_address')) {
+                $user->consent_ip_address = $request->ip();
+            }
+        }
+
+        if ($request->has('sms_consent')) {
+            $smsConsent = (int) $request->sms_consent === 1 ? 1 : 0;
+            $user->sms_consent = $smsConsent;
+            $user->sms_consent_date = now();
+            if (property_exists($user, 'consent_ip_address')) {
+                $user->consent_ip_address = $request->ip();
+            }
+        }
         
         $user->save();
 
@@ -635,6 +656,12 @@ class UserController extends Controller
             'avatar_color' => $user->lastActiveProfile->avatar_color,
             'is_kids' => (bool) $user->lastActiveProfile->is_kids
         ] : null;
+        
+        // Include consent fields
+        $data['email_consent'] = $user->email_consent;
+        $data['sms_consent'] = $user->sms_consent;
+        $data['email_consent_date'] = $user->email_consent_date;
+        $data['sms_consent_date'] = $user->sms_consent_date;
         
         return $data;
     }

@@ -21,7 +21,7 @@ func makeToast(title : String ,complition: @escaping ()->() = {}) {
         NSAttributedString.Key.font : UIFont(name: MyFont.OutfitMedium, size: 14) ?? UIFont.systemFont(ofSize: 16), 
         NSAttributedString.Key.foregroundColor : UIColor.black
     ])
-    let alert = UIAlertController(title: title, message: nil,  preferredStyle: .actionSheet)
+    let alert = UIAlertController(title: title, message: nil,  preferredStyle: .alert)
     alert.setValue(attributedString, forKey: "attributedTitle")
     UIApplication.shared.keyWindowPresentedController?.present(alert, animated: true, completion: {
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {

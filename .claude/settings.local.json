@@ -60,7 +60,10 @@
       "Bash(git merge:*)",
       "Bash(git push:*)",
       "Bash(git branch:*)",
-      "Bash(php artisan tinker:*)"
+      "Bash(php artisan tinker:*)",
+      "Bash(php artisan:*)",
+      "Bash(curl:*)",
+      "Bash(true)"
     ],
     "deny": []
   }

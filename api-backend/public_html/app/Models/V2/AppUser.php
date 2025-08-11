@@ -15,12 +15,21 @@ class AppUser extends BaseModel
         'profile_image',
         'watchlist_content_ids',
         'device_type',
-        'device_token'
+        'device_token',
+        'email_consent',
+        'sms_consent',
+        'email_consent_date',
+        'sms_consent_date',
+        'consent_ip_address'
     ];
     
     protected $casts = [
         'login_type' => 'integer',
         'device_type' => 'integer',
+        'email_consent' => 'integer',
+        'sms_consent' => 'integer',
+        'email_consent_date' => 'datetime',
+        'sms_consent_date' => 'datetime',
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];

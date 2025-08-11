@@ -23,7 +23,7 @@ struct MarketingPreferencesView: View {
                     Navigation.pop()
                 })
                 Spacer()
-                Text("Marketing Preferences")
+                Text("Contact Preferences")
                     .outfitSemiBold(20)
                     .foregroundColor(Color("textColor"))
                 Spacer()
@@ -156,8 +156,8 @@ struct MarketingPreferencesView: View {
         .loaderView(viewModel.isLoading)
         .onAppear {
             // Initialize with current user preferences
-            emailConsent = myUser?.emailConsent ?? false
-            smsConsent = myUser?.smsConsent ?? false
+            emailConsent = myUser?.emailConsent ?? true
+            smsConsent = myUser?.smsConsent ?? true
             hasChanges = false
         }
     }
@@ -185,6 +185,7 @@ class MarketingPreferencesViewModel: BaseViewModel {
         
         let params: [Params: Any] = [
             .userId: userId,
+            .appUserId: userId,
             .emailConsent: emailConsent ? 1 : 0,
             .smsConsent: smsConsent ? 1 : 0
         ]
@@ -195,10 +196,19 @@ class MarketingPreferencesViewModel: BaseViewModel {
             if let user = obj.data {
                 // Update the stored user with new consent values
                 self?.myUser = user
+                SessionManager.shared.currentUser = user
                 completion()
                 makeToast(title: "Preferences updated successfully")
             } else {
-                makeToast(title: obj.message ?? "Failed to update preferences")
+                // Attempt to re-fetch profile to reflect latest server state
+                let fetchParams: [Params: Any] = [.userId: userId]
+                NetworkManager.callWebService(url: .fetchProfile, params: fetchParams) { [weak self] (profileObj: UserModel) in
+                    if let refreshed = profileObj.data {
+                        self?.myUser = refreshed
+                        SessionManager.shared.currentUser = refreshed
+                    }
+                    makeToast(title: obj.message ?? "Failed to update preferences")
+                }
             }
         }
     }

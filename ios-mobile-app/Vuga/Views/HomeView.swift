@@ -360,7 +360,7 @@ struct HomeView: View {
                             .frame(width: 118, alignment: .leading)
                         }
                         .onTap {
-                            Navigation.pushToSwiftUiView(ContentDetailView(contentId: Int(recently.contentID)))
+                            navigateToDetailFromRecently(recently)
                         }
                     }
                 }
@@ -522,12 +522,13 @@ struct HomeView: View {
             }
             .frame(width: geometry.size.width, height: geometry.size.height)
             .clipped()
+            .contentShape(Rectangle())
             .simultaneousGesture(
                 DragGesture()
                     .onEnded { value in
                         // Only respond to horizontal gestures
                         if abs(value.translation.width) > abs(value.translation.height) {
-                            let threshold = geometry.size.width * 0.3
+                            let threshold = geometry.size.width * 0.2
                             withAnimation(.easeInOut(duration: 0.6)) {
                                 if value.translation.width > threshold && vm.selectedImageIndex > 0 {
                                     vm.selectedImageIndex -= 1
@@ -837,6 +838,21 @@ struct HomeView: View {
         }
         
         return profile.name
+    }
+    
+    private func progressFraction(for recently: RecentlyWatched) -> Double {
+        let total: Double = Double(recently.totalDuration)
+        let progress: Double = Double(recently.progress)
+        if !(total.isFinite) || total <= 0 { return 0 }
+        let frac = progress / max(total, 0.001)
+        return min(1.0, max(0.0, frac))
+    }
+    
+    private func navigateToDetailFromRecently(_ recently: RecentlyWatched) {
+        let fraction: Double = progressFraction(for: recently)
+        let cid: Int = Int(recently.contentID)
+        let detailView = ContentDetailView(initialProgress: fraction, contentId: cid)
+        Navigation.pushToSwiftUiView(detailView)
     }
     
     // Helper function to filter content by type

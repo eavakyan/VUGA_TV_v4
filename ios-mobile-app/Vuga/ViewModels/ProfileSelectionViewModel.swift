@@ -26,13 +26,6 @@ class ProfileSelectionViewModel: BaseViewModel {
             return 
         }
         
-        // Check if we have cached profiles first
-        if let cachedProfiles = SessionManager.shared.getCachedProfiles(), !cachedProfiles.isEmpty {
-            print("ProfileSelectionViewModel: Using cached profiles")
-            self.profiles = cachedProfiles
-            return
-        }
-        
         isLoadingProfiles = true
         startLoading()
         showError = false
@@ -51,10 +44,8 @@ class ProfileSelectionViewModel: BaseViewModel {
             print("ProfileSelectionViewModel: Received response - status: \(obj.status), profiles count: \(obj.profiles?.count ?? 0), message: \(obj.message)")
             
             if obj.status && !(obj.profiles?.isEmpty ?? true) {
-                // We have profiles, use them and cache them
-                let profiles = obj.profiles ?? []
-                self?.profiles = profiles
-                SessionManager.shared.cacheProfiles(profiles)
+                // We have profiles, use them (no cache)
+                self?.profiles = obj.profiles ?? []
             } else {
                 // No profiles or error - create default profile
                 print("ProfileSelectionViewModel: No profiles or error occurred. Creating default profile.")

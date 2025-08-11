@@ -184,3 +184,22 @@ Route::post('deleteMedia', [MediaGalleryController::class, 'deleteMedia'])->midd
 Route::get('csv-import', [\App\Http\Controllers\Admin\CsvImportController::class, 'index'])->middleware(['checkLogin'])->name('admin.csv-import');
 Route::post('csv-import/import', [\App\Http\Controllers\Admin\CsvImportController::class, 'import'])->middleware(['checkLogin'])->name('admin.csv-import.import');
 Route::get('csv-import/template', [\App\Http\Controllers\Admin\CsvImportController::class, 'downloadTemplate'])->middleware(['checkLogin'])->name('admin.csv-import.template');
+
+// Content Distributors - Specific routes MUST come before resource route
+Route::get('distributors/content/manage', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'manageContent'])->middleware(['checkLogin'])->name('admin.distributors.content');
+Route::post('distributors/content/update', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'updateContentDistributors'])->middleware(['checkLogin'])->name('admin.distributors.content.update');
+
+// Revenue Share
+Route::get('distributors/revenue-share', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'revenueShare'])->middleware(['checkLogin'])->name('admin.distributors.revenue');
+Route::post('distributors/{id}/revenue-share', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'updateRevenueShare'])->middleware(['checkLogin'])->name('admin.distributors.revenue.update');
+
+// Promo Codes
+Route::get('distributors/promo-codes', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'promoCodes'])->middleware(['checkLogin'])->name('admin.distributors.promos');
+Route::post('distributors/promo-codes', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'createPromoCode'])->middleware(['checkLogin'])->name('admin.distributors.promos.create');
+Route::post('distributors/promo-codes/{id}/toggle', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'togglePromoCodeStatus'])->middleware(['checkLogin'])->name('admin.distributors.promos.toggle');
+
+// Analytics
+Route::get('distributors/analytics', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'analytics'])->middleware(['checkLogin'])->name('admin.distributors.analytics');
+
+// Resource route MUST come AFTER all specific routes
+Route::resource('distributors', \App\Http\Controllers\Admin\ContentDistributorController::class)->middleware(['checkLogin']);

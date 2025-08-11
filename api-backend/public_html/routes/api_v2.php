@@ -190,6 +190,16 @@ Route::prefix('v2')->group(function () {
         });
     });
     
+    // Subscription Management
+    Route::prefix('subscription')->group(function () {
+        Route::post('/plans', [V2\SubscriptionController::class, 'getPlans']);
+        Route::post('/my-subscriptions', [V2\SubscriptionController::class, 'getMySubscriptions']);
+        Route::post('/validate-promo', [V2\SubscriptionController::class, 'validatePromoCode']);
+        Route::post('/create', [V2\SubscriptionController::class, 'createSubscription']);
+        Route::post('/cancel', [V2\SubscriptionController::class, 'cancelSubscription']);
+        Route::post('/payment-history', [V2\SubscriptionController::class, 'getPaymentHistory']);
+    });
+    
     // Test endpoint to verify V2 API is working
     Route::get('/test', function () {
         return response()->json([

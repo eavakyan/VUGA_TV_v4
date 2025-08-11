@@ -173,7 +173,7 @@ class ContentController extends Controller
         }
 
         // Format content for V1 compatibility
-        $formattedContent = $this->formatContentDetail($content);
+        $formattedContent = $this->formatContentDetail($content, $request->user_id);
         
         // Check if content is in user's watchlist
         $formattedContent['is_watchlist'] = false;
@@ -475,7 +475,7 @@ class ContentController extends Controller
             'status' => true,
             'message' => 'Content details fetched successfully',
             'data' => [
-                'content' => $this->formatContentDetail($content),
+                'content' => $this->formatContentDetail($content, $request->app_user_id),
                 'user_data' => $userData,
                 'recommendations' => $this->formatContentList($recommendations)
             ]
@@ -927,6 +927,38 @@ class ContentController extends Controller
             $data['genre_ids'] = $content->genres->pluck('genre_id')->implode(',');
         }
         
+        // Add distributor information
+        if ($content->content_distributor_id) {
+            $distributor = \DB::table('content_distributor')
+                ->where('content_distributor_id', $content->content_distributor_id)
+                ->first();
+            
+            if ($distributor) {
+                $data['distributor'] = [
+                    'id' => $distributor->content_distributor_id,
+                    'name' => $distributor->name,
+                    'code' => $distributor->code,
+                    'logo_url' => $distributor->logo_url,
+                    'is_premium' => (bool) $distributor->is_premium,
+                    'is_base_included' => (bool) $distributor->is_base_included
+                ];
+            }
+        } else {
+            $data['distributor'] = null; // Legacy content
+        }
+        
+        // Add subscription requirements
+        $data['requires_subscription'] = $content->content_distributor_id ? true : false;
+        $data['subscription_type'] = 'free'; // Default to free
+        
+        if ($content->content_distributor_id && isset($distributor)) {
+            if ($distributor->is_base_included) {
+                $data['subscription_type'] = 'base';
+            } else if ($distributor->is_premium) {
+                $data['subscription_type'] = 'premium';
+            }
+        }
+        
         // Add age limit information if loaded
         if ($content->relationLoaded('ageLimits') && $content->ageLimits->isNotEmpty()) {
             $data['age_rating'] = $content->ageLimits->first()->code;
@@ -984,9 +1016,16 @@ class ContentController extends Controller
     /**
      * Format content detail for response
      */
-    private function formatContentDetail($content)
+    private function formatContentDetail($content, $userId = null)
     {
         $data = $this->formatContent($content);
+        
+        // Add user access information
+        if ($userId) {
+            $data['user_has_access'] = $content->userHasAccess($userId);
+        } else {
+            $data['user_has_access'] = !$content->content_distributor_id; // Only free content
+        }
         
         // Format cast data
         if ($content->relationLoaded('casts')) {

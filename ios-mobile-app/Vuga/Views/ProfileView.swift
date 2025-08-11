@@ -75,7 +75,7 @@ struct ProfileView: View {
                     }
                     MySpaceFieldCardWithSwitch(icon: .notification, title: .notifications,isNotificationCard: true)
                     
-                    ProfileFieldCard(icon: .mail, title: "Marketing Preferences"){
+                    ProfileFieldCard(icon: .mail, title: "Contact Preferences"){
                         Navigation.pushToSwiftUiView(MarketingPreferencesView())
                     }
                     

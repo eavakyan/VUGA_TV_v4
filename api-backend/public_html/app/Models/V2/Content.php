@@ -194,4 +194,75 @@ class Content extends BaseModel
     {
         return $query->where('type', 2);
     }
+    
+    /**
+     * Filter by trailer count.
+     */
+    public function scopeWithTrailers($query)
+    {
+        return $query->has('trailers');
+    }
+
+    /**
+     * Check if user has access to this content based on subscriptions
+     */
+    public function userHasAccess($userId)
+    {
+        // If no distributor assigned, it's accessible (backward compatibility)
+        if (!$this->content_distributor_id) {
+            return true;
+        }
+
+        // Get distributor info
+        $distributor = \DB::table('content_distributor')
+            ->where('content_distributor_id', $this->content_distributor_id)
+            ->where('is_active', 1)
+            ->first();
+
+        if (!$distributor) {
+            return false;
+        }
+
+        // If content is included in base subscription
+        if ($distributor->is_base_included) {
+            // Check if user has active base subscription
+            $hasBase = \DB::table('user_base_subscription')
+                ->where('app_user_id', $userId)
+                ->where('is_active', 1)
+                ->where(function($q) {
+                    $q->whereNull('end_date')
+                      ->orWhere('end_date', '>', now());
+                })
+                ->exists();
+
+            if ($hasBase) {
+                return true;
+            }
+        }
+
+        // Check if user has specific distributor access
+        if ($distributor->is_premium) {
+            $hasAccess = \DB::table('user_distributor_access')
+                ->where('app_user_id', $userId)
+                ->where('content_distributor_id', $this->content_distributor_id)
+                ->where('is_active', 1)
+                ->where(function($q) {
+                    $q->whereNull('end_date')
+                      ->orWhere('end_date', '>', now());
+                })
+                ->exists();
+
+            return $hasAccess;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get distributor relationship
+     */
+    public function distributor()
+    {
+        return $this->belongsTo(\App\Models\V2\ContentDistributor::class, 'content_distributor_id');
+    }
 }
