@@ -226,26 +226,26 @@ struct ContentDetailView: View {
     private var isArabic: Bool { language == .Arabic }
     
     var body: some View {
+        mainContent
+            .background(ContentBackgroudView(content: vm.content))
+            .addBackground()
+            .loaderView(vm.isLoading)
+            .onAppear(perform: onAppearHandler)
+            .onDisappear(perform: onDisappearHandler)
+            .fullScreenCover(item: $vm.selectedSource, content: videoPlayerContent)
+            .fullScreenCover(isPresented: $showTrailerSheet, content: trailerContent)
+            .customAlert(isPresented: $vm.isShowPremiumDialog) { premiumAlert() }
+            .customAlert(isPresented: $vm.isShowAdDialog) { adAlert() }
+            .sheet(isPresented: $showRatingSheet) { ratingSheetContent() }
+            .sheet(isPresented: $showEpisodeRatingSheet) { episodeRatingSheetContent() }
+            .sheet(isPresented: $vm.showDistributorSubscriptionRequired) { subscriptionRequiredContent() }
+            .onAppear(perform: onAppearAirPlayHandler)
+            .onDisappear(perform: onDisappearAirPlayHandler)
+    }
+    
+    private var mainContent: some View {
         VStack {
-            VStack(spacing: 0) {
-                HStack {
-                    BackButton()
-                    Spacer()
-                    if vm.content != nil {
-                        CommonIcon(image: vm.isBookmarked ? .bookmarkFill : .bookmark, onTap: {
-                            Function.shared.haptic()
-                            vm.toogleBookmark(homeVm: homeVm)
-                        })
-                        CommonIcon(image: .share) {
-                            Function.shared.haptic()
-                            shareContent()
-                        }
-                        // Universal Cast buttons
-                        CombinedCastView(viewModel: vm)
-                    }
-                }
-                .padding([.horizontal, .top],15)
-            }
+            headerView
             ScrollView(showsIndicators: false) {
                 LazyVStack(spacing: 12) {
                     if let content = vm.content {
@@ -365,9 +365,9 @@ struct ContentDetailView: View {
                     }
                 }
                 .padding(.horizontal, 10)
+                .padding(.vertical, 20)
                 .animation(.linear, value: vm.isStoryLineOn)
                 .animation(.linear, value: vm.isStarCastOn)
-                .padding(.vertical, 20)
             }
             .mask(VStack(spacing: 0){
                 Rectangle().fill(LinearGradient(colors: [.clear, .black, .black], startPoint: .top, endPoint: .bottom))
@@ -379,31 +379,54 @@ struct ContentDetailView: View {
                 
             })
         }
-        .background(ContentBackgroudView(content: vm.content))
-        .addBackground()
-        .loaderView(vm.isLoading)
-        .onAppear(perform: {
-            if !vm.isDataLoaded {
-                vm.fetchContest(contentId: contentId ?? 0)
+    }
+    
+    private var headerView: some View {
+        VStack(spacing: 0) {
+            HStack {
+                BackButton()
+                Spacer()
+                if vm.content != nil {
+                    CommonIcon(image: vm.isBookmarked ? .bookmarkFill : .bookmark, onTap: {
+                        Function.shared.haptic()
+                        vm.toogleBookmark(homeVm: homeVm)
+                    })
+                    CommonIcon(image: .share) {
+                        Function.shared.haptic()
+                        shareContent()
+                    }
+                    // Universal Cast buttons
+                    CombinedCastView(viewModel: vm)
+                }
             }
-            // Watchlist state is now set from server response in fetchContest
-            if shouldShowAdMob {
-                Interstitial.shared.loadInterstitial()
-            }
-            // Resume trailer playback when returning to content detail screen
-            shouldPlayTrailer = true
-            // Apply initial progress if provided (e.g., from Recently Watched)
-            if let p = initialProgress, p > 0 {
-                vm.progress = p
-            }
-        })
-        .onDisappear {
-            if shouldShowAdMob {
-                Interstitial.shared.showInterstitialAds()
-            }
+            .padding([.horizontal, .top],15)
         }
-        // Removed onChange - watchlist state is now handled by server response
-        .fullScreenCover(item: $vm.selectedSource, content: { source in
+    }
+    
+    private func onAppearHandler() {
+        if !vm.isDataLoaded {
+            vm.fetchContest(contentId: contentId ?? 0)
+        }
+        // Watchlist state is now set from server response in fetchContest
+        if shouldShowAdMob {
+            Interstitial.shared.loadInterstitial()
+        }
+        // Resume trailer playback when returning to content detail screen
+        shouldPlayTrailer = true
+        // Apply initial progress if provided (e.g., from Recently Watched)
+        if let p = initialProgress, p > 0 {
+            vm.progress = p
+        }
+    }
+    
+    private func onDisappearHandler() {
+        if shouldShowAdMob {
+            Interstitial.shared.showInterstitialAds()
+        }
+    }
+    
+    private func videoPlayerContent(source: Source) -> some View {
+        Group {
             if source.type?.rawValue ?? 1 == 1 {
                 YoutubeView(youtubeUrl: source.source ?? "")
             } else {
@@ -417,161 +440,163 @@ struct ContentDetailView: View {
                     sourceId: vm.selectedSource?.id
                 )
             }
-        })
-        .fullScreenCover(isPresented: $showTrailerSheet, content: {
-            if let content = vm.content {
-                if content.type == .movie {
-                    // For movies, use content's trailers
-                    if hasTrailersAvailable(for: content) {
-                        SimpleTrailerView(content: content)
-                    } else {
-                        Text("No trailer available")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.black)
-                    }
-                } else if content.type == .series {
-                    // For TV shows, try season trailer first, then content trailers
-                    if let selectedSeason = vm.selectedSeason,
-                       let seasonTrailerUrl = selectedSeason.trailerURL, !seasonTrailerUrl.isEmpty {
-                        SimpleTrailerView(trailerUrl: getFullTrailerUrl(seasonTrailerUrl))
-                    } else if hasTrailersAvailable(for: content) {
-                        SimpleTrailerView(content: content)
-                    } else {
-                        Text("No trailer available")
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                            .background(Color.black)
-                    }
+        }
+    }
+    
+    @ViewBuilder
+    private func trailerContent() -> some View {
+        if let content = vm.content {
+            if content.type == .movie {
+                // For movies, use content's trailers
+                if hasTrailersAvailable(for: content) {
+                    SimpleTrailerView(content: content)
+                }
+            } else if content.type == .series {
+                // For series, use content's trailers or season trailers
+                if hasTrailersAvailable(for: content) {
+                    SimpleTrailerView(content: content)
+                } else if let selectedSeason = vm.selectedSeason,
+                         let seasonTrailerUrl = selectedSeason.trailerURL, 
+                         !seasonTrailerUrl.isEmpty {
+                    SimpleTrailerView(trailerUrl: getFullTrailerUrl(seasonTrailerUrl))
                 }
             }
-        })
-        .customAlert(isPresented: $vm.isShowPremiumDialog){
-            DialogCard(icon: Image.crown ,title: .subScribeToPro, iconColor: .rating, subTitle: .proDialogDes, buttonTitle: .becomeAPro, onClose: {
-                withAnimation {
-                    vm.isShowPremiumDialog = false
-                }
-            },onButtonTap: {
-                vm.isShowPremiumDialog = false
-                Navigation.pushToSwiftUiView(ProView())
-            })
         }
-        .customAlert(isPresented: $vm.isShowAdDialog){
-            DialogCard(icon: Image.adLcok, title: .unlokeWithAd, subTitle: .adDialogDes, buttonTitle: .watchAd, onClose: {
-                withAnimation {
-                    vm.isShowAdDialog = false
-                }
-            },onButtonTap: {
-                vm.isShowAdDialog = false
+    }
+    
+    private func premiumAlert() -> some View {
+        DialogCard(icon: Image.crown, title: .subScribeToPro, iconColor: .rating, subTitle: .proDialogDes, buttonTitle: .becomeAPro, onClose: {
+            vm.isShowPremiumDialog = false
+        },onButtonTap: {
+            vm.isShowPremiumDialog = false
+            Navigation.pushToSwiftUiView(ProView())
+        })
+    }
+    
+    private func adAlert() -> some View {
+        DialogCard(icon: Image.adLcok, title: .unlokeWithAd, subTitle: .adDialogDes, buttonTitle: .watchAd, onClose: {
+            vm.isShowAdDialog = false
+        },onButtonTap: {
+            vm.isShowAdDialog = false
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                 // Show ad and then play video
                 if let pickedSource = vm.pickedSource {
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                        // After ad is watched, play the video
-                        vm.progress = 0 // Start from beginning, could be fetched from recently watched
-                        vm.playSource(pickedSource)
-                        vm.isShowAd = false // Don't show ad again in video player
-                        if vm.content?.type == .movie {
-                            vm.increaseContentView(contentId: vm.content?.id ?? 0)
-                        } else if let episode = vm.selectedEpisode {
-                            vm.increaseEpisodeView(episodeId: episode.id ?? 0)
-                            episodeIncreaseTotalView += 1
-                        }
+                    // After ad is watched, play the video
+                    vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                    vm.playSource(pickedSource)
+                    vm.isShowAd = false // Don't show ad again in video player
+                    if vm.content?.type == .movie {
+                        vm.increaseContentView(contentId: vm.content?.id ?? 0)
+                    } else if let episode = vm.selectedEpisode {
+                        vm.increaseEpisodeView(episodeId: episode.id ?? 0)
+                        episodeIncreaseTotalView += 1
                     }
                 }
-            })
-        }
-        .alert("Stream to TV", isPresented: $showAirPlayGuidance) {
-            Button("Got it") {
-                hasShownAirPlayGuidance = true
             }
-        } message: {
-            Text("Your TV is now connected! Simply press the Play button to stream the video to your TV.")
-        }
-        .alert("Download Started", isPresented: $showDownloadStartedAlert) {
-            Button("OK") { }
-        } message: {
-            Text(downloadAlertMessage)
-        }
-        .alert("Age Restriction", isPresented: $showAgeRestrictionAlert) {
-            Button("OK") { }
-            Button("Age Settings") {
-                if let currentProfile = SessionManager.shared.getCurrentProfile() {
-                    Navigation.pushToSwiftUiView(AgeSettingsView(profile: currentProfile, viewModel: ProfileViewModel()))
-                }
-            }
-        } message: {
-            Text(ageRestrictionMessage)
-        }
-        .alert("Login Required", isPresented: $showLoginAlert) {
-            Button("OK") { }
-        } message: {
-            Text("Please log in to rate this content")
-        }
-        .sheet(isPresented: $showRatingSheet) {
+        })
+    }
+    
+    @ViewBuilder
+    private func ratingSheetContent() -> some View {
+        if let content = vm.content {
             RatingBottomSheet(
                 isPresented: $showRatingSheet,
-                currentRating: $currentUserRating,
-                contentTitle: vm.content?.title ?? "",
-                contentType: vm.content?.type ?? .movie,
+                currentRating: .constant(content.userRating ?? 0),
+                contentTitle: content.title ?? "",
+                contentType: content.type ?? .movie,
                 isEpisode: false,
                 onSubmit: { rating in
                     vm.submitRating(rating: rating)
                 }
             )
-            .presentationDetents([.height(350)])
-            .presentationDragIndicator(.visible)
         }
-        .sheet(isPresented: $showEpisodeRatingSheet) {
-            if let episode = selectedEpisodeForRating {
-                RatingBottomSheet(
-                    isPresented: $showEpisodeRatingSheet,
-                    currentRating: $currentEpisodeRating,
-                    contentTitle: episode.title ?? "",
-                    contentType: .series,
-                    isEpisode: true,
-                    onSubmit: { rating in
-                        vm.submitEpisodeRating(episode: episode, rating: rating)
-                    }
-                )
-                .presentationDetents([.height(350)])
-                .presentationDragIndicator(.visible)
-            }
-        }
-        .onAppear {
-            // Monitor AirPlay route changes
-            airPlayObserver = NotificationCenter.default.addObserver(
-                forName: AVAudioSession.routeChangeNotification,
-                object: nil,
-                queue: .main
-            ) { notification in
-                checkAirPlayConnection()
-            }
-            checkAirPlayConnection()
-        }
-        .onDisappear {
-            // Clean up observer
-            if let observer = airPlayObserver {
-                NotificationCenter.default.removeObserver(observer)
-            }
-        }
-        .overlay(
-            // Download progress dialog
-            Group {
-                if showDownloadProgress, let source = downloadingSource, let content = vm.content {
-                    DownloadProgressView(
-                        isShowing: $showDownloadProgress,
-                        content: content,
-                        source: source,
-                        downloadId: source.sourceDownloadId(contentType: content.type ?? .movie)
-                    )
-                    .environmentObject(downloadViewModel)
-                }
-            }
-        )
     }
     
-    // MARK: - View Builders
     @ViewBuilder
+    private func episodeRatingSheetContent() -> some View {
+        if let episode = selectedEpisodeForRating {
+            RatingBottomSheet(
+                isPresented: $showEpisodeRatingSheet,
+                currentRating: $currentEpisodeRating,
+                contentTitle: episode.title ?? "",
+                contentType: .series,
+                isEpisode: true,
+                onSubmit: { rating in
+                    vm.submitEpisodeRating(episode: episode, rating: rating)
+                }
+            )
+        }
+    }
+    
+    @ViewBuilder
+    private func subscriptionRequiredContent() -> some View {
+        // Temporary simplified subscription required view
+        VStack(spacing: 20) {
+            Text("Subscription Required")
+                .outfitSemiBold(22)
+                .foregroundColor(.white)
+                .padding(.top, 40)
+            
+            Text("This content requires a \(vm.content?.distributorName ?? "premium") subscription")
+                .outfitRegular(16)
+                .foregroundColor(.textLight)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal)
+            
+            Button(action: {
+                vm.showDistributorSubscriptionRequired = false
+                Navigation.pushToSwiftUiView(SubscriptionsView())
+            }) {
+                Text("View Subscription Options")
+                    .outfitSemiBold(16)
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 16)
+                    .background(Color.base)
+                    .cornerRadius(25)
+            }
+            .padding(.horizontal, 20)
+            
+            Button(action: {
+                vm.showDistributorSubscriptionRequired = false
+            }) {
+                Text("Maybe Later")
+                    .outfitMedium(16)
+                    .foregroundColor(.white)
+            }
+            .padding(.bottom, 20)
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color("bgColor"))
+    }
+    
+    private func onAppearAirPlayHandler() {
+        // Monitor AirPlay route changes
+        airPlayObserver = NotificationCenter.default.addObserver(
+            forName: AVAudioSession.routeChangeNotification,
+            object: nil,
+            queue: .main
+        ) { notification in
+            if let userInfo = notification.userInfo,
+               let reasonValue = userInfo[AVAudioSessionRouteChangeReasonKey] as? UInt,
+               let reason = AVAudioSession.RouteChangeReason(rawValue: reasonValue) {
+                // Handle route changes if needed
+                print("Route change reason: \(reason)")
+            }
+        }
+    }
+    
+    private func onDisappearAirPlayHandler() {
+        // Clean up AirPlay observer
+        if let observer = airPlayObserver {
+            NotificationCenter.default.removeObserver(observer)
+            airPlayObserver = nil
+        }
+    }
+    
+    // MARK: - Content Detail Section
     private func contentDetailSection(for content: VugaContent) -> some View {
         VStack(spacing: 12) {
             contentPosterSection(content)
@@ -724,7 +749,7 @@ struct ContentDetailView: View {
             if content.ageRatingCode != "NR" {
                 verticalDivider
                 Text(content.ageRatingCode)
-                    .outfitMedium(12)
+                    .outfitMedium(13)
                     .foregroundColor(.white)
                     .padding(.horizontal, 6)
                     .padding(.vertical, 2)
@@ -828,6 +853,16 @@ struct ContentDetailView: View {
         let currentProfile = SessionManager.shared.getCurrentProfile()
         if !content.isAppropriateFor(profile: currentProfile) {
             displayAgeRestrictionAlert()
+            return
+        }
+        
+        // Check distributor subscription requirement
+        if let distributorId = content.contentDistributorId,
+           distributorId > 0,
+           content.distributorRequiresSubscription == true,
+           content.userHasDistributorAccess != true {
+            // Show subscription required sheet
+            vm.showDistributorSubscriptionRequired = true
             return
         }
         
@@ -1333,7 +1368,7 @@ private struct StarCastCard: View {
                     .flipsForRightToLeftLayoutDirection(!isArabic)
                 
                 Text(cast.charactorName ?? "")
-                    .outfitRegular(14)
+                    .outfitRegular(15)
                     .foregroundColor(.textLight)
                     .lineLimit(1)
                     .flipsForRightToLeftLayoutDirection(!isArabic)
@@ -1362,7 +1397,7 @@ private struct SeasonTags : View {
                             let season = (content.seasons ?? [])[index]
                             VStack(spacing: 0) {
                                 Text("\(content.seasons?[index].title ?? "")")
-                                    .outfitMedium(14)
+                                    .outfitMedium(15)
                                     .frame(width: 70, alignment: .center)
                                     .padding(.vertical)
                                     .onTap {

@@ -370,32 +370,39 @@ struct VideoPlayerView: View {
                 existingEntry.isForDownload = isForDownloads
                 existingEntry.downloadId = downloadContent?.downloadId ?? ""
 
-                print("Updated progress for entry with sourceId: \(sourceId) and contentType: \(currentContentType)")
+                print("Updated progress for entry with contentID: \(existingEntry.contentID), sourceId: \(sourceId), contentType: \(currentContentType), episodeId: \(existingEntry.episodeId)")
             } else {
                 // Create a new entry
                 let newRecentlyContent = RecentlyWatched(context: context)
                 newRecentlyContent.progress = vm.currentTime
-                newRecentlyContent.contentID = (isForDownloads
-                    ? Int16(downloadContent?.contentId ?? "")
-                    : Int16(content?.id ?? 0)) ?? 0
+                // For episodes, use the parent content ID
+                let contentId: Int16
+                if isForDownloads {
+                    contentId = Int16(downloadContent?.contentId ?? "") ?? 0
+                } else if let content = content {
+                    contentId = Int16(content.id ?? 0)
+                } else if episode != nil {
+                    // For episodes without parent content, log error
+                    print("ERROR: Episode playing without parent content reference")
+                    contentId = 0
+                } else {
+                    contentId = 0
+                }
+                newRecentlyContent.contentID = contentId
                 newRecentlyContent.totalDuration = vm.duration
-                newRecentlyContent.name = isForDownloads ? downloadContent?.name : content?.title
+                // Only save essential data - the rest will be fetched from API
                 newRecentlyContent.date = Date()
                 newRecentlyContent.contentType = currentContentType
                 newRecentlyContent.downloadId = downloadContent?.downloadId ?? ""
-                newRecentlyContent.episodeHorizontalPoster = isForDownloads
-                    ? downloadContent?.episodeHorizontalPoster
-                    : episode?.thumbnail
-                newRecentlyContent.thumbnail = isForDownloads
-                    ? downloadContent?.thumbnail
-                    : content?.horizontalPoster
                 newRecentlyContent.episodeId = Int16(episode?.id ?? 0)
+                // These fields will be fetched from API:
+                // name, episodeHorizontalPoster, thumbnail, episodeName
                 newRecentlyContent.sourceUrl = url
                 newRecentlyContent.isForDownload = isForDownloads
                 newRecentlyContent.contentSourceType = Int16(type)
                 newRecentlyContent.contentSourceId = Int16(sourceId)
 
-                print("Created new entry with sourceId: \(sourceId) and contentType: \(currentContentType)")
+                print("Created new entry with contentID: \(contentId), sourceId: \(sourceId), contentType: \(currentContentType), episodeId: \(newRecentlyContent.episodeId)")
             }
 
             // Save changes to the context

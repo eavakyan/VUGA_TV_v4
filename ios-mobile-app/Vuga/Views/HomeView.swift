@@ -16,6 +16,7 @@ import CoreData
 struct HomeView: View {
     @AppStorage(SessionKeys.language) private var language = LocalizationService.shared.language
     @StateObject private var vm = HomeViewModel()
+    @StateObject private var recentlyWatchedVM = RecentlyWatchedViewModel()
     @Binding var selectedTab : Tab
     @State private var progress: CGFloat = 0
     @State var isVideoStart = false
@@ -70,9 +71,8 @@ struct HomeView: View {
                                 newReleasesCard
                             }
                             
-                            if recentlyWatchedContents.isNotEmpty && !vm.isLoading && vm.featured.isNotEmpty{
-                                recentlyWatched
-                            }
+                            // Always show Recently Watched section to allow data fetching
+                            recentlyWatchedFromAPI
                             
                             if vm.wishlists.isNotEmpty {
                                 // Watchlist row removed per requirements
@@ -90,7 +90,9 @@ struct HomeView: View {
                     vm.isForRefresh = true
                     vm.fetchData()
                     vm.selectedRecentlyWatched = nil
+                    cachedUniqueRecentlyWatched = [] // Clear cache to force refresh
                     fetchRecentlyWatchedContent()
+                    recentlyWatchedVM.fetchRecentlyWatchedFromAPI() // Refresh API data
                 }
                 .onAppear {
                     // Initial scroll to top with a delay to ensure content is loaded
@@ -107,6 +109,10 @@ struct HomeView: View {
                             proxy.scrollTo("top", anchor: .top)
                         }
                     }
+                    
+                    // Fetch recently watched data when view appears
+                    print("DEBUG: HomeView onAppear - calling fetchRecentlyWatchedFromAPI")
+                    recentlyWatchedVM.fetchRecentlyWatchedFromAPI()
                 }
                 .onChange(of: scrollToTop) { shouldScroll in
                     if shouldScroll {
@@ -130,6 +136,14 @@ struct HomeView: View {
                 VideoPlayerView(type: Int(selectedRecentlyWatched.contentSourceType) == 7 ? 5 : Int(selectedRecentlyWatched.contentSourceType), isShowAdView: false, isForDownloads: selectedRecentlyWatched.isForDownload, url: selectedRecentlyWatched.sourceUrl ?? "", progress: selectedRecentlyWatched.progress, sourceId: Int(selectedRecentlyWatched.contentSourceId))
             }
         })
+        .onChange(of: vm.selectedRecentlyWatched) { newValue in
+            // When video player is dismissed, refresh recently watched
+            if newValue == nil {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    recentlyWatchedVM.fetchRecentlyWatchedFromAPI()
+                }
+            }
+        }
         .customAlert(isPresented: $vm.isDeleteRecentlyWatched){
             DialogCard(icon: Image.delete, title: .areYouSure, subTitle: .recentlyWatchedDeleteDes, buttonTitle: .remove, onClose: {
                 withAnimation {
@@ -197,10 +211,10 @@ struct HomeView: View {
         HStack(spacing: 6) {
             // TV Shows button
             Text("TV Shows")
-                .outfitMedium(15)
+                .outfitMedium(16)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 35)
+                .frame(height: 38)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -212,7 +226,7 @@ struct HomeView: View {
                     selectedTab = .search
                     // Post notification to set search filter for TV shows
                     NotificationCenter.default.post(
-                        name: .setSearchFilter, 
+                        name: .setSearchFilter,
                         object: nil,
                         userInfo: ["contentType": ContentType.series]
                     )
@@ -220,10 +234,10 @@ struct HomeView: View {
                     
             // Movies button
             Text("Movies")
-                .outfitMedium(15)
+                .outfitMedium(16)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 35)
+                .frame(height: 38)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -235,7 +249,7 @@ struct HomeView: View {
                     selectedTab = .search
                     // Post notification to set search filter for movies
                     NotificationCenter.default.post(
-                        name: .setSearchFilter, 
+                        name: .setSearchFilter,
                         object: nil,
                         userInfo: ["contentType": ContentType.movie]
                     )
@@ -243,10 +257,10 @@ struct HomeView: View {
                     
             // Live TV button
             Text("Live TV")
-                .outfitMedium(15)
+                .outfitMedium(16)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 35)
+                .frame(height: 38)
                 .background(Color.clear)
                 .contentShape(Rectangle())
                 .onTapGesture {
@@ -285,13 +299,13 @@ struct HomeView: View {
             } label: {
                 HStack(spacing: 4) {
                     Text("Categories")
-                        .outfitMedium(15)
+                        .outfitMedium(16)
                     Image(systemName: "chevron.down")
                         .font(.system(size: 10))
                 }
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
-                .frame(height: 35)
+                .frame(height: 38)
                 .background(Color.clear)
             }
             .buttonStyle(PlainButtonStyle())
@@ -303,62 +317,169 @@ struct HomeView: View {
         .background(Color("bgColor")) // Black background to match the app
     }
     
-    private var recentlyWatched: some View {
-        VStack {
+    private var recentlyWatchedFromAPI: some View {
+        VStack(alignment: .leading) {
+            // Always show the section to help with debugging
             Heading(title: .recentlyWatched, content: {})
+            .padding(.horizontal, 10)
+            
+            if recentlyWatchedVM.isLoading {
+                HStack {
+                    Spacer()
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        .scaleEffect(0.8)
+                    Spacer()
+                }
+                .frame(height: 105)
+            } else {
+                if recentlyWatchedVM.recentlyWatchedContents.isEmpty {
+                    Text("No recently watched content")
+                        .outfitMedium(14)
+                        .foregroundColor(.gray)
+                        .padding(.horizontal, 10)
+                        .frame(height: 105)
+                } else {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHStack(spacing: 10) {
+                            ForEach(recentlyWatchedVM.recentlyWatchedContents) { content in
+                                RecentlyWatchedAPICard(content: content, onDelete: {
+                                    deleteRecentlyWatched(contentId: content.contentId)
+                                })
+                                .onTapGesture {
+                                    navigateToContent(content)
+                                }
+                            }
+                        }
+                        .padding(.horizontal, 10)
+                    }
+                }
+            }
+        }
+        .padding(.top, 10)
+    }
+    
+    private func clearAllRecentlyWatched() {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = RecentlyWatched.fetchRequest()
+        let deleteRequest = NSBatchDeleteRequest(fetchRequest: fetchRequest)
+        
+        do {
+            try DataController.shared.context.execute(deleteRequest)
+            DataController.shared.saveData()
+            print("Successfully cleared all Recently Watched data")
+        } catch {
+            print("Failed to clear Recently Watched data: \(error)")
+        }
+    }
+    
+    private func deleteRecentlyWatched(contentId: Int) {
+        // Delete from Core Data
+        let fetchRequest: NSFetchRequest<RecentlyWatched> = RecentlyWatched.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "contentID == %d", contentId)
+        
+        do {
+            let items = try DataController.shared.context.fetch(fetchRequest)
+            for item in items {
+                DataController.shared.context.delete(item)
+            }
+            DataController.shared.saveData()
+            // Refresh the list
+            recentlyWatchedVM.fetchRecentlyWatchedFromAPI()
+        } catch {
+            print("Failed to delete recently watched: \(error)")
+        }
+    }
+    
+    private func navigateToContent(_ content: RecentlyWatchedContent) {
+        if content.isForDownload {
+            // Handle download playback - create a RecentlyWatched object from the content
+            let fetchRequest: NSFetchRequest<RecentlyWatched> = RecentlyWatched.fetchRequest()
+            fetchRequest.predicate = NSPredicate(
+                format: "contentID == %d AND episodeId == %d", 
+                content.contentId, 
+                Int16(content.episodeId ?? 0)
+            )
+            
+            do {
+                let items = try DataController.shared.context.fetch(fetchRequest)
+                if let recentlyWatched = items.first {
+                    vm.selectedRecentlyWatched = recentlyWatched
+                }
+            } catch {
+                print("Failed to fetch recently watched for playback: \(error)")
+            }
+        } else {
+            // Navigate to content detail with progress
+            let detailView = ContentDetailView(
+                initialProgress: content.totalDuration > 0 ? content.progress / content.totalDuration : 0,
+                contentId: content.contentId
+            )
+            Navigation.pushToSwiftUiView(detailView)
+        }
+    }
+    
+    private var recentlyWatched: some View {
+        VStack(alignment: .leading) {
+            Heading(title: .recentlyWatched, content: {
+                #if DEBUG
+                // Debug button to clear recently watched
+                Button(action: {
+                    clearAllRecentlyWatched()
+                    cachedUniqueRecentlyWatched = []
+                    fetchRecentlyWatchedContent()
+                }) {
+                    Text("Clear All")
+                        .outfitMedium(12)
+                        .foregroundColor(.red)
+                }
+                #endif
+            })
                 .padding(.horizontal, 10)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(spacing: 10) {
                     ForEach(cachedUniqueRecentlyWatched, id: \.self) { recently in
-                        VStack(alignment: .leading, spacing: 0) {
-                            VStack(spacing: 0) {
-                                ZStack(alignment: .center) {
-                                    KFImage(recently.type == .movie ? recently.thumbnail.addBaseURL() : recently.episodeHorizontalPoster.addBaseURL())
-                                        .resizeFillTo(width: 170, height: 105, radius: 10)
-                                    
-                                    Image(systemName: "play.fill")
-                                        .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundStyle(.white)
-                                        .padding(8)
-                                        .padding(.leading, 2)
-                                        .background(.white.opacity(0.2))
-                                        .clipShape(Circle())
-                                    
-                                    VStack {
-                                        HStack {
-                                            Spacer()
-                                            Image.close
-                                                .resizeFitTo(size: 12, renderingMode: .template)
-                                                .foregroundStyle(.white)
-                                                .padding(12)
-                                                .onTap {
-                                                    vm.deleteSelectedRecentlyWatched = recently
-                                                    vm.isDeleteRecentlyWatched = true
-                                                }
-                                        }
+                        VStack(alignment: .leading, spacing: 4) {
+                            ZStack(alignment: .center) {
+                                KFImage(recently.type == .movie ? recently.thumbnail.addBaseURL() : recently.episodeHorizontalPoster.addBaseURL())
+                                    .resizeFillTo(width: 170, height: 105, radius: 10)
+                                
+                                Image(systemName: "play.fill")
+                                    .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
+                                    .font(.system(size: 18, weight: .bold))
+                                    .foregroundStyle(.white)
+                                    .padding(8)
+                                    .padding(.leading, 2)
+                                    .background(.white.opacity(0.2))
+                                    .clipShape(Circle())
+                                
+                                VStack {
+                                    HStack {
                                         Spacer()
+                                        Image.close
+                                            .resizeFitTo(size: 12, renderingMode: .template)
+                                            .foregroundStyle(.white)
+                                            .padding(12)
+                                            .onTap {
+                                                vm.deleteSelectedRecentlyWatched = recently
+                                                vm.isDeleteRecentlyWatched = true
+                                            }
                                     }
-                                    VStack {
-                                        Spacer()
-                                        ProgressView(value: recently.progress / recently.totalDuration)
-                                            .progressViewStyle(LinearProgressViewStyle())
-                                            .tint(Color("baseColor"))
-                                    }
+                                    Spacer()
+                                }
+                                VStack {
+                                    Spacer()
+                                    ProgressView(value: recently.progress / recently.totalDuration)
+                                        .progressViewStyle(LinearProgressViewStyle())
+                                        .tint(Color("baseColor"))
                                 }
                             }
                             .cornerRadius(radius: 15)
                             .addStroke(radius: 15)
-                            VStack(alignment: .leading, spacing: 2) {
-                                // Line 1 + Line 2 simplified for Recently Watched: show title only per UX, no info icon
-                                Text(recently.name ?? "")
-                                    .lineLimit(2)
-                                    .outfitMedium(15)
-                                    .foregroundColor(.white)
-                                    .padding(.top, 5)
-                            }
-                            .frame(width: 118, alignment: .leading)
+                            
+                            recentlyMetaView(recently)
+                                .frame(width: 170, alignment: .topLeading)
                         }
+                        .frame(width: 170)
                         .onTap {
                             navigateToDetailFromRecently(recently)
                         }
@@ -373,6 +494,46 @@ struct HomeView: View {
         })
     }
     
+    @ViewBuilder
+    private func recentlyMetaView(_ recently: RecentlyWatched) -> some View {
+        let title: String = recently.name ?? ""
+        if recently.type == .movie {
+            let line1: String = movieLine1(from: recently)
+            VStack(alignment: .leading, spacing: 2) {
+                Text(line1)
+                    .outfitLight(14)
+                    .foregroundColor(.textLight)
+                    .lineLimit(1)
+                Text(title)
+                    .lineLimit(2)
+                    .outfitMedium(16)
+                    .foregroundColor(.white)
+                    .padding(.top, 1)
+            }
+        } else {
+            let epTitle: String = seriesEpisodeTitle(from: recently)
+            let dateStr: String? = recently.date.map { shortDateFromDate($0) }
+            VStack(alignment: .leading, spacing: 2) {
+                HStack(spacing: 6) {
+                    Text(epTitle)
+                        .outfitMedium(14)
+                        .foregroundColor(.white)
+                        .lineLimit(1)
+                    if let d = dateStr, !d.isEmpty {
+                        Text("• \(d)")
+                            .outfitLight(13)
+                            .foregroundColor(.textLight)
+                            .lineLimit(1)
+                    }
+                }
+                Text(title)
+                    .outfitMedium(16)
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+            }
+        }
+    }
+
     func fetchRecentlyWatchedContent() {
         let fetchRequest: NSFetchRequest<RecentlyWatched>
         fetchRequest = RecentlyWatched.fetchRequest()
@@ -398,7 +559,7 @@ struct HomeView: View {
                     .padding(.horizontal)
             }
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 10) {
+                LazyHStack(alignment: .top, spacing: 10) {
                     ForEach(vm.topContents, id: \.id) { topContent in
                         ZStack(alignment: .bottomTrailing) {
                             KFImage(topContent.content?.verticalPoster?.addBaseURL())
@@ -429,7 +590,7 @@ struct HomeView: View {
         VStack {
             Heading(title: .watchlist,content: {
                 Text(String.seeAll.localized(language))
-                    .outfitMedium(15)
+                    .outfitMedium(16)
                     .foregroundColor(.white)
                     .onTap {
                         selectedTab = .watchlist
@@ -466,7 +627,7 @@ struct HomeView: View {
                                 Rectangle()
                                     .frame(width: 1, height: 15)
                                     .foregroundColor(.white)
-                                Text(verbatim: "\(content.releaseYear ?? 0)")
+                                Text(String(content.releaseYear ?? 0))
                                     .outfitLight(17)
                                     .foregroundColor(.white)
                             }
@@ -486,14 +647,13 @@ struct HomeView: View {
     }
     
     private var newReleasesCard : some View {
-        VStack {
+        VStack(alignment: .leading) {
             Heading(title: "New Releases")
             .padding(.horizontal, 10)
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 10) {
+                LazyHStack(alignment: .top, spacing: 10) {
                     ForEach(vm.newReleases, id: \.id) { content in
                         ContentVerticalCard(vm: vm, content: content)
-                        
                     }
                 }
                 .padding(.horizontal, 10)
@@ -550,25 +710,29 @@ struct HomeView: View {
                 HStack(spacing: 0) {
                     // Left edge extension
                     featuredPosterImage(feature: feature)
-                        .frame(width: 50)
+                        .frame(width: 20)
                         .blur(radius: 20)
                         .scaleEffect(1.2)
                         .clipped()
                     
                     // Main poster image
                     featuredPosterImage(feature: feature)
-                        .frame(width: geometry.size.width - 100, height: geometry.size.height)
+                        .frame(width: geometry.size.width - 40, height: geometry.size.height)
                         .clipped()
                     
                     // Right edge extension
                     featuredPosterImage(feature: feature)
-                        .frame(width: 50)
+                        .frame(width: 20)
                         .blur(radius: 20)
                         .scaleEffect(1.2)
                         .clipped()
                 }
                 .frame(width: geometry.size.width, height: geometry.size.height)
-                .allowsHitTesting(false)
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    // Navigate to content detail when poster is tapped
+                    Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id ?? 0))
+                }
                 
                 // Enhanced gradient overlay for better edge blending
                 HStack(spacing: 0) {
@@ -577,17 +741,17 @@ struct HomeView: View {
                         startPoint: .leading,
                         endPoint: .trailing
                     )
-                    .frame(width: 60)
+                    .frame(width: 30)
                     
                     Color.clear
-                        .frame(width: geometry.size.width - 120)
+                        .frame(width: geometry.size.width - 60)
                     
                     LinearGradient(
                         colors: [.clear, .black.opacity(0.6)],
                         startPoint: .leading,
                         endPoint: .trailing
                     )
-                    .frame(width: 60)
+                    .frame(width: 30)
                 }
                 .allowsHitTesting(false)
                 
@@ -621,7 +785,7 @@ struct HomeView: View {
                                 Image(systemName: "play.fill")
                                     .font(.system(size: 14))
                                 Text("WATCH NOW")
-                                    .outfitSemiBold(14)
+                                    .outfitSemiBold(15)
                                     .tracking(0.5)
                             }
                             .foregroundColor(Color.gray.opacity(0.9))
@@ -640,7 +804,7 @@ struct HomeView: View {
                                 Image(systemName: isInWatchlist(contentId: feature.id ?? 0) ? "checkmark" : "plus")
                                     .font(.system(size: 14, weight: .bold))
                                 Text("MY LIST")
-                                    .outfitSemiBold(14)
+                                    .outfitSemiBold(15)
                                     .tracking(0.5)
                             }
                             .foregroundColor(.white)
@@ -840,6 +1004,60 @@ struct HomeView: View {
         return profile.name
     }
     
+    // MARK: Recently Watched helpers (scoped to HomeView)
+    private func movieLine1(from recently: RecentlyWatched) -> String {
+        // RecentlyWatched entity doesn't have releaseYear, so we'll just show duration
+        let durationInSeconds = recently.totalDuration
+        if durationInSeconds > 0 {
+            let minutes = Int(durationInSeconds / 60)
+            if minutes >= 60 {
+                return String(format: "%d hr %02d min", minutes / 60, minutes % 60)
+            }
+            return "\(minutes) min"
+        }
+        return ""
+    }
+    private func seriesEpisodeTitle(from recently: RecentlyWatched) -> String {
+        // Use episodeName which exists in the RecentlyWatched entity
+        if let title = recently.episodeName, !title.isEmpty { 
+            return title 
+        }
+        // If no episode name, just show a default
+        return "Episode"
+    }
+    private func shortDateFromDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: date)
+    }
+    
+    private func shortDateString(fromISO iso: String) -> String? {
+        let fmts = ["yyyy-MM-dd'T'HH:mm:ssZ", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd"]
+        for f in fmts {
+            let df = DateFormatter()
+            df.locale = Locale(identifier: "en_US_POSIX")
+            df.dateFormat = f
+            if let d = df.date(from: iso) {
+                let out = DateFormatter()
+                out.dateStyle = .medium
+                out.timeStyle = .none
+                return out.string(from: d)
+            }
+        }
+        return nil
+    }
+    private func formattedDuration(minutesOrHMS: String?) -> String {
+        guard let val = minutesOrHMS, !val.isEmpty else { return "" }
+        if let minutes = Int(val) {
+            if minutes >= 60 { return String(format: "%d hr %02d min", minutes/60, minutes%60) }
+            return "\(minutes) min"
+        }
+        let parts = val.split(separator: ":").compactMap { Int($0) }
+        if parts.count == 3 { return String(format: "%d hr %02d min", parts[0], parts[1]) }
+        if parts.count == 2 { return String(format: "%d hr %02d min", parts[0]/60, parts[0]%60) }
+        return val
+    }
     private func progressFraction(for recently: RecentlyWatched) -> Double {
         let total: Double = Double(recently.totalDuration)
         let progress: Double = Double(recently.progress)
@@ -847,7 +1065,6 @@ struct HomeView: View {
         let frac = progress / max(total, 0.001)
         return min(1.0, max(0.0, frac))
     }
-    
     private func navigateToDetailFromRecently(_ recently: RecentlyWatched) {
         let fraction: Double = progressFraction(for: recently)
         let cid: Int = Int(recently.contentID)
@@ -871,7 +1088,7 @@ struct GenreHomeCard : View {
         VStack {
             Heading(title: genre.title ?? "",content: {
                 Text(String.seeAll.localized(language))
-                    .outfitMedium(15)
+                    .outfitMedium(16)
                     .foregroundColor(.white)
                     .onTap {
                         Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
@@ -879,14 +1096,13 @@ struct GenreHomeCard : View {
             })
             .padding(.horizontal, 10)
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHStack(spacing: 10) {
+                LazyHStack(alignment: .top, spacing: 10) {
                     ForEach(genre.contents ?? [], id: \.id) { content in
                         ContentVerticalCard(vm: vm,content: content)
                     }
                 }
                 .padding(.horizontal, 10)
                 .environment(\.layoutDirection, language == .Arabic ? .rightToLeft : .leftToRight)
-
             }
             
         }
@@ -898,103 +1114,13 @@ struct ContentVerticalCard: View {
      var vm : HomeViewModel?
     var content: VugaContent
     var body: some View {
-        VStack(alignment: .leading, spacing: 4) {
-            KFImage(content.verticalPoster?.addBaseURL())
-                .resizeFillTo(width: 125, height: 178, radius: 5)
-                .addStroke(radius: 5)
-            // Metadata lines under poster
-            if content.type == .movie {
-                // Line 1: Release Year • Length (gray)
-                Text(movieLine1)
-                    .outfitLight(13)
-                    .foregroundColor(.textLight)
-                    .lineLimit(1)
-                // Line 2: Title (white)
-                Text(content.title ?? "")
-                    .outfitMedium(15)
-                    .foregroundColor(.white)
-                    .lineLimit(2)
-            } else if content.type == .series {
-                // TV Shows
-                HStack(spacing: 6) {
-                    Text(seriesEpisodeTitle)
-                        .outfitMedium(13)
-                        .foregroundColor(.white)
-                        .lineLimit(1)
-                    if let dateText = seriesEpisodeDateText {
-                        Text("• \(dateText)")
-                            .outfitLight(12)
-                            .foregroundColor(.textLight)
-                            .lineLimit(1)
-                    }
-                }
-                Text(content.title ?? "")
-                    .outfitMedium(15)
-                    .foregroundColor(.white)
-                    .lineLimit(2)
+        KFImage(content.verticalPoster?.addBaseURL())
+            .resizeFillTo(width: 125, height: 178, radius: 5)
+            .addStroke(radius: 5)
+            .frame(width: 125)
+            .onTap {
+                Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
             }
-        }
-        .frame(width: 125, alignment: .leading)
-        .onTap {
-            Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: content.id ?? 0))
-        }
-    }
-}
-
-extension ContentVerticalCard {
-    private var movieLine1: String {
-        let year = content.releaseYear != nil ? String(content.releaseYear!) : ""
-        let length = formattedDuration(from: content.duration)
-        if !year.isEmpty && !length.isEmpty { return "\(year) • \(length)" }
-        if !year.isEmpty { return year }
-        return length
-    }
-    private var seriesEpisodeTitle: String {
-        if let season = content.seasons?.first, let ep = season.episodes?.first {
-            if let title = ep.title, !title.isEmpty { return title }
-            let sNum = season.title?.compactMap({ Int(String($0)) }).first ?? 1
-            let eNum = ep.number ?? 1
-            return "S\(sNum)E\(eNum)"
-        }
-        return content.title ?? ""
-    }
-    private var seriesEpisodeDateText: String? {
-        if let season = content.seasons?.first, let ep = season.episodes?.first, let dateStr = ep.createdAt, let date = isoDate(from: dateStr) {
-            return shortDateString(from: date)
-        }
-        return nil
-    }
-    private func formattedDuration(from duration: String?) -> String {
-        guard let duration = duration, !duration.isEmpty else { return "" }
-        // Handle formats like "120" (minutes) or "01:45:00"
-        if let minutes = Int(duration) {
-            if minutes >= 60 { return String(format: "%d hr %02d min", minutes / 60, minutes % 60) }
-            return "\(minutes) min"
-        }
-        let parts = duration.split(separator: ":").map { Int($0) ?? 0 }
-        if parts.count == 3 { return String(format: "%d hr %02d min", parts[0], parts[1]) }
-        if parts.count == 2 { return String(format: "%d hr %02d min", parts[0] / 60, parts[0] % 60) }
-        return duration
-    }
-    private func isoDate(from string: String) -> Date? {
-        let fmts = [
-            "yyyy-MM-dd'T'HH:mm:ssZ",
-            "yyyy-MM-dd HH:mm:ss",
-            "yyyy-MM-dd"
-        ]
-        for f in fmts {
-            let df = DateFormatter()
-            df.locale = Locale(identifier: "en_US_POSIX")
-            df.dateFormat = f
-            if let d = df.date(from: string) { return d }
-        }
-        return nil
-    }
-    private func shortDateString(from date: Date) -> String {
-        let df = DateFormatter()
-        df.dateStyle = .medium
-        df.timeStyle = .none
-        return df.string(from: date)
     }
 }
 
@@ -1032,7 +1158,7 @@ struct TypeTagForVugaContent: View {
     var body: some View {
         HStack {
             Text(content?.type?.title.localized(language) ?? "")
-                .outfitRegular(12)
+                .outfitRegular(13)
                 .foregroundColor(Color("textColor"))
                 .padding(.trailing, 10)
                 .padding(.bottom, 2)
@@ -1055,7 +1181,7 @@ struct typeTag: View {
         if !isForTVShowsView {
             HStack {
                 Text(content.type.title.localized(language))
-                    .outfitRegular(12)
+                    .outfitRegular(13)
                     .foregroundColor(Color("textColor"))
                     .padding(.trailing, 10)
                     .padding(.bottom, 2)
@@ -1067,6 +1193,146 @@ struct typeTag: View {
                 .addStroke(radius: 100)
                 .padding(.top, 10)
                 .offset(x: -20)
+        }
+    }
+}
+
+// Embedded RecentlyWatchedCard since file import isn't working
+struct RecentlyWatchedAPICard: View {
+    let content: RecentlyWatchedContent
+    let onDelete: () -> Void
+    @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
+    
+    private var posterUrl: String? {
+        if content.contentType == ContentType.movie.rawValue {
+            return content.horizontalPoster
+        } else if let episodeThumbnail = content.episodeInfo?.episodeThumbnail {
+            return episodeThumbnail
+        } else {
+            return content.horizontalPoster
+        }
+    }
+    
+    private var displayTitle: String {
+        content.contentName
+    }
+    
+    private var episodeTitle: String? {
+        content.episodeInfo?.episodeTitle
+    }
+    
+    private var progressFraction: Double {
+        guard content.totalDuration > 0 else { return 0 }
+        return min(1.0, max(0.0, content.progress / content.totalDuration))
+    }
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            ZStack(alignment: .center) {
+                // Poster image
+                KFImage(posterUrl?.addBaseURL())
+                    .resizeFillTo(width: 170, height: 105, radius: 10)
+                
+                // Play button
+                Image(systemName: "play.fill")
+                    .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.white)
+                    .padding(8)
+                    .padding(.leading, 2)
+                    .background(.white.opacity(0.2))
+                    .clipShape(Circle())
+                
+                // Close button
+                VStack {
+                    HStack {
+                        Spacer()
+                        Image.close
+                            .resizeFitTo(size: 12, renderingMode: .template)
+                            .foregroundStyle(.white)
+                            .padding(12)
+                            .onTapGesture {
+                                onDelete()
+                            }
+                    }
+                    Spacer()
+                }
+                
+                // Progress bar
+                VStack {
+                    Spacer()
+                    ProgressView(value: progressFraction)
+                        .progressViewStyle(LinearProgressViewStyle())
+                        .tint(Color("baseColor"))
+                }
+            }
+            .cornerRadius(radius: 15)
+            .addStroke(radius: 15)
+            
+            // Metadata
+            metadataView
+                .frame(width: 170, alignment: .topLeading)
+        }
+        .frame(width: 170)
+    }
+    
+    @ViewBuilder
+    private var metadataView: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            // First line: Year and Duration in grey
+            HStack(spacing: 4) {
+                if let year = content.releaseYear {
+                    Text(String(year))
+                        .outfitLight(14)
+                        .foregroundColor(.textLight)
+                }
+                
+                if content.releaseYear != nil && formattedDuration != nil {
+                    Text("•")
+                        .outfitLight(14)
+                        .foregroundColor(.textLight)
+                }
+                
+                if let duration = formattedDuration {
+                    Text(duration)
+                        .outfitLight(14)
+                        .foregroundColor(.textLight)
+                }
+            }
+            .lineLimit(1)
+            
+            // Second line: Title in white
+            Text(displayTitle)
+                .lineLimit(2)
+                .outfitMedium(16)
+                .foregroundColor(.white)
+        }
+    }
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .none
+        return formatter.string(from: content.watchedDate)
+    }
+    
+    private var formattedDuration: String? {
+        guard let duration = content.contentDuration, duration > 0 else { return nil }
+        
+        let totalSeconds = duration
+        let hours = totalSeconds / 3600
+        let minutes = (totalSeconds % 3600) / 60
+        
+        if hours > 0 {
+            if minutes > 0 {
+                return "\(hours) hr \(minutes) min"
+            } else {
+                return "\(hours) hr"
+            }
+        } else if minutes > 0 {
+            return "\(minutes) min"
+        } else {
+            return nil
         }
     }
 }

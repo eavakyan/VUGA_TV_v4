@@ -52,11 +52,19 @@ struct VugaContent: Codable, Identifiable {
     let minAge: Int?
     let ageLimits: [AgeRating]?
     let userRating: Double?
+    let contentDistributorId: Int?
+    let distributorName: String?
+    let distributorRequiresSubscription: Bool?
+    let userHasDistributorAccess: Bool?
     
     enum CodingKeys: String, CodingKey {
         case id = "content_id"
         case title, description, type, duration
         case releaseYear = "release_year"
+        case contentDistributorId = "content_distributor_id"
+        case distributorName = "distributor_name"
+        case distributorRequiresSubscription = "distributor_requires_subscription"
+        case userHasDistributorAccess = "user_has_distributor_access"
         case ratings
         case languageID = "language_id"
         case downloadLink = "download_link"
@@ -130,6 +138,10 @@ struct VugaContent: Codable, Identifiable {
         minAge = try container.decodeIfPresent(Int.self, forKey: .minAge)
         ageLimits = try container.decodeIfPresent([AgeRating].self, forKey: .ageLimits)
         userRating = try container.decodeIfPresent(Double.self, forKey: .userRating)
+        contentDistributorId = try container.decodeIfPresent(Int.self, forKey: .contentDistributorId)
+        distributorName = try container.decodeIfPresent(String.self, forKey: .distributorName)
+        distributorRequiresSubscription = try container.decodeIfPresent(Bool.self, forKey: .distributorRequiresSubscription)
+        userHasDistributorAccess = try container.decodeIfPresent(Bool.self, forKey: .userHasDistributorAccess)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -167,6 +179,10 @@ struct VugaContent: Codable, Identifiable {
         try container.encodeIfPresent(minAge, forKey: .minAge)
         try container.encodeIfPresent(ageLimits, forKey: .ageLimits)
         try container.encodeIfPresent(userRating, forKey: .userRating)
+        try container.encodeIfPresent(contentDistributorId, forKey: .contentDistributorId)
+        try container.encodeIfPresent(distributorName, forKey: .distributorName)
+        try container.encodeIfPresent(distributorRequiresSubscription, forKey: .distributorRequiresSubscription)
+        try container.encodeIfPresent(userHasDistributorAccess, forKey: .userHasDistributorAccess)
     }
     
     var ratingString : String {

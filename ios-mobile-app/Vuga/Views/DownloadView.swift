@@ -26,7 +26,7 @@ struct DownloadView: View {
             HStack {
                 BackButton()
                 Text(String.deleteAll.localized(language))
-                    .outfitMedium(15)
+                    .outfitMedium(16)
                     .foregroundColor(.base)
                     .hidden()
                 Spacer()
@@ -38,14 +38,14 @@ struct DownloadView: View {
                     .hidden()
                 if downloads.isNotEmpty && downloads.count > 1 {
                     Text(String.deleteAll.localized(language))
-                        .outfitMedium(15)
+                        .outfitMedium(16)
                         .foregroundColor(.base)
                         .onTap {
                             showAllDeleteDialog = true
                         }
                 } else {
                     Text(String.deleteAll.localized(language))
-                        .outfitMedium(15)
+                        .outfitMedium(16)
                         .hidden()
                 }
             }

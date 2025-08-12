@@ -201,5 +201,16 @@ Route::post('distributors/promo-codes/{id}/toggle', [\App\Http\Controllers\Admin
 // Analytics
 Route::get('distributors/analytics', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'analytics'])->middleware(['checkLogin'])->name('admin.distributors.analytics');
 
+// Pricing management
+Route::get('distributors/{id}/pricing', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'getPricing'])->middleware(['checkLogin'])->name('distributors.pricing.list');
+Route::post('distributors/pricing', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'storePricing'])->middleware(['checkLogin'])->name('distributors.pricing.store');
+Route::put('distributors/pricing/{id}', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'updatePricing'])->middleware(['checkLogin'])->name('distributors.pricing.update');
+Route::delete('distributors/pricing/{id}', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'destroyPricing'])->middleware(['checkLogin'])->name('distributors.pricing.destroy');
+
+// Base subscription pricing
+Route::get('distributors/base-pricing/manage', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'basePricing'])->middleware(['checkLogin'])->name('distributors.base-pricing');
+Route::get('distributors/base-pricing/list', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'getBasePricing'])->middleware(['checkLogin'])->name('distributors.base-pricing.list');
+Route::post('distributors/base-pricing/store', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'storeBasePricing'])->middleware(['checkLogin'])->name('distributors.base-pricing.store');
+
 // Resource route MUST come AFTER all specific routes
 Route::resource('distributors', \App\Http\Controllers\Admin\ContentDistributorController::class)->middleware(['checkLogin']);

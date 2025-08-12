@@ -107,6 +107,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="nav-link" href="{{ route('distributors.index') }}">Manage Distributors</a></li>
+                                <li><a class="nav-link" href="{{ route('distributors.base-pricing') }}">Base Subscription Pricing</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.distributors.content') }}">Assign Content</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.distributors.revenue') }}">Revenue Share</a></li>
                                 <li><a class="nav-link" href="{{ route('admin.distributors.promos') }}">Promo Codes</a></li>

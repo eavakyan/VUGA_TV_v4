@@ -37,6 +37,7 @@ enum APIs : String {
     case getWatchHistory                    = "user/watch-history"
     case fetchContentsByGenre               = "fetchContentsByGenre"
     case fetchContentDetails                = "fetchContentDetails"
+    case fetchContentsByIds                 = "fetchContentsByIds"
     case searchContent                      = "searchContent"
     
     case fetchActorDetails                  = "fetchActorDetails"
@@ -60,6 +61,11 @@ enum APIs : String {
     case selectProfile                      = "selectProfile"
     case updateAgeSettings                  = "profile/update-age-settings"
     case getAgeRatings                      = "profile/age-ratings"
+    
+    // Subscription APIs
+    case getSubscriptionPlans               = "subscription/plans"
+    case getMySubscriptions                 = "subscription/my-subscriptions"
+    case validatePromoCode                  = "subscription/validate-promo"
 }
 
 extension String {

@@ -68,11 +68,6 @@ struct ProfileView: View {
                     Text(vm.myUser?.fullname ?? "")
                         .outfitMedium(20)
                         .padding(.vertical,10)
-                    if !isPro {
-                        ProfileProCard{
-                            Navigation.pushToSwiftUiView(ProView())
-                        }
-                    }
                     MySpaceFieldCardWithSwitch(icon: .notification, title: .notifications,isNotificationCard: true)
                     
                     ProfileFieldCard(icon: .mail, title: "Contact Preferences"){
@@ -202,51 +197,6 @@ struct ProfileView: View {
 
 #Preview {
     ProfileView()
-}
-
-struct ProfileProCard: View {
-    @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
-    @AppStorage(SessionKeys.isPro) var isPro = false
-    var onTap : ()->() = {}
-    var body: some View {
-        ZStack {
-            HStack {
-                Image.premium
-                    .resizeFitTo(width: 26, height: 26)
-                HStack(spacing: 5) {
-                    Text(String.becomeA.localized(language))
-                        .outfitRegular(14)
-                        .foregroundColor(Color("textColor"))
-                    Text(String.pro.localized(language))
-                        .outfitSemiBold(14)
-                        .foregroundColor(Color("baseColor"))
-                }
-                Spacer()
-            }
-            .padding(17)
-            .background(
-                HStack {
-                    Spacer()
-                        .maxWidthFrame()
-                    Image.premium_bg
-                        .resizable()
-                        .scaledToFill()
-                        .maxWidthFrame()
-                }
-                
-            )
-            .clipped()
-            .contentShape(Rectangle())
-            .background(Color("bgColor"))
-            .customCornerRadius(radius: 16)
-            .overlay(content: {
-                RoundedRectangle(cornerRadius: 17)
-                    .stroke(.base, lineWidth: 1)
-            })
-            .padding(.horizontal)
-        }
-        .onTap(completion: onTap)
-    }
 }
 
 struct ProfileFieldCard: View {

@@ -27,6 +27,7 @@ class ContentDetailViewModel : BaseViewModel {
     @Published var progress = 0.0
     @Published var seasonNumber = 0
     @Published var isShowAd = true
+    @Published var showDistributorSubscriptionRequired = false
     
     func fetchContest(contentId: Int) {
         var params: [Params: Any] = [.userId : myUser?.id ?? 0,

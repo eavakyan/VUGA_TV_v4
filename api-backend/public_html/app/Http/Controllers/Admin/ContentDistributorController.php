@@ -310,6 +310,211 @@ class ContentDistributorController extends Controller
     }
     
     /**
+     * Get pricing for a distributor
+     */
+    public function getPricing($id)
+    {
+        $pricing = DB::table('subscription_pricing')
+            ->where('content_distributor_id', $id)
+            ->orderBy('sort_order')
+            ->orderBy('billing_period')
+            ->get();
+            
+        return response()->json([
+            'success' => true,
+            'data' => $pricing
+        ]);
+    }
+    
+    /**
+     * Store new pricing option
+     */
+    public function storePricing(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'content_distributor_id' => 'required|exists:content_distributor,content_distributor_id',
+            'billing_period' => 'required|in:daily,weekly,monthly,quarterly,yearly,lifetime',
+            'price' => 'required|numeric|min:0',
+            'display_name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+        
+        // Check if this billing period already exists for this distributor
+        $exists = DB::table('subscription_pricing')
+            ->where('content_distributor_id', $request->content_distributor_id)
+            ->where('billing_period', $request->billing_period)
+            ->exists();
+            
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A pricing option for this billing period already exists'
+            ], 422);
+        }
+        
+        $pricingId = DB::table('subscription_pricing')->insertGetId([
+            'pricing_type' => 'distributor',
+            'content_distributor_id' => $request->content_distributor_id,
+            'billing_period' => $request->billing_period,
+            'price' => $request->price,
+            'currency' => 'USD',
+            'display_name' => $request->display_name,
+            'description' => $request->description,
+            'is_active' => $request->is_active ?? 1,
+            'sort_order' => 0,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Pricing option added successfully',
+            'data' => ['pricing_id' => $pricingId]
+        ]);
+    }
+    
+    /**
+     * Update pricing option
+     */
+    public function updatePricing(Request $request, $id)
+    {
+        $validator = Validator::make($request->all(), [
+            'billing_period' => 'required|in:daily,weekly,monthly,quarterly,yearly,lifetime',
+            'price' => 'required|numeric|min:0',
+            'display_name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+        
+        DB::table('subscription_pricing')
+            ->where('pricing_id', $id)
+            ->update([
+                'billing_period' => $request->billing_period,
+                'price' => $request->price,
+                'display_name' => $request->display_name,
+                'description' => $request->description,
+                'is_active' => $request->is_active ?? 1,
+                'updated_at' => now()
+            ]);
+            
+        return response()->json([
+            'success' => true,
+            'message' => 'Pricing option updated successfully'
+        ]);
+    }
+    
+    /**
+     * Delete pricing option
+     */
+    public function destroyPricing($id)
+    {
+        DB::table('subscription_pricing')
+            ->where('pricing_id', $id)
+            ->delete();
+            
+        return response()->json([
+            'success' => true,
+            'message' => 'Pricing option deleted successfully'
+        ]);
+    }
+    
+    /**
+     * Show base subscription pricing page
+     */
+    public function basePricing()
+    {
+        return view('admin.distributors.base-pricing');
+    }
+    
+    /**
+     * Get base subscription pricing
+     */
+    public function getBasePricing()
+    {
+        $pricing = DB::table('subscription_pricing')
+            ->where('pricing_type', 'base')
+            ->whereNull('content_distributor_id')
+            ->orderBy('sort_order')
+            ->orderBy('billing_period')
+            ->get();
+            
+        return response()->json([
+            'success' => true,
+            'data' => $pricing
+        ]);
+    }
+    
+    /**
+     * Store base subscription pricing
+     */
+    public function storeBasePricing(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'billing_period' => 'required|in:daily,weekly,monthly,quarterly,yearly,lifetime',
+            'price' => 'required|numeric|min:0',
+            'display_name' => 'required|string|max:100',
+            'description' => 'nullable|string',
+            'is_active' => 'boolean'
+        ]);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+        
+        // Check if this billing period already exists for base subscription
+        $exists = DB::table('subscription_pricing')
+            ->where('pricing_type', 'base')
+            ->whereNull('content_distributor_id')
+            ->where('billing_period', $request->billing_period)
+            ->exists();
+            
+        if ($exists) {
+            return response()->json([
+                'success' => false,
+                'message' => 'A base pricing option for this billing period already exists'
+            ], 422);
+        }
+        
+        $pricingId = DB::table('subscription_pricing')->insertGetId([
+            'pricing_type' => 'base',
+            'content_distributor_id' => null,
+            'billing_period' => $request->billing_period,
+            'price' => $request->price,
+            'currency' => 'USD',
+            'display_name' => $request->display_name,
+            'description' => $request->description,
+            'is_active' => $request->is_active ?? 1,
+            'sort_order' => 0,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Base pricing option added successfully',
+            'data' => ['pricing_id' => $pricingId]
+        ]);
+    }
+    
+    /**
      * Subscription analytics
      */
     public function analytics()

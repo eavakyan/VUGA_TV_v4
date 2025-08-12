@@ -26,7 +26,7 @@ struct ProfileSelectionView: View {
                     LazyVGrid(columns: [
                         GridItem(.flexible()),
                         GridItem(.flexible())
-                    ], spacing: 20) {
+                    ], alignment: .leading, spacing: 20) {
                         ForEach(viewModel.profiles, id: \.profileId) { profile in
                             ProfileItem(profile: profile, isEditMode: isEditMode) {
                                 print("ProfileSelectionView: Profile tapped - \(profile.name)")

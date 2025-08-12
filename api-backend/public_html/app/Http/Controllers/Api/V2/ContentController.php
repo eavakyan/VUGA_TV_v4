@@ -18,6 +18,102 @@ use Illuminate\Support\Facades\Validator;
 class ContentController extends Controller
 {
     /**
+     * Fetch multiple contents by IDs for Recently Watched
+     */
+    public function getContentsByIds(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'content_ids' => 'required|array',
+            'content_ids.*' => 'required|integer',
+            'user_id' => 'nullable|integer',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ]);
+        }
+
+        $contentIds = $request->content_ids;
+        $userId = $request->user_id;
+        $profileId = $request->profile_id;
+
+        // Get contents without aliases first
+        $contents = Content::whereIn('content_id', $contentIds)
+            ->where('is_show', 1)
+            ->with(['genres', 'distributor', 'seasons.episodes'])
+            ->get();
+
+        // Transform the data to match the expected format
+        $transformedContents = $contents->map(function($content) use ($userId, $profileId) {
+            // Map fields to expected names
+            $contentArray = [
+                'content_id' => $content->content_id,
+                'content_name' => $content->title,
+                'horizontal_poster' => $content->horizontal_poster,
+                'vertical_poster' => $content->vertical_poster,
+                'content_type' => $content->type,
+                'release_year' => $content->release_year,
+                'ratings' => $content->ratings,
+                'duration' => $content->duration,
+                'genres' => $content->genres,
+                'seasons' => $content->seasons ? $content->seasons->map(function($season) {
+                    return [
+                        'season_id' => $season->season_id,
+                        'content_id' => $season->content_id,
+                        'season_title' => $season->title,
+                        'season_thumbnail' => $season->thumbnail,
+                        'episodes' => $season->episodes ? $season->episodes->map(function($episode) {
+                            return [
+                                'episode_id' => $episode->episode_id,
+                                'season_id' => $episode->season_id,
+                                'episode_title' => $episode->title,
+                                'episode_thumbnail' => $episode->thumbnail,
+                                'episode_duration' => $episode->duration,
+                                'episode_number' => $episode->number
+                            ];
+                        }) : []
+                    ];
+                }) : []
+            ];
+            
+            // Add additional fields
+            $contentArray['is_watchlist'] = false;
+            if ($profileId && $profileId > 0) {
+                $contentArray['is_watchlist'] = \App\Models\V2\AppUserWatchlist::where('profile_id', $profileId)
+                    ->where('content_id', $content->content_id)
+                    ->exists();
+            }
+
+            // Add user rating if available
+            // TODO: Implement user rating when AppUserRating model is available
+            // if ($userId && $userId > 0) {
+            //     $userRating = \App\Models\V2\AppUserRating::where('user_id', $userId)
+            //         ->where('content_id', $content->content_id)
+            //         ->where(function($query) use ($profileId) {
+            //             if ($profileId) {
+            //                 $query->where('profile_id', $profileId);
+            //             }
+            //         })
+            //         ->first();
+                
+            //     $contentArray['user_rating'] = $userRating ? $userRating->rating : null;
+            // }
+            $contentArray['user_rating'] = null; // Placeholder until rating model is implemented
+
+            return $contentArray;
+        });
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Contents fetched successfully',
+            'data' => $transformedContents
+        ]);
+    }
+
+    /**
      * V1 Compatible: Fetch home page data
      */
     public function fetchHomePageData(Request $request)

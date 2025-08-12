@@ -132,7 +132,7 @@ struct ContentHorizontalCard<ContentV: View>: View {
                         Image.star
                             .resizeFitTo(size: 10)
                         Text(content.ratingString)
-                            .outfitLight(14)
+                            .outfitLight(15)
                     }
                     .foregroundColor(.rating)
                     
@@ -141,7 +141,7 @@ struct ContentHorizontalCard<ContentV: View>: View {
                         .foregroundColor(.textLight)
                     
                     Text(verbatim: "\(content.releaseYear ?? 2020)")
-                        .outfitLight(14)
+                        .outfitLight(15)
                         .foregroundColor(.textLight)
                 }
                 

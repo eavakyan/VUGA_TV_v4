@@ -65,6 +65,7 @@ Route::prefix('v2')->group(function () {
         Route::post('/home-page', [V2\ContentController::class, 'getHomePageData']);
         Route::post('/all', [V2\ContentController::class, 'getAllContent']);
         Route::post('/detail', [V2\ContentController::class, 'getContentById']);
+        Route::post('/by-ids', [V2\ContentController::class, 'getContentsByIds']);
         Route::post('/search', [V2\ContentController::class, 'searchContent']);
         Route::post('/featured', [V2\ContentController::class, 'getFeaturedContent']);
         Route::post('/trending', [V2\ContentController::class, 'getTrendingContent']);

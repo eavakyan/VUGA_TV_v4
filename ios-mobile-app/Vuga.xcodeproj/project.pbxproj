@@ -117,6 +117,11 @@
 		B05AC9562E47A318005EB298 /* MarketingPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9552E47A318005EB298 /* MarketingPreferencesView.swift */; };
 		B05AC9582E47A35B005EB298 /* TrailerUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9572E47A35B005EB298 /* TrailerUtils.swift */; };
 		B05AC95E2E494C67005EB298 /* SubscriptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC95D2E494C67005EB298 /* SubscriptionsView.swift */; };
+		B05AC9602E499A11005EB298 /* SubscriptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC95F2E499A11005EB298 /* SubscriptionsView.swift */; };
+		B05AC9622E4A5211005EB298 /* SubscriptionModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9612E4A5211005EB298 /* SubscriptionModels.swift */; };
+		B05AC9642E4A623A005EB298 /* SubscriptionRequiredSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9632E4A623A005EB298 /* SubscriptionRequiredSheet.swift */; };
+		B05AC9662E4A6A48005EB298 /* RecentlyWatchedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9652E4A6A48005EB298 /* RecentlyWatchedViewModel.swift */; };
+		B05AC9682E4A6A70005EB298 /* RecentlyWatchedModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC9672E4A6A70005EB298 /* RecentlyWatchedModel.swift */; };
 		B07147F72E26145000A53215 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B07147F62E26145000A53215 /* GoogleService-Info.plist */; };
 		B07147F82E26145000A53215 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = B07147F62E26145000A53215 /* GoogleService-Info.plist */; };
 		B07A74952E35BFEF00E4BC93 /* APIClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07A74942E35BFEF00E4BC93 /* APIClient.swift */; };
@@ -341,6 +346,11 @@
 		B05AC9552E47A318005EB298 /* MarketingPreferencesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MarketingPreferencesView.swift; sourceTree = "<group>"; };
 		B05AC9572E47A35B005EB298 /* TrailerUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerUtils.swift; sourceTree = "<group>"; };
 		B05AC95D2E494C67005EB298 /* SubscriptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionsView.swift; sourceTree = "<group>"; };
+		B05AC95F2E499A11005EB298 /* SubscriptionsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionsView.swift; sourceTree = "<group>"; };
+		B05AC9612E4A5211005EB298 /* SubscriptionModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionModels.swift; sourceTree = "<group>"; };
+		B05AC9632E4A623A005EB298 /* SubscriptionRequiredSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRequiredSheet.swift; sourceTree = "<group>"; };
+		B05AC9652E4A6A48005EB298 /* RecentlyWatchedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyWatchedViewModel.swift; sourceTree = "<group>"; };
+		B05AC9672E4A6A70005EB298 /* RecentlyWatchedModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentlyWatchedModel.swift; sourceTree = "<group>"; };
 		B07147F62E26145000A53215 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		B07A74942E35BFEF00E4BC93 /* APIClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIClient.swift; sourceTree = "<group>"; };
 		B0F1D7AE2E38951A006CBED0 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
@@ -698,6 +708,8 @@
 		C434A47E2BEA0F520059889F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				B05AC9672E4A6A70005EB298 /* RecentlyWatchedModel.swift */,
+				B05AC9612E4A5211005EB298 /* SubscriptionModels.swift */,
 				B05AC94B2E3F00CF005EB298 /* AgeRating.swift */,
 				B0F1D7AE2E38951A006CBED0 /* Profile.swift */,
 				C434A4872BEA3C600059889F /* SettingModel.swift */,
@@ -721,6 +733,7 @@
 		C434A47F2BEA0F640059889F /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				B05AC9652E4A6A48005EB298 /* RecentlyWatchedViewModel.swift */,
 				B0F1D7B42E389561006CBED0 /* CreateProfileViewModel.swift */,
 				B0F1D7B52E389561006CBED0 /* ProfileSelectionViewModel.swift */,
 				2BDD42122C16C28F003B36A4 /* ProViewModel.swift */,
@@ -746,6 +759,8 @@
 		C434A4802BEA0F6C0059889F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B05AC9632E4A623A005EB298 /* SubscriptionRequiredSheet.swift */,
+				B05AC95F2E499A11005EB298 /* SubscriptionsView.swift */,
 				B05AC95D2E494C67005EB298 /* SubscriptionsView.swift */,
 				B05AC9552E47A318005EB298 /* MarketingPreferencesView.swift */,
 				B05AC9512E3F04FF005EB298 /* DownloadProgressView.swift */,
@@ -1097,6 +1112,7 @@
 				2BDD42182C172826003B36A4 /* DataController.swift in Sources */,
 				2BFF61672C0DD25A00BB409B /* ProView.swift in Sources */,
 				2BF407642C08AD81002DFFA8 /* CustomAlertHelper.swift in Sources */,
+				B05AC9682E4A6A70005EB298 /* RecentlyWatchedModel.swift in Sources */,
 				C49BFA122BFE22E500A43AFB /* ContestsModel.swift in Sources */,
 				2BA340A02C09905C008A65CE /* ProfileViewModel.swift in Sources */,
 				2BC7A3612C67288E0030C88C /* InterstitialAd.swift in Sources */,
@@ -1107,6 +1123,7 @@
 				B0F1D7B22E389534006CBED0 /* CreateProfileView.swift in Sources */,
 				B0F1D7B32E389534006CBED0 /* ProfileSelectionView.swift in Sources */,
 				C41324E22BF8DB5100FF7E1C /* CollectionExtension.swift in Sources */,
+				B05AC9662E4A6A48005EB298 /* RecentlyWatchedViewModel.swift in Sources */,
 				C434A43F2BE9FCBB0059889F /* ContentView.swift in Sources */,
 				B05AC9502E3F032A005EB298 /* AgeSettingsView.swift in Sources */,
 				B07A74952E35BFEF00E4BC93 /* APIClient.swift in Sources */,
@@ -1114,6 +1131,7 @@
 				C46A0AAB2BEDF3B5002E2CE1 /* LiveTVsView.swift in Sources */,
 				C434A46C2BEA0AAF0059889F /* APIs.swift in Sources */,
 				C434A49B2BEA44790059889F /* LocalModel.swift in Sources */,
+				B05AC9642E4A623A005EB298 /* SubscriptionRequiredSheet.swift in Sources */,
 				2BC7A3632C6728A70030C88C /* BannerAd.swift in Sources */,
 				2BF4073A2C087F52002DFFA8 /* ProfileView.swift in Sources */,
 				C434A43D2BE9FCBB0059889F /* VugaApp.swift in Sources */,
@@ -1178,6 +1196,7 @@
 				2BDD42152C172691003B36A4 /* DownloadView.swift in Sources */,
 				C434A4742BEA0B3E0059889F /* ColorExtension.swift in Sources */,
 				B05AC9522E3F04FF005EB298 /* DownloadProgressView.swift in Sources */,
+				B05AC9602E499A11005EB298 /* SubscriptionsView.swift in Sources */,
 				2BF4073C2C089957002DFFA8 /* EditProfileVIew.swift in Sources */,
 				2BC7A3652C6728C20030C88C /* BannerAdViewModel.swift in Sources */,
 				B0F1D7AF2E38951A006CBED0 /* Profile.swift in Sources */,
@@ -1201,6 +1220,7 @@
 				C434A4B62BEA65480059889F /* TabBarView.swift in Sources */,
 				B0F1D7B62E389561006CBED0 /* CreateProfileViewModel.swift in Sources */,
 				B0F1D7B72E389561006CBED0 /* ProfileSelectionViewModel.swift in Sources */,
+				B05AC9622E4A5211005EB298 /* SubscriptionModels.swift in Sources */,
 				2BBF06092C185DD600A15E85 /* AvailableSourceView.swift in Sources */,
 				C434A4822BEA14600059889F /* SplashView.swift in Sources */,
 				2BB9C9282C11CC80002ADE68 /* WebView.swift in Sources */,

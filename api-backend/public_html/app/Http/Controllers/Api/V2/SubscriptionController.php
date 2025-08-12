@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
+use App\Models\V2\SubscriptionPricing;
+use App\Models\V2\UserBaseSubscription;
+use App\Models\V2\UserDistributorAccess;
+use App\Models\V2\PaymentTransaction;
+use App\Models\V2\PromoCode;
+use App\Models\V2\PromoCodeUsage;
 
 class SubscriptionController extends Controller
 {
