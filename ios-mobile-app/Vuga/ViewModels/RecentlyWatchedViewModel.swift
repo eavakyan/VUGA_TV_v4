@@ -169,6 +169,9 @@ class RecentlyWatchedViewModel: ObservableObject {
                 }
             }
             
+            // Debug: Log duration data
+            print("DEBUG: Content \(apiContent.contentName) - Duration from API: \(apiContent.duration ?? -1)")
+            
             let recentlyWatched = RecentlyWatchedContent(
                 contentId: apiContent.contentId,
                 contentName: apiContent.contentName,

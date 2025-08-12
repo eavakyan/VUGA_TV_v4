@@ -501,12 +501,12 @@ struct HomeView: View {
             let line1: String = movieLine1(from: recently)
             VStack(alignment: .leading, spacing: 2) {
                 Text(line1)
-                    .outfitLight(14)
+                    .outfitLight(12)
                     .foregroundColor(.textLight)
                     .lineLimit(1)
                 Text(title)
                     .lineLimit(2)
-                    .outfitMedium(16)
+                    .outfitMedium(14)
                     .foregroundColor(.white)
                     .padding(.top, 1)
             }
@@ -516,18 +516,18 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: 2) {
                 HStack(spacing: 6) {
                     Text(epTitle)
-                        .outfitMedium(14)
+                        .outfitMedium(12)
                         .foregroundColor(.white)
                         .lineLimit(1)
                     if let d = dateStr, !d.isEmpty {
                         Text("• \(d)")
-                            .outfitLight(13)
+                            .outfitLight(11)
                             .foregroundColor(.textLight)
                             .lineLimit(1)
                     }
                 }
                 Text(title)
-                    .outfitMedium(16)
+                    .outfitMedium(14)
                     .foregroundColor(.white)
                     .lineLimit(2)
             }
@@ -612,7 +612,7 @@ struct HomeView: View {
 
                             Text(content.title ?? "")
                                 .lineLimit(1)
-                                .outfitSemiBold(18)
+                                .outfitSemiBold(16)
                                 .foregroundColor(Color("textColor"))
                                 .padding(.top,5)
                                 .frame(width: 118,alignment: .leading)
@@ -621,14 +621,14 @@ struct HomeView: View {
                                     Image.star
                                         .resizeFitTo(size: 12)
                                     Text(content.ratingString)
-                                        .outfitLight(16)
+                                        .outfitLight(14)
                                 }
                                 .foregroundColor(Color("rating"))
                                 Rectangle()
                                     .frame(width: 1, height: 15)
                                     .foregroundColor(.white)
                                 Text(String(content.releaseYear ?? 0))
-                                    .outfitLight(17)
+                                    .outfitLight(15)
                                     .foregroundColor(.white)
                             }
                             
@@ -1283,19 +1283,19 @@ struct RecentlyWatchedAPICard: View {
             HStack(spacing: 4) {
                 if let year = content.releaseYear {
                     Text(String(year))
-                        .outfitLight(14)
+                        .outfitLight(12)
                         .foregroundColor(.textLight)
                 }
                 
                 if content.releaseYear != nil && formattedDuration != nil {
                     Text("•")
-                        .outfitLight(14)
+                        .outfitLight(12)
                         .foregroundColor(.textLight)
                 }
                 
                 if let duration = formattedDuration {
                     Text(duration)
-                        .outfitLight(14)
+                        .outfitLight(12)
                         .foregroundColor(.textLight)
                 }
             }
@@ -1304,7 +1304,7 @@ struct RecentlyWatchedAPICard: View {
             // Second line: Title in white
             Text(displayTitle)
                 .lineLimit(2)
-                .outfitMedium(16)
+                .outfitMedium(14)
                 .foregroundColor(.white)
         }
     }
@@ -1317,18 +1317,19 @@ struct RecentlyWatchedAPICard: View {
     }
     
     private var formattedDuration: String? {
-        guard let duration = content.contentDuration, duration > 0 else { return nil }
+        guard let duration = content.contentDuration, duration > 0 else { 
+            return nil 
+        }
         
+        // Duration is stored in seconds in the database
         let totalSeconds = duration
         let hours = totalSeconds / 3600
         let minutes = (totalSeconds % 3600) / 60
         
-        if hours > 0 {
-            if minutes > 0 {
-                return "\(hours) hr \(minutes) min"
-            } else {
-                return "\(hours) hr"
-            }
+        if hours > 0 && minutes > 0 {
+            return "\(hours) hr \(minutes) min"
+        } else if hours > 0 {
+            return "\(hours) hr"
         } else if minutes > 0 {
             return "\(minutes) min"
         } else {
