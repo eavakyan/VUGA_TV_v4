@@ -17,54 +17,49 @@ struct ContentGridView: View {
     let filterValue: String?
     let navigationTitle: String
     
-    // Grid layout configuration
-    let columns = [
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12),
-        GridItem(.flexible(), spacing: 12)
-    ]
-    
     // Computed property for sorted genre keys
     var sortedGenreKeys: [String] {
         return viewModel.groupedContents.keys.sorted()
     }
     
-    // Helper function to create genre section
+    // Helper function to create genre section with horizontal scrolling
     @ViewBuilder
     func genreSection(for genre: String) -> some View {
         if let contents = viewModel.groupedContents[genre], !contents.isEmpty {
-            VStack(alignment: .leading, spacing: 12) {
+            VStack(alignment: .leading, spacing: 8) {
                 // Section header
                 HStack {
                     Text(genre)
-                        .font(.system(size: 20, weight: .semibold))
+                        .font(.system(size: 18, weight: .semibold))
                         .foregroundColor(.white)
                     
                     Spacer()
                     
                     Text("\(contents.count) items")
-                        .font(.system(size: 14))
+                        .font(.system(size: 12))
                         .foregroundColor(.gray)
                 }
                 .padding(.horizontal)
                 
-                // Content grid for this genre
-                LazyVGrid(columns: columns, spacing: 16) {
-                    ForEach(contents, id: \.id) { content in
-                        ContentGridItem(content: content)
-                            .onTapGesture {
-                                print("ContentGridView: Tapped content - id: \(content.id ?? -1), title: \(content.title ?? "Unknown")")
-                                if let contentId = content.id, contentId > 0 {
-                                    Navigation.pushToSwiftUiView(
-                                        ContentDetailView(contentId: contentId)
-                                    )
-                                } else {
-                                    print("ContentGridView: Invalid content ID: \(content.id ?? -1)")
+                // Horizontal scrolling content row
+                ScrollView(.horizontal, showsIndicators: false) {
+                    LazyHStack(spacing: 12) {
+                        ForEach(contents, id: \.id) { content in
+                            ContentGridItem(content: content)
+                                .onTapGesture {
+                                    print("ContentGridView: Tapped content - id: \(content.id ?? -1), title: \(content.title ?? "Unknown")")
+                                    if let contentId = content.id, contentId > 0 {
+                                        Navigation.pushToSwiftUiView(
+                                            ContentDetailView(contentId: contentId)
+                                        )
+                                    } else {
+                                        print("ContentGridView: Invalid content ID: \(content.id ?? -1)")
+                                    }
                                 }
-                            }
+                        }
                     }
+                    .padding(.horizontal)
                 }
-                .padding(.horizontal)
             }
         }
     }
@@ -126,8 +121,8 @@ struct ContentGridView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.top, 100)
                     } else {
-                        // Content sections grouped by genre/category
-                        LazyVStack(alignment: .leading, spacing: 30) {
+                        // Content sections grouped by genre/category with horizontal scrolling
+                        LazyVStack(alignment: .leading, spacing: 20) {
                             ForEach(sortedGenreKeys, id: \.self) { genre in
                                 genreSection(for: genre)
                             }
@@ -146,6 +141,7 @@ struct ContentGridView: View {
                             }
                         }
                         .padding(.top, 10)
+                        .padding(.bottom, 20)
                     }
                 }
             }
@@ -157,13 +153,13 @@ struct ContentGridView: View {
     }
 }
 
-// Grid item view
+// Grid item view for horizontal scrolling
 struct ContentGridItem: View {
     let content: VugaContent
     
     var body: some View {
-        VStack(spacing: 0) {
-            // Poster image
+        VStack(alignment: .leading, spacing: 4) {
+            // Poster image with fixed dimensions for horizontal scrolling
             KFImage(URL(string: content.verticalPoster ?? content.horizontalPoster ?? ""))
                 .placeholder {
                     Rectangle()
@@ -171,24 +167,45 @@ struct ContentGridItem: View {
                         .overlay(
                             Image(systemName: "photo")
                                 .foregroundColor(.gray)
-                                .font(.system(size: 30))
+                                .font(.system(size: 24))
                         )
                 }
                 .resizable()
                 .aspectRatio(2/3, contentMode: .fill)
+                .frame(width: 120, height: 180) // Fixed size for horizontal scrolling
                 .clipped()
                 .cornerRadius(8)
             
-            // Duration if available
-            if let durationStr = content.duration, let duration = Int(durationStr), duration > 0 {
-                let hours = duration / 3600
-                let minutes = (duration % 3600) / 60
-                let durationText = hours > 0 ? "\(hours) hr \(minutes) min" : "\(minutes) min"
-                Text(durationText)
-                    .font(.system(size: 11))
-                    .foregroundColor(.gray)
-                    .padding(.top, 4)
+            // Title
+            Text(content.title ?? "")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white)
+                .lineLimit(1)
+                .frame(width: 120, alignment: .leading)
+            
+            // Duration and rating
+            HStack(spacing: 4) {
+                if let durationStr = content.duration, let duration = Int(durationStr), duration > 0 {
+                    let hours = duration / 3600
+                    let minutes = (duration % 3600) / 60
+                    let durationText = hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
+                    Text(durationText)
+                        .font(.system(size: 10))
+                        .foregroundColor(.gray)
+                }
+                
+                if let ratings = content.ratings, ratings > 0 {
+                    HStack(spacing: 2) {
+                        Image(systemName: "star.fill")
+                            .font(.system(size: 8))
+                            .foregroundColor(.yellow)
+                        Text(String(format: "%.1f", ratings))
+                            .font(.system(size: 10))
+                            .foregroundColor(.gray)
+                    }
+                }
             }
+            .frame(width: 120, alignment: .leading)
         }
     }
 }

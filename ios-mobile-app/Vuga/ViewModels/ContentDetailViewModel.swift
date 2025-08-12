@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreData
 
 class ContentDetailViewModel : BaseViewModel {
     @Published var content: VugaContent?
@@ -54,12 +55,51 @@ class ContentDetailViewModel : BaseViewModel {
 
             // Use the server's isWatchlist value if available, otherwise fall back to local check
             self?.isBookmarked = obj.data?.isWatchlist ?? self?.myUser?.checkIsAddedToWatchList(contentId: self?.content?.id ?? 0) ?? false
+            
+            // Load recently watched progress for this content after a small delay to ensure CoreData is ready
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.loadRecentlyWatchedProgress(contentId: contentId)
+            }
+            
             self?.isDataLoaded = true
         }, callbackFailure: { error in
             self.stopLoading()
             print("ContentDetailViewModel fetchContest error: \(error)")
             self.isDataLoaded = true
         })
+    }
+    
+    func loadRecentlyWatchedProgress(contentId: Int) {
+        // Temporarily disabled to debug crash - will re-enable once we verify the crash is fixed
+        print("ContentDetailViewModel: loadRecentlyWatchedProgress temporarily disabled for debugging")
+        return
+        
+        /*
+        // Safely fetch recently watched progress from local CoreData
+        guard let profileId = myUser?.lastActiveProfileId else {
+            print("ContentDetailViewModel: No active profile to load recently watched")
+            return
+        }
+        
+        do {
+            let fetchRequest = RecentlyWatched.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "contentId == %d AND profileId == %d", contentId, profileId)
+            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "watchedDate", ascending: false)]
+            fetchRequest.fetchLimit = 1
+            
+            let recentlyWatched = try DataController.shared.context.fetch(fetchRequest)
+            if let recent = recentlyWatched.first {
+                self.progress = recent.progress
+                print("ContentDetailViewModel: Loaded progress from recently watched: \(self.progress)")
+            } else {
+                print("ContentDetailViewModel: No recently watched data found for content \(contentId)")
+                self.progress = 0.0
+            }
+        } catch {
+            print("ContentDetailViewModel: Error loading recently watched progress: \(error)")
+            self.progress = 0.0
+        }
+        */
     }
     
     func increaseContentView(contentId: Int){

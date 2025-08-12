@@ -381,7 +381,9 @@ struct ContentDetailView: View {
                                                 if firstSource.accessType == .free || isPro {
                                                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                                                         vm.pickedSource = firstSource
-                                                        vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                                                        // For episodes, we typically start from beginning since each episode is separate
+                                                        // But if you want to support resume for episodes too, remove this line
+                                                        vm.progress = 0 // Start from beginning for episodes
                                                         vm.playSource(firstSource)
                                                         vm.increaseEpisodeView(episodeId: episode.id ?? 0)
                                                         episodeIncreaseTotalView += 1
@@ -521,7 +523,7 @@ struct ContentDetailView: View {
                 // Show ad and then play video
                 if let pickedSource = vm.pickedSource {
                     // After ad is watched, play the video
-                    vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                    // Don't reset progress - use the existing vm.progress value
                     vm.playSource(pickedSource)
                     vm.isShowAd = false // Don't show ad again in video player
                     if vm.content?.type == .movie {
@@ -911,7 +913,8 @@ struct ContentDetailView: View {
             if firstSource.accessType == .free || isPro {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
                     vm.pickedSource = firstSource
-                    vm.progress = 0 // Start from beginning, could be fetched from recently watched
+                    // Don't reset progress - use the existing vm.progress value which contains the saved position
+                    // vm.progress already contains the correct value from recently watched
                     vm.playSource(firstSource)
                     if content.type == .movie {
                         vm.increaseContentView(contentId: content.id ?? 0)
