@@ -47,7 +47,7 @@ struct EpisodeInfo: Codable {
     }
 }
 
-struct RecentlyWatchedResponse: Codable {
+struct RecentlyWatchedAPIResponse: Codable {
     let status: Bool
     let message: String
     let data: [RecentlyWatchedAPIContent]?

@@ -225,6 +225,42 @@ struct ContentDetailView: View {
     private var smallPosterWidth: CGFloat { Device.width * 0.5 }
     private var isArabic: Bool { language == .Arabic }
     
+    // Store contentId for loading
+    private let contentIdToLoad: Int?
+    
+    // Initializers
+    init() {
+        self.contentIdToLoad = nil
+    }
+    
+    init(contentId: Int) {
+        self.contentIdToLoad = contentId
+    }
+    
+    init(contentId: Int?) {
+        self.contentIdToLoad = contentId
+    }
+    
+    init(content: VugaContent) {
+        self.contentIdToLoad = content.id
+    }
+    
+    init(homeVm: HomeViewModel? = nil, contentId: Int) {
+        self.homeVm = homeVm
+        self.contentIdToLoad = contentId
+    }
+    
+    init(initialProgress: Double? = nil, contentId: Int) {
+        self.initialProgress = initialProgress
+        self.contentIdToLoad = contentId
+    }
+    
+    init(initialProgress: Double? = nil, homeVm: HomeViewModel? = nil, contentId: Int) {
+        self.initialProgress = initialProgress
+        self.homeVm = homeVm
+        self.contentIdToLoad = contentId
+    }
+    
     var body: some View {
         mainContent
             .background(ContentBackgroudView(content: vm.content))
@@ -405,7 +441,10 @@ struct ContentDetailView: View {
     
     private func onAppearHandler() {
         if !vm.isDataLoaded {
-            vm.fetchContest(contentId: contentId ?? 0)
+            // Use contentIdToLoad from initializer, or contentId if set directly
+            let idToLoad = contentIdToLoad ?? contentId ?? 0
+            print("ContentDetailView: Loading content with ID: \(idToLoad)")
+            vm.fetchContest(contentId: idToLoad)
         }
         // Watchlist state is now set from server response in fetchContest
         if shouldShowAdMob {

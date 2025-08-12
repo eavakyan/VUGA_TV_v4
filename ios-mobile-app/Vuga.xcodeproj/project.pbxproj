@@ -112,6 +112,7 @@
 		B00A3FEB2E4ADEBD00B16589 /* UserNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */; };
 		B00A3FED2E4ADF2200B16589 /* UserNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */; };
 		B00A3FEF2E4ADF5600B16589 /* UserNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */; };
+		B00A3FF12E4AE9D700B16589 /* ContentGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FF02E4AE9D700B16589 /* ContentGridView.swift */; };
 		B00A60F32E35B943005BC809 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A60F22E35B943005BC809 /* QRScannerView.swift */; };
 		B05AC94C2E3F00CF005EB298 /* AgeRating.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC94B2E3F00CF005EB298 /* AgeRating.swift */; };
 		B05AC94E2E3F0237005EB298 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC94D2E3F0237005EB298 /* StorageManager.swift */; };
@@ -344,6 +345,7 @@
 		B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotification.swift; sourceTree = "<group>"; };
 		B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationViewModel.swift; sourceTree = "<group>"; };
 		B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationView.swift; sourceTree = "<group>"; };
+		B00A3FF02E4AE9D700B16589 /* ContentGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentGridView.swift; sourceTree = "<group>"; };
 		B00A60F22E35B943005BC809 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		B05AC94B2E3F00CF005EB298 /* AgeRating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeRating.swift; sourceTree = "<group>"; };
 		B05AC94D2E3F0237005EB298 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
@@ -767,6 +769,7 @@
 		C434A4802BEA0F6C0059889F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B00A3FF02E4AE9D700B16589 /* ContentGridView.swift */,
 				B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */,
 				B05AC9632E4A623A005EB298 /* SubscriptionRequiredSheet.swift */,
 				B05AC95F2E499A11005EB298 /* SubscriptionsView.swift */,
@@ -1217,6 +1220,7 @@
 				C434A4752BEA0B3E0059889F /* FontExtention.swift in Sources */,
 				C46A0AA92BEDF39F002E2CE1 /* SearchView.swift in Sources */,
 				2BB9C92C2C11E917002ADE68 /* VideoPlayerModel.swift in Sources */,
+				B00A3FF12E4AE9D700B16589 /* ContentGridView.swift in Sources */,
 				2B13AD032C22ABAA0037577A /* AdMetricModel.swift in Sources */,
 				2BD71F642C20464C00D1962D /* CustomAdViewModel.swift in Sources */,
 				2BF407622C08AD81002DFFA8 /* CustomAlert.swift in Sources */,

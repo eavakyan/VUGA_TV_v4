@@ -119,7 +119,7 @@ class RecentlyWatchedViewModel: ObservableObject {
                 
                 do {
                     let decoder = JSONDecoder()
-                    let response = try decoder.decode(RecentlyWatchedResponse.self, from: data)
+                    let response = try decoder.decode(RecentlyWatchedAPIResponse.self, from: data)
                     
                     print("DEBUG: Decoded response - status: \(response.status), data count: \(response.data?.count ?? 0)")
                     

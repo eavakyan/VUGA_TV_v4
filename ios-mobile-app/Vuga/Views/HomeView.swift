@@ -171,7 +171,15 @@ struct HomeView: View {
         )
         .onAppear {
             // Check for pending notifications when view appears
+            print("HomeView: onAppear - checking for notifications")
             userNotificationVM.checkPendingNotifications()
+        }
+        .onChange(of: SessionManager.shared.currentProfile?.profileId) { newProfileId in
+            // Clear shown notifications when profile changes
+            if newProfileId != nil {
+                userNotificationVM.clearShownNotifications()
+                userNotificationVM.checkPendingNotifications()
+            }
         }
     }
     
@@ -231,13 +239,13 @@ struct HomeView: View {
                     // Add haptic feedback
                     let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                     impactFeedback.impactOccurred()
-                    // Switch to search tab and filter for TV shows
-                    selectedTab = .search
-                    // Post notification to set search filter for TV shows
-                    NotificationCenter.default.post(
-                        name: .setSearchFilter,
-                        object: nil,
-                        userInfo: ["contentType": ContentType.series]
+                    // Navigate to grid view with TV Shows filter
+                    Navigation.pushToSwiftUiView(
+                        ContentGridView(
+                            filterType: .contentType(.series),
+                            filterValue: nil,
+                            navigationTitle: "TV Shows"
+                        )
                     )
                 }
                     
@@ -254,13 +262,13 @@ struct HomeView: View {
                     // Add haptic feedback
                     let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                     impactFeedback.impactOccurred()
-                    // Switch to search tab and filter for movies
-                    selectedTab = .search
-                    // Post notification to set search filter for movies
-                    NotificationCenter.default.post(
-                        name: .setSearchFilter,
-                        object: nil,
-                        userInfo: ["contentType": ContentType.movie]
+                    // Navigate to grid view with Movies filter
+                    Navigation.pushToSwiftUiView(
+                        ContentGridView(
+                            filterType: .contentType(.movie),
+                            filterValue: nil,
+                            navigationTitle: "Movies"
+                        )
                     )
                 }
                     
@@ -286,7 +294,13 @@ struct HomeView: View {
                 // All genre categories
                 ForEach(vm.genres, id: \.id) { genre in
                     Button(genre.title ?? "") {
-                        Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                        Navigation.pushToSwiftUiView(
+                            ContentGridView(
+                                filterType: .genre(genre.id ?? 0),
+                                filterValue: String(genre.id ?? 0),
+                                navigationTitle: genre.title ?? "Category"
+                            )
+                        )
                     }
                 }
                 
@@ -329,7 +343,20 @@ struct HomeView: View {
     private var recentlyWatchedFromAPI: some View {
         VStack(alignment: .leading) {
             // Always show the section to help with debugging
-            Heading(title: .recentlyWatched, content: {})
+            Heading(title: .recentlyWatched, content: {
+                Text(String.seeAll.localized(language))
+                    .outfitMedium(16)
+                    .foregroundColor(.white)
+                    .onTap {
+                        Navigation.pushToSwiftUiView(
+                            ContentGridView(
+                                filterType: .recentlyWatched,
+                                filterValue: nil,
+                                navigationTitle: "Recently Watched"
+                            )
+                        )
+                    }
+            })
             .padding(.horizontal, 10)
             
             if recentlyWatchedVM.isLoading {
@@ -584,7 +611,7 @@ struct HomeView: View {
                                     .shadow(color: .bg,radius: 3)
                                     .offset(y: 65)
                             .onTap {
-                                Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: topContent.contentID))
+                                Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: topContent.contentID ?? 0))
                             }
                         }
                     }
@@ -602,7 +629,13 @@ struct HomeView: View {
                     .outfitMedium(16)
                     .foregroundColor(.white)
                     .onTap {
-                        selectedTab = .watchlist
+                        Navigation.pushToSwiftUiView(
+                            ContentGridView(
+                                filterType: .watchlist,
+                                filterValue: nil,
+                                navigationTitle: "My Watchlist"
+                            )
+                        )
                     }
             })
             .padding(.horizontal, 10)
@@ -657,7 +690,20 @@ struct HomeView: View {
     
     private var newReleasesCard : some View {
         VStack(alignment: .leading) {
-            Heading(title: "New Releases")
+            Heading(title: "New Releases", content: {
+                Text(String.seeAll.localized(language))
+                    .outfitMedium(16)
+                    .foregroundColor(.white)
+                    .onTap {
+                        Navigation.pushToSwiftUiView(
+                            ContentGridView(
+                                filterType: .newReleases,
+                                filterValue: nil,
+                                navigationTitle: "New Releases"
+                            )
+                        )
+                    }
+            })
             .padding(.horizontal, 10)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack(alignment: .top, spacing: 10) {
@@ -1100,7 +1146,13 @@ struct GenreHomeCard : View {
                     .outfitMedium(16)
                     .foregroundColor(.white)
                     .onTap {
-                        Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
+                        Navigation.pushToSwiftUiView(
+                            ContentGridView(
+                                filterType: .genre(genre.id ?? 0),
+                                filterValue: String(genre.id ?? 0),
+                                navigationTitle: genre.title ?? "Category"
+                            )
+                        )
                     }
             })
             .padding(.horizontal, 10)

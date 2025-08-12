@@ -20,10 +20,10 @@ struct UserNotification: Codable, Identifiable {
     let notificationType: String
     let priority: String
     let targetPlatforms: [String]?
-    let isActive: Bool
+    let isActive: Bool?
     let scheduledAt: String?
     let expiresAt: String?
-    let createdAt: String
+    let createdAt: String?
     
     enum CodingKeys: String, CodingKey {
         case id = "notification_id"
