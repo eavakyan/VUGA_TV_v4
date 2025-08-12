@@ -70,21 +70,11 @@ class ContentDetailViewModel : BaseViewModel {
     }
     
     func loadRecentlyWatchedProgress(contentId: Int) {
-        // Temporarily disabled to debug crash - will re-enable once we verify the crash is fixed
-        print("ContentDetailViewModel: loadRecentlyWatchedProgress temporarily disabled for debugging")
-        return
-        
-        /*
         // Safely fetch recently watched progress from local CoreData
-        guard let profileId = myUser?.lastActiveProfileId else {
-            print("ContentDetailViewModel: No active profile to load recently watched")
-            return
-        }
-        
         do {
-            let fetchRequest = RecentlyWatched.fetchRequest()
-            fetchRequest.predicate = NSPredicate(format: "contentId == %d AND profileId == %d", contentId, profileId)
-            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "watchedDate", ascending: false)]
+            let fetchRequest: NSFetchRequest<RecentlyWatched> = RecentlyWatched.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "contentID == %d", contentId)
+            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "date", ascending: false)]
             fetchRequest.fetchLimit = 1
             
             let recentlyWatched = try DataController.shared.context.fetch(fetchRequest)
@@ -99,7 +89,6 @@ class ContentDetailViewModel : BaseViewModel {
             print("ContentDetailViewModel: Error loading recently watched progress: \(error)")
             self.progress = 0.0
         }
-        */
     }
     
     func increaseContentView(contentId: Int){
