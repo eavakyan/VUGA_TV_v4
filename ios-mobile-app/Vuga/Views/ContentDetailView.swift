@@ -1759,7 +1759,7 @@ struct InlineTrailerView: View {
                 } else if let player = player {
                     // Regular video player for CDN URLs
                     VideoPlayer(player: player)
-                        .disabled(false)
+                        .disabled(true)  // Disable VideoPlayer's own controls to use our custom tap gesture
                 } else {
                     // Loading state
                     Color.black
@@ -1781,7 +1781,7 @@ struct InlineTrailerView: View {
                             Button(action: {
                                 togglePlayback()
                             }) {
-                                Image(systemName: shouldPlay ? "pause.fill" : "play.fill")
+                                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
                                     .font(.system(size: 24))
                                     .foregroundColor(.white)
                                     .frame(width: 44, height: 44)
@@ -1803,16 +1803,20 @@ struct InlineTrailerView: View {
                     .transition(.opacity)
                 }
                 
-                // Tap gesture to show/hide controls
+                // Tap gesture to toggle playback
                 Color.clear
                     .contentShape(Rectangle())
                     .onTapGesture {
+                        // Toggle playback when tapping the video
+                        togglePlayback()
+                        
+                        // Show controls when tapping
                         withAnimation(.easeInOut(duration: 0.3)) {
-                            showControls.toggle()
+                            showControls = true
                         }
                         
                         // Auto-hide controls after 3 seconds if playing
-                        if showControls && shouldPlay {
+                        if isPlaying {
                             scheduleHideControls()
                         }
                     }
@@ -1849,35 +1853,42 @@ struct InlineTrailerView: View {
     }
     
     private func togglePlayback() {
-        print("InlineTrailerView: togglePlayback called, current shouldPlay: \(shouldPlay)")
+        print("InlineTrailerView: togglePlayback called, current isPlaying: \(isPlaying)")
         
-        // Toggle the state
-        shouldPlay.toggle()
-        isPlaying = shouldPlay
-        
-        print("InlineTrailerView: After toggle, shouldPlay: \(shouldPlay), isYouTubeUrl: \(isYouTubeUrl)")
-        
-        // Control playback immediately
-        if isYouTubeUrl {
-            // For YouTube, the onChange will handle it through evaluateJavaScript
-            print("InlineTrailerView: YouTube video - will be handled by onChange")
-        } else {
-            // For regular videos, control directly
-            if shouldPlay {
-                print("InlineTrailerView: Calling player.play()")
-                player?.play()
+        // For regular videos, control directly
+        if !isYouTubeUrl {
+            if let player = player {
+                print("InlineTrailerView: Player timeControlStatus: \(player.timeControlStatus.rawValue)")
+                
+                if player.timeControlStatus == .playing {
+                    print("InlineTrailerView: Pausing video...")
+                    player.pause()
+                    isPlaying = false
+                    shouldPlay = false
+                } else {
+                    print("InlineTrailerView: Playing video...")
+                    player.play()
+                    isPlaying = true
+                    shouldPlay = true
+                }
+                
+                print("InlineTrailerView: After toggle - isPlaying: \(isPlaying)")
             } else {
-                print("InlineTrailerView: Calling player.pause()")
-                player?.pause()
+                print("InlineTrailerView: WARNING - player is nil")
             }
+        } else {
+            // For YouTube, toggle the state and let onChange handle it
+            isPlaying.toggle()
+            shouldPlay = isPlaying
+            print("InlineTrailerView: YouTube video - toggled to isPlaying: \(isPlaying)")
         }
         
-        // Show controls when pausing, hide after delay when playing
+        // Show controls when toggling
         withAnimation(.easeInOut(duration: 0.3)) {
             showControls = true
         }
         
-        if shouldPlay {
+        if isPlaying {
             scheduleHideControls()
         } else {
             // Cancel auto-hide when paused
