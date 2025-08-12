@@ -91,6 +91,8 @@ $(document).ready(function () {
         var ratings = $(this).data("ratings");
         var language_id = $(this).data("language_id");
         var genre_ids = $(this).data("genre_ids");
+        var distributor_id = $(this).data("distributor_id");
+        var age_limit_ids = $(this).data("age_limit_ids");
         var trailer_url = $(this).data("trailer_url");
         var vposter = $(this).data("vposter");
         var hposter = $(this).data("hposter");
@@ -103,6 +105,7 @@ $(document).ready(function () {
         $("#edit_release_year").val(release_year);
         $("#edit_ratings").val(ratings);
         $("#edit_language_id").val(language_id).selectric("refresh");
+        $("#edit_distributor_id").val(distributor_id).selectric("refresh");
 
         var genreArray = [];
         if (typeof genre_ids === "string") {
@@ -116,6 +119,20 @@ $(document).ready(function () {
         }
 
         $("#edit_selectGenre").val(genreArray).selectric("refresh");
+        
+        // Handle age limits
+        var ageLimitArray = [];
+        if (typeof age_limit_ids === "string" && age_limit_ids !== "") {
+            ageLimitArray = age_limit_ids.split(",").map(function (item) {
+                return item.trim();
+            });
+        } else if (Array.isArray(age_limit_ids)) {
+            ageLimitArray = age_limit_ids;
+        } else if (typeof age_limit_ids === "number") {
+            ageLimitArray = [age_limit_ids.toString()];
+        }
+        
+        $("#edit_age_limit_ids").val(ageLimitArray).selectric("refresh");
 
         $("#edit_trailer_url").val(trailer_url);
         $("#edit_vertical_poster").attr("src", `${vposter}`);

@@ -82,12 +82,14 @@
                                 <span> {{ __('content') }} </span>
                             </a>
                         </li>
+                        {{-- Media Gallery - Commented out for later
                         <li class="sideBarli mediaGallerySideA">
                             <a href="{{ route('mediaGallery') }}" class="nav-link">
                                 <i data-feather="hard-drive"></i>
                                 <span> {{ __('mediaGallery') }} </span>
                             </a>
                         </li>
+                        --}}
                         <li class="sideBarli topContentsSideA">
                             <a href="{{ route('topContents') }}" class="nav-link">
                                 <i data-feather="trending-up"></i>
@@ -144,30 +146,36 @@
                                 <span> {{ __('liveTvChannels') }} </span>
                             </a>
                         </li>
+                        {{-- Old Notification - Deprecated, use User Notifications instead
                         <li class="sideBarli notificationSideA">
                             <a href="{{ route('notification') }}" class="nav-link">
                                 <i data-feather="bell"></i>
                                 <span> {{ __('notification') }} </span>
                             </a>
                         </li>
+                        --}}
                         <li class="sideBarli userNotificationSideA">
                             <a href="{{ route('userNotifications') }}" class="nav-link">
                                 <i data-feather="message-square"></i>
                                 <span> {{ __('User Notifications') }} </span>
                             </a>
                         </li>
+                        {{-- Admob - Commented out for later
                         <li class="sideBarli admobSideA">
                             <a href="{{ route('admob') }}" class="nav-link">
                                 <i data-feather="activity"></i>
                                 <span> {{ __('admob') }} </span>
                             </a>
                         </li>
+                        --}}
+                        {{-- Custom Ads - Commented out for later
                         <li class="sideBarli customAdSideA">
                             <a href="{{ route('customAds') }}" class="nav-link">
                                 <i data-feather="fast-forward"></i>
                                 <span> {{ __('customAds') }} </span>
                             </a>
                         </li>
+                        --}}
                         <li class="sideBarli settingSideA">
                             <a href="{{ route('setting') }}" class="nav-link">
                                 <i data-feather="settings"></i>

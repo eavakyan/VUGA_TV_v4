@@ -66,6 +66,11 @@ enum APIs : String {
     case getSubscriptionPlans               = "subscription/plans"
     case getMySubscriptions                 = "subscription/my-subscriptions"
     case validatePromoCode                  = "subscription/validate-promo"
+    
+    // User Notification APIs (in-app notifications)
+    case getPendingNotifications            = "user-notification/pending"
+    case markNotificationShown              = "user-notification/mark-shown"
+    case dismissNotification                = "user-notification/dismiss"
 }
 
 extension String {

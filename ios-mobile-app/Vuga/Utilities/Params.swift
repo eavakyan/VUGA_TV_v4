@@ -48,4 +48,6 @@ enum Params: String {
     case completed = "completed"
     case emailConsent = "email_consent"
     case smsConsent = "sms_consent"
+    case platform = "platform"
+    case notificationId = "notification_id"
 }

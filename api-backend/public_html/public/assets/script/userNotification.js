@@ -20,7 +20,7 @@ $(document).ready(function() {
         processing: true,
         serverSide: false,
         ajax: {
-            url: domainUrl + 'api/v2/user-notification/admin/list',
+            url: '/api/v2/user-notification/admin/list',
             type: 'POST',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -33,6 +33,10 @@ $(document).ready(function() {
                     return json.data;
                 }
                 return [];
+            },
+            error: function(xhr, error, thrown) {
+                console.error('DataTable error:', error, thrown);
+                showToast('error', 'Failed to load notifications');
             }
         },
         columns: [
@@ -164,7 +168,7 @@ $(document).ready(function() {
         console.log('Sending data:', formData);
         
         $.ajax({
-            url: domainUrl + 'api/v2/user-notification/admin/create',
+            url: '/api/v2/user-notification/admin/create',
             type: 'POST',
             data: JSON.stringify(formData),
             contentType: 'application/json',
@@ -222,7 +226,7 @@ $(document).ready(function() {
         };
         
         $.ajax({
-            url: domainUrl + 'api/v2/user-notification/admin/update/' + notificationId,
+            url: '/api/v2/user-notification/admin/update/' + notificationId,
             type: 'POST',
             data: JSON.stringify(formData),
             contentType: 'application/json',
@@ -294,7 +298,7 @@ $(document).ready(function() {
             }).then((result) => {
                 if (result.isConfirmed) {
                     $.ajax({
-                        url: domainUrl + 'api/v2/user-notification/admin/delete/' + notificationId,
+                        url: '/api/v2/user-notification/admin/delete/' + notificationId,
                         type: 'DELETE',
                         headers: {
                             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -323,7 +327,7 @@ $(document).ready(function() {
             $('#analyticsModal').modal('show');
             
             $.ajax({
-                url: domainUrl + 'api/v2/user-notification/admin/analytics/' + notificationId,
+                url: '/api/v2/user-notification/admin/analytics/' + notificationId,
                 type: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

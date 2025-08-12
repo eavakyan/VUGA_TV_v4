@@ -18,6 +18,8 @@ use App\Season;
 use App\Subtitle;
 use App\TopContent;
 use App\User;
+use App\Models\V2\ContentDistributor;
+use App\Models\V2\AgeLimit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -672,6 +674,26 @@ class ContentController extends Controller
         $content->ratings = $request->ratings;
         $content->language_id = $request->language_id;
         $content->genre_ids = implode(',', $request->genre_ids);
+        $content->content_distributor_id = $request->content_distributor_id;
+        
+        // Handle age limits
+        if ($request->has('age_limit_ids')) {
+            // Delete existing age limits for this content
+            \DB::table('content_age_limit')->where('content_id', $content->content_id)->delete();
+            
+            // Add new age limits
+            if (is_array($request->age_limit_ids) && count($request->age_limit_ids) > 0) {
+                foreach ($request->age_limit_ids as $ageLimitId) {
+                    \DB::table('content_age_limit')->insert([
+                        'content_id' => $content->content_id,
+                        'age_limit_id' => $ageLimitId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+        }
+        
         // Handle trailers
         if ($request->has('trailers')) {
             $this->updateContentTrailers($content->content_id, $request->trailers);
@@ -782,6 +804,20 @@ class ContentController extends Controller
         $languages = Language::orderBy('created_at', 'DESC')->get();
         $genres = Genre::orderBy('created_at', 'DESC')->get();
         $mediaGalleries = MediaGallery::orderBy('created_at', 'DESC')->get();
+        $distributors = ContentDistributor::where('is_active', 1)->orderBy('name', 'ASC')->get();
+        $ageLimits = AgeLimit::orderBy('min_age', 'ASC')->get();
+        
+        // Get current age limits for this content
+        $contentAgeLimits = [];
+        if ($content) {
+            $contentAgeLimits = \DB::table('content_age_limit')
+                ->where('content_id', $content->content_id)
+                ->pluck('age_limit_id')
+                ->toArray();
+        }
+        
+        // Debug: Log the distributors count
+        \Log::info('Distributors count: ' . $distributors->count());
 
         return view('movieDetail', [
             'content' => $content,
@@ -789,6 +825,9 @@ class ContentController extends Controller
             'languages' => $languages,
             'genres' => $genres,
             'mediaGalleries' => $mediaGalleries,
+            'distributors' => $distributors,
+            'ageLimits' => $ageLimits,
+            'contentAgeLimits' => $contentAgeLimits,
         ]);
     }
 
@@ -1352,6 +1391,17 @@ class ContentController extends Controller
         $languages = Language::orderBy('created_at', 'DESC')->get();
         $seasons = Season::where('content_id', $request->id)->get();
         $genres = Genre::orderBy('created_at', 'DESC')->get();
+        $distributors = ContentDistributor::where('is_active', 1)->orderBy('name', 'ASC')->get();
+        $ageLimits = AgeLimit::orderBy('min_age', 'ASC')->get();
+        
+        // Get current age limits for this content
+        $contentAgeLimits = [];
+        if ($content) {
+            $contentAgeLimits = \DB::table('content_age_limit')
+                ->where('content_id', $content->content_id)
+                ->pluck('age_limit_id')
+                ->toArray();
+        }
 
         return view('seriesDetail', [
             'content' => $content,
@@ -1359,6 +1409,9 @@ class ContentController extends Controller
             'languages' => $languages,
             'seasons' => $seasons,
             'genres' => $genres,
+            'distributors' => $distributors,
+            'ageLimits' => $ageLimits,
+            'contentAgeLimits' => $contentAgeLimits,
         ]);
     }
 

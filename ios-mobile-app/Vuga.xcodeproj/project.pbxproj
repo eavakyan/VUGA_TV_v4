@@ -109,6 +109,9 @@
 		9B79C8D3D3D723D8015560CF /* Pods_Vuga.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 051F6CE15BD00FB7558AA46F /* Pods_Vuga.framework */; };
 		9D723CFE82D65FB2DD3D3G9A /* TrailerPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2AAD901EF89556697F9D34H /* TrailerPlayerView.swift */; };
 		AE834DGF93E76GC3EE4E4H0B /* TrailerInlinePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3BBE012FG9A667708GAE45I /* TrailerInlinePlayer.swift */; };
+		B00A3FEB2E4ADEBD00B16589 /* UserNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */; };
+		B00A3FED2E4ADF2200B16589 /* UserNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */; };
+		B00A3FEF2E4ADF5600B16589 /* UserNotificationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */; };
 		B00A60F32E35B943005BC809 /* QRScannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A60F22E35B943005BC809 /* QRScannerView.swift */; };
 		B05AC94C2E3F00CF005EB298 /* AgeRating.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC94B2E3F00CF005EB298 /* AgeRating.swift */; };
 		B05AC94E2E3F0237005EB298 /* StorageManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B05AC94D2E3F0237005EB298 /* StorageManager.swift */; };
@@ -338,6 +341,9 @@
 		2BFF61662C0DD25A00BB409B /* ProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProView.swift; sourceTree = "<group>"; };
 		6019DEE4E45CAEF1E05F1FCB /* Pods-Vuga.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Vuga.release.xcconfig"; path = "Target Support Files/Pods-Vuga/Pods-Vuga.release.xcconfig"; sourceTree = "<group>"; };
 		A0EEC768CD90445586D9A12F /* TrailerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerModel.swift; sourceTree = "<group>"; };
+		B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotification.swift; sourceTree = "<group>"; };
+		B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationViewModel.swift; sourceTree = "<group>"; };
+		B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationView.swift; sourceTree = "<group>"; };
 		B00A60F22E35B943005BC809 /* QRScannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScannerView.swift; sourceTree = "<group>"; };
 		B05AC94B2E3F00CF005EB298 /* AgeRating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AgeRating.swift; sourceTree = "<group>"; };
 		B05AC94D2E3F0237005EB298 /* StorageManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageManager.swift; sourceTree = "<group>"; };
@@ -708,6 +714,7 @@
 		C434A47E2BEA0F520059889F /* Models */ = {
 			isa = PBXGroup;
 			children = (
+				B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */,
 				B05AC9672E4A6A70005EB298 /* RecentlyWatchedModel.swift */,
 				B05AC9612E4A5211005EB298 /* SubscriptionModels.swift */,
 				B05AC94B2E3F00CF005EB298 /* AgeRating.swift */,
@@ -733,6 +740,7 @@
 		C434A47F2BEA0F640059889F /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */,
 				B05AC9652E4A6A48005EB298 /* RecentlyWatchedViewModel.swift */,
 				B0F1D7B42E389561006CBED0 /* CreateProfileViewModel.swift */,
 				B0F1D7B52E389561006CBED0 /* ProfileSelectionViewModel.swift */,
@@ -759,6 +767,7 @@
 		C434A4802BEA0F6C0059889F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */,
 				B05AC9632E4A623A005EB298 /* SubscriptionRequiredSheet.swift */,
 				B05AC95F2E499A11005EB298 /* SubscriptionsView.swift */,
 				B05AC95D2E494C67005EB298 /* SubscriptionsView.swift */,
@@ -1109,6 +1118,7 @@
 				2B2FF84A2D6D871F00C4590F /* EmbeddedWebView.swift in Sources */,
 				2BF4073F2C089EC3002DFFA8 /* ImagePicker.swift in Sources */,
 				B05AC94C2E3F00CF005EB298 /* AgeRating.swift in Sources */,
+				B00A3FEF2E4ADF5600B16589 /* UserNotificationView.swift in Sources */,
 				2BDD42182C172826003B36A4 /* DataController.swift in Sources */,
 				2BFF61672C0DD25A00BB409B /* ProView.swift in Sources */,
 				2BF407642C08AD81002DFFA8 /* CustomAlertHelper.swift in Sources */,
@@ -1170,6 +1180,7 @@
 				B00A60F32E35B943005BC809 /* QRScannerView.swift in Sources */,
 				2BF407632C08AD81002DFFA8 /* CustomAlertHandler.swift in Sources */,
 				2BCD28142C382A340076D8ED /* CastScreen.swift in Sources */,
+				B00A3FED2E4ADF2200B16589 /* UserNotificationViewModel.swift in Sources */,
 				2BA0FDD92C198D23003D0450 /* VideoPlayerView.swift in Sources */,
 				2B9FDC172C2ACEDE0014EBB6 /* YoutubeView.swift in Sources */,
 				2B2449F22C75BB0400A397C3 /* ConstForAllTarget.swift in Sources */,
@@ -1182,6 +1193,7 @@
 				C43DE1712C05C09900689D5A /* TVCategoriesModel.swift in Sources */,
 				2BDD42132C16C28F003B36A4 /* ProViewModel.swift in Sources */,
 				C40F2B452BFC8D28008B1BCB /* ContentDetailViewModel.swift in Sources */,
+				B00A3FEB2E4ADEBD00B16589 /* UserNotification.swift in Sources */,
 				C43DE16F2C05BE7F00689D5A /* LiveTVsViewModel.swift in Sources */,
 				C49BFA102BFE1E1B00A43AFB /* StatusAndMessageModel.swift in Sources */,
 				2BEC099E2C3FE0A100D020E3 /* ArrayExtention.swift in Sources */,

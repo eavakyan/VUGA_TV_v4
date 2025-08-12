@@ -16,7 +16,7 @@
           </div>
         </div>
         <div class="d-flex align-items-center justify-content-end">
-          <a class='me-2 btn btn-success px-4 py-2 text-white editContentModal' rel='{{$content->id}}' data-type='{{$content->type}}' data-title='{{$content->title}}' data-description='{{$content->description}}' data-duration='{{$content->duration}}' data-release_year='{{$content->release_year}}' data-ratings='{{$content->ratings}}' data-language_id='{{$content->language_id}}' data-genre_ids='{{$content->genre_ids}}' data-vposter='{{ $content->vertical_poster }}' data-hposter='{{ $content->horizontal_poster }}'>{{ __('edit') }}</a>
+          <a class='me-2 btn btn-success px-4 py-2 text-white editContentModal' rel='{{$content->id}}' data-type='{{$content->type}}' data-title='{{$content->title}}' data-description='{{$content->description}}' data-duration='{{$content->duration}}' data-release_year='{{$content->release_year}}' data-ratings='{{$content->ratings}}' data-language_id='{{$content->language_id}}' data-genre_ids='{{$content->genre_ids}}' data-distributor_id='{{$content->content_distributor_id}}' data-age_limit_ids='{{ implode(",", $contentAgeLimits) }}' data-vposter='{{ $content->vertical_poster }}' data-hposter='{{ $content->horizontal_poster }}'>{{ __('edit') }}</a>
           <a class='btn btn-danger px-4 py-2 text-white deleteContent' rel='{{$content->id}}'>{{ __('delete') }}</a>
         </div>
       </div>
@@ -483,6 +483,28 @@
                   <option value="" disabled selected class="d-none">{{ __('selectLanguage') }}</option>
                   @foreach ($languages as $language)
                   <option value="{{ $language->id }}">{{ $language->title }}</option>
+                  @endforeach
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="distributor_id" class="form-label">Distributor ({{ count($distributors) }} available)</label>
+                <select name="content_distributor_id" id="edit_distributor_id" class="form-control selectric">
+                  <option value="">No Distributor (Free Content)</option>
+                  @foreach ($distributors as $distributor)
+                  <option value="{{ $distributor->content_distributor_id }}">{{ $distributor->name }}</option>
+                  @endforeach
+                </select>
+              </div>
+              
+              <div class="form-group">
+                <label for="age_limit_ids" class="form-label">Age Groups ({{ count($ageLimits) }} available)</label>
+                <select name="age_limit_ids[]" id="edit_age_limit_ids" class="form-control selectric" multiple="multiple">
+                  @foreach ($ageLimits as $ageLimit)
+                  <option value="{{ $ageLimit->age_limit_id }}" 
+                    @if(in_array($ageLimit->age_limit_id, $contentAgeLimits)) selected @endif>
+                    {{ $ageLimit->name }} ({{ $ageLimit->min_age }}@if($ageLimit->max_age)-{{ $ageLimit->max_age }}@else+@endif years)
+                  </option>
                   @endforeach
                 </select>
               </div>

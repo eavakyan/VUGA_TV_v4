@@ -105,6 +105,7 @@
                 </div>
             </div>
         </div>
+        {{-- Old Notification - Deprecated, use User Notifications instead
         <div class="dashboard-blog">
             <div class="dashboard-blog-content">
                 <div class="card-icon">
@@ -119,6 +120,8 @@
                 </div>
             </div>
         </div>
+        --}}
+        {{-- Admob - Commented out for later
         <div class="dashboard-blog">
             <div class="dashboard-blog-content">
                 <div class="card-icon">
@@ -133,6 +136,8 @@
                 </div>
             </div>
         </div>
+        --}}
+        {{-- Custom Ads - Commented out for later
         <div class="dashboard-blog">
             <div class="dashboard-blog-content">
                 <div class="card-icon">
@@ -147,6 +152,7 @@
                 </div>
             </div>
         </div>
+        --}}
         <div class="dashboard-blog">
             <div class="dashboard-blog-content">
                 <div class="card-icon">

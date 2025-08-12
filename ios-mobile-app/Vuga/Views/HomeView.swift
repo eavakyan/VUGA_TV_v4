@@ -17,6 +17,7 @@ struct HomeView: View {
     @AppStorage(SessionKeys.language) private var language = LocalizationService.shared.language
     @StateObject private var vm = HomeViewModel()
     @StateObject private var recentlyWatchedVM = RecentlyWatchedViewModel()
+    @StateObject private var userNotificationVM = UserNotificationViewModel()
     @Binding var selectedTab : Tab
     @State private var progress: CGFloat = 0
     @State var isVideoStart = false
@@ -164,6 +165,14 @@ struct HomeView: View {
         }
         .addBackground()
         .loaderView(vm.isLoading)
+        .overlay(
+            // User notification overlay
+            UserNotificationView(viewModel: userNotificationVM)
+        )
+        .onAppear {
+            // Check for pending notifications when view appears
+            userNotificationVM.checkPendingNotifications()
+        }
     }
     
     // Header with Logo and Profile Name
