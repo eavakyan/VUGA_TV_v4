@@ -1087,7 +1087,7 @@ struct ContentDetailView: View {
     
     @ViewBuilder
     private func iconButtonsSection(_ content: VugaContent) -> some View {
-        HStack(spacing: 20) {
+        HStack(spacing: 0) {
             // Rating
             Button(action: {
                 if vm.myUser != nil {
@@ -1101,10 +1101,13 @@ struct ContentDetailView: View {
                     Image(systemName: "star.fill")
                         .font(.system(size: 20))
                         .foregroundColor(.white)
+                        .frame(width: 24, height: 24)
                     Text(content.userRating != nil ? String(format: "%.1f", content.userRating!) : "Rate")
                         .font(.system(size: 10))
                         .foregroundColor(.white.opacity(0.7))
+                        .frame(height: 14)
                 }
+                .frame(maxWidth: .infinity)
             }
             
             // Watchlist
@@ -1116,10 +1119,13 @@ struct ContentDetailView: View {
                     Image(systemName: vm.isBookmarked ? "checkmark" : "plus")
                         .font(.system(size: 20))
                         .foregroundColor(.white)
+                        .frame(width: 24, height: 24)
                     Text("Watchlist")
                         .font(.system(size: 10))
                         .foregroundColor(.white.opacity(0.7))
+                        .frame(height: 14)
                 }
+                .frame(maxWidth: .infinity)
             }
             
             // Share
@@ -1131,31 +1137,51 @@ struct ContentDetailView: View {
                     Image(systemName: "square.and.arrow.up")
                         .font(.system(size: 20))
                         .foregroundColor(.white)
+                        .frame(width: 24, height: 24)
                     Text("Share")
                         .font(.system(size: 10))
                         .foregroundColor(.white.opacity(0.7))
+                        .frame(height: 14)
                 }
+                .frame(maxWidth: .infinity)
             }
-            
-            Spacer()
             
             // Google Cast with label
-            VStack(spacing: 4) {
-                GoogleCastButton(viewModel: vm)
-                    .frame(width: 24, height: 24)
-                Text("Cast")
-                    .font(.system(size: 10))
-                    .foregroundColor(.white.opacity(0.7))
+            Button(action: {
+                // Google Cast button has its own tap handling
+            }) {
+                VStack(spacing: 4) {
+                    GoogleCastButton(viewModel: vm)
+                        .frame(width: 24, height: 24)
+                    Text("Cast")
+                        .font(.system(size: 10))
+                        .foregroundColor(.white.opacity(0.7))
+                        .frame(height: 14)
+                }
+                .frame(maxWidth: .infinity)
             }
+            .allowsHitTesting(true)
             
             // AirPlay with label
             VStack(spacing: 4) {
-                AirPlayRoutePickerView(isConnected: isAirPlayConnected)
-                    .frame(width: 24, height: 24)
+                ZStack {
+                    // Custom AirPlay icon as fallback
+                    Image(systemName: "airplayaudio")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundColor(.white)
+                        .frame(width: 24, height: 24)
+                    
+                    // Actual AirPlay picker on top
+                    AirPlayRoutePickerView(isConnected: isAirPlayConnected)
+                        .frame(width: 24, height: 24)
+                        .opacity(0.01) // Make nearly invisible but still tappable
+                }
                 Text("AirPlay")
                     .font(.system(size: 10))
                     .foregroundColor(.white.opacity(0.7))
+                    .frame(height: 14)
             }
+            .frame(maxWidth: .infinity)
         }
         .padding(.horizontal, 16)
     }
@@ -1999,7 +2025,7 @@ struct AirPlayRoutePickerView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let routePickerView = AVRoutePickerView()
         routePickerView.backgroundColor = UIColor.clear
-        routePickerView.tintColor = UIColor.white
+        routePickerView.tintColor = UIColor.white.withAlphaComponent(0.01) // Make the default icon nearly invisible
         routePickerView.activeTintColor = UIColor(Color.base)
         routePickerView.prioritizesVideoDevices = true
         

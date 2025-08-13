@@ -24,9 +24,9 @@ struct ProfileSelectionView: View {
                 // Profiles Grid
                 ScrollView {
                     LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], alignment: .leading, spacing: 20) {
+                        GridItem(.flexible(), alignment: .top),
+                        GridItem(.flexible(), alignment: .top)
+                    ], spacing: 20) {
                         ForEach(viewModel.profiles, id: \.profileId) { profile in
                             ProfileItem(profile: profile, isEditMode: isEditMode) {
                                 print("ProfileSelectionView: Profile tapped - \(profile.name)")
@@ -41,7 +41,7 @@ struct ProfileSelectionView: View {
                                     viewModel.deleteProfile(profile)
                                 }
                             }
-                            .frame(maxWidth: .infinity, alignment: .top)
+                            .frame(maxWidth: .infinity)
                         }
                         
                         // Add Profile button
@@ -50,7 +50,7 @@ struct ProfileSelectionView: View {
                                 selectedProfile = nil
                                 showCreateProfile = true
                             }
-                            .frame(maxWidth: .infinity, alignment: .top)
+                            .frame(maxWidth: .infinity)
                         }
                     }
                     .padding(.horizontal, 40)
@@ -139,7 +139,7 @@ struct ProfileItem: View {
     
     var body: some View {
         VStack(alignment: .center, spacing: 10) {
-            // Content starts at top, no spacer needed
+            // Profile Avatar
             ZStack(alignment: .topTrailing) {
                 // Profile Avatar
                 if profile.avatarType == "default" || profile.avatarType == "color" {
@@ -203,14 +203,18 @@ struct ProfileItem: View {
                 .foregroundColor(.white)
                 .lineLimit(1)
             
-            if profile.isKids {
-                Text("KIDS")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundColor(.yellow)
-                    .padding(.horizontal, 8)
-                    .padding(.vertical, 2)
-                    .background(Capsule().fill(Color.yellow.opacity(0.2)))
+            // Kids badge container with fixed height
+            ZStack {
+                if profile.isKids {
+                    Text("KIDS")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(.yellow)
+                        .padding(.horizontal, 8)
+                        .padding(.vertical, 2)
+                        .background(Capsule().fill(Color.yellow.opacity(0.2)))
+                }
             }
+            .frame(height: 20) // Fixed height for badge area
         }
         .onTapGesture {
             onTap()
@@ -236,6 +240,12 @@ struct AddProfileButton: View {
             Text("Add Profile")
                 .font(.system(size: 16))
                 .foregroundColor(.white.opacity(0.7))
+            
+            // Empty space to match ProfileItem height
+            ZStack {
+                // Placeholder for badge area
+            }
+            .frame(height: 20)
         }
         .onTapGesture {
             onTap()
