@@ -55,6 +55,26 @@ class Episode extends BaseModel
     }
     
     /**
+     * Get the episode's audio tracks (new multi-language system)
+     */
+    public function audioTracks()
+    {
+        return $this->hasMany(\App\Models\EpisodeAudioTrack::class, 'episode_id')
+                    ->orderBy('sort_order')
+                    ->orderBy('is_default', 'desc');
+    }
+    
+    /**
+     * Get the episode's subtitle tracks (new multi-language system)
+     */
+    public function subtitleTracks()
+    {
+        return $this->hasMany(\App\Models\EpisodeSubtitleTrack::class, 'episode_id')
+                    ->orderBy('sort_order')
+                    ->orderBy('is_default', 'desc');
+    }
+    
+    /**
      * Get the episode's watch history
      */
     public function watchHistory()

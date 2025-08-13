@@ -126,6 +126,14 @@ class Content extends BaseModel
     }
     
     /**
+     * Get the content's rating reasons
+     */
+    public function ratingReasons()
+    {
+        return $this->hasMany(ContentRatingReason::class, 'content_id', 'content_id');
+    }
+    
+    /**
      * Get the content's trailers
      */
     public function trailers()

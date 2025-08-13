@@ -12,7 +12,10 @@ class AgeLimit extends BaseModel
         'min_age',
         'max_age',
         'description',
-        'code'
+        'code',
+        'display_name',
+        'icon',
+        'display_color'
     ];
     
     protected $casts = [
@@ -53,9 +56,16 @@ class AgeLimit extends BaseModel
     
     /**
      * Get display color for age group
+     * Returns stored display_color or falls back to computed color
      */
     public function getDisplayColorAttribute()
     {
+        // Return database value if set
+        if (!empty($this->attributes['display_color'])) {
+            return $this->attributes['display_color'];
+        }
+        
+        // Fallback to computed value
         switch ($this->code) {
             case 'AG_0_6':
                 return '#4CAF50'; // Green
@@ -69,6 +79,61 @@ class AgeLimit extends BaseModel
                 return '#9C27B0'; // Purple
             default:
                 return '#757575'; // Gray
+        }
+    }
+    
+    /**
+     * Get user-friendly display name
+     * Returns stored display_name or falls back to computed name
+     */
+    public function getDisplayNameAttribute()
+    {
+        // Return database value if set
+        if (!empty($this->attributes['display_name'])) {
+            return $this->attributes['display_name'];
+        }
+        
+        // Fallback to computed value
+        switch ($this->code) {
+            case 'AG_0_6':
+                return 'All Ages';
+            case 'AG_7_12':
+                return '7+';
+            case 'AG_13_16':
+                return '13+';
+            case 'AG_17_18':
+                return '17+';
+            case 'AG_18_PLUS':
+                return '18+';
+            default:
+                return $this->name ?? $this->code;
+        }
+    }
+    
+    /**
+     * Get icon identifier for the age rating
+     */
+    public function getIconAttribute()
+    {
+        // Return database value if set
+        if (!empty($this->attributes['icon'])) {
+            return $this->attributes['icon'];
+        }
+        
+        // Fallback to computed value
+        switch ($this->code) {
+            case 'AG_0_6':
+                return 'family';
+            case 'AG_7_12':
+                return 'child';
+            case 'AG_13_16':
+                return 'teen';
+            case 'AG_17_18':
+                return 'mature';
+            case 'AG_18_PLUS':
+                return 'adult';
+            default:
+                return 'general';
         }
     }
 }

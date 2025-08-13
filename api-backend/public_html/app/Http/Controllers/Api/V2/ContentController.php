@@ -242,8 +242,12 @@ class ContentController extends Controller
             'trailers',
             'casts.actor',
             'subtitles',
+            'audioTracks',
+            'subtitleTracks',
             'seasons.episodes.sources',
             'seasons.episodes.subtitles',
+            'seasons.episodes.audioTracks',
+            'seasons.episodes.subtitleTracks',
             'ageLimits'
         ])->find($request->content_id);
 
@@ -1057,9 +1061,22 @@ class ContentController extends Controller
         
         // Add age limit information if loaded
         if ($content->relationLoaded('ageLimits') && $content->ageLimits->isNotEmpty()) {
-            $data['age_rating'] = $content->ageLimits->first()->code;
+            $ageLimit = $content->ageLimits->first();
+            $data['age_rating'] = $ageLimit->code;
+            $data['age_rating_display'] = $ageLimit->display_name;
             $data['min_age'] = $content->ageLimits->max('min_age');
-            $data['age_limits'] = $content->ageLimits;
+            $data['age_limits'] = $content->ageLimits->map(function($limit) {
+                return [
+                    'age_limit_id' => $limit->age_limit_id,
+                    'code' => $limit->code,
+                    'display_name' => $limit->display_name,
+                    'icon' => $limit->icon,
+                    'display_color' => $limit->display_color,
+                    'min_age' => $limit->min_age,
+                    'max_age' => $limit->max_age,
+                    'description' => $limit->description
+                ];
+            });
         }
         
         // Add trailer information for backward compatibility
@@ -1150,6 +1167,42 @@ class ContentController extends Controller
         // Format cast to contentCast for V1 compatibility
         if (isset($data['cast'])) {
             $data['contentCast'] = $data['cast'];
+        }
+        
+        // Add audio tracks if loaded
+        if ($content->relationLoaded('audioTracks')) {
+            $data['audio_tracks'] = $content->audioTracks->map(function($track) {
+                return [
+                    'track_id' => $track->content_audio_track_id,
+                    'language_id' => $track->language_id,
+                    'language_code' => $track->language_code,
+                    'title' => $track->title,
+                    'audio_url' => $track->audio_url,
+                    'audio_format' => $track->audio_format,
+                    'audio_channels' => $track->audio_channels,
+                    'audio_bitrate' => $track->audio_bitrate,
+                    'is_primary' => (bool) $track->is_primary,
+                    'is_default' => (bool) $track->is_default,
+                    'sort_order' => $track->sort_order
+                ];
+            });
+        }
+        
+        // Add subtitle tracks if loaded
+        if ($content->relationLoaded('subtitleTracks')) {
+            $data['subtitle_tracks'] = $content->subtitleTracks->map(function($track) {
+                return [
+                    'track_id' => $track->content_subtitle_track_id,
+                    'language_id' => $track->language_id,
+                    'language_code' => $track->language_code,
+                    'title' => $track->title,
+                    'subtitle_url' => $track->subtitle_url,
+                    'subtitle_format' => $track->subtitle_format,
+                    'is_forced' => (bool) $track->is_forced,
+                    'is_default' => (bool) $track->is_default,
+                    'sort_order' => $track->sort_order
+                ];
+            });
         }
         
         return $data;
