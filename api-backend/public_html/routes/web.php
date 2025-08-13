@@ -88,6 +88,17 @@ Route::post('fetchSubtitleList', [ContentController::class, 'fetchSubtitleList']
 Route::post('addSubtitle', [ContentController::class, 'addSubtitle'])->middleware(['checkLogin'])->name('addSubtitle');
 Route::post('deleteSubtitle', [ContentController::class, 'deleteSubtitle'])->middleware(['checkLogin'])->name('deleteSubtitle');
 
+// Audio and Subtitle Tracks for Content
+Route::post('fetchAudioTrackList', [ContentController::class, 'fetchAudioTrackList'])->middleware(['checkLogin'])->name('fetchAudioTrackList');
+Route::post('addAudioTrack', [ContentController::class, 'addAudioTrack'])->middleware(['checkLogin'])->name('addAudioTrack');
+Route::post('updateAudioTrack', [ContentController::class, 'updateAudioTrack'])->middleware(['checkLogin'])->name('updateAudioTrack');
+Route::post('deleteAudioTrack', [ContentController::class, 'deleteAudioTrack'])->middleware(['checkLogin'])->name('deleteAudioTrack');
+
+Route::post('fetchSubtitleTrackList', [ContentController::class, 'fetchSubtitleTrackList'])->middleware(['checkLogin'])->name('fetchSubtitleTrackList');
+Route::post('addSubtitleTrack', [ContentController::class, 'addSubtitleTrack'])->middleware(['checkLogin'])->name('addSubtitleTrack');
+Route::post('updateSubtitleTrack', [ContentController::class, 'updateSubtitleTrack'])->middleware(['checkLogin'])->name('updateSubtitleTrack');
+Route::post('deleteSubtitleTrack', [ContentController::class, 'deleteSubtitleTrack'])->middleware(['checkLogin'])->name('deleteSubtitleTrack');
+
 Route::get('genres', [GenreController::class, 'genres'])->middleware(['checkLogin'])->name('genres');
 Route::post('genresList', [GenreController::class, 'genresList'])->middleware(['checkLogin'])->name('genresList');
 Route::post('addGenre', [GenreController::class, 'addGenre'])->middleware(['checkLogin'])->name('addGenre');

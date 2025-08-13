@@ -2150,4 +2150,247 @@ class ContentController extends Controller
         ]);
     }
 
+    // Audio Track Management
+    public function fetchAudioTrackList(Request $request)
+    {
+        $contentId = $request->input('content_id');
+        $contentSourceId = $request->input('content_source_id');
+        
+        $query = \App\Models\ContentAudioTrack::with('language')
+            ->where('content_id', $contentId);
+        
+        if ($contentSourceId) {
+            $query->where('content_source_id', $contentSourceId);
+        }
+        
+        $audioTracks = $query->orderBy('sort_order')->get();
+        
+        $data = $audioTracks->map(function ($track) {
+            $title = '<span>' . $track->title . '</span>';
+            $language = '<span>' . ($track->language ? $track->language->language_name : $track->language_code) . '</span>';
+            $format = '<span>' . $track->audio_format . ' / ' . $track->audio_channels . '</span>';
+            $default = $track->is_default ? '<span class="badge bg-success">Default</span>' : '';
+            
+            $edit = '<a rel="' . $track->id . '" 
+                    data-title="' . $track->title . '"
+                    data-language_id="' . $track->language_id . '"
+                    data-language_code="' . $track->language_code . '"
+                    data-audio_url="' . $track->audio_url . '"
+                    data-audio_format="' . $track->audio_format . '"
+                    data-audio_channels="' . $track->audio_channels . '"
+                    data-is_default="' . $track->is_default . '"
+                    data-sort_order="' . $track->sort_order . '"
+                    class="me-2 btn btn-success px-3 text-white editAudioTrack">' . __('edit') . '</a>';
+            $delete = '<a href="#" class="btn btn-danger px-3 text-white deleteAudioTrack" rel="' . $track->id . '">' . __('delete') . '</a>';
+            $action = '<div class="text-end">' . $edit . $delete . '</div>';
+            
+            return [
+                $title,
+                $language,
+                $format,
+                $default,
+                $action
+            ];
+        });
+        
+        return response()->json([
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => count($data),
+            "recordsFiltered" => count($data),
+            "data" => $data
+        ]);
+    }
+
+    public function addAudioTrack(Request $request)
+    {
+        $audioTrack = new \App\Models\ContentAudioTrack();
+        $audioTrack->content_id = $request->content_id;
+        $audioTrack->content_source_id = $request->content_source_id;
+        $audioTrack->language_id = $request->language_id;
+        $audioTrack->title = $request->title;
+        $audioTrack->language_code = $request->language_code;
+        $audioTrack->audio_url = $request->audio_url;
+        $audioTrack->audio_format = $request->audio_format ?? 'AAC';
+        $audioTrack->audio_channels = $request->audio_channels ?? 'Stereo';
+        $audioTrack->is_default = $request->is_default ?? 0;
+        $audioTrack->sort_order = $request->sort_order ?? 0;
+        $audioTrack->save();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Audio track added successfully'
+        ]);
+    }
+
+    public function updateAudioTrack(Request $request)
+    {
+        $audioTrack = \App\Models\ContentAudioTrack::find($request->id);
+        if (!$audioTrack) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Audio track not found'
+            ]);
+        }
+        
+        $audioTrack->language_id = $request->language_id;
+        $audioTrack->title = $request->title;
+        $audioTrack->language_code = $request->language_code;
+        $audioTrack->audio_url = $request->audio_url;
+        $audioTrack->audio_format = $request->audio_format ?? 'AAC';
+        $audioTrack->audio_channels = $request->audio_channels ?? 'Stereo';
+        $audioTrack->is_default = $request->is_default ?? 0;
+        $audioTrack->sort_order = $request->sort_order ?? 0;
+        $audioTrack->save();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Audio track updated successfully'
+        ]);
+    }
+
+    public function deleteAudioTrack(Request $request)
+    {
+        $audioTrack = \App\Models\ContentAudioTrack::find($request->id);
+        if (!$audioTrack) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Audio track not found'
+            ]);
+        }
+        
+        $audioTrack->delete();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Audio track deleted successfully'
+        ]);
+    }
+
+    // Subtitle Track Management
+    public function fetchSubtitleTrackList(Request $request)
+    {
+        $contentId = $request->input('content_id');
+        $contentSourceId = $request->input('content_source_id');
+        
+        $query = \App\Models\ContentSubtitleTrack::with('language')
+            ->where('content_id', $contentId);
+        
+        if ($contentSourceId) {
+            $query->where('content_source_id', $contentSourceId);
+        }
+        
+        $subtitleTracks = $query->orderBy('sort_order')->get();
+        
+        $data = $subtitleTracks->map(function ($track) {
+            $title = '<span>' . $track->title . '</span>';
+            $language = '<span>' . ($track->language ? $track->language->language_name : $track->language_code) . '</span>';
+            $format = '<span>' . $track->subtitle_format . '</span>';
+            $type = '<span>' . $track->subtitle_type . '</span>';
+            $badges = '';
+            if ($track->is_default) $badges .= '<span class="badge bg-success me-1">Default</span>';
+            if ($track->is_sdh) $badges .= '<span class="badge bg-info me-1">SDH</span>';
+            if ($track->is_forced) $badges .= '<span class="badge bg-warning">Forced</span>';
+            
+            $edit = '<a rel="' . $track->id . '" 
+                    data-title="' . $track->title . '"
+                    data-language_id="' . $track->language_id . '"
+                    data-language_code="' . $track->language_code . '"
+                    data-subtitle_url="' . $track->subtitle_url . '"
+                    data-subtitle_format="' . $track->subtitle_format . '"
+                    data-subtitle_type="' . $track->subtitle_type . '"
+                    data-is_default="' . $track->is_default . '"
+                    data-is_sdh="' . $track->is_sdh . '"
+                    data-is_forced="' . $track->is_forced . '"
+                    data-sort_order="' . $track->sort_order . '"
+                    class="me-2 btn btn-success px-3 text-white editSubtitleTrack">' . __('edit') . '</a>';
+            $delete = '<a href="#" class="btn btn-danger px-3 text-white deleteSubtitleTrack" rel="' . $track->id . '">' . __('delete') . '</a>';
+            $action = '<div class="text-end">' . $edit . $delete . '</div>';
+            
+            return [
+                $title,
+                $language,
+                $format,
+                $type,
+                $badges,
+                $action
+            ];
+        });
+        
+        return response()->json([
+            "draw" => intval($request->input('draw')),
+            "recordsTotal" => count($data),
+            "recordsFiltered" => count($data),
+            "data" => $data
+        ]);
+    }
+
+    public function addSubtitleTrack(Request $request)
+    {
+        $subtitleTrack = new \App\Models\ContentSubtitleTrack();
+        $subtitleTrack->content_id = $request->content_id;
+        $subtitleTrack->content_source_id = $request->content_source_id;
+        $subtitleTrack->language_id = $request->language_id;
+        $subtitleTrack->title = $request->title;
+        $subtitleTrack->language_code = $request->language_code;
+        $subtitleTrack->subtitle_url = $request->subtitle_url;
+        $subtitleTrack->subtitle_format = $request->subtitle_format ?? 'SRT';
+        $subtitleTrack->subtitle_type = $request->subtitle_type ?? 'dialogue';
+        $subtitleTrack->is_default = $request->is_default ?? 0;
+        $subtitleTrack->is_sdh = $request->is_sdh ?? 0;
+        $subtitleTrack->is_forced = $request->is_forced ?? 0;
+        $subtitleTrack->sort_order = $request->sort_order ?? 0;
+        $subtitleTrack->save();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Subtitle track added successfully'
+        ]);
+    }
+
+    public function updateSubtitleTrack(Request $request)
+    {
+        $subtitleTrack = \App\Models\ContentSubtitleTrack::find($request->id);
+        if (!$subtitleTrack) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Subtitle track not found'
+            ]);
+        }
+        
+        $subtitleTrack->language_id = $request->language_id;
+        $subtitleTrack->title = $request->title;
+        $subtitleTrack->language_code = $request->language_code;
+        $subtitleTrack->subtitle_url = $request->subtitle_url;
+        $subtitleTrack->subtitle_format = $request->subtitle_format ?? 'SRT';
+        $subtitleTrack->subtitle_type = $request->subtitle_type ?? 'dialogue';
+        $subtitleTrack->is_default = $request->is_default ?? 0;
+        $subtitleTrack->is_sdh = $request->is_sdh ?? 0;
+        $subtitleTrack->is_forced = $request->is_forced ?? 0;
+        $subtitleTrack->sort_order = $request->sort_order ?? 0;
+        $subtitleTrack->save();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Subtitle track updated successfully'
+        ]);
+    }
+
+    public function deleteSubtitleTrack(Request $request)
+    {
+        $subtitleTrack = \App\Models\ContentSubtitleTrack::find($request->id);
+        if (!$subtitleTrack) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Subtitle track not found'
+            ]);
+        }
+        
+        $subtitleTrack->delete();
+        
+        return response()->json([
+            'status' => true,
+            'message' => 'Subtitle track deleted successfully'
+        ]);
+    }
+
 }
