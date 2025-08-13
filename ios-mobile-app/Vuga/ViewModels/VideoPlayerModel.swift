@@ -525,6 +525,121 @@ class PlayerModel: BaseViewModel {
         }
     }
     
+    // MARK: - Audio and Subtitle Track Management
+    
+    func switchAudioTrack(url: URL) {
+        guard let player = player else { return }
+        
+        // Store current playback position
+        let currentPlaybackTime = player.currentTime()
+        let wasPlaying = player.rate > 0
+        
+        // Pause playback
+        player.pause()
+        
+        // Create new player item with the new audio URL
+        let playerItem = AVPlayerItem(url: url)
+        
+        // Replace current item
+        player.replaceCurrentItem(with: playerItem)
+        
+        // Seek to previous position
+        player.seek(to: currentPlaybackTime) { _ in
+            // Resume playback if it was playing
+            if wasPlaying {
+                player.play()
+            }
+        }
+    }
+    
+    func loadSubtitleTrack(url: String) {
+        // Clear existing subtitles
+        mySubtitles.removeAll()
+        
+        guard let subtitleURL = URL(string: url) else { return }
+        
+        // Load subtitle file
+        URLSession.shared.dataTask(with: subtitleURL) { [weak self] data, response, error in
+            guard let data = data, error == nil else {
+                print("Failed to load subtitle track: \(error?.localizedDescription ?? "Unknown error")")
+                return
+            }
+            
+            if let subtitleString = String(data: data, encoding: .utf8) {
+                // Parse SRT or VTT subtitle format
+                self?.parseSubtitles(subtitleString)
+            }
+        }.resume()
+    }
+    
+    private func parseSubtitles(_ subtitleString: String) {
+        // Simple SRT parser - you may want to use a more robust library
+        let lines = subtitleString.components(separatedBy: .newlines)
+        var currentCue: MyCue?
+        var isTimeLine = false
+        var textLines: [String] = []
+        
+        for line in lines {
+            if line.isEmpty {
+                // End of a subtitle entry
+                if let cue = currentCue {
+                    DispatchQueue.main.async {
+                        self.mySubtitles.append(cue)
+                    }
+                }
+                currentCue = nil
+                isTimeLine = false
+                textLines.removeAll()
+            } else if line.contains("-->") {
+                // Time line (e.g., "00:00:01,000 --> 00:00:04,000")
+                let times = line.components(separatedBy: " --> ")
+                if times.count == 2 {
+                    let startTime = parseTimeString(times[0])
+                    let endTime = parseTimeString(times[1])
+                    isTimeLine = true
+                    
+                    if !textLines.isEmpty {
+                        let text = textLines.joined(separator: "\n")
+                        currentCue = MyCue(
+                            startTime: startTime,
+                            endTime: endTime,
+                            text: NSAttributedString(string: text)
+                        )
+                    }
+                }
+            } else if !(line.first?.isNumber == true) || isTimeLine {
+                // Text line
+                textLines.append(line)
+            }
+        }
+        
+        // Add last cue if exists
+        if let cue = currentCue {
+            DispatchQueue.main.async {
+                self.mySubtitles.append(cue)
+            }
+        }
+    }
+    
+    private func parseTimeString(_ timeString: String) -> Double {
+        // Parse SRT time format: "00:00:01,000" or VTT format: "00:00:01.000"
+        let cleanTime = timeString.trimmingCharacters(in: .whitespaces)
+            .replacingOccurrences(of: ",", with: ".")
+        
+        let components = cleanTime.components(separatedBy: ":")
+        guard components.count >= 2 else { return 0 }
+        
+        let hours = Double(components.count > 2 ? components[0] : "0") ?? 0
+        let minutes = Double(components.count > 2 ? components[1] : components[0]) ?? 0
+        let secondsComponents = (components.count > 2 ? components[2] : components[1])
+            .components(separatedBy: ".")
+        let seconds = Double(secondsComponents[0]) ?? 0
+        let milliseconds = secondsComponents.count > 1 ? 
+            (Double(secondsComponents[1]) ?? 0) / 1000 : 0
+        
+        return hours * 3600 + minutes * 60 + seconds + milliseconds
+    }
+    
     // MARK: - Google Cast Support
     var castSession: GCKCastSession? {
         return GCKCastContext.sharedInstance().sessionManager.currentCastSession

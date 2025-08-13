@@ -74,11 +74,31 @@ class Content extends BaseModel
     }
     
     /**
-     * Get the content's subtitles
+     * Get the content's subtitles (old system)
      */
     public function subtitles()
     {
         return $this->hasMany(Subtitle::class, 'content_id');
+    }
+    
+    /**
+     * Get the content's audio tracks (new multi-language system)
+     */
+    public function audioTracks()
+    {
+        return $this->hasMany(\App\Models\ContentAudioTrack::class, 'content_id')
+                    ->orderBy('sort_order')
+                    ->orderBy('is_default', 'desc');
+    }
+    
+    /**
+     * Get the content's subtitle tracks (new multi-language system)
+     */
+    public function subtitleTracks()
+    {
+        return $this->hasMany(\App\Models\ContentSubtitleTrack::class, 'content_id')
+                    ->orderBy('sort_order')
+                    ->orderBy('is_default', 'desc');
     }
     
     /**

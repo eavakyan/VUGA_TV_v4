@@ -18,6 +18,68 @@ private struct DynamicCodingKeys: CodingKey {
     }
 }
 
+// MARK: - AudioTrack
+struct AudioTrack: Codable, Identifiable {
+    let id: Int?
+    let languageId: Int?
+    let languageCode: String?
+    let title: String?
+    let audioUrl: String?
+    let audioFormat: String?
+    let audioChannels: String?
+    let audioBitrate: String?
+    let isPrimary: Bool?
+    let isDefault: Bool?
+    let sortOrder: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "track_id"
+        case languageId = "language_id"
+        case languageCode = "language_code"
+        case title
+        case audioUrl = "audio_url"
+        case audioFormat = "audio_format"
+        case audioChannels = "audio_channels"
+        case audioBitrate = "audio_bitrate"
+        case isPrimary = "is_primary"
+        case isDefault = "is_default"
+        case sortOrder = "sort_order"
+    }
+    
+    var language: ContentLanguage? {
+        return SessionManager.shared.getLanguages().first(where: { $0.id == languageId })
+    }
+}
+
+// MARK: - SubtitleTrack
+struct SubtitleTrack: Codable, Identifiable {
+    let id: Int?
+    let languageId: Int?
+    let languageCode: String?
+    let title: String?
+    let subtitleUrl: String?
+    let subtitleFormat: String?
+    let isForced: Bool?
+    let isDefault: Bool?
+    let sortOrder: Int?
+    
+    enum CodingKeys: String, CodingKey {
+        case id = "track_id"
+        case languageId = "language_id"
+        case languageCode = "language_code"
+        case title
+        case subtitleUrl = "subtitle_url"
+        case subtitleFormat = "subtitle_format"
+        case isForced = "is_forced"
+        case isDefault = "is_default"
+        case sortOrder = "sort_order"
+    }
+    
+    var language: ContentLanguage? {
+        return SessionManager.shared.getLanguages().first(where: { $0.id == languageId })
+    }
+}
+
 // MARK: - ContentModel
 struct ContentModel: Codable {
     let status: Bool?
@@ -46,6 +108,8 @@ struct VugaContent: Codable, Identifiable {
     let contentCast: [Cast]?
     let contentSources: [Source]?
     let contentSubtitles: [Subtitle]?
+    let audioTracks: [AudioTrack]?
+    let subtitleTracks: [SubtitleTrack]?
     let seasons: [Season]?
     let moreLikeThis: [VugaContent]?
     let ageRating: String?
@@ -85,6 +149,8 @@ struct VugaContent: Codable, Identifiable {
         case contentCast
         case contentSources = "content_sources"
         case contentSubtitles = "content_subtitles"
+        case audioTracks = "audio_tracks"
+        case subtitleTracks = "subtitle_tracks"
         case seasons
         case moreLikeThis = "more_like_this"
         case ageRating = "age_rating"
@@ -132,6 +198,8 @@ struct VugaContent: Codable, Identifiable {
         contentCast = try container.decodeIfPresent([Cast].self, forKey: .contentCast)
         contentSources = try container.decodeIfPresent([Source].self, forKey: .contentSources)
         contentSubtitles = try container.decodeIfPresent([Subtitle].self, forKey: .contentSubtitles)
+        audioTracks = try container.decodeIfPresent([AudioTrack].self, forKey: .audioTracks)
+        subtitleTracks = try container.decodeIfPresent([SubtitleTrack].self, forKey: .subtitleTracks)
         seasons = try container.decodeIfPresent([Season].self, forKey: .seasons)
         moreLikeThis = try container.decodeIfPresent([VugaContent].self, forKey: .moreLikeThis)
         ageRating = try container.decodeIfPresent(String.self, forKey: .ageRating)
@@ -173,6 +241,8 @@ struct VugaContent: Codable, Identifiable {
         try container.encodeIfPresent(contentCast, forKey: .contentCast)
         try container.encodeIfPresent(contentSources, forKey: .contentSources)
         try container.encodeIfPresent(contentSubtitles, forKey: .contentSubtitles)
+        try container.encodeIfPresent(audioTracks, forKey: .audioTracks)
+        try container.encodeIfPresent(subtitleTracks, forKey: .subtitleTracks)
         try container.encodeIfPresent(seasons, forKey: .seasons)
         try container.encodeIfPresent(moreLikeThis, forKey: .moreLikeThis)
         try container.encodeIfPresent(ageRating, forKey: .ageRating)
@@ -458,6 +528,8 @@ struct Episode: Codable {
     let updatedAt: String?
     let sources: [Source]?
     let episodeSubtitle: [Subtitle]?
+    let audioTracks: [AudioTrack]?
+    let subtitleTracks: [SubtitleTrack]?
     let userRating: Double?
     
     // Handle duration as either String or Int
@@ -485,6 +557,8 @@ struct Episode: Codable {
         case createdAt = "created_at"
         case updatedAt = "updated_at"
         case episodeSubtitle = "subtitles"
+        case audioTracks = "audio_tracks"
+        case subtitleTracks = "subtitle_tracks"
         case sources
         case userRating = "user_rating"
         case duration
@@ -506,6 +580,8 @@ struct Episode: Codable {
         updatedAt = try container.decodeIfPresent(String.self, forKey: .updatedAt)
         sources = try container.decodeIfPresent([Source].self, forKey: .sources)
         episodeSubtitle = try container.decodeIfPresent([Subtitle].self, forKey: .episodeSubtitle)
+        audioTracks = try container.decodeIfPresent([AudioTrack].self, forKey: .audioTracks)
+        subtitleTracks = try container.decodeIfPresent([SubtitleTrack].self, forKey: .subtitleTracks)
         userRating = try container.decodeIfPresent(Double.self, forKey: .userRating)
         
         // Try to decode duration as String first, then as Int
@@ -537,6 +613,8 @@ struct Episode: Codable {
         try container.encodeIfPresent(updatedAt, forKey: .updatedAt)
         try container.encodeIfPresent(sources, forKey: .sources)
         try container.encodeIfPresent(episodeSubtitle, forKey: .episodeSubtitle)
+        try container.encodeIfPresent(audioTracks, forKey: .audioTracks)
+        try container.encodeIfPresent(subtitleTracks, forKey: .subtitleTracks)
         try container.encodeIfPresent(userRating, forKey: .userRating)
         
         // Encode duration as string

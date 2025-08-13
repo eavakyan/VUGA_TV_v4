@@ -320,12 +320,9 @@ struct ContentDetailView: View {
                         // Icon buttons row
                         iconButtonsSection(content)
                         
-                        // Story (3 lines max, no title)
+                        // Story with expandable MORE button
                         if let description = content.description, !description.isEmpty {
-                            Text(description)
-                                .font(.system(size: 14))
-                                .foregroundColor(.white.opacity(0.8))
-                                .lineLimit(3)
+                            ExpandableDescriptionView(description: description)
                                 .padding(.horizontal, 16)
                         }
                         
@@ -339,31 +336,6 @@ struct ContentDetailView: View {
                             moreLikeThisSection(moreLikeThis)
                         }
                         
-                        if content.contentCast?.isNotEmpty == true {
-                            divider()
-                            VStack(spacing: 8) {
-                                Heading(title: .starCast) {
-                                    Image.back
-                                        .rotationEffect(.degrees(vm.isStarCastOn ? 90 : 270))
-                                        .onTap {
-                                            vm.toggleCastOn()
-                                        }
-                                }
-                                if vm.isStarCastOn {
-                                    PagingView(config: .init(margin: pagingMargin, constrainedDeceleration: false), page: $currentIndex, {
-                                        ForEach(0..<(content.contentCast ?? []).count, id: \.self) { index in
-                                            StarCastCard(cast: (content.contentCast ?? [])[index])
-                                                .onTapGesture {
-                                                    Navigation.pushToSwiftUiView(CastView(actorId: content.contentCast?[index].actorID ?? 0))
-                                                }
-                                        }
-                                    })
-                                    .padding(.leading, -pagingPadding)
-                                    .frame(height: 55)
-                                    .flipsForRightToLeftLayoutDirection(isArabic)
-                                }
-                            }
-                        }
                         if content.type == .series {
                             SeasonTags(vm: vm, content: content)
                             if let selectedSeason = vm.selectedSeason {
@@ -442,8 +414,7 @@ struct ContentDetailView: View {
                         Function.shared.haptic()
                         shareContent()
                     }
-                    // Universal Cast buttons
-                    CombinedCastView(viewModel: vm)
+                    // Removed duplicate cast buttons - now only in episodes section
                 }
             }
             .padding([.horizontal, .top],15)
@@ -643,6 +614,19 @@ struct ContentDetailView: View {
         if let observer = airPlayObserver {
             NotificationCenter.default.removeObserver(observer)
             airPlayObserver = nil
+        }
+    }
+    
+    // Helper function to get user-friendly display rating
+    private func getDisplayRating(for code: String) -> String {
+        switch code {
+        case "AG_0_6": return "All Ages"
+        case "AG_7_12": return "7+"
+        case "AG_13_16": return "13+"
+        case "AG_17_18": return "17+"
+        case "AG_18_PLUS": return "18+"
+        case "NR": return "Not Rated"
+        default: return code
         }
     }
     
@@ -858,16 +842,13 @@ struct ContentDetailView: View {
                 .outfitLight()
                 .foregroundColor(.textLight)
             
-            // Age Rating
+            // Age Rating Badge
             if content.ageRatingCode != "NR" {
                 verticalDivider
-                Text(content.ageRatingCode)
-                    .outfitMedium(13)
-                    .foregroundColor(.white)
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Color(hexString: content.ageRatingColor))
-                    .cornerRadius(4)
+                AgeRatingBadgeView(
+                    ageRatingCode: content.ageRating ?? content.ageRatingCode,
+                    minAge: content.minAge
+                )
             }
             
             if content.type == .movie {
@@ -986,45 +967,48 @@ struct ContentDetailView: View {
     
     @ViewBuilder
     private func actionButtonsSection(_ content: VugaContent) -> some View {
-        HStack(spacing: 12) {
+        VStack(spacing: 12) {
             if vm.progress > 0 {
-                // Content has been watched before - show Resume and Start from Beginning
-                
-                // Resume button
-                Button(action: {
-                    handlePlayAction(content)
-                }) {
-                    HStack {
-                        Image(systemName: "play.fill")
-                        Text("Resume Watching")
+                // Content has been watched before - show Resume and Start from Beginning on same line
+                HStack(spacing: 12) {
+                    // Resume button
+                    Button(action: {
+                        handlePlayAction(content)
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "play.fill")
+                                .font(.system(size: 14))
+                            Text("Resume")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(.black)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.white)
+                        .cornerRadius(8)
                     }
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.white)
-                    .cornerRadius(8)
-                }
-                
-                // Start from Beginning button
-                Button(action: {
-                    vm.progress = 0
-                    handlePlayAction(content)
-                }) {
-                    HStack {
-                        Image(systemName: "arrow.counterclockwise")
-                        Text("Start from Beginning")
+                    
+                    // Start from Beginning button
+                    Button(action: {
+                        vm.progress = 0
+                        handlePlayAction(content)
+                    }) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "arrow.counterclockwise")
+                                .font(.system(size: 14))
+                            Text("Start Over")
+                                .font(.system(size: 14, weight: .medium))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 12)
+                        .background(Color.white.opacity(0.2))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 8)
+                                .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                        )
+                        .cornerRadius(8)
                     }
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.white.opacity(0.2))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                    )
-                    .cornerRadius(8)
                 }
             } else {
                 // Content has not been watched - show Play button
@@ -1044,7 +1028,7 @@ struct ContentDetailView: View {
                 }
             }
             
-            // Download button (if available)
+            // Download button (if available) - full width on its own row
             if content.contentSources?.first?.isDownload == 1 {
                 Button(action: {
                     handleDownload()
@@ -1055,8 +1039,7 @@ struct ContentDetailView: View {
                     }
                     .font(.system(size: 16, weight: .medium))
                     .foregroundColor(.white)
-                    .frame(maxWidth: vm.progress > 0 ? nil : .infinity)
-                    .padding(.horizontal, vm.progress > 0 ? 16 : 0)
+                    .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
                     .background(Color.white.opacity(0.2))
                     .overlay(
@@ -1122,10 +1105,25 @@ struct ContentDetailView: View {
                 }
             }
             
-            // Cast buttons
-            CombinedCastView(viewModel: vm)
-            
             Spacer()
+            
+            // Google Cast with label
+            VStack(spacing: 4) {
+                GoogleCastButton(viewModel: vm)
+                    .frame(width: 24, height: 24)
+                Text("Cast")
+                    .font(.system(size: 10))
+                    .foregroundColor(.white.opacity(0.7))
+            }
+            
+            // AirPlay with label
+            VStack(spacing: 4) {
+                AirPlayRoutePickerView(isConnected: isAirPlayConnected)
+                    .frame(width: 24, height: 24)
+                Text("AirPlay")
+                    .font(.system(size: 10))
+                    .foregroundColor(.white.opacity(0.7))
+            }
         }
         .padding(.horizontal, 16)
     }
@@ -1320,11 +1318,12 @@ struct ContentDetailView: View {
         
         if let profile = currentProfile {
             if profile.effectiveKidsProfile {
-                ageRestrictionMessage = "This content is not available on kids profiles. Only G and PG rated content is allowed."
+                ageRestrictionMessage = "This content is not available on kids profiles. Content rated for older viewers."
             } else if let profileAge = profile.age {
-                ageRestrictionMessage = "This content is rated \(content.ageRatingCode) and requires a minimum age of \(content.minimumAge). Your profile age is set to \(profileAge)."
+                let displayRating = getDisplayRating(for: content.ageRating ?? content.ageRatingCode)
+                ageRestrictionMessage = "This content is rated \(displayRating) and requires viewers to be \(content.minimumAge) or older. Your profile age is set to \(profileAge)."
             } else {
-                ageRestrictionMessage = "This content is age-restricted. Please set your profile age in Age Settings to access this content."
+                ageRestrictionMessage = "This content has age restrictions. Please set your profile age in settings to access this content."
             }
         } else {
             ageRestrictionMessage = "This content is age-restricted. Please create and set up a profile to access this content."
@@ -1968,7 +1967,7 @@ struct AirPlayRoutePickerView: UIViewRepresentable {
     func makeUIView(context: Context) -> UIView {
         let routePickerView = AVRoutePickerView()
         routePickerView.backgroundColor = UIColor.clear
-        routePickerView.tintColor = UIColor(Color.text.opacity(0.8))
+        routePickerView.tintColor = UIColor.white
         routePickerView.activeTintColor = UIColor(Color.base)
         routePickerView.prioritizesVideoDevices = true
         

@@ -30,6 +30,10 @@ struct VideoPlayerView: View {
     @State var isLandscape = false
     @State var isPortrait = false
     @State var downloadContent : DownloadContent?
+    @State private var showAudioTrackSelection = false
+    @State private var showSubtitleTrackSelection = false
+    @State private var selectedAudioTrack: AudioTrack?
+    @State private var selectedSubtitleTrack: SubtitleTrack?
     var isLiveVideo = false
     var url: String
     @State var progress: Double = 0
@@ -260,6 +264,34 @@ struct VideoPlayerView: View {
             print("dddddddddddddddddd",sourceId)
             isLandscape = true
         }
+        .sheet(isPresented: $showAudioTrackSelection) {
+            AudioTrackSelectionView(
+                tracks: content?.audioTracks ?? episode?.audioTracks ?? [],
+                selectedTrack: $selectedAudioTrack,
+                onTrackSelected: { track in
+                    selectedAudioTrack = track
+                    if let audioUrl = track.audioUrl, let url = URL(string: audioUrl) {
+                        // Switch audio track in player
+                        vm.switchAudioTrack(url: url)
+                    }
+                    showAudioTrackSelection = false
+                }
+            )
+        }
+        .sheet(isPresented: $showSubtitleTrackSelection) {
+            SubtitleTrackSelectionView(
+                tracks: content?.subtitleTracks ?? episode?.subtitleTracks ?? [],
+                selectedTrack: $selectedSubtitleTrack,
+                onTrackSelected: { track in
+                    selectedSubtitleTrack = track
+                    if let subtitleUrl = track?.subtitleUrl {
+                        // Load subtitle track
+                        vm.loadSubtitleTrack(url: subtitleUrl)
+                    }
+                    showSubtitleTrackSelection = false
+                }
+            )
+        }
     }
     
     func onBack() {
@@ -445,6 +477,31 @@ struct VideoPlayerView: View {
                         .cornerRadius(radius: 5)
                         .padding(.horizontal)
                 }
+                
+                // Audio Track Selection Button
+                if let audioTracks = content?.audioTracks ?? episode?.audioTracks, !audioTracks.isEmpty {
+                    Button(action: {
+                        showAudioTrackSelection = true
+                    }) {
+                        Image(systemName: "speaker.wave.2")
+                            .resizeFitTo(size: 22, renderingMode: .template)
+                            .foregroundColor(.text)
+                    }
+                    .padding(.horizontal, 5)
+                }
+                
+                // Subtitle Track Selection Button
+                if let subtitleTracks = content?.subtitleTracks ?? episode?.subtitleTracks, !subtitleTracks.isEmpty {
+                    Button(action: {
+                        showSubtitleTrackSelection = true
+                    }) {
+                        Image(systemName: "text.bubble")
+                            .resizeFitTo(size: 22, renderingMode: .template)
+                            .foregroundColor(.text)
+                    }
+                    .padding(.horizontal, 5)
+                }
+                
                 Image.fullScreen
                     .resizeFitTo(size: 25, renderingMode: .template)
                     .foregroundColor(.text)

@@ -1137,4 +1137,164 @@ $(document).ready(function () {
             });
         });
     });
+    
+    // Audio Tracks Table
+    $("#audioTrackTable").dataTable({
+        autoWidth: false,
+        processing: true,
+        serverSide: true,
+        serverMethod: "post",
+        aaSorting: [[0, "desc"]],
+        language: {
+            paginate: {
+                next: '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="9 18 15 12 9 6"></polyline></svg>',
+                previous:
+                    '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="15 18 9 12 15 6"></polyline></svg>',
+            },
+        },
+        ajax: {
+            url: APP_URL + "/fetchAudioTrackList",
+            data: {
+                content_id: $("#content_id1").val(),
+            },
+            error: function (jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.status == 401) {
+                    window.location.href = APP_URL;
+                }
+            },
+        },
+        columnDefs: [
+            { targets: [0, 1, 2, 3, 4], orderable: false },
+        ],
+    });
+    
+    // Subtitle Tracks Table
+    $("#subtitleTrackTable").dataTable({
+        autoWidth: false,
+        processing: true,
+        serverSide: true,
+        serverMethod: "post",
+        aaSorting: [[0, "desc"]],
+        language: {
+            paginate: {
+                next: '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="9 18 15 12 9 6"></polyline></svg>',
+                previous:
+                    '<svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" class="css-i6dzq1"><polyline points="15 18 9 12 15 6"></polyline></svg>',
+            },
+        },
+        ajax: {
+            url: APP_URL + "/fetchSubtitleTrackList",
+            data: {
+                content_id: $("#content_id1").val(),
+            },
+            error: function (jqXHR, ajaxOptions, thrownError) {
+                if (jqXHR.status == 401) {
+                    window.location.href = APP_URL;
+                }
+            },
+        },
+        columnDefs: [
+            { targets: [0, 1, 2, 3, 4, 5], orderable: false },
+        ],
+    });
+    
+    // Add Audio Track Form Submit
+    $("#addAudioTrackForm").on("submit", function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        
+        $.ajax({
+            type: "POST",
+            url: APP_URL + "/addAudioTrack",
+            data: formData,
+            success: function(response) {
+                if (response.status) {
+                    showSuccessToast();
+                    $("#audioTrackTable").DataTable().ajax.reload(null, false);
+                    $("#addAudioTrackModal").modal("hide");
+                    $("#addAudioTrackForm")[0].reset();
+                } else {
+                    showDangerToast(response.message || "Something went wrong");
+                }
+            },
+            error: function() {
+                showDangerToast("Something went wrong");
+            }
+        });
+    });
+    
+    // Add Subtitle Track Form Submit
+    $("#addSubtitleTrackForm").on("submit", function(e) {
+        e.preventDefault();
+        var formData = $(this).serialize();
+        
+        $.ajax({
+            type: "POST",
+            url: APP_URL + "/addSubtitleTrack",
+            data: formData,
+            success: function(response) {
+                if (response.status) {
+                    showSuccessToast();
+                    $("#subtitleTrackTable").DataTable().ajax.reload(null, false);
+                    $("#addSubtitleTrackModal").modal("hide");
+                    $("#addSubtitleTrackForm")[0].reset();
+                } else {
+                    showDangerToast(response.message || "Something went wrong");
+                }
+            },
+            error: function() {
+                showDangerToast("Something went wrong");
+            }
+        });
+    });
+    
+    // Delete Audio Track
+    $(document).on("click", ".deleteAudioTrack", function(e) {
+        e.preventDefault();
+        var id = $(this).attr("rel");
+        
+        if (confirm("Are you sure you want to delete this audio track?")) {
+            $.ajax({
+                type: "POST",
+                url: APP_URL + "/deleteAudioTrack",
+                data: { id: id },
+                success: function(response) {
+                    if (response.status) {
+                        showSuccessToast();
+                        $("#audioTrackTable").DataTable().ajax.reload(null, false);
+                    } else {
+                        showDangerToast(response.message || "Something went wrong");
+                    }
+                },
+                error: function() {
+                    showDangerToast("Something went wrong");
+                }
+            });
+        }
+    });
+    
+    // Delete Subtitle Track
+    $(document).on("click", ".deleteSubtitleTrack", function(e) {
+        e.preventDefault();
+        var id = $(this).attr("rel");
+        
+        if (confirm("Are you sure you want to delete this subtitle track?")) {
+            $.ajax({
+                type: "POST",
+                url: APP_URL + "/deleteSubtitleTrack",
+                data: { id: id },
+                success: function(response) {
+                    if (response.status) {
+                        showSuccessToast();
+                        $("#subtitleTrackTable").DataTable().ajax.reload(null, false);
+                    } else {
+                        showDangerToast(response.message || "Something went wrong");
+                    }
+                },
+                error: function() {
+                    showDangerToast("Something went wrong");
+                }
+            });
+        }
+    });
 });

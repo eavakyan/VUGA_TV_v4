@@ -30,7 +30,13 @@
           {{ __('cast') }}
         </button>
         <button class="nav-link" id="nav-subtitle-tab" data-bs-toggle="tab" data-bs-target="#nav-subtitle" type="button" role="tab" aria-controls="nav-subtitle" aria-selected="false">
-          {{ __('subtitle') }}
+          {{ __('subtitle') }} (Old)
+        </button>
+        <button class="nav-link" id="nav-audio-tracks-tab" data-bs-toggle="tab" data-bs-target="#nav-audio-tracks" type="button" role="tab" aria-controls="nav-audio-tracks" aria-selected="false">
+          {{ __('Audio Tracks') }}
+        </button>
+        <button class="nav-link" id="nav-subtitle-tracks-tab" data-bs-toggle="tab" data-bs-target="#nav-subtitle-tracks" type="button" role="tab" aria-controls="nav-subtitle-tracks" aria-selected="false">
+          {{ __('Subtitle Tracks') }}
         </button>
       </div>
       <div class="d-block d-md-flex align-items-center justify-content-between">
@@ -127,6 +133,57 @@
                 <tr>
                   <th> {{ __('language') }}</th>
                   <th class="text-end" width="200px"> {{ __('action') }} </th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Audio Tracks Tab -->
+      <div class="tab-pane" id="nav-audio-tracks" role="tabpanel" aria-labelledby="nav-audio-tracks-tab" tabindex="0">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h4 class="fw-normal m-0"> {{ __('Audio Tracks') }} </h4>
+            <button type="button" class="btn btn-primary text-light px-4" data-bs-toggle="modal" data-bs-target="#addAudioTrackModal">
+              {{ __('Add Audio Track') }}
+            </button>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped w-100" id="audioTrackTable">
+              <thead>
+                <tr>
+                  <th> {{ __('Title') }}</th>
+                  <th> {{ __('Language') }}</th>
+                  <th> {{ __('Format') }}</th>
+                  <th> {{ __('Default') }}</th>
+                  <th class="text-end" width="200px"> {{ __('Action') }} </th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Subtitle Tracks Tab -->
+      <div class="tab-pane" id="nav-subtitle-tracks" role="tabpanel" aria-labelledby="nav-subtitle-tracks-tab" tabindex="0">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h4 class="fw-normal m-0"> {{ __('Subtitle Tracks') }} </h4>
+            <button type="button" class="btn btn-primary text-light px-4" data-bs-toggle="modal" data-bs-target="#addSubtitleTrackModal">
+              {{ __('Add Subtitle Track') }}
+            </button>
+          </div>
+          <div class="card-body">
+            <table class="table table-striped w-100" id="subtitleTrackTable">
+              <thead>
+                <tr>
+                  <th> {{ __('Title') }}</th>
+                  <th> {{ __('Language') }}</th>
+                  <th> {{ __('Format') }}</th>
+                  <th> {{ __('Type') }}</th>
+                  <th> {{ __('Flags') }}</th>
+                  <th class="text-end" width="200px"> {{ __('Action') }} </th>
                 </tr>
               </thead>
             </table>
@@ -577,6 +634,162 @@
   </div>
 </div>
 
+<!-- Audio Track Modal -->
+<div class="modal fade" id="addAudioTrackModal" tabindex="-1" aria-labelledby="addAudioTrackModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-semibold mb-0 text-white">{{ __('Add Audio Track')}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="addAudioTrackForm" method="POST">
+        <div class="modal-body">
+          <input type="hidden" name="content_id" value="{{ $content->id }}">
+          <div class="form-group">
+            <label for="audio_title" class="form-label">{{ __('Title')}}</label>
+            <input name="title" id="audio_title" type="text" class="form-control" placeholder="e.g., English Audio, Spanish Dub" required>
+          </div>
+          <div class="form-group">
+            <label for="audio_language_id" class="form-label">{{ __('Language')}}</label>
+            <select name="language_id" id="audio_language_id" class="form-control selectric" required>
+              <option value="" disabled selected>{{ __('Select Language')}}</option>
+              @foreach($languages as $language)
+              <option value="{{ $language->id }}">{{ $language->title }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="audio_language_code" class="form-label">{{ __('Language Code')}}</label>
+            <input name="language_code" id="audio_language_code" type="text" class="form-control" placeholder="e.g., en, es, fr" required>
+          </div>
+          <div class="form-group">
+            <label for="audio_url" class="form-label">{{ __('Audio URL')}}</label>
+            <input name="audio_url" id="audio_url" type="text" class="form-control" placeholder="https://..." required>
+          </div>
+          <div class="form-group">
+            <label for="audio_format" class="form-label">{{ __('Audio Format')}}</label>
+            <select name="audio_format" id="audio_format" class="form-control selectric">
+              <option value="AAC">AAC</option>
+              <option value="AC3">AC3</option>
+              <option value="EAC3">E-AC3</option>
+              <option value="MP3">MP3</option>
+              <option value="DTS">DTS</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="audio_channels" class="form-label">{{ __('Audio Channels')}}</label>
+            <select name="audio_channels" id="audio_channels" class="form-control selectric">
+              <option value="Stereo">Stereo (2.0)</option>
+              <option value="5.1">5.1 Surround</option>
+              <option value="7.1">7.1 Surround</option>
+              <option value="Mono">Mono</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_default" id="audio_is_default" value="1">
+              <label class="form-check-label" for="audio_is_default">
+                {{ __('Set as Default Audio Track')}}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="audio_sort_order" class="form-label">{{ __('Sort Order')}}</label>
+            <input name="sort_order" id="audio_sort_order" type="number" class="form-control" value="0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn text-light" data-bs-dismiss="modal">{{ __('Close') }}</button>
+          <button type="submit" class="btn theme-btn text-light px-4">{{ __('Save') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Subtitle Track Modal -->
+<div class="modal fade" id="addSubtitleTrackModal" tabindex="-1" aria-labelledby="addSubtitleTrackModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title fw-semibold mb-0 text-white">{{ __('Add Subtitle Track')}}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="addSubtitleTrackForm" method="POST">
+        <div class="modal-body">
+          <input type="hidden" name="content_id" value="{{ $content->id }}">
+          <div class="form-group">
+            <label for="subtitle_title" class="form-label">{{ __('Title')}}</label>
+            <input name="title" id="subtitle_title" type="text" class="form-control" placeholder="e.g., English, Spanish (Latin America)" required>
+          </div>
+          <div class="form-group">
+            <label for="subtitle_language_id" class="form-label">{{ __('Language')}}</label>
+            <select name="language_id" id="subtitle_language_id" class="form-control selectric" required>
+              <option value="" disabled selected>{{ __('Select Language')}}</option>
+              @foreach($languages as $language)
+              <option value="{{ $language->id }}">{{ $language->title }}</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subtitle_language_code" class="form-label">{{ __('Language Code')}}</label>
+            <input name="language_code" id="subtitle_language_code" type="text" class="form-control" placeholder="e.g., en, es-MX, fr" required>
+          </div>
+          <div class="form-group">
+            <label for="subtitle_url" class="form-label">{{ __('Subtitle URL')}}</label>
+            <input name="subtitle_url" id="subtitle_url" type="text" class="form-control" placeholder="https://... .srt or .vtt" required>
+          </div>
+          <div class="form-group">
+            <label for="subtitle_format" class="form-label">{{ __('Subtitle Format')}}</label>
+            <select name="subtitle_format" id="subtitle_format" class="form-control selectric">
+              <option value="SRT">SRT</option>
+              <option value="VTT">WebVTT</option>
+              <option value="ASS">ASS/SSA</option>
+              <option value="TTML">TTML</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="subtitle_type" class="form-label">{{ __('Subtitle Type')}}</label>
+            <select name="subtitle_type" id="subtitle_type" class="form-control selectric">
+              <option value="dialogue">Dialogue</option>
+              <option value="commentary">Commentary</option>
+              <option value="forced">Forced</option>
+              <option value="sdh">SDH</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_default" id="subtitle_is_default" value="1">
+              <label class="form-check-label" for="subtitle_is_default">
+                {{ __('Set as Default Subtitle')}}
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_sdh" id="subtitle_is_sdh" value="1">
+              <label class="form-check-label" for="subtitle_is_sdh">
+                {{ __('Subtitles for Deaf and Hard of Hearing (SDH)')}}
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="is_forced" id="subtitle_is_forced" value="1">
+              <label class="form-check-label" for="subtitle_is_forced">
+                {{ __('Forced Subtitles (for foreign language parts)')}}
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="subtitle_sort_order" class="form-label">{{ __('Sort Order')}}</label>
+            <input name="sort_order" id="subtitle_sort_order" type="number" class="form-control" value="0">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn text-light" data-bs-dismiss="modal">{{ __('Close') }}</button>
+          <button type="submit" class="btn theme-btn text-light px-4">{{ __('Save') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <script>
   function loadFile(event, targetId) {
