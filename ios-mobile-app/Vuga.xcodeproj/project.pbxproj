@@ -105,9 +105,11 @@
 		2BF407672C08B076002DFFA8 /* DialogCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF407662C08B076002DFFA8 /* DialogCard.swift */; };
 		2BFCCE242C464AFD0087184F /* ActorDetailModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFCCE232C464AFD0087184F /* ActorDetailModel.swift */; };
 		2BFF61672C0DD25A00BB409B /* ProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF61662C0DD25A00BB409B /* ProView.swift */; };
+		4FB71E3714D7BA9D0CC3EB86 /* ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */; };
 		7B509AFE61B44DA0BB1B1E78 /* TrailerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EEC768CD90445586D9A12F /* TrailerModel.swift */; };
 		9B79C8D3D3D723D8015560CF /* Pods_Vuga.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 051F6CE15BD00FB7558AA46F /* Pods_Vuga.framework */; };
 		9D723CFE82D65FB2DD3D3G9A /* TrailerPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2AAD901EF89556697F9D34H /* TrailerPlayerView.swift */; };
+		A58ED3C18B0A6C35858ED6E0 /* RecentlyWatchedGroupedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */; };
 		AE834DGF93E76GC3EE4E4H0B /* TrailerInlinePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3BBE012FG9A667708GAE45I /* TrailerInlinePlayer.swift */; };
 		B00A3FEB2E4ADEBD00B16589 /* UserNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */; };
 		B00A3FED2E4ADF2200B16589 /* UserNotificationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */; };
@@ -256,6 +258,7 @@
 
 /* Begin PBXFileReference section */
 		051F6CE15BD00FB7558AA46F /* Pods_Vuga.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Vuga.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ComingSoonView.swift; sourceTree = "<group>"; };
 		2B13AD022C22ABAA0037577A /* AdMetricModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMetricModel.swift; sourceTree = "<group>"; };
 		2B1403852C1028D700C7F4FB /* VLCplayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLCplayer.swift; sourceTree = "<group>"; };
 		2B1618EE2C0EF1EE0006609F /* StringExtention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtention.swift; sourceTree = "<group>"; };
@@ -447,6 +450,7 @@
 		C4BC6A042C04BD2C00C63A66 /* GenreSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreSheet.swift; sourceTree = "<group>"; };
 		D3BBE012FG9A667708GAE45I /* TrailerInlinePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerInlinePlayer.swift; sourceTree = "<group>"; };
 		E8B755CE3A20E967EE8C7EAA /* Pods-Vuga.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Vuga.debug.xcconfig"; path = "Target Support Files/Pods-Vuga/Pods-Vuga.debug.xcconfig"; sourceTree = "<group>"; };
+		F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecentlyWatchedGroupedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -827,6 +831,8 @@
 				2BEC099B2C3FC9A000D020E3 /* TVShowsDownloadView.swift */,
 				2BE7E3962C4953E00083763F /* LanguageView.swift */,
 				2B2FF8492D6D871F00C4590F /* EmbeddedWebView.swift */,
+				18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */,
+				F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1264,6 +1270,8 @@
 				2BBF06092C185DD600A15E85 /* AvailableSourceView.swift in Sources */,
 				C434A4822BEA14600059889F /* SplashView.swift in Sources */,
 				2BB9C9282C11CC80002ADE68 /* WebView.swift in Sources */,
+				4FB71E3714D7BA9D0CC3EB86 /* ComingSoonView.swift in Sources */,
+				A58ED3C18B0A6C35858ED6E0 /* RecentlyWatchedGroupedView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

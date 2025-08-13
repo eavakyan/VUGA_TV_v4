@@ -283,8 +283,8 @@ struct HomeView: View {
                     // Add haptic feedback
                     let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                     impactFeedback.impactOccurred()
-                    // Navigate to existing Live TV view if available
-                    Navigation.pushToSwiftUiView(LiveTVsView())
+                    // Navigate to Coming Soon view for Live TV
+                    Navigation.pushToSwiftUiView(ComingSoonView(title: "Live TV"))
                 }
                     
             // Categories button with menu
@@ -350,11 +350,7 @@ struct HomeView: View {
                     .foregroundColor(.white)
                     .onTap {
                         Navigation.pushToSwiftUiView(
-                            ContentGridView(
-                                filterType: .recentlyWatched,
-                                filterValue: nil,
-                                navigationTitle: "Recently Watched"
-                            )
+                            RecentlyWatchedGroupedView()
                         )
                     }
             })
@@ -1147,10 +1143,9 @@ struct GenreHomeCard : View {
                     .foregroundColor(.white)
                     .onTap {
                         Navigation.pushToSwiftUiView(
-                            ContentGridView(
-                                filterType: .genre(genre.id ?? 0),
-                                filterValue: String(genre.id ?? 0),
-                                navigationTitle: genre.title ?? "Category"
+                            CategoryGridView(
+                                categoryId: genre.id ?? 0,
+                                categoryName: genre.title ?? "Category"
                             )
                         )
                     }

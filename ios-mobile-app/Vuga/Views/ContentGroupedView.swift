@@ -252,18 +252,28 @@ class ContentGroupedViewModel: BaseViewModel {
         NetworkManager.callWebService(url: .fetchHomePageData, params: params) { [weak self] (response: HomeModel) in
             guard let self = self else { return }
             
-            // Process genre contents to extract movies
-            var allMovies: [VugaContent] = []
+            // Group movies by genre directly (similar to newReleases)
+            var genreGroups: [(category: Genre, contents: [VugaContent])] = []
+            
             if let genreContents = response.genreContents {
                 for genre in genreContents {
                     if let contents = genre.contents {
-                        let movies = contents.filter { $0.type == .movie }
-                        allMovies.append(contentsOf: movies)
+                        let moviesInGenre = contents.filter { $0.type == .movie }
+                        
+                        if !moviesInGenre.isEmpty {
+                            // Sort by release year, newest first
+                            let sortedContents = moviesInGenre.sorted { (c1, c2) in
+                                (c1.releaseYear ?? 0) > (c2.releaseYear ?? 0)
+                            }
+                            genreGroups.append((category: genre, contents: sortedContents))
+                        }
                     }
                 }
             }
             
-            self.processContent(allMovies)
+            // For movies, directly set the grouped content
+            self.groupedContent = genreGroups
+            self.newReleases = [] // Don't show separate new releases section
             self.stopLoading()
         } callbackFailure: { [weak self] error in
             print("Failed to fetch movies: \(error)")
@@ -337,18 +347,28 @@ class ContentGroupedViewModel: BaseViewModel {
         NetworkManager.callWebService(url: .fetchHomePageData, params: params) { [weak self] (response: HomeModel) in
             guard let self = self else { return }
             
-            // Process genre contents to extract TV shows
-            var allTVShows: [VugaContent] = []
+            // Group TV shows by genre directly (similar to newReleases)
+            var genreGroups: [(category: Genre, contents: [VugaContent])] = []
+            
             if let genreContents = response.genreContents {
                 for genre in genreContents {
                     if let contents = genre.contents {
-                        let tvShows = contents.filter { $0.type == .series }
-                        allTVShows.append(contentsOf: tvShows)
+                        let tvShowsInGenre = contents.filter { $0.type == .series }
+                        
+                        if !tvShowsInGenre.isEmpty {
+                            // Sort by release year, newest first
+                            let sortedContents = tvShowsInGenre.sorted { (c1, c2) in
+                                (c1.releaseYear ?? 0) > (c2.releaseYear ?? 0)
+                            }
+                            genreGroups.append((category: genre, contents: sortedContents))
+                        }
                     }
                 }
             }
             
-            self.processContent(allTVShows)
+            // For TV shows, directly set the grouped content
+            self.groupedContent = genreGroups
+            self.newReleases = [] // Don't show separate new releases section
             self.stopLoading()
         } callbackFailure: { [weak self] error in
             print("Failed to fetch TV shows: \(error)")
