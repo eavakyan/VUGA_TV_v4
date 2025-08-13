@@ -126,9 +126,9 @@ class HomeViewModel : BaseViewModel {
         let currentYear = Calendar.current.component(.year, from: currentDate)
         
         let filteredContent = allContent.filter { content in
-            // Only include content with release year matching current year
+            // Include content from current year and last year as "new releases"
             if let releaseYear = content.releaseYear {
-                return releaseYear == currentYear
+                return releaseYear >= currentYear - 1
             }
             return false
         }

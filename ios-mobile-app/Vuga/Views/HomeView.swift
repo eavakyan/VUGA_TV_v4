@@ -239,12 +239,11 @@ struct HomeView: View {
                     // Add haptic feedback
                     let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                     impactFeedback.impactOccurred()
-                    // Navigate to grid view with TV Shows filter
+                    // Navigate to grouped view with TV Shows filter
                     Navigation.pushToSwiftUiView(
-                        ContentGridView(
-                            filterType: .contentType(.series),
-                            filterValue: nil,
-                            navigationTitle: "TV Shows"
+                        ContentGroupedView(
+                            filterType: .tvShows,
+                            title: "TV Shows"
                         )
                     )
                 }
@@ -262,12 +261,11 @@ struct HomeView: View {
                     // Add haptic feedback
                     let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                     impactFeedback.impactOccurred()
-                    // Navigate to grid view with Movies filter
+                    // Navigate to grouped view with Movies filter
                     Navigation.pushToSwiftUiView(
-                        ContentGridView(
-                            filterType: .contentType(.movie),
-                            filterValue: nil,
-                            navigationTitle: "Movies"
+                        ContentGroupedView(
+                            filterType: .movies,
+                            title: "Movies"
                         )
                     )
                 }
@@ -295,10 +293,9 @@ struct HomeView: View {
                 ForEach(vm.genres, id: \.id) { genre in
                     Button(genre.title ?? "") {
                         Navigation.pushToSwiftUiView(
-                            ContentGridView(
-                                filterType: .genre(genre.id ?? 0),
-                                filterValue: String(genre.id ?? 0),
-                                navigationTitle: genre.title ?? "Category"
+                            CategoryGridView(
+                                categoryId: genre.id ?? 0,
+                                categoryName: genre.title ?? "Category"
                             )
                         )
                     }
@@ -306,18 +303,22 @@ struct HomeView: View {
                 
                 Divider()
                 
-                // Network options
+                // Network/Distributor options
                 Button("MediaTeka") {
-                    // Navigate to MediaTeka content
-                    if let genre = vm.genres.first {
-                        Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
-                    }
+                    Navigation.pushToSwiftUiView(
+                        ContentGroupedView(
+                            filterType: .distributor(1, "MediaTeka"),
+                            title: "MediaTeka"
+                        )
+                    )
                 }
                 Button("HBO") {
-                    // Navigate to HBO content
-                    if let genre = vm.genres.first {
-                        Navigation.pushToSwiftUiView(GenreContentsView(genre: genre))
-                    }
+                    Navigation.pushToSwiftUiView(
+                        ContentGroupedView(
+                            filterType: .distributor(2, "HBO"),
+                            title: "HBO"
+                        )
+                    )
                 }
             } label: {
                 HStack(spacing: 4) {
@@ -696,10 +697,9 @@ struct HomeView: View {
                     .foregroundColor(.white)
                     .onTap {
                         Navigation.pushToSwiftUiView(
-                            ContentGridView(
+                            ContentGroupedView(
                                 filterType: .newReleases,
-                                filterValue: nil,
-                                navigationTitle: "New Releases"
+                                title: "New Releases"
                             )
                         )
                     }
