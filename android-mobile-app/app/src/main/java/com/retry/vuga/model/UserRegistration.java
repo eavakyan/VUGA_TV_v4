@@ -226,6 +226,12 @@ public class UserRegistration {
         @SerializedName("is_kids")
         private boolean isKids;
         
+        @SerializedName("email_consent")
+        private Boolean emailConsent;
+        
+        @SerializedName("sms_consent")
+        private Boolean smsConsent;
+        
         public int getProfileId() {
             return profileId;
         }

@@ -333,6 +333,10 @@ public class SessionManager {
     }
 
     public void updateMovieHistory(ContentDetail.SourceItem modelSource, int progress, String title, String thumbnail) {
+        updateMovieHistory(modelSource, progress, title, thumbnail, null, null);
+    }
+    
+    public void updateMovieHistory(ContentDetail.SourceItem modelSource, int progress, String title, String thumbnail, Integer releaseYear, String duration) {
         if (modelSource == null) return;
         ArrayList<MovieHistory> histories = getMovieHistories();
         ArrayList<ContentDetail.SourceItem> sourceItems = new ArrayList<>();
@@ -369,7 +373,7 @@ public class SessionManager {
         modelSource.time = System.currentTimeMillis();
         sourceItems.add(modelSource);
         //!histories.isEmpty() && histories.get(histories.size() - 1) != null ? histories.get(histories.size() - 1).getId() + 1 : 0
-        movieHistory = new MovieHistory(1, modelSource.getContent_id(), title, thumbnail, System.currentTimeMillis(), sourceItems);
+        movieHistory = new MovieHistory(1, modelSource.getContent_id(), title, thumbnail, System.currentTimeMillis(), sourceItems, releaseYear, duration);
 //        movieHistory.setTime(System.currentTimeMillis());
         histories.add(movieHistory);
         if (histories.size() > Const.HISTORY_COUNT) {
@@ -379,6 +383,10 @@ public class SessionManager {
     }
 
     public void updateMovieHistory(int contentId, int id, int progress, String title, String thumbnail) {
+        updateMovieHistory(contentId, id, progress, title, thumbnail, null, null);
+    }
+    
+    public void updateMovieHistory(int contentId, int id, int progress, String title, String thumbnail, Integer releaseYear, String duration) {
         ArrayList<MovieHistory> histories = getMovieHistories();
         ArrayList<ContentDetail.SourceItem> sourceItems = new ArrayList<>();
         boolean isAddedContent = false;
@@ -415,7 +423,7 @@ public class SessionManager {
         modelSource.time = System.currentTimeMillis();
         sourceItems.add(modelSource);
         //!histories.isEmpty() && histories.get(histories.size() - 1) != null ? histories.get(histories.size() - 1).getId() + 1 : 0
-        movieHistory = new MovieHistory(1, modelSource.getContent_id(), title, thumbnail, System.currentTimeMillis(), sourceItems);
+        movieHistory = new MovieHistory(1, modelSource.getContent_id(), title, thumbnail, System.currentTimeMillis(), sourceItems, releaseYear, duration);
 //        movieHistory.setTime(System.currentTimeMillis());
         histories.add(movieHistory);
         if (histories.size() > Const.HISTORY_COUNT) {

@@ -126,6 +126,8 @@ public class Const {
         @Nullable
         public static final String PROGRESS = "progress";
         public static final String CONTENT_NAME = "content_name";
+        public static final String RELEASE_YEAR = "release_year";
+        public static final String DURATION = "duration";
     }
 
 

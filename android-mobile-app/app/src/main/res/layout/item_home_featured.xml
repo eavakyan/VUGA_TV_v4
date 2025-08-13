@@ -55,34 +55,129 @@
 
 
 
-        <RelativeLayout
-            android:layout_width="match_parent"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_centerHorizontal="true"
-            android:layout_marginHorizontal="90dp"
-            android:layout_marginTop="60dp"
-            app:layout_constraintDimensionRatio="H,1:1.5"
+            app:layout_constraintDimensionRatio="H,2:3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.95">
 
             <androidx.constraintlayout.utils.widget.ImageFilterView
+                android:id="@+id/img_poster"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-
                 android:scaleType="centerCrop"
                 app:image_url="@{content.verticalPoster}"
-                app:round="15dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:round="12dp"
                 tools:src="@tools:sample/backgrounds/scenic" />
 
+            <!-- Gradient overlay for better text readability -->
+            <View
+                android:id="@+id/gradient_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:background="@drawable/bg_gradient_linear_black"
+                app:layout_constraintBottom_toBottomOf="@id/img_poster"
+                app:layout_constraintEnd_toEndOf="@id/img_poster"
+                app:layout_constraintStart_toStartOf="@id/img_poster" />
+
+            <!-- Content overlay -->
+            <LinearLayout
+                android:id="@+id/content_overlay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="20dp"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="@id/img_poster"
+                app:layout_constraintEnd_toEndOf="@id/img_poster"
+                app:layout_constraintStart_toStartOf="@id/img_poster">
+
+                <!-- Title -->
+                <TextView
+                    android:id="@+id/tv_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="12dp"
+                    android:fontFamily="@font/outfit_bold"
+                    android:gravity="center"
+                    android:lineSpacingExtra="2dp"
+                    android:maxLines="2"
+                    android:shadowColor="@color/app_black"
+                    android:shadowDx="0"
+                    android:shadowDy="2"
+                    android:shadowRadius="4"
+                    android:text="@{content.title}"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    tools:text="Featured Movie Title" />
+
+                <!-- Action buttons -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:weightSum="2">
+
+                    <!-- WATCH NOW button -->
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btn_watch_now"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_marginEnd="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_watch_now"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:gravity="center"
+                        android:letterSpacing="0.02"
+                        android:paddingHorizontal="12dp"
+                        android:text="▶  WATCH NOW"
+                        android:textAllCaps="false"
+                        android:textColor="@color/app_black_70"
+                        android:textSize="13sp" />
+
+                    <!-- MY LIST button -->
+                    <androidx.appcompat.widget.AppCompatButton
+                        android:id="@+id/btn_my_list"
+                        android:layout_width="0dp"
+                        android:layout_height="48dp"
+                        android:layout_marginStart="5dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/btn_my_list"
+                        android:fontFamily="@font/outfit_semi_bold"
+                        android:gravity="center"
+                        android:letterSpacing="0.02"
+                        android:paddingHorizontal="12dp"
+                        android:text="+ MY LIST"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:textSize="13sp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <!-- Stroke border -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/bg_stoke_15"
-                android:backgroundTint="@color/trans_stroke_color" />
+                android:backgroundTint="@color/trans_stroke_color"
+                app:layout_constraintBottom_toBottomOf="@id/img_poster"
+                app:layout_constraintEnd_toEndOf="@id/img_poster"
+                app:layout_constraintStart_toStartOf="@id/img_poster"
+                app:layout_constraintTop_toTopOf="@id/img_poster" />
 
-
-        </RelativeLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

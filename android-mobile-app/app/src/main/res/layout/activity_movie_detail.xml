@@ -40,7 +40,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:visibility="@{content.trailerUrl.isEmpty() ? View.VISIBLE : View.GONE}"
+                android:visibility="visible"
                 app:image_url="@{content.verticalPoster}"
                 tools:src="@tools:sample/backgrounds/scenic" />
 

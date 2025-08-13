@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:background="@color/app_black"
                 android:paddingTop="10dp"
-                android:paddingBottom="25dp"
+                android:paddingBottom="35dp"
                 android:visibility="visible"
                 tools:visibility="gone">
 
@@ -122,7 +122,7 @@
                         android:id="@+id/img_subscriptions"
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_bookmark_not"
+                        android:src="@drawable/ic_subscription_boxes"
                         android:tint="@{currentPosition == 2 ? @color/app_color : @color/text_color_light}" />
 
                     <TextView
@@ -247,48 +247,6 @@
                 android:textSize="16sp"
                 android:textColor="@color/text_color" />
 
-            <!-- Cast Button -->
-            <ImageView
-                android:id="@+id/btnCastMain"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="15dp"
-                android:background="@drawable/bg_round"
-                android:backgroundTint="@color/view_bg_color"
-                android:padding="8dp"
-                android:src="@drawable/ic_cast"
-                android:clickable="true"
-                android:focusable="true"
-                app:tint="@color/text_color_light" />
-
-            <!-- Download Button -->
-            <ImageView
-                android:id="@+id/btnDownloadMain"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_round"
-                android:backgroundTint="@color/view_bg_color"
-                android:padding="8dp"
-                android:src="@drawable/ic_download"
-                android:clickable="true"
-                android:focusable="true"
-                app:tint="@color/text_color_light" />
-
-            <!-- Search Button -->
-            <ImageView
-                android:id="@+id/btnSearchMain"
-                android:layout_width="35dp"
-                android:layout_height="35dp"
-                android:layout_marginStart="10dp"
-                android:background="@drawable/bg_round"
-                android:backgroundTint="@color/view_bg_color"
-                android:padding="8dp"
-                android:src="@drawable/ic_search"
-                android:clickable="true"
-                android:focusable="true"
-                app:tint="@color/text_color_light" />
-
             <!--                    <TextView-->
             <!--                        style="@style/TextViewLocal"-->
             <!--                        android:layout_width="wrap_content"-->
@@ -303,64 +261,21 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_weight="1" />
-
-
+            
+            <!-- Download Button (moved to far right) -->
             <ImageView
-                android:id="@+id/btn_search"
-                android:layout_width="33dp"
-                android:layout_height="33dp"
-                android:background="@drawable/bg_for_view_round"
+                android:id="@+id/btnDownloadMain"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="@drawable/bg_round"
+                android:backgroundTint="@color/view_bg_color"
+                android:padding="8dp"
+                android:src="@drawable/ic_download"
+                android:clickable="true"
+                android:focusable="true"
+                app:tint="@color/text_color_light" />
 
-                android:padding="10dp"
-                android:src="@drawable/ic_search"
-                android:visibility="@{currentPosition == 2 ? View.VISIBLE : View.GONE}" />
 
-            <RelativeLayout
-                android:id="@+id/img_profile"
-                android:layout_width="33dp"
-                android:layout_height="33dp"
-                android:layout_marginStart="15dp">
-
-                <ImageView
-                    android:id="@+id/img_user"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-
-                    android:background="@drawable/bg_round"
-                    android:backgroundTint="@color/text_color_light"
-                    android:padding="7dp"
-                    android:src="@drawable/ic_user"
-                    app:tint="@color/text_color" />
-
-                <androidx.constraintlayout.utils.widget.ImageFilterView
-                    android:id="@+id/img_pic"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_centerInParent="true"
-                    android:scaleType="centerCrop"
-                    app:roundPercent="1"
-                    tools:src="@tools:sample/avatars" />
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/viewColorAvatar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    app:cardCornerRadius="17dp"
-                    app:cardElevation="0dp"
-                    android:visibility="gone">
-
-                    <TextView
-                        android:id="@+id/tvProfileInitial"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:gravity="center"
-                        android:textColor="@color/white"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-
-                </androidx.cardview.widget.CardView>
-
-            </RelativeLayout>
 
 
         </LinearLayout>

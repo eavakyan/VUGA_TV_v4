@@ -18,13 +18,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.gson.Gson;
 import com.retry.vuga.R;
-import com.retry.vuga.adapters.LiveTvObjectAdapter;
+import com.retry.vuga.adapters.ContentGridAdapter;
 import com.retry.vuga.databinding.ActivitySearchLiveTvBinding;
-import com.retry.vuga.model.LiveTv;
+import com.retry.vuga.model.AllContent;
 import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.CustomDialogBuilder;
-import com.retry.vuga.utils.adds.MyRewardAds;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -38,11 +37,9 @@ import io.reactivex.schedulers.Schedulers;
 public class SearchLiveTvActivity extends BaseActivity {
     ActivitySearchLiveTvBinding binding;
 
-    MyRewardAds myRewardAds;
-    boolean rewardEarned = false;
     CompositeDisposable disposable;
     boolean isLoading = false;
-    LiveTvObjectAdapter liveTvObjectAdapter;
+    ContentGridAdapter contentGridAdapter;
     GridLayoutManager gridLayoutManager;
     boolean dataOver = false;
     String keyWord = "";
@@ -58,7 +55,7 @@ public class SearchLiveTvActivity extends BaseActivity {
 
     }
 
-    private void getChannels() {
+    private void searchContent() {
 
 
         binding.tvType.setVisibility(keyWord.isEmpty() ? View.VISIBLE : View.GONE);
@@ -70,18 +67,18 @@ public class SearchLiveTvActivity extends BaseActivity {
         }
         isLoading = true;
         hashMap.clear();
-        hashMap.put(Const.ApiKey.start, liveTvObjectAdapter.getItemCount());
+        hashMap.put(Const.ApiKey.start, contentGridAdapter.getItemCount());
         hashMap.put(Const.ApiKey.limit, Const.PAGINATION_COUNT);
         hashMap.put(Const.ApiKey.keyword, keyWord);
 
         disposable.clear();
-        disposable.add(RetrofitClient.getService().searchTVChannel(hashMap)
+        disposable.add(RetrofitClient.getService().searchContent(hashMap)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .unsubscribeOn(Schedulers.io())
                 .doOnSubscribe(disposable1 -> {
 
-                    if (liveTvObjectAdapter.getItemCount() == 0) {
+                    if (contentGridAdapter.getItemCount() == 0) {
                         binding.centerLoader.setVisibility(View.VISIBLE);
                         binding.rv.setVisibility(View.GONE);
 
@@ -104,14 +101,14 @@ public class SearchLiveTvActivity extends BaseActivity {
 
 
                 })
-                .subscribe((searchChannel, throwable) -> {
+                .subscribe((searchResult, throwable) -> {
 
                     binding.centerLoader.setVisibility(View.GONE);
 
-                    if (searchChannel != null && searchChannel.getStatus()) {
+                    if (searchResult != null && searchResult.getStatus()) {
 
-                        if (searchChannel.getData().isEmpty()) {
-                            if (liveTvObjectAdapter.getItemCount() == 0) {
+                        if (searchResult.getData().isEmpty()) {
+                            if (contentGridAdapter.getItemCount() == 0) {
                                 binding.tvNoContent.setVisibility(View.VISIBLE);
 
                             } else {
@@ -120,11 +117,11 @@ public class SearchLiveTvActivity extends BaseActivity {
                         } else {
 
 
-                            if (liveTvObjectAdapter.getItemCount() == 0) {
-                                liveTvObjectAdapter.updateItems(searchChannel.getData());
+                            if (contentGridAdapter.getItemCount() == 0) {
+                                contentGridAdapter.updateItems(searchResult.getData());
 
                             } else {
-                                liveTvObjectAdapter.loadMoreItems(searchChannel.getData());
+                                contentGridAdapter.loadMoreItems(searchResult.getData());
 
                             }
                             binding.rv.setVisibility(View.VISIBLE);
@@ -139,84 +136,9 @@ public class SearchLiveTvActivity extends BaseActivity {
 
     }
 
-    private void showADDPopup(LiveTv.CategoryItem.TvChannelItem model) {
-        binding.blurView.setVisibility(View.VISIBLE);
-
-        new CustomDialogBuilder(this).showUnlockDialog(new CustomDialogBuilder.OnDismissListener() {
-            @Override
-            public void onPositiveDismiss() {
-                loadRewardedAdd(model);
-            }
-
-
-            @Override
-            public void onDismiss() {
-                
-                binding.blurView.setVisibility(View.GONE);
-            }
-        });
-
-
-    }
-
-    private void loadRewardedAdd(LiveTv.CategoryItem.TvChannelItem model) {
-        myRewardAds.showAd();
-
-        myRewardAds.setRewardAdListnear(new MyRewardAds.RewardAdListnear() {
-            @Override
-            public void onAdClosed() {
-
-                Log.i("TAG", "add:closed ");
-                if (rewardEarned) {
-                    increaseView(model.getId()); //api
-
-                    Intent intent = new Intent(SearchLiveTvActivity.this, PlayerNewActivity.class);
-                    intent.putExtra(Const.DataKey.LIVE_TV_MODEL, new Gson().toJson(model));
-                    startActivity(intent);
-                    rewardEarned = false;
-                }
-                myRewardAds = new MyRewardAds(SearchLiveTvActivity.this);
-
-            }
-
-            @Override
-            public void onEarned() {
-
-                rewardEarned = true;
-                Log.i("TAG", "add:earned ");
-
-
-            }
-        });
-
-
-    }
-
-
-    private void showPremiumPopup() {
-        binding.blurView.setVisibility(View.VISIBLE);
-
-
-        new CustomDialogBuilder(this).showPremiumDialog(new CustomDialogBuilder.OnDismissListener() {
-            @Override
-            public void onPositiveDismiss() {
-
-                startActivity(new Intent(SearchLiveTvActivity.this, ProActivity.class));
-            }
-
-            @Override
-            public void onDismiss() {
-                binding.blurView.setVisibility(View.GONE);
-
-            }
-        });
-
-    }
+    // LiveTV specific methods removed - content clicks are handled in adapter
 
     private void setListeners() {
-        binding.blurView.setOnClickListener(v -> {
-
-        });
         binding.centerLoader.setOnClickListener(v -> {
 
         });
@@ -225,29 +147,7 @@ public class SearchLiveTvActivity extends BaseActivity {
             getOnBackPressedDispatcher().onBackPressed();
         });
 
-        liveTvObjectAdapter.setOnItemClick(new LiveTvObjectAdapter.OnItemClick() {
-            @Override
-            public void onClick(LiveTv.CategoryItem.TvChannelItem model) {
-                //                 AccessType :  1:free , 2:paid , 3:ad
-                if (model.getAccessType() == 1) {
-
-                    increaseView(model.getId());
-                    Intent intent = new Intent(SearchLiveTvActivity.this, PlayerNewActivity.class);
-                    intent.putExtra(Const.DataKey.LIVE_TV_MODEL, new Gson().toJson(model));
-                    startActivity(intent);
-
-                } else if (model.getAccessType() == 2) {
-//                        premium pop up
-                    showPremiumPopup();
-
-
-                } else if (model.getAccessType() == 3) {
-//                      video ad pop up
-                    showADDPopup(model);
-
-                }
-            }
-        });
+        // Content item clicks are handled in the adapter itself
 
 
         binding.rv.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -258,11 +158,11 @@ public class SearchLiveTvActivity extends BaseActivity {
                 gridLayoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
 
-                    Log.i("TAG", "onCreate: " + liveTvObjectAdapter.getItemCount() + gridLayoutManager.findLastVisibleItemPosition());
+                    Log.i("TAG", "onCreate: " + contentGridAdapter.getItemCount() + gridLayoutManager.findLastVisibleItemPosition());
 
-                    if (liveTvObjectAdapter.getItemCount() - 1 == gridLayoutManager.findLastVisibleItemPosition()
+                    if (contentGridAdapter.getItemCount() - 1 == gridLayoutManager.findLastVisibleItemPosition()
                             && !isLoading) {
-                        getChannels();
+                        searchContent();
                     }
                 }
 
@@ -311,20 +211,19 @@ public class SearchLiveTvActivity extends BaseActivity {
     private void changeData() {
 
         dataOver = false;
-        liveTvObjectAdapter.clear();
-        liveTvObjectAdapter.updateItems(new ArrayList<>());
-        getChannels();
+        contentGridAdapter.clear();
+        searchContent();
     }
 
     private void initialization() {
-        myRewardAds = new MyRewardAds(this);
         disposable = new CompositeDisposable();
-        liveTvObjectAdapter = new LiveTvObjectAdapter(2);
+        contentGridAdapter = new ContentGridAdapter();
+        gridLayoutManager = new GridLayoutManager(this, 3); // 3 columns for grid
 
-        binding.rv.setAdapter(liveTvObjectAdapter);
+        binding.rv.setLayoutManager(gridLayoutManager);
+        binding.rv.setAdapter(contentGridAdapter);
         binding.rv.setItemAnimator(null);
 
-        setBlur(binding.blurView, binding.rootLout, 10f);
 
         binding.tvType.setVisibility(View.VISIBLE);
     }

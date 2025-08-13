@@ -8,5 +8,7 @@ class MovieHistory(
     var movieName: String? = null,
     var thumbnail: String? = null,
     var time: Long? = null,
-    var sources: ArrayList<SourceItem>? = null
+    var sources: ArrayList<SourceItem>? = null,
+    var releaseYear: Int? = null,
+    var duration: String? = null
 )

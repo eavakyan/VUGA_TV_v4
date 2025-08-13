@@ -134,12 +134,12 @@ public class MainActivity extends BaseActivity {
             });
         }
         
-        // Top bar Search button
-        if (binding.btnSearchMain != null) {
-            binding.btnSearchMain.setOnClickListener(v -> {
-                startActivity(new Intent(this, SearchLiveTvActivity.class));
-            });
-        }
+        // Top bar Search button - removed from layout
+        // if (binding.btnSearchMain != null) {
+        //     binding.btnSearchMain.setOnClickListener(v -> {
+        //         startActivity(new Intent(this, SearchLiveTvActivity.class));
+        //     });
+        // }
         
         // Handle tablet-specific navigation
         if (DeviceUtils.isTabletLandscape(this)) {
@@ -273,20 +273,16 @@ public class MainActivity extends BaseActivity {
         // Bottom navigation - Subscriptions
         if (binding.btnSubscriptions != null) {
             binding.btnSubscriptions.setOnClickListener(v -> {
-                // TODO: Navigate to Subscriptions activity when created
-                // For now, navigate to position 2
-                if (binding.viewPager != null) {
-                    binding.viewPager.setCurrentItem(2, false);
-                }
+                // Navigate to ProActivity which shows subscription options
+                startActivity(new Intent(this, ProActivity.class));
             });
         }
 
         // Bottom navigation - Watch List
         if (binding.btnWatch != null) {
             binding.btnWatch.setOnClickListener(v -> {
-                if (binding.viewPager != null) {
-                    binding.viewPager.setCurrentItem(3, false);
-                }
+                // Navigate to dedicated WatchList page
+                startActivity(new Intent(this, WatchListActivity.class));
             });
         }
 
@@ -337,8 +333,8 @@ public class MainActivity extends BaseActivity {
         
         if (binding.btnWatch != null) {
             binding.btnWatch.setOnClickListener(v -> {
-                binding.viewPager.setCurrentItem(3, false);
-                updateTabletNavigationSelection(3);
+                // Navigate to dedicated WatchList page
+                startActivity(new Intent(this, WatchListActivity.class));
             });
         }
     }
@@ -436,54 +432,8 @@ public class MainActivity extends BaseActivity {
     }
 
     private void updateProfileAvatar() {
-        UserRegistration.Data userData = sessionManager.getUser();
-        if (userData != null && userData.getLastActiveProfile() != null) {
-            UserRegistration.Profile currentProfile = userData.getLastActiveProfile();
-            
-            if ("default".equals(currentProfile.getAvatarType()) || "color".equals(currentProfile.getAvatarType())) {
-                // Show color avatar
-                binding.imgPic.setVisibility(View.GONE);
-                binding.imgUser.setVisibility(View.GONE);
-                binding.viewColorAvatar.setVisibility(View.VISIBLE);
-                binding.tvProfileInitial.setVisibility(View.VISIBLE);
-                
-                try {
-                    binding.viewColorAvatar.setCardBackgroundColor(Color.parseColor(currentProfile.getAvatarColor()));
-                } catch (Exception e) {
-                    binding.viewColorAvatar.setCardBackgroundColor(Color.parseColor("#FF5252"));
-                }
-                
-                // Set initial
-                String name = currentProfile.getName();
-                if (name != null && !name.isEmpty()) {
-                    binding.tvProfileInitial.setText(name.substring(0, 1).toUpperCase());
-                }
-            } else if ("custom".equals(currentProfile.getAvatarType()) && currentProfile.getAvatarUrl() != null && !currentProfile.getAvatarUrl().isEmpty()) {
-                // Show custom uploaded image avatar
-                binding.imgPic.setVisibility(View.VISIBLE);
-                binding.imgUser.setVisibility(View.GONE);
-                binding.viewColorAvatar.setVisibility(View.GONE);
-                binding.tvProfileInitial.setVisibility(View.GONE);
-                
-                String avatarUrl = currentProfile.getAvatarUrl();
-                if (!avatarUrl.startsWith("http")) {
-                    avatarUrl = Const.IMAGE_URL + avatarUrl;
-                }
-                BindingAdapters.loadImage(binding.imgPic, avatarUrl);
-            } else {
-                // Show default user icon
-                binding.imgPic.setVisibility(View.GONE);
-                binding.imgUser.setVisibility(View.VISIBLE);
-                binding.viewColorAvatar.setVisibility(View.GONE);
-                binding.tvProfileInitial.setVisibility(View.GONE);
-            }
-        } else {
-            // No profile, show default user icon
-            binding.imgPic.setVisibility(View.GONE);
-            binding.imgUser.setVisibility(View.VISIBLE);
-            binding.viewColorAvatar.setVisibility(View.GONE);
-            binding.tvProfileInitial.setVisibility(View.GONE);
-        }
+        // Profile avatar removed from top bar - these views no longer exist
+        // Keeping method to avoid breaking other calls
     }
 
     private void updateProfileNameInTopBar() {

@@ -117,7 +117,7 @@
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/ic_mail"
+                                android:src="@drawable/ic_email"
                                 app:tint="@color/app_color" />
 
                             <TextView
@@ -174,7 +174,7 @@
                             <ImageView
                                 android:layout_width="24dp"
                                 android:layout_height="24dp"
-                                android:src="@drawable/ic_message"
+                                android:src="@drawable/ic_reply"
                                 app:tint="@color/app_color" />
 
                             <TextView
@@ -254,7 +254,7 @@
         <!-- Loader -->
         <include
             android:id="@+id/loader"
-            layout="@layout/lout_loader"
+            layout="@layout/layout_loader"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="gone" />

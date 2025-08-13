@@ -67,26 +67,33 @@
             android:layout_width="123dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="5dp"
-            android:gravity="center">
+            android:orientation="vertical">
 
+            <!-- Year/Duration text -->
             <androidx.appcompat.widget.AppCompatTextView
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
+                android:ellipsize="end"
+                android:fontFamily="@font/outfit_regular"
+                android:maxLines="1"
+                android:text="@{(model.releaseYear != null ? String.valueOf(model.releaseYear) : ``) + (model.duration != null &amp;&amp; !model.duration.isEmpty() ? ` • ` + model.duration : ``)}"
+                android:textColor="@color/text_color_light"
+                android:textSize="11sp"
+                tools:text="2024 • 1h 45m" />
+
+            <!-- Title text -->
+            <androidx.appcompat.widget.AppCompatTextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:ellipsize="end"
                 android:fontFamily="@font/outfit_medium"
                 android:maxLines="1"
                 android:text="@{model.movieName}"
                 android:textColor="@color/white"
+                android:textSize="13sp"
                 tools:text="@tools:sample/full_names" />
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/iv_info"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginStart="5dp"
-                android:padding="1dp"
-                android:src="@drawable/ic_info" />
+            <!-- Info icon removed -->
         </androidx.appcompat.widget.LinearLayoutCompat>
     </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

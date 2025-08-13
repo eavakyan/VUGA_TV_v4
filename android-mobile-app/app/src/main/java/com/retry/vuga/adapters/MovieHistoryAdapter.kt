@@ -70,14 +70,7 @@ class MovieHistoryAdapter : RecyclerView.Adapter<MovieHistoryAdapter.MovieHistor
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
                 itemView.context.startActivity(intent)
             }
-            binding.ivInfo.setOnClickListener {
-                val intent = Intent(
-                    itemView.context,
-                    MovieDetailActivity::class.java
-                )
-                intent.putExtra(Const.DataKey.CONTENT_ID, model.movieId)
-                itemView.context.startActivity(intent)
-            }
+            // Info icon removed - click on the whole item to view details
             binding.model = model
         }
 

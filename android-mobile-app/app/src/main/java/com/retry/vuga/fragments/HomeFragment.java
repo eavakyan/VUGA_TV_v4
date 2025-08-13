@@ -45,6 +45,7 @@ import com.retry.vuga.adapters.HomeCatNameAdapter;
 import com.retry.vuga.adapters.HomeFeaturedAdapter;
 import com.retry.vuga.adapters.HomeTopItemsAdapter;
 import com.retry.vuga.adapters.HomeWatchlistAdapter;
+import com.retry.vuga.adapters.NewReleasesAdapter;
 import com.retry.vuga.adapters.MovieHistoryAdapter;
 import com.retry.vuga.adapters.HorizontalCategoryAdapter;
 import com.retry.vuga.databinding.FragmentHomeBinding;
@@ -59,7 +60,10 @@ import com.retry.vuga.viewmodel.HomeViewModel;
 import com.retry.vuga.viewmodel.MainViewModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -74,6 +78,7 @@ public class HomeFragment extends BaseFragment {
     HomeWatchlistAdapter homeWatchlistAdapter;
     HomeTopItemsAdapter homeTopItemsAdapter;
     HomeCatNameAdapter homeCatNameAdapter;
+    NewReleasesAdapter newReleasesAdapter;
 
     CompositeDisposable disposable;
 
@@ -81,6 +86,7 @@ public class HomeFragment extends BaseFragment {
     List<ContentDetail.DataItem> watchList = new ArrayList<>();
     List<HomePage.TopContentItem> topList = new ArrayList<>();
     List<HomePage.GenreContents> catList = new ArrayList<>();
+    List<ContentDetail.DataItem> newReleasesList = new ArrayList<>();
 
     MainViewModel mainViewModel;
     HomeViewModel viewModel;
@@ -207,7 +213,8 @@ public class HomeFragment extends BaseFragment {
                             scrollingPos = ((LinearLayoutManager) binding.rvFeatured.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
                             reversed = scrollingPos + 1 > homeFeaturedAdapter.getItemCount() - 1;
 
-                            scrollToPos(true);
+                            // Disabled auto-scrolling - manual sliding only
+                            // scrollToPos(true);
                         }
                         scrolledByUser = false;
                     }
@@ -247,9 +254,10 @@ public class HomeFragment extends BaseFragment {
             binding.rvFeatured.smoothScrollToPosition(scrollingPos);
         }
         setContentData();
-        if (handler != null && !requireActivity().isDestroyed()) {
-            handler.postDelayed(runnable, Const.FEATURED_SCROLL);
-        }
+        // Disabled auto-scrolling - manual sliding only
+        // if (handler != null && !requireActivity().isDestroyed()) {
+        //     handler.postDelayed(runnable, Const.FEATURED_SCROLL);
+        // }
     }
 
     @Override
@@ -270,15 +278,15 @@ public class HomeFragment extends BaseFragment {
             }
         }, 1000);
 
-        // Only restart auto-scrolling if everything is properly initialized
-        if (homeFeaturedAdapter != null && 
-            homeFeaturedAdapter.getItemCount() != 0 && 
-            handler != null && 
-            binding != null && 
-            binding.rvFeatured != null &&
-            !requireActivity().isDestroyed()) {
-            handler.postDelayed(runnable, Const.FEATURED_SCROLL);
-        }
+        // Disabled auto-scrolling - manual sliding only
+        // if (homeFeaturedAdapter != null && 
+        //     homeFeaturedAdapter.getItemCount() != 0 && 
+        //     handler != null && 
+        //     binding != null && 
+        //     binding.rvFeatured != null &&
+        //     !requireActivity().isDestroyed()) {
+        //     handler.postDelayed(runnable, Const.FEATURED_SCROLL);
+        // }
     }
 
     private void initHistory() {
@@ -345,31 +353,16 @@ public class HomeFragment extends BaseFragment {
                             for (int i = 0; i < homeFeaturedAdapter.getList().size(); i++) {
                                 dotlist.add(" ");
                             }
-                            // Only start auto-scrolling if fragment is still active
-                            if (handler != null && !requireActivity().isDestroyed()) {
-                                handler.removeCallbacks(runnable);
-                                handler.postDelayed(runnable, Const.FEATURED_SCROLL);
-                            }
+                            // Disabled auto-scrolling - manual sliding only
+                            // if (handler != null && !requireActivity().isDestroyed()) {
+                            //     handler.removeCallbacks(runnable);
+                            //     handler.postDelayed(runnable, Const.FEATURED_SCROLL);
+                            // }
 
                         }
-                        if (homePage.getWatchlist() != null) {
-
-                            if (!homePage.getWatchlist().isEmpty()) {
-                                watchList = new ArrayList<>();
-                                watchList.addAll(homePage.getWatchlist());
-                                homeWatchlistAdapter.updateItems(watchList);
-                                if (binding.loutWathlist != null) {
-                                    binding.loutWathlist.setVisibility(View.VISIBLE);
-                                }
-                            } else {
-                                if (binding.loutWathlist != null) {
-                                    binding.loutWathlist.setVisibility(View.GONE);
-                                }
-                            }
-                        } else {
-                            if (binding.loutWathlist != null) {
-                                binding.loutWathlist.setVisibility(View.GONE);
-                            }
+                        // Watchlist row is hidden per requirements
+                        if (binding.loutWathlist != null) {
+                            binding.loutWathlist.setVisibility(View.GONE);
                         }
 
                         if (homePage.getTopContents() != null) {
@@ -391,6 +384,9 @@ public class HomeFragment extends BaseFragment {
                             homeCatNameAdapter.updateItems(catList);
                             // Update horizontal categories
                             horizontalCategoryAdapter.updateGenres(catList);
+                            
+                            // Extract new releases from genre contents
+                            extractNewReleases(homePage.getGenreContents());
                         }
 
                     }
@@ -421,6 +417,7 @@ public class HomeFragment extends BaseFragment {
         homeFeaturedAdapter = new HomeFeaturedAdapter();
         genreAdapter = new ContentDetailGenreAdapter();
         horizontalCategoryAdapter = new HorizontalCategoryAdapter();
+        newReleasesAdapter = new NewReleasesAdapter();
         
         if (binding.swipeRefresh != null) {
             binding.swipeRefresh.setProgressViewOffset(true, 150, 350);
@@ -438,6 +435,9 @@ public class HomeFragment extends BaseFragment {
         }
         if (binding.rvTop10 != null) {
             binding.rvTop10.setAdapter(homeTopItemsAdapter);
+        }
+        if (binding.rvNewReleases != null) {
+            binding.rvNewReleases.setAdapter(newReleasesAdapter);
         }
 
         // Set up genre RecyclerView if it exists
@@ -571,6 +571,55 @@ public class HomeFragment extends BaseFragment {
     
     private void updateProfileName() {
         // Profile name display removed from header - no longer needed after UI update
+    }
+    
+    private void extractNewReleases(List<HomePage.GenreContents> genreContents) {
+        // Extract all content from genres
+        List<ContentDetail.DataItem> allContent = new ArrayList<>();
+        for (HomePage.GenreContents genre : genreContents) {
+            if (genre.getContent() != null) {
+                allContent.addAll(genre.getContent());
+            }
+        }
+        
+        // Get current year
+        int currentYear = java.util.Calendar.getInstance().get(java.util.Calendar.YEAR);
+        
+        // Filter content released in current year and remove duplicates
+        Set<Integer> seenIds = new HashSet<>();
+        newReleasesList = new ArrayList<>();
+        
+        for (ContentDetail.DataItem content : allContent) {
+            // Check if release year matches current year (getReleaseYear returns primitive int)
+            if (content.getReleaseYear() == currentYear) {
+                if (!seenIds.contains(content.getId())) {
+                    seenIds.add(content.getId());
+                    newReleasesList.add(content);
+                }
+            }
+        }
+        
+        // Sort by ID in descending order (newer content typically has higher IDs)
+        Collections.sort(newReleasesList, (a, b) -> {
+            return Integer.compare(b.getId(), a.getId());
+        });
+        
+        // Limit to 20 items
+        if (newReleasesList.size() > 20) {
+            newReleasesList = newReleasesList.subList(0, 20);
+        }
+        
+        // Update adapter
+        if (newReleasesAdapter != null && !newReleasesList.isEmpty()) {
+            newReleasesAdapter.updateItems(newReleasesList);
+            if (binding.loutNewReleases != null) {
+                binding.loutNewReleases.setVisibility(View.VISIBLE);
+            }
+        } else {
+            if (binding.loutNewReleases != null) {
+                binding.loutNewReleases.setVisibility(View.GONE);
+            }
+        }
     }
     
     // Removed old navigation and dropdown methods - replaced with horizontal category list

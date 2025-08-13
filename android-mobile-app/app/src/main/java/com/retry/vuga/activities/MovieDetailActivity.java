@@ -60,6 +60,7 @@ import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.CustomDialogBuilder;
 import com.retry.vuga.utils.Global;
+import com.retry.vuga.model.Trailer;
 import com.retry.vuga.utils.TrailerUtils;
 import com.retry.vuga.utils.UniversalCastButton;
 import com.retry.vuga.utils.UniversalCastManager;
@@ -251,6 +252,8 @@ public class MovieDetailActivity extends BaseActivity {
                         intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
                         intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
                         intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                        intent.putExtra(Const.DataKey.RELEASE_YEAR, contentItem.getReleaseYear());
+                        intent.putExtra(Const.DataKey.DURATION, contentItem.getDuration());
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(intent);
 
@@ -591,6 +594,8 @@ public class MovieDetailActivity extends BaseActivity {
                     intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
                     intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
                     intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                    intent.putExtra(Const.DataKey.RELEASE_YEAR, contentItem.getReleaseYear());
+                    intent.putExtra(Const.DataKey.DURATION, contentItem.getDuration());
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
 
@@ -688,6 +693,8 @@ public class MovieDetailActivity extends BaseActivity {
                     intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
                     intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
                     intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                    intent.putExtra(Const.DataKey.RELEASE_YEAR, contentItem.getReleaseYear());
+                    intent.putExtra(Const.DataKey.DURATION, contentItem.getDuration());
                     intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                     startActivity(intent);
 
@@ -749,6 +756,8 @@ public class MovieDetailActivity extends BaseActivity {
                         intent.putExtra(Const.DataKey.NAME, contentItem.getTitle());
                         intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
                         intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                        intent.putExtra(Const.DataKey.RELEASE_YEAR, contentItem.getReleaseYear());
+                        intent.putExtra(Const.DataKey.DURATION, contentItem.getDuration());
                         intent.putExtra(Const.DataKey.SUB_TITLES, new Gson().toJson(subTitlesList));
                         intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                         startActivity(intent);
@@ -1155,18 +1164,41 @@ public class MovieDetailActivity extends BaseActivity {
 
 
                     if (contentDetail != null) {
-
+                        Log.d("Trailer", "===== API RESPONSE DEBUG =====");
+                        Log.d("Trailer", "API Status: " + contentDetail.getStatus());
+                        
                         if (contentDetail.getStatus()) {
 
                             if (contentDetail.getData() != null) {
                                 contentItem = contentDetail.getData();
+                                
+                                // Log trailer data from API response
+                                Log.d("Trailer", "Content received: " + contentItem.getTitle());
+                                Log.d("Trailer", "API trailer_url: " + contentItem.getTrailerUrl());
+                                Log.d("Trailer", "API trailer_youtube_id: " + contentItem.getTrailerYoutubeId());
+                                Log.d("Trailer", "API trailers array: " + (contentItem.getTrailers() != null ? contentItem.getTrailers().size() : "null"));
+                                
+                                if (contentItem.getTrailers() != null && !contentItem.getTrailers().isEmpty()) {
+                                    Log.d("Trailer", "Trailers array details:");
+                                    for (Trailer t : contentItem.getTrailers()) {
+                                        Log.d("Trailer", "  - Title: " + t.getTitle() + 
+                                            ", URL: " + t.getTrailerUrl() + 
+                                            ", Primary: " + t.isPrimary());
+                                    }
+                                }
+                                
                                 binding.loutLoader.setVisibility(View.GONE);
                                 setContentDetail();
+                            } else {
+                                Log.d("Trailer", "API response has no data");
                             }
                         } else {
-
+                            Log.d("Trailer", "API response status is false");
 
                         }
+                        Log.d("Trailer", "===== END API DEBUG =====");
+                    } else {
+                        Log.d("Trailer", "API response is null");
                     }
 
                 }));
@@ -1824,17 +1856,45 @@ public class MovieDetailActivity extends BaseActivity {
     }
     
     private void setupTrailerPlayer() {
+        Log.d("Trailer", "===== TRAILER PLAYER DEBUG =====");
+        Log.d("Trailer", "setupTrailerPlayer() called");
+        Log.d("Trailer", "Current poster visibility: " + binding.imgPosterBackground.getVisibility());
+        Log.d("Trailer", "Current video visibility: " + binding.videoTrailer.getVisibility());
+        
         if (contentItem == null) {
             Log.d("Trailer", "Content item is null, showing poster");
             showPosterOnly();
             return;
         }
         
+        // Log all trailer-related fields
+        Log.d("Trailer", "Content Title: " + contentItem.getTitle());
+        Log.d("Trailer", "Legacy trailer_url: " + contentItem.getTrailerUrl());
+        Log.d("Trailer", "Trailer YouTube ID: " + contentItem.getTrailerYoutubeId());
+        Log.d("Trailer", "Trailers array size: " + (contentItem.getTrailers() != null ? contentItem.getTrailers().size() : 0));
+        
+        if (contentItem.getTrailers() != null && !contentItem.getTrailers().isEmpty()) {
+            for (int i = 0; i < contentItem.getTrailers().size(); i++) {
+                Trailer t = contentItem.getTrailers().get(i);
+                Log.d("Trailer", "Trailer[" + i + "] - Title: " + t.getTitle() + 
+                    ", URL: " + t.getTrailerUrl() + 
+                    ", YouTube ID: " + t.getYoutubeId() + 
+                    ", Primary: " + t.isPrimary());
+            }
+        }
+        
         String trailerUrl = TrailerUtils.getEffectiveTrailerUrl(contentItem);
-        Log.d("Trailer", "Effective Trailer URL: " + trailerUrl);
+        Log.d("Trailer", "Effective Trailer URL from TrailerUtils: " + trailerUrl);
+        
+        // TEST: If no trailer, use a test video to verify player works
+        boolean useTestTrailer = true; // TEMPORARILY SET TO TRUE FOR TESTING
+        if (useTestTrailer && (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null"))) {
+            Log.d("Trailer", "Using TEST trailer to verify player functionality");
+            trailerUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+        }
         
         if (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null")) {
-            Log.d("Trailer", "No trailer URL available, showing poster");
+            Log.d("Trailer", "No trailer URL available, showing poster only");
             showPosterOnly();
             return;
         }
@@ -1842,23 +1902,30 @@ public class MovieDetailActivity extends BaseActivity {
         Log.d("Trailer", "Setting up trailer player for URL: " + trailerUrl);
         
         // Hide poster when we have a trailer
+        Log.d("Trailer", "Hiding poster image to show trailer");
         binding.imgPosterBackground.setVisibility(View.GONE);
+        Log.d("Trailer", "Poster visibility after hiding: " + binding.imgPosterBackground.getVisibility());
         
         // Check if it's a YouTube URL
         if (isYouTubeUrl(trailerUrl)) {
-            Log.d("Trailer", "Detected YouTube URL, using WebView");
+            Log.d("Trailer", "Detected YouTube URL, using WebView player");
             setupYouTubePlayer(trailerUrl);
         } else {
-            Log.d("Trailer", "Detected CDN URL, using VideoView");
+            Log.d("Trailer", "Detected CDN/Direct URL, using VideoView player");
             setupCdnVideoPlayer(trailerUrl);
         }
+        
+        Log.d("Trailer", "===== END TRAILER DEBUG =====");
     }
     
     private void showPosterOnly() {
+        Log.d("Trailer", "showPosterOnly() called - hiding video players, showing poster");
         binding.videoTrailer.setVisibility(View.GONE);
         binding.webviewYoutubeTrailer.setVisibility(View.GONE);
         binding.btnPlayPauseTrailer.setVisibility(View.GONE);
         binding.imgPosterBackground.setVisibility(View.VISIBLE);
+        Log.d("Trailer", "Final poster visibility: " + binding.imgPosterBackground.getVisibility());
+        Log.d("Trailer", "Final video visibility: " + binding.videoTrailer.getVisibility());
     }
     
     private boolean isYouTubeUrl(String url) {
@@ -1951,6 +2018,7 @@ public class MovieDetailActivity extends BaseActivity {
     }
     
     private void setupCdnVideoPlayer(String trailerUrl) {
+        Log.d("Trailer", "setupCdnVideoPlayer() called");
         Log.d("Trailer", "Setting up CDN video player with URL: " + trailerUrl);
         
         // Build the full URL if it's not already absolute
@@ -1969,9 +2037,12 @@ public class MovieDetailActivity extends BaseActivity {
             return;
         }
         
+        Log.d("Trailer", "Making VideoView visible");
         binding.videoTrailer.setVisibility(View.VISIBLE);
         binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
         binding.webviewYoutubeTrailer.setVisibility(View.GONE);
+        Log.d("Trailer", "VideoView visibility after setup: " + binding.videoTrailer.getVisibility());
+        Log.d("Trailer", "Play button visibility: " + binding.btnPlayPauseTrailer.getVisibility());
         
         // Set up the video view
         binding.videoTrailer.setVideoURI(Uri.parse(fullTrailerUrl));

@@ -142,9 +142,11 @@
                     android:orientation="vertical">
 
                     <RelativeLayout
+                        android:id="@+id/lout_pro_container"
                         android:layout_width="match_parent"
                         android:layout_height="65dp"
-                        android:layout_marginVertical="5dp">
+                        android:layout_marginVertical="5dp"
+                        android:visibility="gone">
 
                         <include
                             layout="@layout/lout_pro_bg"
@@ -259,7 +261,7 @@
                         <ImageView
                             android:layout_width="20dp"
                             android:layout_height="20dp"
-                            android:src="@drawable/ic_mail"
+                            android:src="@drawable/ic_email"
                             app:tint="@color/text_color" />
 
                         <TextView

@@ -13,6 +13,7 @@ import com.retry.vuga.model.RestResponse;
 import com.retry.vuga.model.SearchChannel;
 import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.model.AgeRatingResponse;
+import com.retry.vuga.model.RecentlyWatchedContent;
 import com.retry.vuga.model.ads.CustomAds;
 import com.retry.vuga.utils.Const;
 
@@ -230,5 +231,12 @@ public interface RetrofitService {
     // Genre endpoints
     @POST("genre/all")
     Single<HomePage> getAllGenres();
+
+    // Recently watched content by IDs
+    @FormUrlEncoded
+    @POST("content/by-ids")
+    Single<RecentlyWatchedContent> getRecentlyWatchedContent(@Field("content_ids") String contentIds,
+                                                           @Field("user_id") int userId,
+                                                           @Field("profile_id") Integer profileId);
 
 }

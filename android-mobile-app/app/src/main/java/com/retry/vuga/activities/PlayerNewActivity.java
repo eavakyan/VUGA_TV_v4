@@ -551,9 +551,14 @@ public class PlayerNewActivity extends BaseActivity {
                 sessionManager.editDownloads(modelDownload, currentProgress);
             } else if (modelSource != null) {
                 modelSource.setContent_id(getIntent().getIntExtra(Const.DataKey.CONTENT_ID, -1));
+                Integer releaseYear = getIntent().hasExtra(Const.DataKey.RELEASE_YEAR) ? 
+                    getIntent().getIntExtra(Const.DataKey.RELEASE_YEAR, 0) : null;
+                String duration = getIntent().getStringExtra(Const.DataKey.DURATION);
                 sessionManager.updateMovieHistory(modelSource, currentProgress, 
                     getIntent().getStringExtra(Const.DataKey.CONTENT_NAME), 
-                    getIntent().getStringExtra(Const.DataKey.THUMBNAIL));
+                    getIntent().getStringExtra(Const.DataKey.THUMBNAIL),
+                    releaseYear,
+                    duration);
             }
         }
     }
