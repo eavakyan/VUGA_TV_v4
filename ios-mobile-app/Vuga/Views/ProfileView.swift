@@ -28,9 +28,48 @@ struct ProfileView: View {
                     selectedTab = .home
                 })
                 Spacer()
-                Text(String.profile.localized(language))
-                    .outfitSemiBold(20)
-                    .foregroundColor(Color("textColor"))
+                HStack(spacing: 10) {
+                    Text(String.profile.localized(language))
+                        .outfitSemiBold(20)
+                        .foregroundColor(Color("textColor"))
+                    
+                    // Show profile avatar in header
+                    if let currentProfile = SessionManager.shared.currentProfile {
+                        if let avatarUrl = currentProfile.avatarUrl, !avatarUrl.isEmpty {
+                            // Use profile avatar URL
+                            KFImage(URL(string: avatarUrl))
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 30, height: 30)
+                                .clipShape(.circle)
+                        } else if currentProfile.avatarType == "color" {
+                            // Use color avatar with first letter
+                            ZStack {
+                                Circle()
+                                    .fill(Color(hexString: currentProfile.avatarColor))
+                                    .frame(width: 30, height: 30)
+                                Text(String(currentProfile.name.prefix(1)).uppercased())
+                                    .font(.system(size: 14, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
+                        } else {
+                            // Default avatar
+                            Image.person
+                                .resizeFitTo(size: 30, renderingMode: .template)
+                                .foregroundColor(Color("textColor"))
+                        }
+                    } else {
+                        // No profile selected - show default
+                        Image.person
+                            .resizeFitTo(size: 30, renderingMode: .template)
+                            .foregroundColor(Color("textColor"))
+                    }
+                    
+                    // Show current profile name
+                    Text(SessionManager.shared.currentProfile?.name ?? "")
+                        .outfitMedium(16)
+                        .foregroundColor(Color("textColor"))
+                }
                 Spacer()
                 BackButton()
                     .hidden()
@@ -39,35 +78,16 @@ struct ProfileView: View {
             .padding(.horizontal)
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
-                    HStack(alignment: .top) {
-                        Image.edit
-                            .resizeFitTo(size: 25)
-                            .hidden()
-                            .padding(.horizontal)
-                        Spacer()
-                        if vm.myUser?.profileImage != nil && vm.myUser?.profileImage != "" {
-                            KFImage(vm.myUser?.profileImage?.addBaseURL())
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 100,height: 100)
-                                .clipShape(.circle)
-                                .addStroke(radius: 100)
-                        } else {
-                            Image.person
-                                .resizeFitTo(size: 110,renderingMode: .template)
-                                .foregroundColor(Color("textColor"))
+                    // Avatar section removed - now shown in header
+                    // Edit button commented out as requested
+                    /*
+                    Image.edit
+                        .resizeFitTo(size: 25)
+                        .padding(.horizontal)
+                        .onTap {
+                            Navigation.pushToSwiftUiView(EditProfileVIew())
                         }
-                        Spacer()
-                        Image.edit
-                            .resizeFitTo(size: 25)
-                            .padding(.horizontal)
-                            .onTap {
-                                Navigation.pushToSwiftUiView(EditProfileVIew())
-                            }
-                    }
-                    Text(vm.myUser?.fullname ?? "")
-                        .outfitMedium(20)
-                        .padding(.vertical,10)
+                    */
                     MySpaceFieldCardWithSwitch(icon: .notification, title: .notifications,isNotificationCard: true)
                     
                     ProfileFieldCard(icon: .mail, title: "Contact Preferences"){
