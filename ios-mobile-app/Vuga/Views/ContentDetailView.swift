@@ -186,6 +186,8 @@ struct ContentDetailView: View {
     @State private var currentEpisodeRating: Double = 0
     @State private var selectedEpisodeForRating: Episode?
     @State private var isTrailerMuted = true
+    @State private var dragOffset: CGSize = .zero
+    @State private var isDragging = false
     @EnvironmentObject var downloadViewModel: DownloadViewModel
     var contentId: Int?
     
@@ -269,6 +271,9 @@ struct ContentDetailView: View {
                 .ignoresSafeArea()
             
             mainContent
+                .offset(y: dragOffset.height)
+                .opacity(isDragging ? 0.8 : 1.0)
+                .animation(.interactiveSpring(), value: dragOffset)
         }
         .navigationBarHidden(true)
         .loaderView(vm.isLoading)
@@ -283,6 +288,33 @@ struct ContentDetailView: View {
         .sheet(isPresented: $vm.showDistributorSubscriptionRequired) { subscriptionRequiredContent() }
         .onAppear(perform: onAppearAirPlayHandler)
         .onDisappear(perform: onDisappearAirPlayHandler)
+        .gesture(
+            DragGesture()
+                .onChanged { value in
+                    // Only allow downward dragging
+                    if value.translation.height > 0 {
+                        isDragging = true
+                        dragOffset = value.translation
+                    }
+                }
+                .onEnded { value in
+                    isDragging = false
+                    // If dragged down more than 150 points, dismiss the view
+                    if value.translation.height > 150 {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            dragOffset.height = UIScreen.main.bounds.height
+                        }
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                            Navigation.pop()
+                        }
+                    } else {
+                        // Snap back to original position
+                        withAnimation(.interactiveSpring()) {
+                            dragOffset = .zero
+                        }
+                    }
+                }
+        )
     }
     
     private var mainContent: some View {
