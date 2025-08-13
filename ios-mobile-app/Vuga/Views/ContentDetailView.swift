@@ -185,6 +185,7 @@ struct ContentDetailView: View {
     @State private var showEpisodeRatingSheet = false
     @State private var currentEpisodeRating: Double = 0
     @State private var selectedEpisodeForRating: Episode?
+    @State private var isTrailerMuted = true
     @EnvironmentObject var downloadViewModel: DownloadViewModel
     var contentId: Int?
     
@@ -262,63 +263,80 @@ struct ContentDetailView: View {
     }
     
     var body: some View {
-        mainContent
-            .background(ContentBackgroudView(content: vm.content))
-            .addBackground()
-            .loaderView(vm.isLoading)
-            .onAppear(perform: onAppearHandler)
-            .onDisappear(perform: onDisappearHandler)
-            .fullScreenCover(item: $vm.selectedSource, content: videoPlayerContent)
-            .fullScreenCover(isPresented: $showTrailerSheet, content: trailerContent)
-            .customAlert(isPresented: $vm.isShowPremiumDialog) { premiumAlert() }
-            .customAlert(isPresented: $vm.isShowAdDialog) { adAlert() }
-            .sheet(isPresented: $showRatingSheet) { ratingSheetContent() }
-            .sheet(isPresented: $showEpisodeRatingSheet) { episodeRatingSheetContent() }
-            .sheet(isPresented: $vm.showDistributorSubscriptionRequired) { subscriptionRequiredContent() }
-            .onAppear(perform: onAppearAirPlayHandler)
-            .onDisappear(perform: onDisappearAirPlayHandler)
+        ZStack {
+            // Black background
+            Color.black
+                .ignoresSafeArea()
+            
+            mainContent
+        }
+        .navigationBarHidden(true)
+        .loaderView(vm.isLoading)
+        .onAppear(perform: onAppearHandler)
+        .onDisappear(perform: onDisappearHandler)
+        .fullScreenCover(item: $vm.selectedSource, content: videoPlayerContent)
+        .fullScreenCover(isPresented: $showTrailerSheet, content: trailerContent)
+        .customAlert(isPresented: $vm.isShowPremiumDialog) { premiumAlert() }
+        .customAlert(isPresented: $vm.isShowAdDialog) { adAlert() }
+        .sheet(isPresented: $showRatingSheet) { ratingSheetContent() }
+        .sheet(isPresented: $showEpisodeRatingSheet) { episodeRatingSheetContent() }
+        .sheet(isPresented: $vm.showDistributorSubscriptionRequired) { subscriptionRequiredContent() }
+        .onAppear(perform: onAppearAirPlayHandler)
+        .onDisappear(perform: onDisappearAirPlayHandler)
     }
     
     private var mainContent: some View {
-        VStack {
-            headerView
-            ScrollView(showsIndicators: false) {
-                LazyVStack(spacing: 12) {
-                    if let content = vm.content {
-                        contentDetailSection(for: content)
-                        divider()
-                        VStack(spacing: 8) {
-                            Heading(title: .storyLine) {
-                                Image.back
-                                    .rotationEffect(.degrees(vm.isStoryLineOn ? 90 : 270))
-                                    .onTap {
-                                        vm.toggleStoryLine()
-                                    }
-                            }
-                            
-                            if vm.isStoryLineOn {
-                                Text(content.description ?? "")
-                                    .outfitLight(16)
-                                    .foregroundColor(.textLight)
-                                    .maxWidthFrame(.leading)
-                            }
-                        }
-                        .animation(.linear, value: vm.isStoryLineOn)
+        VStack(spacing: 0) {
+            // Full-width trailer player at top with overlay controls
+            if let content = vm.content {
+                ZStack(alignment: .topLeading) {
+                    // Trailer player
+                    trailerPlayerSection(content)
+                    
+                    // Overlay back button
+                    Button(action: {
+                        Navigation.pop()
+                    }) {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.white)
+                            .frame(width: 44, height: 44)
+                            .background(Color.black.opacity(0.5))
+                            .clipShape(Circle())
+                    }
+                    .padding(.top, 50)
+                    .padding(.leading, 16)
+                }
+                
+                // Scrollable content below trailer
+                ScrollView(showsIndicators: false) {
+                    VStack(alignment: .leading, spacing: 16) {
+                        // Title and info section
+                        contentInfoSection(content)
                         
-                        if content.type == .movie {
-                            divider()
-                            VStack(spacing: 8) {
-                                Heading(title: .moreLikeThis)
-                                ScrollView(.horizontal,showsIndicators: false, content: {
-                                    LazyHStack(content: {
-                                        ForEach(content.moreLikeThis ?? [], id: \.id) { content in
-                                            ContentVerticalCard(vm: homeVm, content: content)
-                                        }
-                                    })
-                                    .padding(.horizontal, 10)
-                                })
-                                .padding(.horizontal, -10)
-                            }
+                        // Action buttons row
+                        actionButtonsSection(content)
+                        
+                        // Icon buttons row
+                        iconButtonsSection(content)
+                        
+                        // Story (3 lines max, no title)
+                        if let description = content.description, !description.isEmpty {
+                            Text(description)
+                                .font(.system(size: 14))
+                                .foregroundColor(.white.opacity(0.8))
+                                .lineLimit(3)
+                                .padding(.horizontal, 16)
+                        }
+                        
+                        // Cast section (3x2 grid)
+                        if let cast = content.contentCast, !cast.isEmpty {
+                            castSection(cast)
+                        }
+                        
+                        // More Like This section
+                        if let moreLikeThis = content.moreLikeThis, !moreLikeThis.isEmpty {
+                            moreLikeThisSection(moreLikeThis)
                         }
                         
                         if content.contentCast?.isNotEmpty == true {
@@ -407,15 +425,6 @@ struct ContentDetailView: View {
                 .animation(.linear, value: vm.isStoryLineOn)
                 .animation(.linear, value: vm.isStarCastOn)
             }
-            .mask(VStack(spacing: 0){
-                Rectangle().fill(LinearGradient(colors: [.clear, .black, .black], startPoint: .top, endPoint: .bottom))
-                    .frame(height: 50)
-                Rectangle()
-                    .ignoresSafeArea()
-            })
-            .onChange(of: vm.isLoading, perform: { _ in
-                
-            })
         }
     }
     
@@ -739,6 +748,69 @@ struct ContentDetailView: View {
     
     @ViewBuilder
     private func contentInfoSection(_ content: VugaContent) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            // Title (larger font)
+            Text(content.title ?? "")
+                .font(.system(size: 24, weight: .bold))
+                .foregroundColor(.white)
+            
+            // Info line: Year, Rating, Duration, Quality, CC
+            HStack(spacing: 8) {
+                // Release year
+                if let year = content.releaseYear {
+                    Text(String(year))
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                
+                // Rating badge
+                if let ageRating = content.ageRating {
+                    Text(ageRating)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 6)
+                        .padding(.vertical, 2)
+                        .background(Color.white.opacity(0.2))
+                        .cornerRadius(4)
+                }
+                
+                // Duration
+                if let durationStr = content.duration, let duration = Int(durationStr) {
+                    let hours = duration / 3600
+                    let minutes = (duration % 3600) / 60
+                    let durationText = hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
+                    Text(durationText)
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                
+                // Quality
+                Text("HD")
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    )
+                
+                // Subtitles available
+                if let subtitles = content.contentSubtitles, !subtitles.isEmpty {
+                    Image(systemName: "captions.bubble")
+                        .font(.system(size: 14))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+                
+                Spacer()
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+    }
+    
+    @ViewBuilder
+    private func contentInfoSectionOld(_ content: VugaContent) -> some View {
         VStack(spacing: 5) {
             Text(content.title ?? "")
                 .outfitSemiBold(20)
@@ -884,6 +956,254 @@ struct ContentDetailView: View {
                 }
             }
         }
+    }
+    
+    // MARK: - New Redesigned Sections
+    
+    @ViewBuilder
+    private func trailerPlayerSection(_ content: VugaContent) -> some View {
+        GeometryReader { geometry in
+            ZStack {
+                if let trailerUrl = getEffectiveTrailerUrl(for: content) {
+                    MutedTrailerView(
+                        trailerUrl: trailerUrl,
+                        shouldPlay: $shouldPlayTrailer,
+                        isMuted: $isTrailerMuted
+                    )
+                    .frame(width: geometry.size.width, height: geometry.size.width * 9/16)
+                } else {
+                    // Fallback poster if no trailer
+                    KFImage(URL(string: content.horizontalPoster ?? content.verticalPoster ?? ""))
+                        .resizable()
+                        .aspectRatio(16/9, contentMode: .fill)
+                        .frame(width: geometry.size.width, height: geometry.size.width * 9/16)
+                        .clipped()
+                }
+            }
+        }
+        .frame(height: UIScreen.main.bounds.width * 9/16)
+    }
+    
+    @ViewBuilder
+    private func actionButtonsSection(_ content: VugaContent) -> some View {
+        HStack(spacing: 12) {
+            if vm.progress > 0 {
+                // Content has been watched before - show Resume and Start from Beginning
+                
+                // Resume button
+                Button(action: {
+                    handlePlayAction(content)
+                }) {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("Resume Watching")
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.white)
+                    .cornerRadius(8)
+                }
+                
+                // Start from Beginning button
+                Button(action: {
+                    vm.progress = 0
+                    handlePlayAction(content)
+                }) {
+                    HStack {
+                        Image(systemName: "arrow.counterclockwise")
+                        Text("Start from Beginning")
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.white.opacity(0.2))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    )
+                    .cornerRadius(8)
+                }
+            } else {
+                // Content has not been watched - show Play button
+                Button(action: {
+                    handlePlayAction(content)
+                }) {
+                    HStack {
+                        Image(systemName: "play.fill")
+                        Text("Play")
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.black)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.white)
+                    .cornerRadius(8)
+                }
+            }
+            
+            // Download button (if available)
+            if content.contentSources?.first?.isDownload == 1 {
+                Button(action: {
+                    handleDownload()
+                }) {
+                    HStack {
+                        Image(systemName: "arrow.down.circle")
+                        Text("Download")
+                    }
+                    .font(.system(size: 16, weight: .medium))
+                    .foregroundColor(.white)
+                    .frame(maxWidth: vm.progress > 0 ? nil : .infinity)
+                    .padding(.horizontal, vm.progress > 0 ? 16 : 0)
+                    .padding(.vertical, 12)
+                    .background(Color.white.opacity(0.2))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                    )
+                    .cornerRadius(8)
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+    }
+    
+    @ViewBuilder
+    private func iconButtonsSection(_ content: VugaContent) -> some View {
+        HStack(spacing: 20) {
+            // Rating
+            Button(action: {
+                if vm.myUser != nil {
+                    currentUserRating = content.userRating ?? 0
+                    showRatingSheet = true
+                } else {
+                    showLoginAlert = true
+                }
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: "star.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                    Text(content.userRating != nil ? String(format: "%.1f", content.userRating!) : "Rate")
+                        .font(.system(size: 10))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+            
+            // Watchlist
+            Button(action: {
+                Function.shared.haptic()
+                vm.toogleBookmark(homeVm: homeVm)
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: vm.isBookmarked ? "checkmark" : "plus")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                    Text("Watchlist")
+                        .font(.system(size: 10))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+            
+            // Share
+            Button(action: {
+                Function.shared.haptic()
+                shareContent()
+            }) {
+                VStack(spacing: 4) {
+                    Image(systemName: "square.and.arrow.up")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                    Text("Share")
+                        .font(.system(size: 10))
+                        .foregroundColor(.white.opacity(0.7))
+                }
+            }
+            
+            // Cast buttons
+            CombinedCastView(viewModel: vm)
+            
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+    }
+    
+    @ViewBuilder
+    private func castSection(_ cast: [Cast]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("Cast")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHGrid(rows: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                    ForEach(cast.prefix(12), id: \.id) { member in
+                        VStack(spacing: 4) {
+                            KFImage(URL(string: member.actor?.profile_image ?? ""))
+                                .placeholder {
+                                    Image(systemName: "person.circle.fill")
+                                        .resizable()
+                                        .foregroundColor(.gray)
+                                }
+                                .resizable()
+                                .aspectRatio(1, contentMode: .fill)
+                                .frame(width: 80, height: 80)
+                                .clipShape(Circle())
+                            
+                            Text(member.actor?.fullname ?? "")
+                                .font(.system(size: 11))
+                                .foregroundColor(.white)
+                                .lineLimit(1)
+                                .frame(width: 80)
+                        }
+                        .onTapGesture {
+                            Navigation.pushToSwiftUiView(CastView(actorId: member.actorID ?? 0))
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+                .frame(height: 200)
+            }
+        }
+    }
+    
+    @ViewBuilder
+    private func moreLikeThisSection(_ movies: [VugaContent]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("More Like This")
+                .font(.system(size: 18, weight: .semibold))
+                .foregroundColor(.white)
+                .padding(.horizontal, 16)
+            
+            ScrollView(.horizontal, showsIndicators: false) {
+                LazyHStack(spacing: 12) {
+                    ForEach(movies.prefix(10), id: \.id) { movie in
+                        VStack(spacing: 0) {
+                            KFImage(URL(string: movie.verticalPoster ?? movie.horizontalPoster ?? ""))
+                                .placeholder {
+                                    Rectangle()
+                                        .fill(Color.gray.opacity(0.3))
+                                }
+                                .resizable()
+                                .aspectRatio(2/3, contentMode: .fill)
+                                .frame(width: 120, height: 180)
+                                .clipped()
+                                .cornerRadius(8)
+                        }
+                        .onTapGesture {
+                            if let movieId = movie.id {
+                                Navigation.pushToSwiftUiView(ContentDetailView(contentId: movieId))
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 16)
+            }
+        }
+        .padding(.bottom, 20)
     }
     
     private func handlePlayAction(_ content: VugaContent) {
@@ -1078,9 +1398,15 @@ struct ContentDetailView: View {
     }
     
     func shareContent() {
-        guard let content = vm.content else { return }
+        guard let content = vm.content else { 
+            print("ShareContent: No content available to share")
+            return 
+        }
         
-        let buo = BranchUniversalObject(canonicalIdentifier: "\(content.id ?? 0)")
+        let contentIdToShare = content.id ?? 0
+        print("ShareContent: Sharing content with ID: \(contentIdToShare)")
+        
+        let buo = BranchUniversalObject(canonicalIdentifier: "\(contentIdToShare)")
         buo.title = content.title ?? ""
         buo.contentDescription = content.description ?? ""
         buo.imageUrl = content.horizontalPoster?.addBaseURL()?.absoluteString
@@ -1092,22 +1418,46 @@ struct ContentDetailView: View {
         
         let linkProperties: BranchLinkProperties = BranchLinkProperties()
         
-        linkProperties.addControlParam(WebService.branchContentID, withValue: "\(contentId ?? 0)")
+        linkProperties.addControlParam(WebService.branchContentID, withValue: "\(contentIdToShare)")
         
         buo.getShortUrl(with: linkProperties) { url, error in
             if let error = error {
-                print(error.localizedDescription)
+                print("ShareContent: Branch error: \(error.localizedDescription)")
+                // Fallback to simple sharing without Branch link
+                DispatchQueue.main.async {
+                    self.shareSimpleContent(content)
+                }
             } else if let url = url {
-                print("Branch link: \(url)")
-                shareLink(url)
-                vm.increaseContentShare(contentId: content.id ?? 0)
+                print("ShareContent: Branch link generated: \(url)")
+                DispatchQueue.main.async {
+                    self.shareLink(url)
+                    self.vm.increaseContentShare(contentId: contentIdToShare)
+                }
             }
         }
     }
     
+    func shareSimpleContent(_ content: VugaContent) {
+        // Fallback sharing without Branch link
+        let shareText = "\(content.title ?? "Check out this content")\n\n\(content.description ?? "")"
+        shareLink(shareText)
+    }
+    
     func shareLink(_ url: String) {
         let AV = UIActivityViewController(activityItems: [url], applicationActivities: nil)
-        UIApplication.shared.windows.first?.rootViewController?.present(AV, animated: true, completion: nil)
+        
+        // Get the current window scene
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let rootViewController = windowScene.windows.first?.rootViewController {
+            
+            // Find the top-most view controller
+            var topController = rootViewController
+            while let presentedViewController = topController.presentedViewController {
+                topController = presentedViewController
+            }
+            
+            topController.present(AV, animated: true, completion: nil)
+        }
     }
     
     func getFullTrailerUrl(_ trailerUrl: String) -> String {
@@ -1972,6 +2322,160 @@ struct InlineTrailerView: View {
             }
         }
         return url
+    }
+}
+
+// Muted Trailer View for the redesigned detail screen
+struct MutedTrailerView: View {
+    let trailerUrl: String
+    @Binding var shouldPlay: Bool
+    @Binding var isMuted: Bool
+    @State private var isYouTubeUrl = false
+    @State private var youTubeVideoId: String?
+    @State private var player: AVPlayer?
+    @State private var isPlaying = true  // Start playing by default
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ZStack {
+                if isYouTubeUrl, let videoId = youTubeVideoId {
+                    // YouTube player
+                    YouTubeEmbedView(videoId: videoId, shouldPlay: shouldPlay)
+                } else if let player = player {
+                    // Regular video player
+                    VideoPlayer(player: player)
+                        .disabled(true)
+                } else {
+                    // Loading state
+                    Color.black
+                        .overlay(
+                            ProgressView()
+                                .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                .scaleEffect(1.5)
+                        )
+                }
+                
+                // Control overlay - tap to play/pause
+                Color.clear
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        togglePlayPause()
+                    }
+                
+                // Controls overlay
+                VStack {
+                    Spacer()
+                    HStack {
+                        // Play/Pause button
+                        Button(action: {
+                            togglePlayPause()
+                        }) {
+                            Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(.white)
+                                .frame(width: 44, height: 44)
+                                .background(Color.black.opacity(0.5))
+                                .clipShape(Circle())
+                        }
+                        .padding(.leading, 16)
+                        
+                        Spacer()
+                        
+                        // Mute/Unmute button
+                        Button(action: {
+                            toggleMute()
+                        }) {
+                            Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                                .font(.system(size: 20))
+                                .foregroundColor(.white)
+                                .frame(width: 44, height: 44)
+                                .background(Color.black.opacity(0.5))
+                                .clipShape(Circle())
+                        }
+                        .padding(.trailing, 16)
+                    }
+                    .padding(.bottom, 16)
+                }
+            }
+        }
+        .onAppear {
+            analyzeAndSetupTrailer()
+        }
+        .onDisappear {
+            player?.pause()
+        }
+    }
+    
+    private func toggleMute() {
+        isMuted.toggle()
+        player?.isMuted = isMuted
+    }
+    
+    private func togglePlayPause() {
+        if let player = player {
+            if player.timeControlStatus == .playing {
+                player.pause()
+                isPlaying = false
+            } else {
+                player.play()
+                isPlaying = true
+            }
+        }
+    }
+    
+    private func analyzeAndSetupTrailer() {
+        // Check if it's a YouTube URL
+        if trailerUrl.contains("youtube.com") || trailerUrl.contains("youtu.be") {
+            isYouTubeUrl = true
+            youTubeVideoId = extractYouTubeVideoId(from: trailerUrl)
+        } else {
+            isYouTubeUrl = false
+            setupVideoPlayer()
+        }
+    }
+    
+    private func setupVideoPlayer() {
+        guard let url = URL(string: trailerUrl) else { return }
+        
+        let playerItem = AVPlayerItem(url: url)
+        player = AVPlayer(playerItem: playerItem)
+        
+        // IMPORTANT: Set muted BEFORE playing
+        player?.isMuted = true  // Always start muted
+        isMuted = true  // Update state to match
+        
+        // Set up looping
+        NotificationCenter.default.addObserver(
+            forName: .AVPlayerItemDidPlayToEndTime,
+            object: playerItem,
+            queue: .main
+        ) { _ in
+            if self.isPlaying {
+                self.player?.seek(to: .zero)
+                self.player?.play()
+            }
+        }
+        
+        // Auto-start playing muted
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+            self.player?.isMuted = true  // Ensure it's muted
+            self.player?.play()
+            self.isPlaying = true
+        }
+    }
+    
+    private func extractYouTubeVideoId(from url: String) -> String? {
+        if url.contains("youtube.com/watch?v=") {
+            let components = URLComponents(string: url)
+            return components?.queryItems?.first(where: { $0.name == "v" })?.value
+        } else if url.contains("youtu.be/") {
+            let components = url.components(separatedBy: "youtu.be/")
+            if components.count > 1 {
+                let idComponent = components[1]
+                return idComponent.components(separatedBy: "?").first
+            }
+        }
+        return nil
     }
 }
 

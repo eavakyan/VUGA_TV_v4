@@ -119,44 +119,36 @@ class ContentDetailViewModel : BaseViewModel {
     }
     
     func toogleBookmark(homeVm: HomeViewModel?){
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            let wasBookmarked = self.isBookmarked
-            self.isBookmarked.toggle()
-            
-            var params: [Params: Any] = [
-                .appUserId: self.myUser?.id ?? 0,
-                .contentId: self.content?.id ?? 0
-            ]
-            
-            if let profileId = self.myUser?.lastActiveProfileId, profileId > 0 {
-                params[.profileId] = profileId
-            }
-            
-            NetworkManager.callWebService(url: .toggleWatchlist, params: params, callbackSuccess: { [weak self] (obj: UserModel) in
-                if let data = obj.data {
-                    self?.myUser = data
-                    
-                    // Update home view model's wishlist
-                    if self?.isBookmarked == true {
-                        if let content = self?.content {
-                            homeVm?.wishlists.append(content)
-                        }
-                    } else {
-                        if let content = self?.content {
-                            homeVm?.wishlists.removeAll(where: {$0.id == content.id})
-                        }
-                    }
-                }
-            }, callbackFailure: { [weak self] error in
-                // If toggle failed, revert the UI state
-                print("Failed to toggle watchlist: \(error)")
-                DispatchQueue.main.async {
-                    self?.isBookmarked = wasBookmarked
-                }
-            })
+        guard let content = self.content else { return }
+        
+        let wasBookmarked = self.isBookmarked
+        self.isBookmarked.toggle()
+        
+        var params: [Params: Any] = [
+            .appUserId: self.myUser?.id ?? 0,
+            .contentId: content.id ?? 0
+        ]
+        
+        if let profileId = self.myUser?.lastActiveProfileId, profileId > 0 {
+            params[.profileId] = profileId
         }
+        
+        NetworkManager.callWebService(url: .toggleWatchlist, params: params, callbackSuccess: { [weak self] (obj: UserModel) in
+            if obj.status == true {
+                // Success - the bookmark state was successfully toggled
+                print("Watchlist toggled successfully for content: \(content.title ?? "")")
+                
+                // DON'T update myUser here as it's @AppStorage and causes app-wide updates
+                // The bookmark state is already updated locally via self.isBookmarked
+                // HomeView will fetch fresh data when needed
+            }
+        }, callbackFailure: { [weak self] error in
+            // If toggle failed, revert the UI state
+            print("Failed to toggle watchlist: \(error)")
+            DispatchQueue.main.async {
+                self?.isBookmarked = wasBookmarked
+            }
+        })
     }
 }
 
