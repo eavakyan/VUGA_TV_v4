@@ -25,9 +25,24 @@ class SearchViewModel : BaseViewModel {
         if contents.isEmpty {
             startLoading()
         }
-        var params: [Params: Any] = [.start : contents.count,
-                                     .limit: Limits.pagination,
-                                     .keyword: keyword]
+        
+        // Calculate page number from current content count
+        let currentPage = (contents.count / Limits.pagination) + 1
+        
+        var params: [Params: Any] = [
+            .search: keyword,  // Using 'search' parameter as expected by API
+            .page: currentPage,
+            .perPage: Limits.pagination
+        ]
+        
+        // Add user and profile IDs if available
+        if let userId = SessionManager.shared.currentUser?.id {
+            params[.appUserId] = userId
+        }
+        
+        if let profileId = SessionManager.shared.currentProfile?.profileId {
+            params[.profileId] = profileId
+        }
         
         if contentType != .all {
             params[.type] = contentType.rawValue
