@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		042D7BD4491D21AF58FCBE85 /* PaymentDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F3211308B3ADF3A53805C8 /* PaymentDetailsView.swift */; };
 		2B13AD032C22ABAA0037577A /* AdMetricModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B13AD022C22ABAA0037577A /* AdMetricModel.swift */; };
 		2B1403862C1028D800C7F4FB /* VLCplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1403852C1028D700C7F4FB /* VLCplayer.swift */; };
 		2B1403892C103AE700C7F4FB /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 2B1403882C103AE700C7F4FB /* GoogleMobileAds */; };
@@ -105,8 +106,10 @@
 		2BF407672C08B076002DFFA8 /* DialogCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BF407662C08B076002DFFA8 /* DialogCard.swift */; };
 		2BFCCE242C464AFD0087184F /* ActorDetailModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFCCE232C464AFD0087184F /* ActorDetailModel.swift */; };
 		2BFF61672C0DD25A00BB409B /* ProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF61662C0DD25A00BB409B /* ProView.swift */; };
+		32892791E2DC80982906575A /* PaymentMethodSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF5EB51E219A1FB20D19CE9 /* PaymentMethodSelectionView.swift */; };
 		4FB71E3714D7BA9D0CC3EB86 /* ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */; };
 		7B509AFE61B44DA0BB1B1E78 /* TrailerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EEC768CD90445586D9A12F /* TrailerModel.swift */; };
+		7F5A4165E505C6CB43EDE311 /* CheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D633B65BE77FD974AFC8C88 /* CheckoutView.swift */; };
 		9B79C8D3D3D723D8015560CF /* Pods_Vuga.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 051F6CE15BD00FB7558AA46F /* Pods_Vuga.framework */; };
 		9D723CFE82D65FB2DD3D3G9A /* TrailerPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2AAD901EF89556697F9D34H /* TrailerPlayerView.swift */; };
 		A58ED3C18B0A6C35858ED6E0 /* RecentlyWatchedGroupedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */; };
@@ -213,6 +216,7 @@
 		C4BC6A012C046A8100C63A66 /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A002C046A8100C63A66 /* EditProfileViewModel.swift */; };
 		C4BC6A032C04BCFF00C63A66 /* LanguageSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A022C04BCFF00C63A66 /* LanguageSheet.swift */; };
 		C4BC6A052C04BD2C00C63A66 /* GenreSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A042C04BD2C00C63A66 /* GenreSheet.swift */; };
+		DDE53BB3F2B64AAD437FB277 /* OrderReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -258,6 +262,7 @@
 
 /* Begin PBXFileReference section */
 		051F6CE15BD00FB7558AA46F /* Pods_Vuga.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Vuga.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		0D633B65BE77FD974AFC8C88 /* CheckoutView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CheckoutView.swift; sourceTree = "<group>"; };
 		18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ComingSoonView.swift; sourceTree = "<group>"; };
 		2B13AD022C22ABAA0037577A /* AdMetricModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMetricModel.swift; sourceTree = "<group>"; };
 		2B1403852C1028D700C7F4FB /* VLCplayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLCplayer.swift; sourceTree = "<group>"; };
@@ -350,6 +355,7 @@
 		2BFCCE232C464AFD0087184F /* ActorDetailModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActorDetailModel.swift; sourceTree = "<group>"; };
 		2BFF61662C0DD25A00BB409B /* ProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProView.swift; sourceTree = "<group>"; };
 		6019DEE4E45CAEF1E05F1FCB /* Pods-Vuga.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Vuga.release.xcconfig"; path = "Target Support Files/Pods-Vuga/Pods-Vuga.release.xcconfig"; sourceTree = "<group>"; };
+		6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrderReviewView.swift; sourceTree = "<group>"; };
 		A0EEC768CD90445586D9A12F /* TrailerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerModel.swift; sourceTree = "<group>"; };
 		B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotification.swift; sourceTree = "<group>"; };
 		B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationViewModel.swift; sourceTree = "<group>"; };
@@ -448,7 +454,9 @@
 		C4BC6A002C046A8100C63A66 /* EditProfileViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileViewModel.swift; sourceTree = "<group>"; };
 		C4BC6A022C04BCFF00C63A66 /* LanguageSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LanguageSheet.swift; sourceTree = "<group>"; };
 		C4BC6A042C04BD2C00C63A66 /* GenreSheet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenreSheet.swift; sourceTree = "<group>"; };
+		C7F3211308B3ADF3A53805C8 /* PaymentDetailsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaymentDetailsView.swift; sourceTree = "<group>"; };
 		D3BBE012FG9A667708GAE45I /* TrailerInlinePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerInlinePlayer.swift; sourceTree = "<group>"; };
+		DDF5EB51E219A1FB20D19CE9 /* PaymentMethodSelectionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaymentMethodSelectionView.swift; sourceTree = "<group>"; };
 		E8B755CE3A20E967EE8C7EAA /* Pods-Vuga.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Vuga.debug.xcconfig"; path = "Target Support Files/Pods-Vuga/Pods-Vuga.debug.xcconfig"; sourceTree = "<group>"; };
 		F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecentlyWatchedGroupedView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -557,6 +565,18 @@
 				2BF4075E2C08AD81002DFFA8 /* WrappedCustomAlert.swift */,
 			);
 			path = CustomAlert;
+			sourceTree = "<group>";
+		};
+		7F489C4C28369363B58E8714 /* Checkout */ = {
+			isa = PBXGroup;
+			children = (
+				0D633B65BE77FD974AFC8C88 /* CheckoutView.swift */,
+				DDF5EB51E219A1FB20D19CE9 /* PaymentMethodSelectionView.swift */,
+				C7F3211308B3ADF3A53805C8 /* PaymentDetailsView.swift */,
+				6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */,
+			);
+			name = Checkout;
+			path = Checkout;
 			sourceTree = "<group>";
 		};
 		A5A7DDA971023733674027FE /* Pods */ = {
@@ -833,6 +853,7 @@
 				2B2FF8492D6D871F00C4590F /* EmbeddedWebView.swift */,
 				18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */,
 				F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */,
+				7F489C4C28369363B58E8714 /* Checkout */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1272,6 +1293,10 @@
 				2BB9C9282C11CC80002ADE68 /* WebView.swift in Sources */,
 				4FB71E3714D7BA9D0CC3EB86 /* ComingSoonView.swift in Sources */,
 				A58ED3C18B0A6C35858ED6E0 /* RecentlyWatchedGroupedView.swift in Sources */,
+				7F5A4165E505C6CB43EDE311 /* CheckoutView.swift in Sources */,
+				32892791E2DC80982906575A /* PaymentMethodSelectionView.swift in Sources */,
+				042D7BD4491D21AF58FCBE85 /* PaymentDetailsView.swift in Sources */,
+				DDE53BB3F2B64AAD437FB277 /* OrderReviewView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1330,7 +1355,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = liveActivityExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = liveActivity/Info.plist;
@@ -1360,7 +1385,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = liveActivityExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = liveActivity/Info.plist;
@@ -1514,7 +1539,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1583,7 +1608,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

@@ -183,8 +183,28 @@ final class SubscriptionsViewModel: BaseViewModel {
     
     func purchaseSelectedPlan() {
         guard let planId = selectedPlanId else { return }
-        print("Purchasing plan id: \(planId) of type: \(selectedPlanType)")
-        // TODO: integrate purchase flow
+        
+        // Find the selected plan details
+        var selectedPlan: SubscriptionPricingModel?
+        if selectedPlanType == "base" {
+            selectedPlan = basePlans.first(where: { $0.id == planId })
+        } else {
+            for distributorPlan in distributorPlans {
+                if let plan = distributorPlan.plans.first(where: { $0.id == planId }) {
+                    selectedPlan = plan
+                    break
+                }
+            }
+        }
+        
+        // Navigate to checkout flow
+        Navigation.pushToSwiftUiView(
+            CheckoutView(
+                planId: planId,
+                planType: selectedPlanType,
+                planDetails: selectedPlan
+            )
+        )
     }
 }
 
