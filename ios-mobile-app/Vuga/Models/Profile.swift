@@ -5,8 +5,8 @@ struct Profile: Codable, Equatable {
     let profileId: Int
     let appUserId: Int?
     let name: String
-    let avatarType: String
-    let avatarUrl: String?
+    var avatarType: String
+    var avatarUrl: String?
     let avatarColor: String
     let avatarId: Int?
     let isKids: Bool
@@ -118,6 +118,27 @@ struct ProfileResponse: Codable {
     let message: String
     let profiles: [Profile]?
     let profile: Profile?
+}
+
+// MARK: - Avatar Upload Response
+struct ProfileAvatarUploadResponse: Codable {
+    let status: Bool
+    let message: String?
+    let avatarUrl: String?
+    let profile: Profile?
+    
+    enum CodingKeys: String, CodingKey {
+        case status
+        case message
+        case avatarUrl = "avatar_url"
+        case profile
+    }
+}
+
+// MARK: - Base Response
+struct BaseResponse: Codable {
+    let status: Bool?
+    let message: String?
 }
 
 // Extension to convert hex string to UIColor

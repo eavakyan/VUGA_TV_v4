@@ -71,17 +71,17 @@ extension Image {
     static let info                 = Image(systemName: "info.circle")
     static let grid                 = Image(systemName: "square.grid.2x2")
     
-    func resizeFitTo(size: CGFloat,renderingMode: TemplateRenderingMode = .original ,radius: CGFloat = 0) -> some View {
+    func resizeFitTo(size: CGFloat, renderingMode: TemplateRenderingMode = .original, radius: CGFloat = 0) -> some View {
         self.resizable()
             .renderingMode(renderingMode)
             .scaledToFit()
-            .frame(width: size,height: size)
+            .frame(width: size, height: size)
             .clipped()
             .contentShape(Rectangle())
             .cornerRadius(radius)
     }
     
-    func resizeFitTo(width: CGFloat,height: CGFloat,renderingMode: TemplateRenderingMode = .original ,radius: CGFloat = 0) -> some View {
+    func resizeFitTo(width: CGFloat, height: CGFloat, renderingMode: TemplateRenderingMode = .original, radius: CGFloat = 0) -> some View {
         self.resizable()
             .renderingMode(renderingMode)
             .scaledToFit()
@@ -91,17 +91,17 @@ extension Image {
             .cornerRadius(radius)
     }
     
-    func resizeFillTo(size: CGFloat,renderingMode: TemplateRenderingMode = .original ,radius: CGFloat = 0) -> some View {
+    func resizeFillTo(size: CGFloat, renderingMode: TemplateRenderingMode = .original, radius: CGFloat = 0) -> some View {
         self.resizable()
             .renderingMode(renderingMode)
             .scaledToFill()
-            .frame(width: size,height: size)
+            .frame(width: size, height: size)
             .clipped()
             .contentShape(Rectangle())
             .cornerRadius(radius)  
     }
     
-    func resizeFillTo(width: CGFloat,height: CGFloat,renderingMode: TemplateRenderingMode = .original ,radius: CGFloat = 0) -> some View {
+    func resizeFillTo(width: CGFloat, height: CGFloat, renderingMode: TemplateRenderingMode = .original, radius: CGFloat = 0) -> some View {
         self.resizable()
             .renderingMode(renderingMode)
             .scaledToFill()

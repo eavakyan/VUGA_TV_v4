@@ -53,4 +53,5 @@ enum Params: String {
     case smsConsent = "sms_consent"
     case platform = "platform"
     case notificationId = "notification_id"
+    case imageData = "image_data"
 }

@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 // import RevenueCat - Disabled temporarily
 import UIKit
+import Kingfisher
 
 class ProfileViewModel : BaseViewModel {
     
@@ -215,5 +216,159 @@ class ProfileViewModel : BaseViewModel {
             selectedAge = currentProfile.age
             isKidsProfile = currentProfile.effectiveKidsProfile
         }
+    }
+    
+    // MARK: - Avatar Upload
+    
+    func uploadAvatar(image: UIImage) {
+        guard let currentProfile = SessionManager.shared.getCurrentProfile() else {
+            print("No current profile to upload avatar")
+            return
+        }
+        
+        // Resize and compress image
+        let maxSize: CGFloat = 500
+        let resizedImage = resizeImage(image: image, targetSize: CGSize(width: maxSize, height: maxSize))
+        
+        guard let imageData = resizedImage.jpegData(compressionQuality: 0.7) else {
+            print("Failed to compress image")
+            return
+        }
+        
+        // Convert to base64
+        let base64String = imageData.base64EncodedString()
+        
+        startLoading()
+        
+        let params: [Params: Any] = [
+            .userId: myUser?.id ?? 0,
+            .profileId: currentProfile.profileId,
+            .imageData: base64String
+        ]
+        
+        NetworkManager.callWebService(url: .uploadProfileAvatar, params: params, callbackSuccess: { [weak self] (response: ProfileAvatarUploadResponse) in
+            DispatchQueue.main.async {
+                self?.stopLoading()
+                
+                if response.status {
+                    print("Upload response - avatarUrl: \(response.avatarUrl ?? "nil")")
+                    print("Upload response - profile: \(response.profile?.avatarUrl ?? "nil profile or avatarUrl")")
+                    print("Upload response - profile avatarType: \(response.profile?.avatarType ?? "nil")")
+                    
+                    // Update the current profile with the one from server response
+                    if let updatedProfile = response.profile {
+                        print("Using profile from response - avatarUrl: \(updatedProfile.avatarUrl ?? "nil")")
+                        SessionManager.shared.setCurrentProfile(updatedProfile)
+                        
+                        // Clear cached image to force reload
+                        if let avatarUrl = updatedProfile.avatarUrl {
+                            KingfisherManager.shared.cache.removeImage(forKey: avatarUrl)
+                        }
+                        
+                        // Force UI refresh
+                        self?.objectWillChange.send()
+                        
+                        // Verify the update
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            let verifyProfile = SessionManager.shared.getCurrentProfile()
+                            print("Verification - Profile avatarUrl: \(verifyProfile?.avatarUrl ?? "nil")")
+                            print("Verification - Profile avatarType: \(verifyProfile?.avatarType ?? "nil")")
+                        }
+                    } else if let avatarUrl = response.avatarUrl {
+                        // Fallback to manual update if profile not in response
+                        print("Using avatarUrl directly from response: \(avatarUrl)")
+                        var updatedProfile = currentProfile
+                        updatedProfile.avatarType = "custom"
+                        updatedProfile.avatarUrl = avatarUrl
+                        SessionManager.shared.setCurrentProfile(updatedProfile)
+                        
+                        // Clear cached image to force reload
+                        KingfisherManager.shared.cache.removeImage(forKey: avatarUrl)
+                        
+                        // Force UI refresh
+                        self?.objectWillChange.send()
+                        
+                        // Verify the update
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                            let verifyProfile = SessionManager.shared.getCurrentProfile()
+                            print("Verification - Profile avatarUrl: \(verifyProfile?.avatarUrl ?? "nil")")
+                            print("Verification - Profile avatarType: \(verifyProfile?.avatarType ?? "nil")")
+                        }
+                    }
+                    
+                    print("Avatar uploaded successfully")
+                } else {
+                    print("Failed to upload avatar: \(response.message ?? "Unknown error")")
+                }
+            }
+        }, callbackFailure: { [weak self] error in
+            DispatchQueue.main.async {
+                self?.stopLoading()
+                print("Error uploading avatar: \(error)")
+            }
+        })
+    }
+    
+    func removeCustomAvatar() {
+        guard let currentProfile = SessionManager.shared.getCurrentProfile() else {
+            print("No current profile to remove avatar")
+            return
+        }
+        
+        startLoading()
+        
+        let params: [Params: Any] = [
+            .userId: myUser?.id ?? 0,
+            .profileId: currentProfile.profileId
+        ]
+        
+        NetworkManager.callWebService(url: .removeProfileAvatar, params: params, callbackSuccess: { [weak self] (response: BaseResponse) in
+            DispatchQueue.main.async {
+                self?.stopLoading()
+                
+                if response.status == true {
+                    // Revert to color avatar
+                    var updatedProfile = currentProfile
+                    updatedProfile.avatarType = "color"
+                    updatedProfile.avatarUrl = nil
+                    SessionManager.shared.setCurrentProfile(updatedProfile)
+                    
+                    // Force UI refresh
+                    self?.objectWillChange.send()
+                    
+                    print("Custom avatar removed successfully")
+                } else {
+                    print("Failed to remove avatar: \(response.message ?? "Unknown error")")
+                }
+            }
+        }, callbackFailure: { [weak self] error in
+            DispatchQueue.main.async {
+                self?.stopLoading()
+                print("Error removing avatar: \(error)")
+            }
+        })
+    }
+    
+    private func resizeImage(image: UIImage, targetSize: CGSize) -> UIImage {
+        let size = image.size
+        
+        let widthRatio  = targetSize.width  / size.width
+        let heightRatio = targetSize.height / size.height
+        
+        // Figure out what our orientation is, and use that to form the rectangle
+        let ratio = min(widthRatio, heightRatio)
+        
+        let newSize = CGSize(width: size.width * ratio, height: size.height * ratio)
+        
+        // This is the rect that we've calculated out and this is what is actually used below
+        let rect = CGRect(origin: .zero, size: newSize)
+        
+        // Actually do the resizing to the rect using the ImageContext stuff
+        UIGraphicsBeginImageContextWithOptions(newSize, false, 1.0)
+        image.draw(in: rect)
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage ?? image
     }
 }

@@ -61,6 +61,8 @@ enum APIs : String {
     case selectProfile                      = "selectProfile"
     case updateAgeSettings                  = "profile/update-age-settings"
     case getAgeRatings                      = "profile/age-ratings"
+    case uploadProfileAvatar                = "profiles/avatar/upload"
+    case removeProfileAvatar                = "profiles/avatar/remove"
     
     // Subscription APIs
     case getSubscriptionPlans               = "subscription/plans"

@@ -82,7 +82,9 @@
 	<key>UIRequiresFullScreen~ipad</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>VUGA needs camera access to scan QR codes for TV authentication</string>
+	<string>VUGA needs camera access to scan QR codes for TV authentication and take profile photos</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>VUGA needs access to your photo library to select profile photos</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>VUGA needs local network access to discover and connect to TVs and streaming devices</string>
 	<key>NSBonjourServices</key>

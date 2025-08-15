@@ -8,6 +8,7 @@
 import SwiftUI
 import WebKit
 import Kingfisher
+import PhotosUI
 
 struct ProfileView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
@@ -15,6 +16,9 @@ struct ProfileView: View {
     @FetchRequest(sortDescriptors: []) var downloads : FetchedResults<DownloadContent>
     @StateObject var vm = ProfileViewModel()
     @Binding var selectedTab: Tab
+    @State private var showImagePicker = false
+    @State private var showImageSourceMenu = false
+    @State private var imagePickerSourceType: UIImagePickerController.SourceType = .photoLibrary
     
     init(selectedTab: Binding<Tab> = .constant(.profile)) {
         self._selectedTab = selectedTab
@@ -33,36 +37,58 @@ struct ProfileView: View {
                         .outfitSemiBold(20)
                         .foregroundColor(Color("textColor"))
                     
-                    // Show profile avatar in header
-                    if let currentProfile = SessionManager.shared.currentProfile {
-                        if let avatarUrl = currentProfile.avatarUrl, !avatarUrl.isEmpty {
-                            // Use profile avatar URL
-                            KFImage(URL(string: avatarUrl))
-                                .resizable()
-                                .aspectRatio(contentMode: .fill)
-                                .frame(width: 30, height: 30)
-                                .clipShape(.circle)
-                        } else if currentProfile.avatarType == "color" {
-                            // Use color avatar with first letter
-                            ZStack {
-                                Circle()
-                                    .fill(Color(hexString: currentProfile.avatarColor))
+                    // Show profile avatar in header with upload functionality
+                    Button(action: {
+                        showImageSourceMenu = true
+                    }) {
+                        ZStack(alignment: .bottomTrailing) {
+                            if let currentProfile = SessionManager.shared.currentProfile {
+                                let _ = print("ProfileView header - avatarUrl: \(currentProfile.avatarUrl ?? "nil"), avatarType: \(currentProfile.avatarType)")
+                                if let avatarUrl = currentProfile.avatarUrl, !avatarUrl.isEmpty {
+                                    // Use profile avatar URL
+                                    KFImage(URL(string: avatarUrl))
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 30, height: 30)
+                                        .clipShape(.circle)
+                                } else if currentProfile.avatarType == "color" {
+                                    // Use color avatar with first letter
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(hexString: currentProfile.avatarColor))
+                                            .frame(width: 30, height: 30)
+                                        Text(String(currentProfile.name.prefix(1)).uppercased())
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundColor(.white)
+                                    }
+                                } else {
+                                    // Default avatar
+                                    Image.person
+                                        .resizable()
+                                        .renderingMode(.template)
+                                        .scaledToFit()
+                                        .frame(width: 30, height: 30)
+                                        .foregroundColor(Color("textColor"))
+                                }
+                            } else {
+                                // No profile selected - show default
+                                Image.person
+                                    .resizable()
+                                    .renderingMode(.template)
+                                    .scaledToFit()
                                     .frame(width: 30, height: 30)
-                                Text(String(currentProfile.name.prefix(1)).uppercased())
-                                    .font(.system(size: 14, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .foregroundColor(Color("textColor"))
                             }
-                        } else {
-                            // Default avatar
-                            Image.person
-                                .resizeFitTo(size: 30, renderingMode: .template)
-                                .foregroundColor(Color("textColor"))
+                            
+                            // Camera icon overlay
+                            Image(systemName: "camera.fill")
+                                .font(.system(size: 8))
+                                .foregroundColor(.white)
+                                .padding(3)
+                                .background(Color.base)
+                                .clipShape(Circle())
+                                .offset(x: 2, y: 2)
                         }
-                    } else {
-                        // No profile selected - show default
-                        Image.person
-                            .resizeFitTo(size: 30, renderingMode: .template)
-                            .foregroundColor(Color("textColor"))
                     }
                     
                     // Show current profile name
@@ -78,63 +104,126 @@ struct ProfileView: View {
             .padding(.horizontal)
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 12) {
-                    // Avatar section removed - now shown in header
-                    // Edit button commented out as requested
+                    // Large Avatar Section for Editing
+                    VStack(spacing: 16) {
+                        Button(action: {
+                            showImageSourceMenu = true
+                        }) {
+                            ZStack(alignment: .bottomTrailing) {
+                                if let currentProfile = SessionManager.shared.currentProfile {
+                                    let _ = print("ProfileView large - avatarUrl: \(currentProfile.avatarUrl ?? "nil"), avatarType: \(currentProfile.avatarType)")
+                                    if let avatarUrl = currentProfile.avatarUrl, !avatarUrl.isEmpty {
+                                        // Use profile avatar URL
+                                        KFImage(URL(string: avatarUrl))
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .frame(width: 100, height: 100)
+                                            .clipShape(.circle)
+                                    } else if currentProfile.avatarType == "color" {
+                                        // Use color avatar with first letter
+                                        ZStack {
+                                            Circle()
+                                                .fill(Color(hexString: currentProfile.avatarColor))
+                                                .frame(width: 100, height: 100)
+                                            Text(String(currentProfile.name.prefix(1)).uppercased())
+                                                .font(.system(size: 40, weight: .bold))
+                                                .foregroundColor(.white)
+                                        }
+                                    } else {
+                                        // Default avatar
+                                        Image.person
+                                            .resizable()
+                                            .renderingMode(.template)
+                                            .scaledToFit()
+                                            .frame(width: 100, height: 100)
+                                            .foregroundColor(Color("textColor"))
+                                    }
+                                } else {
+                                    // No profile selected - show default
+                                    Image.person
+                                        .resizable()
+                                        .renderingMode(.template)
+                                        .scaledToFit()
+                                        .frame(width: 100, height: 100)
+                                        .foregroundColor(Color("textColor"))
+                                }
+                                
+                                // Camera icon overlay
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.base)
+                                        .frame(width: 32, height: 32)
+                                    Image(systemName: "camera.fill")
+                                        .font(.system(size: 16))
+                                        .foregroundColor(.white)
+                                }
+                                .offset(x: 5, y: 5)
+                            }
+                        }
+                        
+                        Text("Tap to change profile photo")
+                            .font(.system(size: 12))
+                            .foregroundColor(.gray)
+                    }
+                    .padding(.vertical, 20)
                     /*
                     Image.edit
-                        .resizeFitTo(size: 25)
+                        .resizable()
+                        .renderingMode(.template)
+                        .scaledToFit()
+                        .frame(width: 25, height: 25)
                         .padding(.horizontal)
                         .onTap {
                             Navigation.pushToSwiftUiView(EditProfileVIew())
                         }
                     */
-                    MySpaceFieldCardWithSwitch(icon: .notification, title: .notifications,isNotificationCard: true)
+                    MySpaceFieldCardWithSwitch(icon: Image.notification, title: .notifications,isNotificationCard: true)
                     
-                    ProfileFieldCard(icon: .mail, title: "Contact Preferences"){
+                    ProfileFieldCard(icon: Image.mail, title: "Contact Preferences"){
                         Navigation.pushToSwiftUiView(MarketingPreferencesView())
                     }
                     
-                    ProfileFieldCard(icon: .downloads, title: .downloads){
+                    ProfileFieldCard(icon: Image.downloads, title: .downloads){
                             Navigation.pushToSwiftUiView(DownloadView())
                     }
-                    ProfileFieldCard(icon: .language, title: .language){
+                    ProfileFieldCard(icon: Image.language, title: .language){
                         Navigation.pushToSwiftUiView(LanguageView())
                     }
                     if vm.myUser != nil {
-                        ProfileFieldCard(icon: .tv, title: "Connect TV"){
+                        ProfileFieldCard(icon: Image.tv, title: "Connect TV"){
                             Navigation.pushToSwiftUiView(QRScannerView())
                         }
-                        ProfileFieldCard(icon: .person, title: "Switch Profile"){
+                        ProfileFieldCard(icon: Image.person, title: "Switch Profile"){
                             vm.showProfileSelection = true
                         }
                         
                         // Age Settings - only show if there's a current profile
                         if let currentProfile = SessionManager.shared.getCurrentProfile() {
-                            ProfileFieldCard(icon: .settings, title: "Age Settings"){
+                            ProfileFieldCard(icon: Image.settings, title: "Age Settings"){
                                 Navigation.pushToSwiftUiView(AgeSettingsView(profile: currentProfile, viewModel: vm))
                             }
                         }
                     }
-                    ProfileFieldCard(icon: .privacy, title: .privacyPolicy){
+                    ProfileFieldCard(icon: Image.privacy, title: .privacyPolicy){
                         vm.isPrivacyURLSheet = true
                     }
-                    ProfileFieldCard(icon: .terms, title: .termsNuses){
+                    ProfileFieldCard(icon: Image.terms, title: .termsNuses){
                         vm.isTermsURLSheet = true
                     }
-                    ProfileFieldCard(icon: .rate, title: .rateThisApp){
+                    ProfileFieldCard(icon: Image.rate, title: .rateThisApp){
                         if let url = URL(string: rateThisAppURL) {
                             UIApplication.shared.open(url)
                         }
                     }
                     if vm.myUser != nil {
-                        ProfileFieldCard(icon: .logout, title: .logout){
+                        ProfileFieldCard(icon: Image.logout, title: .logout){
                             vm.isLogoutDialogShow = true
                         }
-                        ProfileFieldCard(icon: .delete, title: .deleteMyAccount,titleColor: Color("baseColor")){
+                        ProfileFieldCard(icon: Image.delete, title: .deleteMyAccount,titleColor: Color("baseColor")){
                             vm.isDeleteDialogShow = true
                         }
                     } else {
-                        ProfileFieldCard(icon: .person, title: "Login"){
+                        ProfileFieldCard(icon: Image.person, title: "Login"){
                             Navigation.pushToSwiftUiView(LoginView())
                         }
                     }
@@ -198,6 +287,27 @@ struct ProfileView: View {
             ProfileSelectionView()
                 .environmentObject(SessionManager.shared)
         }
+        .confirmationDialog("Choose Photo Source", isPresented: $showImageSourceMenu, titleVisibility: .visible) {
+            Button("Take Photo") {
+                imagePickerSourceType = .camera
+                showImagePicker = true
+            }
+            Button("Choose from Library") {
+                imagePickerSourceType = .photoLibrary
+                showImagePicker = true
+            }
+            if SessionManager.shared.currentProfile?.avatarType == "custom" {
+                Button("Remove Custom Photo", role: .destructive) {
+                    vm.removeCustomAvatar()
+                }
+            }
+            Button("Cancel", role: .cancel) {}
+        }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker(sourceType: imagePickerSourceType, selectedImage: { image in
+                vm.uploadAvatar(image: image)
+            })
+        }
         .loaderView(vm.isLoading)
         .addBackground()
     }
@@ -231,9 +341,11 @@ struct ProfileFieldCard: View {
         ZStack {
             HStack(spacing: 12) {
                 icon
-                    .resizeFitTo(width: 25, height: 25,renderingMode: .template)
+                    .resizable()
+                    .renderingMode(.template)
+                    .scaledToFit()
+                    .frame(width: 25, height: 25)
                     .foregroundColor(titleColor)
-                    .frame(width: 25)
                 Text(title.localized(language))
                     .foregroundColor(titleColor)
                     .outfitRegular(14)
@@ -279,9 +391,11 @@ struct MySpaceFieldCardWithSwitch: View {
             HStack {
                 HStack(spacing: 12) {
                     icon
-                        .resizeFitTo(width: 20, height: 20, renderingMode: .template)
+                        .resizable()
+                        .renderingMode(.template)
+                        .scaledToFit()
+                        .frame(width: 20, height: 20)
                         .foregroundColor(Color("textColor"))
-                        .frame(width: 20)
                     VStack(alignment: .leading) {
                         Text(title.localized(language))
                             .foregroundColor(Color("textColor"))
@@ -380,7 +494,10 @@ struct LogoutProgressView: View {
         VStack(spacing: 20) {
             // Logo or icon
             Image.logout
-                .resizeFitTo(width: 50, height: 50, renderingMode: .template)
+                .resizable()
+                .renderingMode(.template)
+                .scaledToFit()
+                .frame(width: 50, height: 50)
                 .foregroundColor(Color("baseColor"))
             
             // Status message
