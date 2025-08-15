@@ -140,6 +140,10 @@
 		B095A1B62E4C2B5000DFBD39 /* ExpandableDescriptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B095A1B12E4C2B5000DFBD39 /* ExpandableDescriptionView.swift */; };
 		B095A1B92E4D15C600DFBD39 /* ContentGroupedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B095A1B82E4D15C600DFBD39 /* ContentGroupedView.swift */; };
 		B095A1BA2E4D15C600DFBD39 /* CategoryGridView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B095A1B72E4D15C600DFBD39 /* CategoryGridView.swift */; };
+		B095A1BC2E4EF24000DFBD39 /* ConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B095A1BB2E4EF24000DFBD39 /* ConnectionMonitor.swift */; };
+		B095A1BE2E4EF2B200DFBD39 /* ConnectionMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B095A1BD2E4EF2B200DFBD39 /* ConnectionMonitor.swift */; };
+		B095A1C12E4EF2C500DFBD39 /* NetworkStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B095A1BF2E4EF2C500DFBD39 /* NetworkStatusView.swift */; };
+		B095A1C22E4EF2C500DFBD39 /* VideoNetworkAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = B095A1C02E4EF2C500DFBD39 /* VideoNetworkAlert.swift */; };
 		B0F1D7AF2E38951A006CBED0 /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7AE2E38951A006CBED0 /* Profile.swift */; };
 		B0F1D7B22E389534006CBED0 /* CreateProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B02E389534006CBED0 /* CreateProfileView.swift */; };
 		B0F1D7B32E389534006CBED0 /* ProfileSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B12E389534006CBED0 /* ProfileSelectionView.swift */; };
@@ -382,6 +386,10 @@
 		B095A1B22E4C2B5000DFBD39 /* SubtitleTrackSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubtitleTrackSelectionView.swift; sourceTree = "<group>"; };
 		B095A1B72E4D15C600DFBD39 /* CategoryGridView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryGridView.swift; sourceTree = "<group>"; };
 		B095A1B82E4D15C600DFBD39 /* ContentGroupedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentGroupedView.swift; sourceTree = "<group>"; };
+		B095A1BB2E4EF24000DFBD39 /* ConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConnectionMonitor.swift; path = Managers/ConnectionMonitor.swift; sourceTree = "<group>"; };
+		B095A1BD2E4EF2B200DFBD39 /* ConnectionMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionMonitor.swift; sourceTree = "<group>"; };
+		B095A1BF2E4EF2C500DFBD39 /* NetworkStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStatusView.swift; sourceTree = "<group>"; };
+		B095A1C02E4EF2C500DFBD39 /* VideoNetworkAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoNetworkAlert.swift; sourceTree = "<group>"; };
 		B0F1D7AE2E38951A006CBED0 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 		B0F1D7B02E389534006CBED0 /* CreateProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateProfileView.swift; sourceTree = "<group>"; };
 		B0F1D7B12E389534006CBED0 /* ProfileSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSelectionView.swift; sourceTree = "<group>"; };
@@ -575,7 +583,6 @@
 				C7F3211308B3ADF3A53805C8 /* PaymentDetailsView.swift */,
 				6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */,
 			);
-			name = Checkout;
 			path = Checkout;
 			sourceTree = "<group>";
 		};
@@ -663,6 +670,7 @@
 		C434A44A2BEA07FD0059889F /* Assets */ = {
 			isa = PBXGroup;
 			children = (
+				B095A1BB2E4EF24000DFBD39 /* ConnectionMonitor.swift */,
 				2BBF060A2C18795000A15E85 /* Lottie */,
 				2BF4075F2C08AD81002DFFA8 /* CustomAlert */,
 				C434A4402BE9FCBD0059889F /* Assets.xcassets */,
@@ -675,6 +683,7 @@
 		C434A44B2BEA084E0059889F /* Managers */ = {
 			isa = PBXGroup;
 			children = (
+				B095A1BD2E4EF2B200DFBD39 /* ConnectionMonitor.swift */,
 				B0F1D7B82E389588006CBED0 /* NavigationManager.swift */,
 				C434A48E2BEA3F490059889F /* AdManagers */,
 				C434A4892BEA3D510059889F /* SessionManager.swift */,
@@ -805,6 +814,8 @@
 		C434A4802BEA0F6C0059889F /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				B095A1BF2E4EF2C500DFBD39 /* NetworkStatusView.swift */,
+				B095A1C02E4EF2C500DFBD39 /* VideoNetworkAlert.swift */,
 				B095A1B72E4D15C600DFBD39 /* CategoryGridView.swift */,
 				B095A1B82E4D15C600DFBD39 /* ContentGroupedView.swift */,
 				B095A1AF2E4C2B5000DFBD39 /* AgeRatingBadgeView.swift */,
@@ -1231,8 +1242,11 @@
 				B05AC94E2E3F0237005EB298 /* StorageManager.swift in Sources */,
 				B05AC9582E47A35B005EB298 /* TrailerUtils.swift in Sources */,
 				2BDD421D2C17297B003B36A4 /* DownloadViewModel.swift in Sources */,
+				B095A1C12E4EF2C500DFBD39 /* NetworkStatusView.swift in Sources */,
+				B095A1C22E4EF2C500DFBD39 /* VideoNetworkAlert.swift in Sources */,
 				B00A60F32E35B943005BC809 /* QRScannerView.swift in Sources */,
 				2BF407632C08AD81002DFFA8 /* CustomAlertHandler.swift in Sources */,
+				B095A1BC2E4EF24000DFBD39 /* ConnectionMonitor.swift in Sources */,
 				2BCD28142C382A340076D8ED /* CastScreen.swift in Sources */,
 				B00A3FED2E4ADF2200B16589 /* UserNotificationViewModel.swift in Sources */,
 				2BA0FDD92C198D23003D0450 /* VideoPlayerView.swift in Sources */,
@@ -1248,6 +1262,7 @@
 				2BDD42132C16C28F003B36A4 /* ProViewModel.swift in Sources */,
 				C40F2B452BFC8D28008B1BCB /* ContentDetailViewModel.swift in Sources */,
 				B00A3FEB2E4ADEBD00B16589 /* UserNotification.swift in Sources */,
+				B095A1BE2E4EF2B200DFBD39 /* ConnectionMonitor.swift in Sources */,
 				C43DE16F2C05BE7F00689D5A /* LiveTVsViewModel.swift in Sources */,
 				C49BFA102BFE1E1B00A43AFB /* StatusAndMessageModel.swift in Sources */,
 				2BEC099E2C3FE0A100D020E3 /* ArrayExtention.swift in Sources */,

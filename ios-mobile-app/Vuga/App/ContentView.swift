@@ -14,7 +14,6 @@ struct ContentView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
     @StateObject var downloadModel = DownloadViewModel()
-    @StateObject var networkMonitor = NetworkMonitor()
     @StateObject var vm = SplashViewModel()
     let sharedInstance = NetworkReachabilityManager()!
     var isConnectedToInternet: Bool {
@@ -31,6 +30,7 @@ struct ContentView: View {
             }
             .navigationViewStyle(StackNavigationViewStyle())
             .ignoresSafeArea(.container, edges: [])
+            .safeNetworkAware() // Add safe network monitoring
             
             if !isConnectedToInternet {
                 OfflineView()
@@ -46,7 +46,6 @@ struct ContentView: View {
         })
         .hideNavigationbar()
         .environment(\.managedObjectContext, DataController.shared.context)
-        .environmentObject(networkMonitor)
         .environmentObject(downloadModel)
         .environment(\.layoutDirection, language == .Arabic ? .rightToLeft : .leftToRight)
     }

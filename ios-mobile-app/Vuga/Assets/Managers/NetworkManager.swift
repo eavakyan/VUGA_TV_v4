@@ -29,12 +29,21 @@ struct NetworkManager {
                                             callbackFailure : @escaping (_ err : Error) -> () = {_ in}) {
         
         let convertedParams = params.toSimpleDict()
+        
         AF.request(WebService.apiBase + url.rawValue, method: httpMethod, parameters: convertedParams, encoding: encoding, headers: headers)
             .responseString { response in
                 print("==================================================================")
                 print(response.request ?? "")  // original URL request
                 print(response.request?.headers ?? "")  // original URL request
-                print("Time Duration in second:", response.metrics?.taskInterval.duration ?? 0)  // Duration of request
+                
+                let duration = response.metrics?.taskInterval.duration ?? 0
+                print("Time Duration in second:", duration)  // Duration of request
+                
+                // Report slow connection if request took more than 3 seconds
+                if duration > 3.0 {
+                    SafeNetworkMonitor.shared.reportSlowConnection()
+                }
+                
                 print("parameters = \(String(describing: convertedParams))")
                 print("header = \(String(describing: headers))")
                 response.value.decode(callbackSuccess: callbackSuccess, callbackFailure: callbackFailure)
