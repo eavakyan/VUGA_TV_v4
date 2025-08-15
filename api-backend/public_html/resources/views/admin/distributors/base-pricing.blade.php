@@ -101,17 +101,24 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Load base pricing data
-    loadBasePricing();
+    // Setup AJAX to include CSRF token
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
     
-    function loadBasePricing() {
-        $.ajax({
-            url: "{{ route('distributors.base-pricing.list') }}",
-            method: 'GET',
-            success: function(response) {
-                var html = '';
-                if (response.data && response.data.length > 0) {
-                    response.data.forEach(function(pricing) {
+    // Use server-side loaded data
+    var pricingData = @json($pricing);
+    
+    // Display pricing data on page load
+    displayBasePricing();
+    
+    function displayBasePricing() {
+        console.log('Displaying base pricing data:', pricingData);
+        var html = '';
+        if (pricingData && pricingData.length > 0) {
+            pricingData.forEach(function(pricing) {
                         html += `<tr>
                             <td>${pricing.billing_period}</td>
                             <td>$${parseFloat(pricing.price).toFixed(2)}</td>
@@ -128,11 +135,30 @@ $(document).ready(function() {
                                 </button>
                             </td>
                         </tr>`;
-                    });
-                } else {
-                    html = '<tr><td colspan="6" class="text-center">No base pricing options configured</td></tr>';
+            });
+        } else {
+            html = '<tr><td colspan="6" class="text-center">No base pricing options configured</td></tr>';
+        }
+        $('#basePricingList').html(html);
+    }
+    
+    // Function to reload pricing data via AJAX after adding/editing
+    function loadBasePricing() {
+        $.ajax({
+            url: "{{ route('distributors.base-pricing.list') }}",
+            method: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                console.log('Base pricing data reloaded:', response);
+                if (response.success && response.data) {
+                    pricingData = response.data;
+                    displayBasePricing();
                 }
-                $('#basePricingList').html(html);
+            },
+            error: function(xhr) {
+                console.error('Error reloading base pricing:', xhr);
+                // On error, just reload the page to get fresh data
+                window.location.reload();
             }
         });
     }

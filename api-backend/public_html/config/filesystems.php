@@ -66,6 +66,18 @@ return [
             'visibility' => 'public',
         ],
 
+        'spaces' => [
+            'driver' => 's3',
+            'key' => env('DO_SPACE_ACCESS_KEY_ID'),
+            'secret' => env('DO_SPACE_SECRET_ACCESS_KEY'),
+            'region' => env('DO_SPACE_REGION', 'nyc3'),
+            'bucket' => env('DO_SPACE_BUCKET', 'iosdev'),
+            'url' => env('DO_SPACE_URL'),
+            'endpoint' => env('DO_SPACE_ENDPOINT', 'https://nyc3.digitaloceanspaces.com'),
+            'bucket_endpoint' => true,
+            'visibility' => 'public',
+        ],
+
     ],
 
     /*

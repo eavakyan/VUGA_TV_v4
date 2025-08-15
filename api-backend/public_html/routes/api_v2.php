@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V2;
+use App\Http\Controllers\Api\V2\ProfileAvatarController;
 
 /*
 |--------------------------------------------------------------------------
@@ -172,6 +173,12 @@ Route::prefix('v2')->group(function () {
         Route::post('/avatars', [V2\ProfileController::class, 'getDefaultAvatars']);
         Route::post('/update-age-settings', [V2\ProfileController::class, 'updateAgeSettings']);
         Route::post('/age-ratings', [V2\ProfileController::class, 'getAgeRatings']);
+    });
+    
+    // Profile Avatar Routes
+    Route::prefix('profiles/avatar')->group(function () {
+        Route::post('/upload', [V2\ProfileAvatarController::class, 'uploadAvatar']);
+        Route::post('/remove', [V2\ProfileAvatarController::class, 'removeAvatar']);
     });
     
     // User Notifications (One-time messages for profiles)

@@ -45,8 +45,7 @@ class ContentDistributorController extends Controller
             'code' => 'required|string|max:50|unique:content_distributor,code',
             'description' => 'nullable|string',
             'logo_url' => 'nullable|string|max:500',
-            'is_base_included' => 'boolean',
-            'is_premium' => 'boolean',
+            'subscription_type' => 'nullable|in:free,base,premium',
             'display_order' => 'integer',
             'is_active' => 'boolean'
         ]);
@@ -57,7 +56,18 @@ class ContentDistributorController extends Controller
                 ->withInput();
         }
         
-        ContentDistributor::create($request->all());
+        // Handle subscription type
+        $data = $request->except(['subscription_type']);
+        if ($request->has('subscription_type')) {
+            $type = $request->subscription_type;
+            $data['is_premium'] = ($type === 'premium') ? 1 : 0;
+            $data['is_base_included'] = ($type === 'base') ? 1 : 0;
+        }
+        
+        // Handle checkbox for is_active (checkboxes don't send value when unchecked)
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+        
+        ContentDistributor::create($data);
         
         return redirect()->route('distributors.index')
             ->with('success', 'Distributor created successfully');
@@ -69,7 +79,15 @@ class ContentDistributorController extends Controller
     public function edit($id)
     {
         $distributor = ContentDistributor::findOrFail($id);
-        return view('admin.distributors.edit', compact('distributor'));
+        
+        // Load pricing data directly for this distributor
+        $pricing = \DB::table('subscription_pricing')
+            ->where('content_distributor_id', $id)
+            ->orderBy('sort_order')
+            ->orderBy('billing_period')
+            ->get();
+            
+        return view('admin.distributors.edit', compact('distributor', 'pricing'));
     }
     
     /**
@@ -84,8 +102,7 @@ class ContentDistributorController extends Controller
             'code' => 'required|string|max:50|unique:content_distributor,code,' . $id . ',content_distributor_id',
             'description' => 'nullable|string',
             'logo_url' => 'nullable|string|max:500',
-            'is_base_included' => 'boolean',
-            'is_premium' => 'boolean',
+            'subscription_type' => 'nullable|in:free,base,premium',
             'display_order' => 'integer',
             'is_active' => 'boolean'
         ]);
@@ -96,7 +113,18 @@ class ContentDistributorController extends Controller
                 ->withInput();
         }
         
-        $distributor->update($request->all());
+        // Handle subscription type
+        $data = $request->except(['subscription_type']);
+        if ($request->has('subscription_type')) {
+            $type = $request->subscription_type;
+            $data['is_premium'] = ($type === 'premium') ? 1 : 0;
+            $data['is_base_included'] = ($type === 'base') ? 1 : 0;
+        }
+        
+        // Handle checkbox for is_active (checkboxes don't send value when unchecked)
+        $data['is_active'] = $request->has('is_active') ? 1 : 0;
+        
+        $distributor->update($data);
         
         return redirect()->route('distributors.index')
             ->with('success', 'Distributor updated successfully');
@@ -438,7 +466,15 @@ class ContentDistributorController extends Controller
      */
     public function basePricing()
     {
-        return view('admin.distributors.base-pricing');
+        // Load base pricing data directly
+        $pricing = \DB::table('subscription_pricing')
+            ->where('pricing_type', 'base')
+            ->whereNull('content_distributor_id')
+            ->orderBy('sort_order')
+            ->orderBy('billing_period')
+            ->get();
+            
+        return view('admin.distributors.base-pricing', compact('pricing'));
     }
     
     /**

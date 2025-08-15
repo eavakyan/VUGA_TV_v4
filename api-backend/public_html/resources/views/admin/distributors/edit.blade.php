@@ -10,7 +10,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Edit Distributor: {{ $distributor->name }}</h3>
                 </div>
-                <form action="{{ route('distributors.update', $distributor->content_distributor_id) }}" method="POST">
+                <form id="updateForm" action="{{ route('distributors.update', $distributor->content_distributor_id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="card-body">
@@ -134,22 +134,68 @@
                     </div>
                 </div>
                 <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-8">
+                            <p class="text-muted mb-0">
+                                <i class="fas fa-info-circle"></i>
+                                Configure subscription pricing options for <strong>{{ $distributor->name }}</strong> premium content.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-right">
+                            <small class="text-muted">
+                                <i class="fas fa-lightbulb"></i>
+                                Tip: Most users prefer monthly and yearly options
+                            </small>
+                        </div>
+                    </div>
+                    
                     <div id="pricingTable">
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th>Billing Period</th>
-                                    <th>Price</th>
-                                    <th>Display Name</th>
-                                    <th>Description</th>
-                                    <th>Status</th>
-                                    <th>Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="pricingList">
-                                <!-- Pricing rows will be loaded here -->
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="table table-bordered table-hover">
+                                <thead class="thead-light">
+                                    <tr>
+                                        <th width="15%">
+                                            <i class="fas fa-calendar-alt"></i> Billing Period
+                                        </th>
+                                        <th width="15%">
+                                            <i class="fas fa-dollar-sign"></i> Price
+                                        </th>
+                                        <th width="25%">
+                                            <i class="fas fa-tag"></i> Display Name
+                                        </th>
+                                        <th width="25%">
+                                            <i class="fas fa-align-left"></i> Description
+                                        </th>
+                                        <th width="10%">
+                                            <i class="fas fa-toggle-on"></i> Status
+                                        </th>
+                                        <th width="10%">
+                                            <i class="fas fa-cog"></i> Actions
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pricingList">
+                                    <!-- Pricing rows will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="mt-3" id="quickActions" style="display: none;">
+                        <div class="alert alert-info">
+                            <h6><i class="fas fa-rocket"></i> Quick Setup</h6>
+                            <p class="mb-2">Get started with common pricing options:</p>
+                            <button type="button" class="btn btn-sm btn-outline-primary mr-2" onclick="addQuickPricing('monthly', 9.99, 'Monthly Premium')">
+                                <i class="fas fa-plus"></i> Add $9.99/month
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary mr-2" onclick="addQuickPricing('yearly', 99.99, 'Annual Premium')">
+                                <i class="fas fa-plus"></i> Add $99.99/year
+                            </button>
+                            <button type="button" class="btn btn-sm btn-outline-primary" onclick="addQuickPricing('lifetime', 299.99, 'Lifetime Access')">
+                                <i class="fas fa-plus"></i> Add $299.99 lifetime
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -165,62 +211,75 @@
     </div>
 </div>
 
-<!-- Add Pricing Modal -->
+<!-- Add/Edit Pricing Modal -->
 @if($distributor->is_premium)
 <div class="modal fade" id="addPricingModal" tabindex="-1" role="dialog">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form id="addPricingForm">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add Pricing Option</h5>
+                    <h5 class="modal-title" id="pricingModalTitle">Add Pricing Option</h5>
                     <button type="button" class="close" data-dismiss="modal">
                         <span>&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden" name="content_distributor_id" value="{{ $distributor->content_distributor_id }}">
+                    <input type="hidden" name="pricing_id" value="">
+                    <input type="hidden" name="edit_mode" value="false">
                     
                     <div class="form-group">
                         <label>Billing Period <span class="text-danger">*</span></label>
                         <select name="billing_period" class="form-control" required>
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly" selected>Monthly</option>
-                            <option value="quarterly">Quarterly</option>
-                            <option value="yearly">Yearly</option>
-                            <option value="lifetime">Lifetime</option>
+                            <option value="">Select billing period...</option>
+                            <option value="daily">Daily - Perfect for trial periods</option>
+                            <option value="weekly">Weekly - Short-term access</option>
+                            <option value="monthly">Monthly - Most popular choice</option>
+                            <option value="quarterly">Quarterly - 3 months (25% savings)</option>
+                            <option value="yearly">Yearly - Best value (40% savings)</option>
+                            <option value="lifetime">Lifetime - One-time payment</option>
                         </select>
                     </div>
                     
                     <div class="form-group">
                         <label>Price (USD) <span class="text-danger">*</span></label>
-                        <input type="number" name="price" class="form-control" step="0.01" min="0" required>
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            <input type="number" name="price" class="form-control" step="0.01" min="0" placeholder="0.00" required>
+                        </div>
+                        <small class="form-text text-muted">Enter amount in USD (e.g., 9.99 for $9.99)</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Display Name <span class="text-danger">*</span></label>
-                        <input type="text" name="display_name" class="form-control" required>
-                        <small class="form-text text-muted">E.g., "Monthly Premium", "Annual Subscription"</small>
+                        <input type="text" name="display_name" class="form-control" placeholder="e.g., Monthly Disney Premium" required>
+                        <small class="form-text text-muted">This name will be shown to users</small>
                     </div>
                     
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea name="description" class="form-control" rows="3"></textarea>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Optional description of what this subscription includes..."></textarea>
                     </div>
                     
                     <div class="form-group">
                         <div class="custom-control custom-checkbox">
                             <input type="checkbox" class="custom-control-input" id="pricing_is_active" name="is_active" value="1" checked>
-                            <label class="custom-control-label" for="pricing_is_active">Active</label>
+                            <label class="custom-control-label" for="pricing_is_active">
+                                <strong>Active</strong>
+                                <br><small class="text-muted">Users can purchase this subscription option</small>
+                            </label>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Save Pricing</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Pricing
+                    </button>
                 </div>
             </form>
-            </div>
         </div>
     </div>
 </div>
@@ -230,98 +289,279 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
-    @if($distributor->is_premium)
-    // Handle subscription type
-    $('input[name="subscription_type"]').on('change', function() {
-        var type = $(this).val();
-        $('input[name="is_base_included"]').val(type === 'base' ? 1 : 0);
-        $('input[name="is_premium"]').val(type === 'premium' ? 1 : 0);
+    // Setup CSRF token for all AJAX requests
+    var csrfToken = $('meta[name="csrf-token"]').attr('content');
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': csrfToken
+        }
     });
     
-    // Load pricing data
-    loadPricing();
+    // Handle subscription type changes - always initialize this
+    var isPremium = {{ $distributor->is_premium ? 'true' : 'false' }};
     
+    $('input[name="subscription_type"]').on('change', function() {
+        var type = $(this).val();
+        // Reload page when changing to/from premium to show/hide pricing section
+        if (type === 'premium' && !isPremium) {
+            if (confirm('Changing to Premium will allow you to set pricing. Save and reload?')) {
+                $('#updateForm').submit();
+            }
+        } else if (type !== 'premium' && isPremium) {
+            if (confirm('Changing from Premium will remove pricing options. Save and reload?')) {
+                $('#updateForm').submit();
+            }
+        }
+    });
+    
+    @if($distributor->is_premium)
+    
+    // Use server-side loaded data
+    var pricingData = @json($pricing);
+    
+    // Display pricing data on page load
+    displayPricing();
+    
+    function displayPricing() {
+        console.log('Displaying pricing data:', pricingData);
+        var html = '';
+        
+        if (pricingData && pricingData.length > 0) {
+            pricingData.forEach(function(pricing) {
+                        html += `<tr>
+                            <td>
+                                <span class="badge badge-primary text-capitalize">${pricing.billing_period}</span>
+                            </td>
+                            <td>
+                                <strong class="text-success">$${parseFloat(pricing.price).toFixed(2)}</strong>
+                            </td>
+                            <td>
+                                <strong>${pricing.display_name || 'N/A'}</strong>
+                            </td>
+                            <td>
+                                <small class="text-muted">${pricing.description || 'No description provided'}</small>
+                            </td>
+                            <td>
+                                ${pricing.is_active == 1 ? 
+                                    '<span class="badge badge-success"><i class="fas fa-check"></i> Active</span>' : 
+                                    '<span class="badge badge-danger"><i class="fas fa-times"></i> Inactive</span>'}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-outline-info edit-pricing" data-id="${pricing.pricing_id}" data-pricing='${JSON.stringify(pricing)}' title="Edit">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-pricing" data-id="${pricing.pricing_id}" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>`;
+            });
+            // Hide quick actions when there are pricing options
+            $('#quickActions').hide();
+        } else {
+            html = `<tr>
+                <td colspan="6" class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-info-circle fa-2x mb-2"></i>
+                        <h6>No pricing options configured yet</h6>
+                        <p class="mb-0">Click "Add Pricing Option" above or use the quick setup options below.</p>
+                    </div>
+                </td>
+            </tr>`;
+            // Show quick actions when there are no pricing options
+            $('#quickActions').show();
+        }
+        
+        $('#pricingList').html(html);
+    }
+    
+    // Function to reload pricing data via AJAX after adding/editing
     function loadPricing() {
         $.ajax({
             url: "{{ route('distributors.pricing.list', $distributor->content_distributor_id) }}",
             method: 'GET',
+            dataType: 'json',
             success: function(response) {
-                var html = '';
-                if (response.data && response.data.length > 0) {
-                    response.data.forEach(function(pricing) {
-                        html += `<tr>
-                            <td>${pricing.billing_period}</td>
-                            <td>$${parseFloat(pricing.price).toFixed(2)}</td>
-                            <td>${pricing.display_name}</td>
-                            <td>${pricing.description || ''}</td>
-                            <td>
-                                ${pricing.is_active ? 
-                                    '<span class="badge badge-success">Active</span>' : 
-                                    '<span class="badge badge-danger">Inactive</span>'}
-                            </td>
-                            <td>
-                                <button class="btn btn-sm btn-info edit-pricing" data-id="${pricing.pricing_id}" data-pricing='${JSON.stringify(pricing)}'>
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-danger delete-pricing" data-id="${pricing.pricing_id}">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </td>
-                        </tr>`;
-                    });
-                } else {
-                    @if($distributor->is_base_included)
-                    html = '<tr><td colspan="6" class="text-center">This distributor\'s content is included in the base subscription. <a href="{{ route('distributors.base-pricing') }}">Manage base subscription pricing</a></td></tr>';
-                    @else
-                    html = '<tr><td colspan="6" class="text-center">No pricing options configured</td></tr>';
-                    @endif
+                console.log('Pricing data reloaded:', response);
+                if (response.success && response.data) {
+                    pricingData = response.data;
+                    displayPricing();
                 }
-                $('#pricingList').html(html);
+            },
+            error: function(xhr) {
+                console.error('Error reloading pricing:', xhr);
+                // On error, just reload the page to get fresh data
+                window.location.reload();
             }
         });
     }
     
-    // Add pricing form submission
+    // Add/Edit pricing form submission
     $('#addPricingForm').on('submit', function(e) {
         e.preventDefault();
-        var formData = $(this).serialize();
+        
+        var $form = $(this);
+        var $submitBtn = $form.find('button[type="submit"]');
+        var originalHtml = $submitBtn.html();
+        var isEditMode = $form.find('input[name="edit_mode"]').val() === 'true';
+        var pricingId = $form.find('input[name="pricing_id"]').val();
+        
+        // Disable submit button and show loading
+        $submitBtn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i> Saving...');
+        
+        // Prepare form data
+        var formData = new FormData(this);
+        formData.append('_token', csrfToken);
+        
+        // Determine URL and method based on edit mode
+        var url, method;
+        if (isEditMode && pricingId) {
+            url = "{{ route('distributors.pricing.update', '') }}/" + pricingId;
+            method = 'PUT';
+            formData.append('_method', 'PUT');
+        } else {
+            url = "{{ route('distributors.pricing.store') }}";
+            method = 'POST';
+        }
         
         $.ajax({
-            url: "{{ route('distributors.pricing.store') }}",
-            method: 'POST',
-            data: formData + '&_token={{ csrf_token() }}',
+            url: url,
+            method: method,
+            data: formData,
+            processData: false,
+            contentType: false,
             success: function(response) {
+                console.log('Pricing saved successfully:', response);
+                
+                // Hide modal and reset form
                 $('#addPricingModal').modal('hide');
-                $('#addPricingForm')[0].reset();
+                $form[0].reset();
+                
+                // Reload pricing table
                 loadPricing();
-                alert('Pricing added successfully');
+                
+                // Show success message
+                var action = isEditMode ? 'updated' : 'added';
+                alert('Pricing option ' + action + ' successfully!');
             },
             error: function(xhr) {
-                alert('Error: ' + xhr.responseJSON.message);
+                console.error('Error saving pricing:', xhr);
+                
+                var action = isEditMode ? 'update' : 'add';
+                var errorMsg = 'Failed to ' + action + ' pricing option';
+                
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                } else if (xhr.responseJSON && xhr.responseJSON.errors) {
+                    // Handle validation errors
+                    var errors = xhr.responseJSON.errors;
+                    errorMsg = Object.values(errors).flat().join('\n');
+                }
+                
+                alert('Error: ' + errorMsg);
+            },
+            complete: function() {
+                // Re-enable submit button
+                $submitBtn.prop('disabled', false).html(originalHtml);
             }
         });
     });
     
+    // Edit pricing
+    $(document).on('click', '.edit-pricing', function() {
+        var pricingData = $(this).data('pricing');
+        console.log('Editing pricing:', pricingData);
+        
+        // Change modal title and form state
+        $('#pricingModalTitle').text('Edit Pricing Option');
+        $('input[name="edit_mode"]').val('true');
+        $('input[name="pricing_id"]').val(pricingData.pricing_id);
+        
+        // Fill form with existing data
+        $('select[name="billing_period"]').val(pricingData.billing_period);
+        $('input[name="price"]').val(pricingData.price);
+        $('input[name="display_name"]').val(pricingData.display_name);
+        $('textarea[name="description"]').val(pricingData.description || '');
+        $('input[name="is_active"]').prop('checked', pricingData.is_active == 1);
+        
+        // Show modal
+        $('#addPricingModal').modal('show');
+    });
+    
     // Delete pricing
     $(document).on('click', '.delete-pricing', function() {
-        if (confirm('Are you sure you want to delete this pricing option?')) {
-            var pricingId = $(this).data('id');
-            
-            $.ajax({
-                url: "{{ route('distributors.pricing.destroy', '') }}/" + pricingId,
-                method: 'DELETE',
-                data: {_token: '{{ csrf_token() }}'},
-                success: function(response) {
-                    loadPricing();
-                    alert('Pricing deleted successfully');
-                },
-                error: function(xhr) {
-                    alert('Error: ' + xhr.responseJSON.message);
-                }
-            });
+        if (!confirm('Are you sure you want to delete this pricing option?')) {
+            return;
         }
+        
+        var pricingId = $(this).data('id');
+        var $btn = $(this);
+        
+        // Disable button and show loading
+        $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin"></i>');
+        
+        $.ajax({
+            url: "{{ route('distributors.pricing.destroy', '') }}/" + pricingId,
+            method: 'DELETE',
+            data: {
+                _token: csrfToken
+            },
+            success: function(response) {
+                console.log('Pricing deleted successfully:', response);
+                loadPricing();
+                alert('Pricing option deleted successfully!');
+            },
+            error: function(xhr) {
+                console.error('Error deleting pricing:', xhr);
+                
+                var errorMsg = 'Failed to delete pricing option';
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMsg = xhr.responseJSON.message;
+                }
+                
+                alert('Error: ' + errorMsg);
+                
+                // Re-enable button on error
+                $btn.prop('disabled', false).html('<i class="fas fa-trash"></i>');
+            }
+        });
     });
+    
+    // Reset modal when it's closed
+    $('#addPricingModal').on('hidden.bs.modal', function() {
+        // Reset form
+        $('#addPricingForm')[0].reset();
+        
+        // Reset modal state
+        $('#pricingModalTitle').text('Add Pricing Option');
+        $('input[name="edit_mode"]').val('false');
+        $('input[name="pricing_id"]').val('');
+        
+        // Reset button
+        $('#addPricingForm button[type="submit"]').prop('disabled', false).html('<i class="fas fa-save"></i> Save Pricing');
+    });
+    
     @endif
+    
+    // Quick pricing setup function (available globally)
+    window.addQuickPricing = function(period, price, displayName) {
+        // Fill form with quick values
+        $('select[name="billing_period"]').val(period);
+        $('input[name="price"]').val(price);
+        $('input[name="display_name"]').val(displayName + ' - {{ $distributor->name }}');
+        $('textarea[name="description"]').val('Access to premium ' + displayName.toLowerCase() + ' content from {{ $distributor->name }}');
+        $('input[name="is_active"]').prop('checked', true);
+        
+        // Reset edit mode
+        $('input[name="edit_mode"]').val('false');
+        $('input[name="pricing_id"]').val('');
+        $('#pricingModalTitle').text('Add Pricing Option');
+        
+        // Show modal
+        $('#addPricingModal').modal('show');
+    };
 });
 </script>
 @endsection
