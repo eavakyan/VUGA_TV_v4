@@ -10,9 +10,11 @@ import SwiftUI
 struct SearchView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @StateObject var vm = SearchViewModel()
+    @FocusState private var searchFieldFocused: Bool
+    
     var body: some View {
         VStack(spacing: 0) {
-            SearchTopView(vm: vm)
+            SearchTopView(vm: vm, searchFieldFocused: $searchFieldFocused)
             ScrollView(showsIndicators: false) {
                 LazyVStack {
                     ForEach(vm.contents, id: \.id) { content in
@@ -26,8 +28,13 @@ struct SearchView: View {
                 }
                 .padding([.horizontal, .bottom], 10)
             }
+            .scrollDismissesKeyboard(.interactively)
             .loaderView(vm.isLoading && vm.contents.isEmpty, shouldShowBg: false)
             .noDataFound(!vm.isLoading && vm.contents.isEmpty)
+            .onTapGesture {
+                // Dismiss keyboard when tapping outside
+                searchFieldFocused = false
+            }
         }
         .addBackground()
         .onAppear(perform: {
@@ -121,6 +128,7 @@ private struct SearchSelectedTag: View {
 private struct SearchTopView : View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @StateObject var vm: SearchViewModel
+    @FocusState.Binding var searchFieldFocused: Bool
     @Namespace var animation
     
     var body: some View {
@@ -139,12 +147,28 @@ private struct SearchTopView : View {
                     )
                     .foregroundColor(.text)
                     .outfitRegular()
+                    .focused($searchFieldFocused)
+                    .submitLabel(.search)
+                    .onSubmit {
+                        searchFieldFocused = false
+                        vm.searchContent()
+                    }
+                    .toolbar {
+                        ToolbarItemGroup(placement: .keyboard) {
+                            Spacer()
+                            Button("Done") {
+                                searchFieldFocused = false
+                            }
+                            .foregroundColor(.base)
+                        }
+                    }
                     if vm.keyword.isNotEmpty {
                         Image.close
                             .resizeFitTo(size: 15,renderingMode: .template)
                             .foregroundColor(.textLight)
                             .onTap {
                                 vm.keyword = ""
+                                searchFieldFocused = false
                             }
                     }
                     
@@ -162,6 +186,7 @@ private struct SearchTopView : View {
                     .frame(width: 50)
                     .searchOptionBg()
                     .onTap {
+                        searchFieldFocused = false
                         vm.isLanguageSheet.toggle()
                     }
             }
@@ -181,6 +206,7 @@ private struct SearchTopView : View {
                                 .foregroundColor(vm.contentType == type ? .text : .textLight)
                                 .cornerRadius(radius: 11)
                                 .onTap {
+                                    searchFieldFocused = false
                                     withAnimation(.spring(response: 0.5, dampingFraction: 0.8, blendDuration: 1)) {
                                         vm.contentType = type
                                     }
@@ -207,6 +233,7 @@ private struct SearchTopView : View {
                 .padding(4)
                 .searchOptionBg()
                 .onTap {
+                    searchFieldFocused = false
                     vm.isGenreSheet.toggle()
                 }
             }
