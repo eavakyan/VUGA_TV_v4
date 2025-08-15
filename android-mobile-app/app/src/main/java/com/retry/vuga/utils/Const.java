@@ -73,7 +73,17 @@ public class Const {
         public static final String profile_image = "profile_image";
         public static final String email_consent = "email_consent";
         public static final String sms_consent = "sms_consent";
-
+        
+        // Profile avatar fields
+        public static final String profile_id = "profile_id";
+        public static final String image_data = "image_data";
+        public static final String avatar_type = "avatar_type";
+        public static final String avatar_url = "avatar_url";
+        
+        // Subscription fields
+        public static final String promo_code = "promo_code";
+        public static final String subscription_id = "subscription_id";
+        public static final String pricing_id = "pricing_id";
 
     }
 

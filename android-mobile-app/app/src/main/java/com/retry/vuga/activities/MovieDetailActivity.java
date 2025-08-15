@@ -37,6 +37,7 @@ import com.google.android.gms.cast.framework.media.RemoteMediaClient;
 import com.google.android.gms.cast.framework.CastState;
 import com.google.android.gms.common.images.WebImage;
 import android.net.Uri;
+import android.media.MediaPlayer;
 
 import com.google.android.flexbox.AlignItems;
 import com.google.android.flexbox.FlexDirection;
@@ -1887,7 +1888,7 @@ public class MovieDetailActivity extends BaseActivity {
         Log.d("Trailer", "Effective Trailer URL from TrailerUtils: " + trailerUrl);
         
         // TEST: If no trailer, use a test video to verify player works
-        boolean useTestTrailer = true; // TEMPORARILY SET TO TRUE FOR TESTING
+        boolean useTestTrailer = false; // Set to false for production
         if (useTestTrailer && (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null"))) {
             Log.d("Trailer", "Using TEST trailer to verify player functionality");
             trailerUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
@@ -1923,6 +1924,7 @@ public class MovieDetailActivity extends BaseActivity {
         binding.videoTrailer.setVisibility(View.GONE);
         binding.webviewYoutubeTrailer.setVisibility(View.GONE);
         binding.btnPlayPauseTrailer.setVisibility(View.GONE);
+        binding.btnMuteUnmuteTrailer.setVisibility(View.GONE);
         binding.imgPosterBackground.setVisibility(View.VISIBLE);
         Log.d("Trailer", "Final poster visibility: " + binding.imgPosterBackground.getVisibility());
         Log.d("Trailer", "Final video visibility: " + binding.videoTrailer.getVisibility());
@@ -2040,6 +2042,7 @@ public class MovieDetailActivity extends BaseActivity {
         Log.d("Trailer", "Making VideoView visible");
         binding.videoTrailer.setVisibility(View.VISIBLE);
         binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
+        binding.btnMuteUnmuteTrailer.setVisibility(View.VISIBLE);
         binding.webviewYoutubeTrailer.setVisibility(View.GONE);
         Log.d("Trailer", "VideoView visibility after setup: " + binding.videoTrailer.getVisibility());
         Log.d("Trailer", "Play button visibility: " + binding.btnPlayPauseTrailer.getVisibility());
@@ -2047,11 +2050,16 @@ public class MovieDetailActivity extends BaseActivity {
         // Set up the video view
         binding.videoTrailer.setVideoURI(Uri.parse(fullTrailerUrl));
         
+        // Track mute state
+        final boolean[] isMuted = {true}; // Start muted by default
+        
         // Handle video prepared
         binding.videoTrailer.setOnPreparedListener(mp -> {
             Log.d("Trailer", "Video prepared successfully");
             // Video is ready but don't start playing automatically
             mp.setLooping(true); // Loop the trailer
+            mp.setVolume(0f, 0f); // Start muted
+            binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_off);
         });
         
         // Handle video errors - silently fall back to poster
@@ -2102,6 +2110,33 @@ public class MovieDetailActivity extends BaseActivity {
                             .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
                     }
                 }, 3000);
+            }
+        });
+        
+        // Set up mute/unmute button
+        binding.btnMuteUnmuteTrailer.setOnClickListener(v -> {
+            VideoView videoView = binding.videoTrailer;
+            try {
+                // Use reflection to get MediaPlayer from VideoView
+                java.lang.reflect.Field mpField = VideoView.class.getDeclaredField("mMediaPlayer");
+                mpField.setAccessible(true);
+                MediaPlayer mediaPlayer = (MediaPlayer) mpField.get(videoView);
+                
+                if (mediaPlayer != null) {
+                    if (isMuted[0]) {
+                        // Unmute
+                        mediaPlayer.setVolume(1f, 1f);
+                        binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_up);
+                        isMuted[0] = false;
+                    } else {
+                        // Mute
+                        mediaPlayer.setVolume(0f, 0f);
+                        binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_off);
+                        isMuted[0] = true;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e("Trailer", "Error toggling mute state", e);
             }
         });
     }

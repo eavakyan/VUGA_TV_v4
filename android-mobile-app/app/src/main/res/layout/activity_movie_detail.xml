@@ -72,6 +72,21 @@
                 android:padding="20dp"
                 android:visibility="gone"
                 app:tint="@color/white" />
+            
+            <!-- Mute/Unmute button for trailer -->
+            <ImageView
+                android:id="@+id/btn_mute_unmute_trailer"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_volume_off"
+                android:background="@drawable/bg_round_rect_500"
+                android:backgroundTint="@color/app_black_70"
+                android:padding="12dp"
+                android:visibility="gone"
+                app:tint="@color/white" />
 
             <eightbitlab.com.blurview.BlurView
                 android:id="@+id/blurView"
@@ -371,10 +386,10 @@
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/outfit_light"
                                     android:letterSpacing=".04"
-                                    android:text="@{content.duration}"
+                                    android:text="@{content.formattedDuration}"
                                     android:textColor="@color/text_color_light"
                                     android:textSize="@dimen/_16sp"
-                                    tools:text="2 h 30 m" />
+                                    tools:text="2 hr 30 min" />
 
 
                             </LinearLayout>

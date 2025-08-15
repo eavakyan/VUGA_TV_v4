@@ -34,6 +34,7 @@ import com.retry.vuga.utils.DeviceUtils;
 import com.retry.vuga.utils.DownloadService;
 import com.retry.vuga.utils.Global;
 import com.retry.vuga.utils.SessionManager;
+import com.retry.vuga.utils.ConnectionMonitor;
 import com.revenuecat.purchases.CustomerInfo;
 import com.revenuecat.purchases.Purchases;
 import com.revenuecat.purchases.PurchasesError;
@@ -168,14 +169,21 @@ public class BaseActivity extends AppCompatActivity {
     }
 
     public static void addRemoveWatchlist(Context context, int content_id, boolean isAdd, OnWatchList onWatchList) {
+        SessionManager sessionManager = new SessionManager(context);
         if (sessionManager.getUser() == null) {
             Log.e("Watchlist", "User is null, cannot update watchlist");
+            if (onWatchList != null) {
+                onWatchList.onError();
+            }
             return;
         }
         
         Log.d("Watchlist", "User ID from session: " + sessionManager.getUser().getId());
         if (sessionManager.getUser().getId() == 0) {
             Log.e("Watchlist", "User ID is 0, cannot update watchlist");
+            if (onWatchList != null) {
+                onWatchList.onError();
+            }
             return;
         }
 
@@ -192,7 +200,8 @@ public class BaseActivity extends AppCompatActivity {
             params.put("profile_id", profileId);
         }
         
-        disposable.add(RetrofitClient.getService().toggleWatchlist(params)
+        CompositeDisposable localDisposable = new CompositeDisposable();
+        localDisposable.add(RetrofitClient.getService().toggleWatchlist(params)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .doOnTerminate(() -> {
@@ -353,6 +362,9 @@ public class BaseActivity extends AppCompatActivity {
         setStatusBarTransparentFlag();
         sessionManager = new SessionManager(this);
         disposable = new CompositeDisposable();
+
+        // Initialize connection monitor
+        ConnectionMonitor.getInstance(this);
 
         downloadServiceIntent = new Intent(this, DownloadService.class);
         bindService(downloadServiceIntent, downloadConnection, BIND_AUTO_CREATE);

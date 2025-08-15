@@ -318,22 +318,57 @@
                 android:id="@+id/stickyHeaderContainer"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:background="@color/app_black"
                 android:elevation="8dp"
                 android:layout_marginTop="80dp"
                 android:paddingTop="5dp"
-                android:paddingBottom="10dp">
+                android:paddingBottom="10dp"
+                android:paddingHorizontal="15dp"
+                android:gravity="center_vertical">
 
                 <!-- Horizontal Category List -->
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvCategoriesSticky"
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:clipToPadding="false"
-                    android:paddingHorizontal="15dp"
                     android:orientation="horizontal"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                
+                <!-- Dropdown Button for Genres/Distributors -->
+                <LinearLayout
+                    android:id="@+id/btnCategoryDropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal"
+                    android:background="@drawable/bg_for_edit_text_13"
+                    android:backgroundTint="@color/text_color_10"
+                    android:paddingHorizontal="12dp"
+                    android:gravity="center"
+                    android:layout_marginStart="10dp"
+                    android:clickable="true"
+                    android:focusable="true">
+                    
+                    <TextView
+                        android:id="@+id/tvDropdownLabel"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="More"
+                        android:textSize="14sp"
+                        android:fontFamily="@font/outfit_regular" />
+                    
+                    <ImageView
+                        android:id="@+id/ivDropdownArrow"
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="6dp"
+                        android:src="@drawable/ic_back"
+                        android:rotation="270"
+                        app:tint="@color/text_color" />
+                </LinearLayout>
 
             </LinearLayout>
 

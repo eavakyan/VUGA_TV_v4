@@ -31,6 +31,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import eightbitlab.com.blurview.BlurAlgorithm;
@@ -174,6 +175,9 @@ public class HomeFeaturedAdapter extends RecyclerView.Adapter<HomeFeaturedAdapte
                         String message = newState ? "Added to My List" : "Removed from My List";
                         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
                         
+                        // Update local watchlist immediately
+                        updateLocalWatchlist(model.getId(), newState);
+                        
                         // Broadcast the update
                         Intent intent = new Intent("com.retry.vuga.WATCHLIST_UPDATED");
                         intent.putExtra("content_id", model.getId());
@@ -218,6 +222,50 @@ public class HomeFeaturedAdapter extends RecyclerView.Adapter<HomeFeaturedAdapte
                 }
             }
             return false;
+        }
+        
+        private void updateLocalWatchlist(int contentId, boolean isAdded) {
+            SessionManager sessionManager = new SessionManager(itemView.getContext());
+            if (sessionManager.getUser() == null) {
+                return;
+            }
+            
+            String currentWatchlist = sessionManager.getUser().getWatchlist_content_ids();
+            String contentIdStr = String.valueOf(contentId);
+            String newWatchlist;
+            
+            if (isAdded) {
+                // Add to watchlist
+                if (currentWatchlist == null || currentWatchlist.isEmpty()) {
+                    newWatchlist = contentIdStr;
+                } else {
+                    // Check if already exists
+                    if (!currentWatchlist.contains(contentIdStr)) {
+                        newWatchlist = currentWatchlist + "," + contentIdStr;
+                    } else {
+                        newWatchlist = currentWatchlist;
+                    }
+                }
+            } else {
+                // Remove from watchlist
+                if (currentWatchlist == null || currentWatchlist.isEmpty()) {
+                    newWatchlist = "";
+                } else {
+                    // Remove the content ID
+                    String[] ids = currentWatchlist.split(",");
+                    List<String> idList = new ArrayList<>();
+                    for (String id : ids) {
+                        if (!id.trim().equals(contentIdStr)) {
+                            idList.add(id.trim());
+                        }
+                    }
+                    newWatchlist = String.join(",", idList);
+                }
+            }
+            
+            // Update the user's watchlist in session
+            sessionManager.getUser().setWatchlist_content_ids(newWatchlist);
+            sessionManager.saveUser(sessionManager.getUser());
         }
 
         public void setBlur(BlurView blurView, ViewGroup rootView, float v) {

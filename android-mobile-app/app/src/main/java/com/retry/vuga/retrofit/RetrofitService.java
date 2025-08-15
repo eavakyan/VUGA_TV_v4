@@ -5,6 +5,7 @@ import com.retry.vuga.model.AllContent;
 import com.retry.vuga.model.AppSetting;
 import com.retry.vuga.model.ChannelByCategories;
 import com.retry.vuga.model.ContentByGenre;
+import com.retry.vuga.model.ContentByDistributor;
 import com.retry.vuga.model.ContentDetail;
 import com.retry.vuga.model.HomePage;
 import com.retry.vuga.model.LiveTv;
@@ -14,6 +15,7 @@ import com.retry.vuga.model.SearchChannel;
 import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.model.AgeRatingResponse;
 import com.retry.vuga.model.RecentlyWatchedContent;
+import com.retry.vuga.model.SubscriptionModels;
 import com.retry.vuga.model.ads.CustomAds;
 import com.retry.vuga.utils.Const;
 
@@ -65,6 +67,10 @@ public interface RetrofitService {
     Single<ContentByGenre> getContentByGenre(@Field(Const.ApiKey.start) int start,
                                              @Field(Const.ApiKey.limit) int limit,
                                              @Field(Const.ApiKey.genre_id) int id);
+    
+    @FormUrlEncoded
+    @POST("fetchContentsByDistributor")
+    Single<ContentByDistributor> getContentByDistributor(@FieldMap HashMap<String, Object> params);
 
 
     @FormUrlEncoded
@@ -238,5 +244,31 @@ public interface RetrofitService {
     Single<RecentlyWatchedContent> getRecentlyWatchedContent(@Field("content_ids") String contentIds,
                                                            @Field("user_id") int userId,
                                                            @Field("profile_id") Integer profileId);
+
+    // Profile avatar upload
+    @FormUrlEncoded
+    @POST("profiles/avatar/upload")
+    Single<ProfileResponse> uploadProfileAvatar(@Field("user_id") int userId,
+                                              @Field("profile_id") int profileId,
+                                              @Field("image_data") String imageData);
+
+    // Profile avatar removal
+    @FormUrlEncoded
+    @POST("profiles/avatar/remove")
+    Single<RestResponse> removeProfileAvatar(@Field("user_id") int userId,
+                                           @Field("profile_id") int profileId);
+
+    // Subscription APIs
+    @POST("subscription/plans")
+    Single<SubscriptionModels.SubscriptionPlansResponse> getSubscriptionPlans();
+
+    @FormUrlEncoded
+    @POST("subscription/my-subscriptions")
+    Single<SubscriptionModels.MySubscriptionsResponse> getMySubscriptions(@Field("user_id") int userId);
+
+    @FormUrlEncoded
+    @POST("subscription/validate-promo")
+    Single<RestResponse> validatePromoCode(@Field("promo_code") String promoCode,
+                                         @Field("user_id") int userId);
 
 }

@@ -85,10 +85,10 @@ public class UserRegistration {
         private Integer lastActiveProfileId;
         
         @SerializedName("email_consent")
-        private Boolean emailConsent;
+        private int emailConsent;
         
         @SerializedName("sms_consent")
-        private Boolean smsConsent;
+        private int smsConsent;
 
         public String getWatchlist_content_ids() {
             return watchlist_content_ids == null ? "" : watchlist_content_ids;
@@ -205,6 +205,22 @@ public class UserRegistration {
         public void setLastActiveProfileId(Integer lastActiveProfileId) {
             this.lastActiveProfileId = lastActiveProfileId;
         }
+        
+        public boolean isEmailConsent() {
+            return emailConsent == 1;
+        }
+        
+        public void setEmailConsent(int emailConsent) {
+            this.emailConsent = emailConsent;
+        }
+        
+        public boolean isSmsConsent() {
+            return smsConsent == 1;
+        }
+        
+        public void setSmsConsent(int smsConsent) {
+            this.smsConsent = smsConsent;
+        }
     }
     
     public static class Profile {
@@ -227,10 +243,10 @@ public class UserRegistration {
         private boolean isKids;
         
         @SerializedName("email_consent")
-        private Boolean emailConsent;
+        private int emailConsent;
         
         @SerializedName("sms_consent")
-        private Boolean smsConsent;
+        private int smsConsent;
         
         public int getProfileId() {
             return profileId;
@@ -281,18 +297,18 @@ public class UserRegistration {
         }
         
         public boolean isEmailConsent() {
-            return emailConsent != null ? emailConsent : false;
+            return emailConsent == 1;
         }
         
-        public void setEmailConsent(Boolean emailConsent) {
+        public void setEmailConsent(int emailConsent) {
             this.emailConsent = emailConsent;
         }
         
         public boolean isSmsConsent() {
-            return smsConsent != null ? smsConsent : false;
+            return smsConsent == 1;
         }
         
-        public void setSmsConsent(Boolean smsConsent) {
+        public void setSmsConsent(int smsConsent) {
             this.smsConsent = smsConsent;
         }
     }

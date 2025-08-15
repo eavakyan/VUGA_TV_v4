@@ -115,6 +115,9 @@
             android:name=".activities.ContentByGenreActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activities.ContentByDistributorActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activities.MovieDetailActivity"
             android:screenOrientation="portrait" />
         <activity

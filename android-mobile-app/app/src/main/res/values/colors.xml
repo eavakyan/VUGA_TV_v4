@@ -43,5 +43,13 @@
     <color name="download_yellow">#F69036</color>
     <color name="rating_yellow_shadow">#FAC401</color>
 
+    <!-- Subscription UI Colors -->
+    <color name="bgColor">@color/app_black</color>
+    <color name="textColor">@color/text_color</color>
+    <color name="textLight">@color/text_color_light</color>
+    <color name="cardBg">#16161D</color>
+    <color name="baseColor">@color/app_color</color>
+    <color name="darkYellow">#FFA500</color>
+    <color name="darkBg">#0A0A0F</color>
 
 </resources>

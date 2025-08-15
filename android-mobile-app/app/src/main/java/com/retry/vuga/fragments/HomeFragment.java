@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.PagerSnapHelper;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SnapHelper;
@@ -24,6 +25,9 @@ import androidx.recyclerview.widget.SnapHelper;
 import android.widget.PopupWindow;
 import android.view.ViewGroup;
 import android.content.Intent;
+import android.view.Gravity;
+import android.widget.TextView;
+import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
@@ -39,7 +43,9 @@ import com.retry.vuga.activities.MainActivity;
 import com.retry.vuga.activities.DownloadsActivity;
 import com.retry.vuga.activities.SearchLiveTvActivity;
 import com.retry.vuga.activities.ContentByGenreActivity;
+import com.retry.vuga.activities.ContentByDistributorActivity;
 import com.retry.vuga.adapters.CategoryDropdownAdapter;
+import com.retry.vuga.adapters.DropdownMenuAdapter;
 import com.retry.vuga.adapters.ContentDetailGenreAdapter;
 import com.retry.vuga.adapters.HomeCatNameAdapter;
 import com.retry.vuga.adapters.HomeFeaturedAdapter;
@@ -95,6 +101,7 @@ public class HomeFragment extends BaseFragment {
     // New UI components
     private HorizontalCategoryAdapter horizontalCategoryAdapter;
     private CategoryDropdownAdapter categoryDropdownAdapter;
+    private DropdownMenuAdapter dropdownMenuAdapter;
     private PopupWindow categoryPopupWindow;
     private String selectedFilter = "TV Shows"; // Default filter
 
@@ -176,6 +183,7 @@ public class HomeFragment extends BaseFragment {
         // Initialize new UI components
         setupHeaderWithLogoAndProfile();
         setupHorizontalCategoryList();
+        setupCategoryDropdown();
 
         binding.btnWatchlistMore.setOnClickListener(v -> {
 
@@ -567,6 +575,104 @@ public class HomeFragment extends BaseFragment {
             intent.putExtra(Const.DataKey.DATA, new Gson().toJson(genre));
             startActivity(intent);
         });
+    }
+    
+    private void setupCategoryDropdown() {
+        if (binding.btnCategoryDropdown == null) return;
+        
+        dropdownMenuAdapter = new DropdownMenuAdapter();
+        
+        binding.btnCategoryDropdown.setOnClickListener(v -> {
+            showCategoryDropdown();
+        });
+    }
+    
+    private void showCategoryDropdown() {
+        if (categoryPopupWindow != null && categoryPopupWindow.isShowing()) {
+            categoryPopupWindow.dismiss();
+            return;
+        }
+        
+        // Create popup window
+        View popupView = LayoutInflater.from(getContext()).inflate(R.layout.dropdown_menu, null);
+        RecyclerView rvDropdown = popupView.findViewById(R.id.rvDropdownItems);
+        
+        // Setup RecyclerView
+        rvDropdown.setLayoutManager(new LinearLayoutManager(getContext()));
+        rvDropdown.setAdapter(dropdownMenuAdapter);
+        
+        // Prepare dropdown items
+        List<DropdownMenuAdapter.DropdownItem> items = new ArrayList<>();
+        
+        // Add section header for Genres
+        items.add(new DropdownMenuAdapter.DropdownItem("── Genres ──", "header", null));
+        
+        // Add genres from categories
+        if (catList != null && !catList.isEmpty()) {
+            for (HomePage.GenreContents genre : catList) {
+                if (genre.getGenre() != null && !genre.getGenre().isEmpty()) {
+                    items.add(new DropdownMenuAdapter.DropdownItem(
+                        genre.getGenre(), 
+                        "genre", 
+                        genre
+                    ));
+                }
+            }
+        }
+        
+        // Add section header for Distributors
+        items.add(new DropdownMenuAdapter.DropdownItem("── Distributors ──", "header", null));
+        
+        // Add distributors
+        items.add(new DropdownMenuAdapter.DropdownItem("Amediateka", "distributor", "Amediateka"));
+        items.add(new DropdownMenuAdapter.DropdownItem("HBO", "distributor", "HBO"));
+        items.add(new DropdownMenuAdapter.DropdownItem("Disney", "distributor", "Disney"));
+        
+        dropdownMenuAdapter.setItems(items);
+        
+        // Set item click listener
+        dropdownMenuAdapter.setOnItemClickListener((item, position) -> {
+            if ("header".equals(item.type)) {
+                return; // Ignore header clicks
+            }
+            
+            categoryPopupWindow.dismiss();
+            
+            if ("genre".equals(item.type)) {
+                // Navigate to genre content
+                Intent intent = new Intent(getActivity(), ContentByGenreActivity.class);
+                intent.putExtra(Const.DataKey.DATA, new Gson().toJson(item.data));
+                startActivity(intent);
+            } else if ("distributor".equals(item.type)) {
+                // Navigate to distributor content
+                Intent intent = new Intent(getActivity(), ContentByDistributorActivity.class);
+                intent.putExtra("distributor_name", (String) item.data);
+                startActivity(intent);
+            }
+        });
+        
+        // Create and show popup
+        categoryPopupWindow = new PopupWindow(
+            popupView,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            true
+        );
+        
+        categoryPopupWindow.setBackgroundDrawable(
+            ContextCompat.getDrawable(getContext(), R.drawable.bg_for_edit_text_13)
+        );
+        categoryPopupWindow.setElevation(8);
+        
+        // Show dropdown below the button
+        int[] location = new int[2];
+        binding.btnCategoryDropdown.getLocationOnScreen(location);
+        categoryPopupWindow.showAtLocation(
+            binding.btnCategoryDropdown,
+            Gravity.NO_GRAVITY,
+            location[0],
+            location[1] + binding.btnCategoryDropdown.getHeight()
+        );
     }
     
     private void updateProfileName() {

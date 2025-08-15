@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+    </data>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/app_black"
+        tools:context=".activities.ContentByDistributorActivity">
+
+        <!-- Header -->
+        <LinearLayout
+            android:id="@+id/header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/activity_margin_top"
+            android:orientation="horizontal"
+            android:paddingHorizontal="15dp"
+            android:paddingVertical="10dp"
+            android:gravity="center_vertical">
+
+            <RelativeLayout
+                android:id="@+id/btn_back"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <include layout="@layout/lout_back_btn" />
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tv_title"
+                style="@style/TextViewLocal"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginHorizontal="15dp"
+                android:gravity="center"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:textSize="20sp"
+                tools:text="Disney" />
+
+            <View
+                android:layout_width="@dimen/back_btn_size"
+                android:layout_height="@dimen/back_btn_size" />
+
+        </LinearLayout>
+
+        <!-- Content RecyclerView -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/header"
+            android:paddingHorizontal="15dp"
+            android:clipToPadding="false"
+            android:visibility="gone"
+            tools:visibility="visible"
+            tools:listitem="@layout/item_home_cat_name" />
+
+        <!-- No Data View -->
+        <LinearLayout
+            android:id="@+id/tv_noData"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/header"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <include layout="@layout/layout_no_data" />
+        </LinearLayout>
+
+        <!-- Loader -->
+        <LinearLayout
+            android:id="@+id/lout_loader"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/header"
+            android:gravity="center"
+            android:visibility="gone">
+            <include layout="@layout/layout_loader" />
+        </LinearLayout>
+
+    </RelativeLayout>
+</layout>

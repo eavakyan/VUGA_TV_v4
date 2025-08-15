@@ -129,6 +129,9 @@ public class HomePage {
 
         @SerializedName("title")
         private String title;
+        
+        @SerializedName("genre")
+        private String genre;
 
         @SerializedName("genre_id")
         private int id;
@@ -142,6 +145,15 @@ public class HomePage {
 
         public void setTitle(String title) {
             this.title = title;
+        }
+        
+        public String getGenre() {
+            // Return genre if available, otherwise fall back to title
+            return genre == null ? getTitle() : genre;
+        }
+        
+        public void setGenre(String genre) {
+            this.genre = genre;
         }
 
         public int getId() {
