@@ -129,10 +129,8 @@ struct ProfileView: View {
                             Navigation.pushToSwiftUiView(EditProfileVIew())
                         }
                     */
-                    MySpaceFieldCardWithSwitch(icon: Image.notification, title: .notifications,isNotificationCard: true)
-                    
-                    ProfileFieldCard(icon: Image.mail, title: "Contact Preferences"){
-                        Navigation.pushToSwiftUiView(MarketingPreferencesView())
+                    ProfileFieldCard(icon: Image.notification, title: "Communication Settings"){
+                        Navigation.pushToSwiftUiView(CommunicationPreferencesView())
                     }
                     
                     ProfileFieldCard(icon: Image.downloads, title: .downloads){

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		03A1FF58C727A550F2912445 /* CommunicationPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A667257ACDFE1E4C78BE8123 /* CommunicationPreferencesView.swift */; };
 		042D7BD4491D21AF58FCBE85 /* PaymentDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F3211308B3ADF3A53805C8 /* PaymentDetailsView.swift */; };
 		2B13AD032C22ABAA0037577A /* AdMetricModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B13AD022C22ABAA0037577A /* AdMetricModel.swift */; };
 		2B1403862C1028D800C7F4FB /* VLCplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1403852C1028D700C7F4FB /* VLCplayer.swift */; };
@@ -152,6 +153,7 @@
 		B0F1D7B62E389561006CBED0 /* CreateProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B42E389561006CBED0 /* CreateProfileViewModel.swift */; };
 		B0F1D7B72E389561006CBED0 /* ProfileSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B52E389561006CBED0 /* ProfileSelectionViewModel.swift */; };
 		B0F1D7B92E389588006CBED0 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B82E389588006CBED0 /* NavigationManager.swift */; };
+		B629ED89800959A855D43ACC /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C82F3E27C8723A91B43AE2D /* ToastView.swift */; };
 		C40F2B432BFC8CF2008B1BCB /* ContentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F2B422BFC8CF2008B1BCB /* ContentDetailView.swift */; };
 		C40F2B452BFC8D28008B1BCB /* ContentDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F2B442BFC8D28008B1BCB /* ContentDetailViewModel.swift */; };
 		C41324D62BF8B17700FF7E1C /* ScalingHeaderScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = C41324D52BF8B17700FF7E1C /* ScalingHeaderScrollView */; };
@@ -365,7 +367,9 @@
 		31D338CB9E9D3AAC9721187C /* DebugLogView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/DebugLogView.swift; sourceTree = SOURCE_ROOT; };
 		656093B72253C2613F4CCDEF /* Environment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Utilities/Environment.swift; sourceTree = SOURCE_ROOT; };
 		6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrderReviewView.swift; sourceTree = "<group>"; };
+		8C82F3E27C8723A91B43AE2D /* ToastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/ToastView.swift; sourceTree = SOURCE_ROOT; };
 		A0EEC768CD90445586D9A12F /* TrailerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerModel.swift; sourceTree = "<group>"; };
+		A667257ACDFE1E4C78BE8123 /* CommunicationPreferencesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/CommunicationPreferencesView.swift; sourceTree = SOURCE_ROOT; };
 		B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotification.swift; sourceTree = "<group>"; };
 		B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationViewModel.swift; sourceTree = "<group>"; };
 		B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationView.swift; sourceTree = "<group>"; };
@@ -882,6 +886,8 @@
 				F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */,
 				7F489C4C28369363B58E8714 /* Checkout */,
 				31D338CB9E9D3AAC9721187C /* DebugLogView.swift */,
+				8C82F3E27C8723A91B43AE2D /* ToastView.swift */,
+				A667257ACDFE1E4C78BE8123 /* CommunicationPreferencesView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1333,6 +1339,8 @@
 				D1D83A72E872898767FBEB49 /* AppLogger.swift in Sources */,
 				7E57DE34AD126F25A633B938 /* Environment.swift in Sources */,
 				868740679B26FF90F876D57A /* DebugLogView.swift in Sources */,
+				B629ED89800959A855D43ACC /* ToastView.swift in Sources */,
+				03A1FF58C727A550F2912445 /* CommunicationPreferencesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

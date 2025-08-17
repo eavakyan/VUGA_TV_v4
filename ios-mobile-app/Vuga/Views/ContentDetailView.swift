@@ -342,7 +342,7 @@ struct ContentDetailView: View {
                 
                 // Scrollable content below trailer
                 ScrollView(showsIndicators: false) {
-                    VStack(alignment: .leading, spacing: 16) {
+                    VStack(alignment: .leading, spacing: 12) {
                         // Title and info section
                         contentInfoSection(content)
                         
@@ -1195,9 +1195,9 @@ struct ContentDetailView: View {
                 .padding(.horizontal, 16)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                LazyHGrid(rows: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                LazyHGrid(rows: [GridItem(.fixed(85)), GridItem(.fixed(85))], spacing: 8) {
                     ForEach(cast.prefix(12), id: \.id) { member in
-                        VStack(spacing: 4) {
+                        VStack(spacing: 2) {
                             KFImage(URL(string: member.actor?.profile_image ?? ""))
                                 .placeholder {
                                     Image(systemName: "person.circle.fill")
@@ -1206,14 +1206,14 @@ struct ContentDetailView: View {
                                 }
                                 .resizable()
                                 .aspectRatio(1, contentMode: .fill)
-                                .frame(width: 80, height: 80)
+                                .frame(width: 60, height: 60)
                                 .clipShape(Circle())
                             
                             Text(member.actor?.fullname ?? "")
-                                .font(.system(size: 11))
+                                .font(.system(size: 10))
                                 .foregroundColor(.white)
                                 .lineLimit(1)
-                                .frame(width: 80)
+                                .frame(width: 70)
                         }
                         .onTapGesture {
                             Navigation.pushToSwiftUiView(CastView(actorId: member.actorID ?? 0))
@@ -1221,7 +1221,6 @@ struct ContentDetailView: View {
                     }
                 }
                 .padding(.horizontal, 16)
-                .frame(height: 200)
             }
         }
     }
@@ -1259,7 +1258,7 @@ struct ContentDetailView: View {
                 .padding(.horizontal, 16)
             }
         }
-        .padding(.bottom, 20)
+        .padding(.bottom, 12)
     }
     
     private func handlePlayAction(_ content: VugaContent) {

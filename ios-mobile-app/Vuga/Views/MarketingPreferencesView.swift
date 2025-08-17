@@ -14,6 +14,9 @@ struct MarketingPreferencesView: View {
     @State private var emailConsent = false
     @State private var smsConsent = false
     @State private var hasChanges = false
+    @State private var showToast = false
+    @State private var toastMessage = ""
+    @State private var toastIsSuccess = true
     
     var body: some View {
         VStack(spacing: 0) {
@@ -124,8 +127,11 @@ struct MarketingPreferencesView: View {
                     // Save button
                     if hasChanges {
                         CommonButton(title: "Save Preferences", isDisable: viewModel.isLoading) {
-                            viewModel.updateMarketingConsent(emailConsent: emailConsent, smsConsent: smsConsent) {
+                            viewModel.updateMarketingConsent(emailConsent: emailConsent, smsConsent: smsConsent) { success, message in
                                 hasChanges = false
+                                toastMessage = message
+                                toastIsSuccess = success
+                                showToast = true
                             }
                         }
                         .padding(.top, 20)
@@ -154,6 +160,7 @@ struct MarketingPreferencesView: View {
         .addBackground()
         .hideNavigationbar()
         .loaderView(viewModel.isLoading)
+        .toast(isShowing: $showToast, message: toastMessage, isSuccess: toastIsSuccess)
         .onAppear {
             // Initialize with current user preferences
             emailConsent = myUser?.emailConsent ?? true
@@ -178,8 +185,11 @@ struct MarketingPreferencesView: View {
 
 // ViewModel for handling marketing preferences
 class MarketingPreferencesViewModel: BaseViewModel {
-    func updateMarketingConsent(emailConsent: Bool, smsConsent: Bool, completion: @escaping () -> Void) {
-        guard let userId = myUser?.id else { return }
+    func updateMarketingConsent(emailConsent: Bool, smsConsent: Bool, completion: @escaping (Bool, String) -> Void) {
+        guard let userId = myUser?.id else { 
+            completion(false, "User not found")
+            return 
+        }
         
         startLoading()
         
@@ -197,8 +207,7 @@ class MarketingPreferencesViewModel: BaseViewModel {
                 // Update the stored user with new consent values
                 self?.myUser = user
                 SessionManager.shared.currentUser = user
-                completion()
-                makeToast(title: "Preferences updated successfully")
+                completion(true, "Preferences updated successfully")
             } else {
                 // Attempt to re-fetch profile to reflect latest server state
                 let fetchParams: [Params: Any] = [.userId: userId]
@@ -207,7 +216,7 @@ class MarketingPreferencesViewModel: BaseViewModel {
                         self?.myUser = refreshed
                         SessionManager.shared.currentUser = refreshed
                     }
-                    makeToast(title: obj.message ?? "Failed to update preferences")
+                    completion(false, obj.message ?? "Failed to update preferences")
                 }
             }
         }
