@@ -134,65 +134,38 @@
             android:layout_marginTop="300dp"
             android:orientation="vertical">
 
+            <!-- Navigation bar hidden - using only bottom action row -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-
-                >
+                android:visibility="gone">
 
                 <RelativeLayout
                     android:id="@+id/btn_back"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
-
-                    <include
-
-
-                        layout="@layout/lout_back_btn" />
+                    <include layout="@layout/lout_back_btn" />
                 </RelativeLayout>
-
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1" />
 
                 <androidx.constraintlayout.utils.widget.ImageFilterView
                     android:id="@+id/img_addToWatchList"
                     android:layout_width="@dimen/back_btn_size"
                     android:layout_height="@dimen/back_btn_size"
-                    android:background="@drawable/bg_for_view_round"
-                    android:padding="10dp"
                     android:src="@{isWatchlist?@drawable/ic_bookmark:@drawable/ic_bookmark_not}"
-                    android:tint="@color/text_color"
-                    android:clickable="true"
-                    android:focusable="true" />
+                    android:visibility="gone" />
 
                 <com.retry.vuga.utils.UniversalCastButton
                     android:id="@+id/btn_cast"
                     android:layout_width="@dimen/back_btn_size"
                     android:layout_height="@dimen/back_btn_size"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_for_view_round"
-                    android:padding="10dp"
-                    android:scaleType="fitCenter"
-                    android:visibility="visible" />
+                    android:visibility="gone" />
 
                 <androidx.constraintlayout.utils.widget.ImageFilterView
                     android:id="@+id/btn_share"
                     android:layout_width="@dimen/back_btn_size"
                     android:layout_height="@dimen/back_btn_size"
-                    android:layout_marginStart="10dp"
-                    android:background="@drawable/bg_for_view_round"
-                    android:padding="10dp"
                     android:src="@drawable/ic_share"
-                    android:tint="@color/text_color" />
-
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -268,16 +241,25 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginHorizontal="15dp"
-                            android:gravity="center_horizontal"
                             android:orientation="vertical">
 
-                            <!-- Movie Title removed - title shown in trailer overlay -->
+                            <!-- Movie Title -->
+                            <TextView
+                                android:id="@+id/tv_MovieName"
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="15dp"
+                                android:fontFamily="@font/outfit_semi_bold"
+                                android:text="@{content.title}"
+                                android:textSize="@dimen/_24sp"
+                                tools:text="Captain America" />
 
                             <!-- Movie Info Row: Year | Rating | Duration | HD -->
                             <LinearLayout
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="15dp"
+                                android:layout_marginTop="10dp"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal">
 
@@ -333,34 +315,74 @@
                             </LinearLayout>
 
 
-                            <!-- Play Button -->
+                            <!-- Play and Download Buttons Row -->
                             <LinearLayout
-                                android:id="@+id/btn_play"
                                 android:layout_width="match_parent"
-                                android:layout_height="50dp"
+                                android:layout_height="wrap_content"
                                 android:layout_marginTop="20dp"
-                                android:background="@drawable/bg_round_rect_10"
-                                android:backgroundTint="@color/white"
-                                android:gravity="center"
-                                android:orientation="horizontal"
-                                android:visibility="@{content.type==1?View.VISIBLE:View.GONE}">
+                                android:orientation="horizontal">
 
-                                <ImageView
-                                    android:layout_width="24dp"
-                                    android:layout_height="24dp"
-                                    android:src="@drawable/ic_play"
-                                    app:tint="@color/app_black" />
-
-                                <TextView
-                                    style="@style/TextViewLocal"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="10dp"
-                                    android:fontFamily="@font/outfit_semi_bold"
+                                <!-- Play Button -->
+                                <LinearLayout
+                                    android:id="@+id/btn_play"
+                                    android:layout_width="0dp"
+                                    android:layout_height="50dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginEnd="5dp"
+                                    android:background="@drawable/bg_round_rect_10"
+                                    android:backgroundTint="@color/white"
                                     android:gravity="center"
-                                    android:text="Play"
-                                    android:textColor="@color/app_black"
-                                    android:textSize="@dimen/_18sp" />
+                                    android:orientation="horizontal"
+                                    android:visibility="@{content.type==1?View.VISIBLE:View.GONE}">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_play"
+                                        app:tint="@color/app_black" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:fontFamily="@font/outfit_semi_bold"
+                                        android:gravity="center"
+                                        android:text="Play"
+                                        android:textColor="@color/app_black"
+                                        android:textSize="@dimen/_18sp" />
+                                </LinearLayout>
+
+                                <!-- Download Button -->
+                                <LinearLayout
+                                    android:id="@+id/btn_download"
+                                    android:layout_width="0dp"
+                                    android:layout_height="50dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="5dp"
+                                    android:background="@drawable/bg_stoke_10"
+                                    android:backgroundTint="@color/trans_stroke_color"
+                                    android:gravity="center"
+                                    android:orientation="horizontal"
+                                    android:visibility="gone">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_download"
+                                        app:tint="@color/text_color" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:fontFamily="@font/outfit_regular"
+                                        android:gravity="center"
+                                        android:text="@string/download"
+                                        android:textSize="@dimen/_18sp" />
+                                </LinearLayout>
+
                             </LinearLayout>
 
                             <!-- Action Buttons Row -->
@@ -523,35 +545,7 @@
 
                             </LinearLayout>
 
-                            <LinearLayout
-                                android:id="@+id/btn_download"
-                                android:layout_width="match_parent"
-                                android:layout_height="@dimen/btn_height"
-                                android:layout_marginTop="10dp"
-                                android:background="@drawable/bg_stoke_10"
-                                android:backgroundTint="@color/trans_stroke_color"
-                                android:gravity="center"
-                                android:orientation="horizontal"
-                                android:visibility="gone">
-
-                                <ImageView
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
-                                    android:padding="5dp"
-                                    android:src="@drawable/ic_download"
-                                    app:tint="@color/text_color" />
-
-                                <TextView
-                                    style="@style/TextViewLocal"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="10dp"
-                                    android:fontFamily="@font/outfit_regular"
-                                    android:gravity="center"
-                                    android:text="@string/download"
-                                    android:textSize="@dimen/_20sp" />
-
-                            </LinearLayout>
+                            <!-- Download button moved to Play row -->
 
                             <com.retry.vuga.utils.adds.MyBannerAdView
                                 android:layout_width="match_parent"

@@ -11,6 +11,8 @@ import android.view.View;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.Toast;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -112,6 +114,11 @@ public class MovieDetailActivity extends BaseActivity {
     private ExoPlayer exoPlayer;
     private boolean isPlayerMuted = true;
     MyRewardAds myRewardAds;
+    
+    // Gesture detector for pull-down to close
+    private GestureDetector gestureDetector;
+    private static final int SWIPE_THRESHOLD = 100;
+    private static final int SWIPE_VELOCITY_THRESHOLD = 100;
 
     boolean rewardEarned = false;
 
@@ -173,6 +180,8 @@ public class MovieDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         binding = DataBindingUtil.setContentView(this, R.layout.activity_movie_detail);
 
+        // Set up gesture detector for pull-down to close
+        setupPullDownGesture();
 
         initialization();
         setListeners();
@@ -187,6 +196,85 @@ public class MovieDetailActivity extends BaseActivity {
             getContentDetail();
         }
 
+    }
+    
+    private void setupPullDownGesture() {
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            private float initialY = 0;
+            
+            @Override
+            public boolean onDown(MotionEvent e) {
+                initialY = e.getY();
+                return false;
+            }
+            
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                if (e1 == null || e2 == null) return false;
+                
+                // Check if scrolling down from top of screen
+                float diffY = e2.getY() - e1.getY();
+                
+                // Only trigger if starting from top portion of screen and pulling down
+                if (e1.getY() < 500 && diffY > 200) {
+                    Log.d("Gesture", "Pull down detected: diffY=" + diffY);
+                    finish();
+                    overridePendingTransition(R.anim.fade_in, R.anim.slide_down);
+                    return true;
+                }
+                return false;
+            }
+            
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null || e2 == null) return false;
+                
+                float diffY = e2.getY() - e1.getY();
+                float diffX = e2.getX() - e1.getX();
+                
+                Log.d("Gesture", "Fling detected: diffY=" + diffY + ", velocityY=" + velocityY);
+                
+                // Check if swipe is more vertical than horizontal
+                if (Math.abs(diffY) > Math.abs(diffX)) {
+                    // Check if swipe is downward and meets threshold
+                    if (diffY > SWIPE_THRESHOLD && velocityY > SWIPE_VELOCITY_THRESHOLD) {
+                        // Pull down detected - close the activity
+                        Log.d("Gesture", "Pull down gesture closing activity");
+                        finish();
+                        overridePendingTransition(R.anim.fade_in, R.anim.slide_down);
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        
+        // Override dispatchTouchEvent to intercept all touch events
+        View.OnTouchListener touchListener = new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // Pass the event to gesture detector
+                boolean handled = gestureDetector.onTouchEvent(event);
+                if (handled) {
+                    return true;
+                }
+                // Let the view handle the touch event normally
+                return false;
+            }
+        };
+        
+        // Set touch listener on the root layout
+        binding.rootLout.setOnTouchListener(touchListener);
+    }
+    
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        // Let the gesture detector process the event first
+        if (gestureDetector != null) {
+            gestureDetector.onTouchEvent(ev);
+        }
+        // Continue with normal touch event handling
+        return super.dispatchTouchEvent(ev);
     }
 
     boolean isShareOpen = false;
