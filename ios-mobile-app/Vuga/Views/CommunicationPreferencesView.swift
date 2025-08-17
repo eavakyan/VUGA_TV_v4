@@ -171,7 +171,7 @@ struct CommunicationPreferencesView: View {
                     
                     // Save button for marketing preferences
                     if hasChanges {
-                        CommonButton(title: "Save Marketing Preferences", isDisable: viewModel.isLoading) {
+                        CommonButton(title: "Save Contact Preferences", isDisable: viewModel.isLoading) {
                             viewModel.updateMarketingConsent(emailConsent: emailConsent, smsConsent: smsConsent) { success, message in
                                 hasChanges = false
                                 toastMessage = message

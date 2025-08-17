@@ -13,6 +13,7 @@ struct SplashView: View {
     @AppStorage(SessionKeys.isLoggedIn) var isLoggedIn = false
     @AppStorage(SessionKeys.myUser) var myUser : User? = nil
     @State private var showProfileSelection = true  // Default to true to show profile selection
+    @State private var forceLoadTimeout: Timer?
     
     var body: some View {
         if !vm.isSettingDataLoaded {
@@ -20,20 +21,40 @@ struct SplashView: View {
                 .resizeFitTo(width: Device.width / 3, height: 40)
                 .addBackground()
                 .onAppear {
-                    print("SplashView: onAppear - fetching settings and profile")
+                    print("SplashView: onAppear - fetching settings")
                     // Clear the current profile to ensure profile selection is shown
                     SessionManager.shared.clearProfile()
-                    vm.fetchSettings()
-                    vm.fetchProfile()
+                    
+                    // Start fetching settings
+                    self.vm.fetchSettings()
+                    
+                    // Only fetch profile if user is logged in
+                    if isLoggedIn {
+                        self.vm.fetchProfile()
+                    }
+                    
+                    // Force continue after 2 seconds regardless of settings load status
+                    forceLoadTimeout = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
+                        print("SplashView: Force timeout after 2s - continuing without settings")
+                        if !vm.isSettingDataLoaded {
+                            DispatchQueue.main.async {
+                                vm.isSettingDataLoaded = true
+                            }
+                        }
+                    }
                 }
-                .onChange(of: vm.isConnectedToInternet, perform: { _ in
-                    print("SplashView: Internet connection changed - refetching")
-                    vm.fetchSettings()
-                    vm.fetchProfile()
+                .onChange(of: vm.isConnectedToInternet, perform: { connected in
+                    if connected {
+                        print("SplashView: Internet connection restored - refetching")
+                        self.vm.fetchSettings()
+                    }
                 })
                 .onChange(of: vm.isSettingDataLoaded) { loaded in
                     print("SplashView: Settings loaded changed to: \(loaded)")
                     if loaded {
+                        // Cancel the force timeout since settings loaded
+                        forceLoadTimeout?.invalidate()
+                        forceLoadTimeout = nil
                         checkProfileSelection()
                     }
                 }

@@ -25,12 +25,13 @@ struct NetworkManager {
                                             httpMethod : HTTPMethod = .post,
                                             params: [Params: Any] = [:],
                                             encoding: ParameterEncoding = URLEncoding.default,
+                                            timeout: TimeInterval = 30,
                                             callbackSuccess : @escaping (T) -> (),
                                             callbackFailure : @escaping (_ err : Error) -> () = {_ in}) {
         
         let convertedParams = params.toSimpleDict()
         
-        AF.request(WebService.apiBase + url.rawValue, method: httpMethod, parameters: convertedParams, encoding: encoding, headers: headers)
+        AF.request(WebService.apiBase + url.rawValue, method: httpMethod, parameters: convertedParams, encoding: encoding, headers: headers) { $0.timeoutInterval = timeout }
             .responseString { response in
                 print("==================================================================")
                 print(response.request ?? "")  // original URL request

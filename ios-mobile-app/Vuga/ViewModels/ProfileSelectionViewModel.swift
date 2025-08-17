@@ -19,6 +19,13 @@ class ProfileSelectionViewModel: BaseViewModel {
         // Prevent multiple simultaneous loads
         guard !isLoadingProfiles else { return }
         
+        // If we already have profiles loaded, don't reload
+        if !profiles.isEmpty {
+            print("ProfileSelectionViewModel: Profiles already loaded, count: \(profiles.count)")
+            stopLoading()
+            return
+        }
+        
         guard let userId = myUser?.id else { 
             print("ProfileSelectionViewModel: No user ID found - user might not be logged in")
             // If there's no user, we can't load or create profiles
@@ -34,26 +41,38 @@ class ProfileSelectionViewModel: BaseViewModel {
         let params: [Params: Any] = [.userId: userId]
         print("ProfileSelectionViewModel: Loading profiles for user \(userId)")
         
-        NetworkManager.callWebService(url: .getUserProfiles, params: params) { [weak self] (obj: ProfileResponse) in
-            self?.isLoadingProfiles = false
-            self?.stopLoading()
-            
-            // Always ensure no error is shown during profile loading
-            self?.showError = false
-            
-            print("ProfileSelectionViewModel: Received response - status: \(obj.status), profiles count: \(obj.profiles?.count ?? 0), message: \(obj.message)")
-            
-            if obj.status && !(obj.profiles?.isEmpty ?? true) {
-                // We have profiles, use them (no cache)
-                self?.profiles = obj.profiles ?? []
-            } else {
-                // No profiles or error - create default profile
-                print("ProfileSelectionViewModel: No profiles or error occurred. Creating default profile.")
+        NetworkManager.callWebService(url: .getUserProfiles, params: params, timeout: 8, 
+            callbackSuccess: { [weak self] (obj: ProfileResponse) in
+                self?.isLoadingProfiles = false
+                self?.stopLoading()
+                
+                // Always ensure no error is shown during profile loading
+                self?.showError = false
+                
+                print("ProfileSelectionViewModel: Received response - status: \(obj.status), profiles count: \(obj.profiles?.count ?? 0), message: \(obj.message)")
+                
+                if obj.status && !(obj.profiles?.isEmpty ?? true) {
+                    // We have profiles, use them (no cache)
+                    self?.profiles = obj.profiles ?? []
+                } else {
+                    // No profiles or error - create default profile
+                    print("ProfileSelectionViewModel: No profiles or error occurred. Creating default profile.")
+                    self?.isAutoCreatingProfile = true
+                    self?.profiles = [] // Clear any existing profiles
+                    self?.createDefaultProfile()
+                }
+            },
+            callbackFailure: { [weak self] error in
+                print("ProfileSelectionViewModel: Failed to load profiles (timeout or error): \(error)")
+                self?.isLoadingProfiles = false
+                self?.stopLoading()
+                self?.showError = false
+                // Create default profile on network failure
                 self?.isAutoCreatingProfile = true
-                self?.profiles = [] // Clear any existing profiles
+                self?.profiles = []
                 self?.createDefaultProfile()
             }
-        }
+        )
     }
     
     func selectProfile(_ profile: Profile) {
@@ -69,7 +88,7 @@ class ProfileSelectionViewModel: BaseViewModel {
             .profileId: profile.profileId
         ]
         
-        NetworkManager.callWebService(url: .selectProfile, params: params) { [weak self] (obj: ProfileResponse) in
+        NetworkManager.callWebService(url: .selectProfile, params: params, timeout: 8) { [weak self] (obj: ProfileResponse) in
             self?.stopLoading()
             
             print("ProfileSelectionViewModel: Select profile response - status: \(obj.status), message: \(obj.message)")
@@ -96,7 +115,7 @@ class ProfileSelectionViewModel: BaseViewModel {
         ]
         
         startLoading()
-        NetworkManager.callWebService(url: .deleteProfile, params: params) { [weak self] (obj: StatusAndMessageModel) in
+        NetworkManager.callWebService(url: .deleteProfile, params: params, timeout: 8) { [weak self] (obj: StatusAndMessageModel) in
             self?.stopLoading()
             
             if obj.status ?? false {
@@ -128,7 +147,7 @@ class ProfileSelectionViewModel: BaseViewModel {
         
         print("ProfileSelectionViewModel: Creating default profile with name: \(profileName)")
         
-        NetworkManager.callWebService(url: .createProfile, params: params) { [weak self] (obj: ProfileResponse) in
+        NetworkManager.callWebService(url: .createProfile, params: params, timeout: 10) { [weak self] (obj: ProfileResponse) in
             self?.stopLoading()
             self?.isAutoCreatingProfile = false
             

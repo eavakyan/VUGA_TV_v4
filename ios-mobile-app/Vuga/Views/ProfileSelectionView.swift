@@ -83,7 +83,10 @@ struct ProfileSelectionView: View {
             }
         }
         .onAppear {
-            viewModel.loadProfiles()
+            // Load profiles immediately without delay
+            DispatchQueue.main.async {
+                viewModel.loadProfiles()
+            }
         }
         .sheet(isPresented: $showCreateProfile) {
             CreateProfileView(profile: selectedProfile) {

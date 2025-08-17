@@ -458,7 +458,19 @@ struct ContentDetailView: View {
             // Use contentIdToLoad from initializer, or contentId if set directly
             let idToLoad = contentIdToLoad ?? contentId ?? 0
             print("ContentDetailView: Loading content with ID: \(idToLoad)")
-            vm.fetchContest(contentId: idToLoad)
+            
+            // Dispatch async to prevent UI freeze
+            DispatchQueue.main.async {
+                self.vm.fetchContest(contentId: idToLoad)
+            }
+            
+            // Add timeout protection - stop loading after 15 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 15) {
+                if self.vm.isLoading {
+                    print("ContentDetailView: Timeout loading content \(idToLoad)")
+                    self.vm.stopLoading()
+                }
+            }
         }
         // Watchlist state is now set from server response in fetchContest
         if shouldShowAdMob {
