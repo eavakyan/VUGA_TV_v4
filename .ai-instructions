@@ -1,0 +1,33 @@
+# AI ASSISTANT INSTRUCTIONS
+
+## BEFORE YOU START
+1. Read CLAUDE.md for system architecture and compatibility requirements
+2. This is a multi-platform system - changes affect iOS, Android Mobile, and Android TV apps
+
+## WHILE WORKING
+- Check CLAUDE.md compatibility matrix before changing any API endpoints
+- Search all platform directories before modifying shared code
+- Prefer client-side fixes over API changes for compatibility
+
+## AFTER MAKING CHANGES
+1. Update CLAUDE.md when you:
+   - ✅ Add/modify API endpoints (update compatibility matrix)
+   - ✅ Change data models (update Field Compatibility Requirements)
+   - ✅ Fix bugs that reveal compatibility issues (update Known Issues)
+   - ✅ Add features affecting multiple platforms (update Recent Changes)
+   Format: Add entry with date to "Recent Changes & Issues" section
+
+2. Append to docs/CHANGELOG_AI.md for:
+   - ✅ ANY API endpoint changes
+   - ✅ ANY data model modifications
+   - ✅ ANY cross-platform features
+   - ✅ ANY compatibility fixes
+   Use the template provided in the file
+
+## CRITICAL RULES
+- NEVER remove fields from API responses
+- NEVER change field types without versioning
+- ALWAYS check which platforms use an endpoint before modifying it
+- ALWAYS document breaking changes and migration paths
+
+See CLAUDE.md for full documentation.
