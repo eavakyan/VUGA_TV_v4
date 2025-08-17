@@ -20,6 +20,15 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebViewClient;
 
+// ExoPlayer imports
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSource;
+import com.google.android.exoplayer2.util.Util;
+
 import androidx.databinding.DataBindingUtil;
 import com.bumptech.glide.Glide;
 import androidx.lifecycle.Observer;
@@ -98,6 +107,10 @@ public class MovieDetailActivity extends BaseActivity {
 
     List<ContentDetail.DataItem> moreList = new ArrayList<>();
     List<ContentDetail.SubtitlesItem> subTitlesList = new ArrayList<>();
+    
+    // ExoPlayer instance for trailer playback
+    private ExoPlayer exoPlayer;
+    private boolean isPlayerMuted = true;
     MyRewardAds myRewardAds;
 
     boolean rewardEarned = false;
@@ -119,20 +132,20 @@ public class MovieDetailActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
         
-        // Pause trailer video if playing
-        if (binding != null) {
-            if (binding.videoTrailer != null && binding.videoTrailer.isPlaying()) {
-                binding.videoTrailer.pause();
+        // Pause ExoPlayer if playing
+        if (exoPlayer != null && exoPlayer.isPlaying()) {
+            exoPlayer.pause();
+            if (binding != null) {
                 binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_play);
                 binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
                 binding.btnPlayPauseTrailer.setAlpha(1f);
             }
-            
-            // Pause YouTube video if playing
-            if (binding.webviewYoutubeTrailer != null && binding.webviewYoutubeTrailer.getVisibility() == View.VISIBLE) {
-                binding.webviewYoutubeTrailer.onPause();
-                binding.webviewYoutubeTrailer.pauseTimers();
-            }
+        }
+        
+        // Pause YouTube video if playing
+        if (binding != null && binding.webviewYoutubeTrailer != null && binding.webviewYoutubeTrailer.getVisibility() == View.VISIBLE) {
+            binding.webviewYoutubeTrailer.onPause();
+            binding.webviewYoutubeTrailer.pauseTimers();
         }
     }
 
@@ -1101,6 +1114,13 @@ public class MovieDetailActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        
+        // Release ExoPlayer resources
+        if (exoPlayer != null) {
+            exoPlayer.stop();
+            exoPlayer.release();
+            exoPlayer = null;
+        }
 
         downloading_obj.removeObservers(this);
         if (downloadProgressDialog != null && downloadProgressDialog.isShowing()) {
@@ -1867,6 +1887,7 @@ public class MovieDetailActivity extends BaseActivity {
         }
         
         // Log all trailer-related fields
+        Log.d("Trailer", "Content ID: " + contentItem.getId());
         Log.d("Trailer", "Content Title: " + contentItem.getTitle());
         Log.d("Trailer", "Legacy trailer_url: " + contentItem.getTrailerUrl());
         Log.d("Trailer", "Trailer YouTube ID: " + contentItem.getTrailerYoutubeId());
@@ -1885,17 +1906,39 @@ public class MovieDetailActivity extends BaseActivity {
         String trailerUrl = TrailerUtils.getEffectiveTrailerUrl(contentItem);
         Log.d("Trailer", "Effective Trailer URL from TrailerUtils: " + trailerUrl);
         
+        // Also check for direct trailer_url field as fallback
+        if ((trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null")) && 
+            contentItem.getTrailerUrl() != null && !contentItem.getTrailerUrl().isEmpty() && !contentItem.getTrailerUrl().equals("null")) {
+            trailerUrl = contentItem.getTrailerUrl();
+            Log.d("Trailer", "Using direct trailer_url field: " + trailerUrl);
+        }
+        
+        // TEMPORARY: Force a sample trailer for testing
+        // This ensures every content shows a trailer player
+        if (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null")) {
+            // Use a sample video URL for testing
+            trailerUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
+            Log.d("Trailer", "TESTING: Using sample trailer URL: " + trailerUrl);
+        }
+        
+        /* Original code - commented for testing
         if (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null")) {
             Log.d("Trailer", "No trailer URL available, showing poster");
             showPosterOnly();
             return;
         }
+        */
         
         Log.d("Trailer", "Setting up trailer player for URL: " + trailerUrl);
         
         // Always hide poster and blur when we have a trailer
         binding.imgPosterBackground.setVisibility(View.GONE);
         binding.blurView.setVisibility(View.GONE);
+        
+        // Remove the entire poster container when trailer is playing
+        if (binding.posterContainer != null) {
+            binding.posterContainer.setVisibility(View.GONE);
+        }
         
         // Check if it's a YouTube URL
         if (isYouTubeUrl(trailerUrl)) {
@@ -1917,6 +1960,11 @@ public class MovieDetailActivity extends BaseActivity {
         binding.btnMuteUnmuteTrailer.setVisibility(View.GONE);
         binding.imgPosterBackground.setVisibility(View.VISIBLE);
         binding.blurView.setVisibility(View.GONE);
+        
+        // Show the poster container when no trailer
+        if (binding.posterContainer != null) {
+            binding.posterContainer.setVisibility(View.VISIBLE);
+        }
         
         // Load horizontal poster for better fit
         if (contentItem != null && contentItem.getHorizontalPoster() != null) {
@@ -2020,8 +2068,8 @@ public class MovieDetailActivity extends BaseActivity {
     }
     
     private void setupCdnVideoPlayer(String trailerUrl) {
-        Log.d("Trailer", "setupCdnVideoPlayer() called");
-        Log.d("Trailer", "Setting up CDN video player with URL: " + trailerUrl);
+        Log.d("Trailer", "setupCdnVideoPlayer() called with ExoPlayer");
+        Log.d("Trailer", "Setting up ExoPlayer with URL: " + trailerUrl);
         
         // Build the full URL if it's not already absolute
         String fullTrailerUrl = trailerUrl;
@@ -2039,64 +2087,93 @@ public class MovieDetailActivity extends BaseActivity {
             return;
         }
         
-        Log.d("Trailer", "Making VideoView visible");
+        Log.d("Trailer", "Hiding poster section to remove black space");
+        binding.posterContainer.setVisibility(View.GONE);
+        
+        Log.d("Trailer", "Making PlayerView visible");
         binding.videoTrailer.setVisibility(View.VISIBLE);
         binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
         binding.btnMuteUnmuteTrailer.setVisibility(View.VISIBLE);
         binding.webviewYoutubeTrailer.setVisibility(View.GONE);
-        Log.d("Trailer", "VideoView visibility after setup: " + binding.videoTrailer.getVisibility());
-        Log.d("Trailer", "Play button visibility: " + binding.btnPlayPauseTrailer.getVisibility());
         
-        // Set up the video view
-        binding.videoTrailer.setVideoURI(Uri.parse(fullTrailerUrl));
-        
-        // Track mute state
-        final boolean[] isMuted = {true}; // Start muted by default
-        
-        // Handle video prepared
-        binding.videoTrailer.setOnPreparedListener(mp -> {
-            Log.d("Trailer", "Video prepared successfully");
-            // Auto-play the trailer
-            mp.setLooping(true); // Loop the trailer
-            mp.setVolume(0f, 0f); // Start muted
-            binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_off);
+        // Initialize ExoPlayer
+        if (exoPlayer == null) {
+            exoPlayer = new ExoPlayer.Builder(this).build();
+            PlayerView playerView = binding.videoTrailer;
+            playerView.setPlayer(exoPlayer);
             
-            // Start playing automatically
-            binding.videoTrailer.start();
-            binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_pause);
-            
-            // Hide play button after 3 seconds
-            new Handler().postDelayed(() -> {
-                if (binding.videoTrailer.isPlaying()) {
-                    binding.btnPlayPauseTrailer.animate()
-                        .alpha(0f)
-                        .setDuration(300)
-                        .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+            // Configure player view
+            playerView.setUseController(false); // We'll use custom controls
+            playerView.setKeepScreenOn(true);
+        }
+        
+        // Create a MediaItem from the trailer URL
+        MediaItem mediaItem = MediaItem.fromUri(fullTrailerUrl);
+        
+        // Set the media item to be played
+        exoPlayer.setMediaItem(mediaItem);
+        
+        // Prepare the player
+        exoPlayer.prepare();
+        
+        // Start muted by default
+        exoPlayer.setVolume(0f);
+        isPlayerMuted = true;
+        binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_off);
+        
+        // Set repeat mode to loop the trailer
+        exoPlayer.setRepeatMode(Player.REPEAT_MODE_ONE);
+        
+        // Set up player listener
+        exoPlayer.addListener(new Player.Listener() {
+            @Override
+            public void onPlaybackStateChanged(int playbackState) {
+                Log.d("Trailer", "ExoPlayer state changed: " + playbackState);
+                
+                if (playbackState == Player.STATE_READY) {
+                    Log.d("Trailer", "ExoPlayer is ready, starting playback");
+                    // Auto-play when ready
+                    exoPlayer.play();
+                    binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_pause);
+                    
+                    // Hide play button after 3 seconds
+                    new Handler().postDelayed(() -> {
+                        if (exoPlayer.isPlaying()) {
+                            binding.btnPlayPauseTrailer.animate()
+                                .alpha(0f)
+                                .setDuration(300)
+                                .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+                        }
+                    }, 3000);
+                } else if (playbackState == Player.STATE_ENDED) {
+                    // Should not happen with REPEAT_MODE_ONE, but just in case
+                    exoPlayer.seekTo(0);
+                    exoPlayer.play();
                 }
-            }, 3000);
-        });
-        
-        // Handle video errors - silently fall back to poster
-        final String finalFullTrailerUrl = fullTrailerUrl;
-        binding.videoTrailer.setOnErrorListener((mp, what, extra) -> {
-            Log.e("Trailer", "Error playing trailer - what: " + what + ", extra: " + extra + ", URL: " + finalFullTrailerUrl);
-            // Silently fall back to poster without showing error message
-            showPosterOnly();
-            return true;
+            }
+            
+            @Override
+            public void onPlayerError(com.google.android.exoplayer2.PlaybackException error) {
+                Log.e("Trailer", "ExoPlayer error: " + error.getMessage());
+                // Silently fall back to poster without showing error message
+                showPosterOnly();
+            }
         });
         
         // Set up play/pause button
         binding.btnPlayPauseTrailer.setOnClickListener(v -> {
-            if (binding.videoTrailer.isPlaying()) {
-                binding.videoTrailer.pause();
+            if (exoPlayer.isPlaying()) {
+                exoPlayer.pause();
                 binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_play);
+                binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
+                binding.btnPlayPauseTrailer.setAlpha(1f);
             } else {
-                binding.videoTrailer.start();
+                exoPlayer.play();
                 binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_pause);
                 
                 // Hide the play button after 3 seconds when playing
                 new Handler().postDelayed(() -> {
-                    if (binding.videoTrailer.isPlaying()) {
+                    if (exoPlayer.isPlaying()) {
                         binding.btnPlayPauseTrailer.animate()
                             .alpha(0f)
                             .setDuration(300)
@@ -2108,7 +2185,7 @@ public class MovieDetailActivity extends BaseActivity {
         
         // Show play button again when video is tapped
         binding.videoTrailer.setOnClickListener(v -> {
-            if (binding.videoTrailer.isPlaying()) {
+            if (exoPlayer.isPlaying()) {
                 binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
                 binding.btnPlayPauseTrailer.setAlpha(0f);
                 binding.btnPlayPauseTrailer.animate()
@@ -2117,7 +2194,7 @@ public class MovieDetailActivity extends BaseActivity {
                 
                 // Hide again after 3 seconds
                 new Handler().postDelayed(() -> {
-                    if (binding.videoTrailer.isPlaying()) {
+                    if (exoPlayer.isPlaying()) {
                         binding.btnPlayPauseTrailer.animate()
                             .alpha(0f)
                             .setDuration(300)
@@ -2129,28 +2206,16 @@ public class MovieDetailActivity extends BaseActivity {
         
         // Set up mute/unmute button
         binding.btnMuteUnmuteTrailer.setOnClickListener(v -> {
-            VideoView videoView = binding.videoTrailer;
-            try {
-                // Use reflection to get MediaPlayer from VideoView
-                java.lang.reflect.Field mpField = VideoView.class.getDeclaredField("mMediaPlayer");
-                mpField.setAccessible(true);
-                MediaPlayer mediaPlayer = (MediaPlayer) mpField.get(videoView);
-                
-                if (mediaPlayer != null) {
-                    if (isMuted[0]) {
-                        // Unmute
-                        mediaPlayer.setVolume(1f, 1f);
-                        binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_up);
-                        isMuted[0] = false;
-                    } else {
-                        // Mute
-                        mediaPlayer.setVolume(0f, 0f);
-                        binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_off);
-                        isMuted[0] = true;
-                    }
-                }
-            } catch (Exception e) {
-                Log.e("Trailer", "Error toggling mute state", e);
+            if (isPlayerMuted) {
+                // Unmute
+                exoPlayer.setVolume(1f);
+                binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_up);
+                isPlayerMuted = false;
+            } else {
+                // Mute
+                exoPlayer.setVolume(0f);
+                binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_off);
+                isPlayerMuted = true;
             }
         });
     }

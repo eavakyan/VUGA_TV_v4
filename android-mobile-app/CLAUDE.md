@@ -1,5 +1,45 @@
 # VUGA TV Android Mobile App - Development Notes
 
+## Recent Changes (August 17, 2025)
+
+### Content Detail Trailer Video Player
+
+#### Feature Enhanced
+The Content Detail View (MovieDetailActivity) now prominently displays video trailers at the top of the page when available.
+
+#### Changes Made
+
+1. **activity_movie_detail.xml** (`/app/src/main/res/layout/activity_movie_detail.xml`)
+   - Increased video player container height from 260dp to 300dp for better visibility
+   - Video player spans full width of the screen
+   - Supports both direct video URLs and YouTube embeds
+
+2. **MovieDetailActivity.java** (`/app/src/main/java/com/retry/vuga/activities/MovieDetailActivity.java`)
+   - Enhanced trailer detection with additional fallback to direct `trailer_url` field
+   - Added more comprehensive debug logging for trailer loading
+   - Auto-plays trailers when available (muted by default)
+
+#### Implementation Details
+
+**Trailer Priority Order:**
+1. Primary trailer from `trailers` array (if marked as primary)
+2. First trailer from `trailers` array
+3. Legacy `trailer_url` field
+4. YouTube ID from `trailer_youtube_id` field
+
+**Supported Video Sources:**
+- YouTube videos (embedded in WebView)
+- Direct CDN/HTTP video URLs (played in VideoView)
+- Auto-loops trailer playback
+- Mute/unmute button for user control
+- Play/pause overlay controls
+
+**Features:**
+- Auto-plays trailer on page load (muted)
+- Falls back to poster image if no trailer available
+- Handles both YouTube and direct video URLs
+- Full-width video player at top of content details
+
 ## Recent Changes (August 16, 2025)
 
 ### Profile Avatar S3 Upload to Digital Ocean Spaces

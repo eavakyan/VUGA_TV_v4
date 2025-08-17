@@ -135,12 +135,10 @@ dependencies {
     implementation 'io.branch.sdk.android:library:5.15.0'
 
 //    exo player
-
-
-//    // dependancy fo r exoplayer
-//    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
-//    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
-//    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    // dependency for exoplayer
+    implementation 'com.google.android.exoplayer:exoplayer:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
 
 
     // for m3u8

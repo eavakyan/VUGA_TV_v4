@@ -32,7 +32,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="260dp">
+            android:layout_height="300dp">
 
             <!-- Poster Image (shown when no trailer) -->
             <ImageView
@@ -45,13 +45,16 @@
                 tools:src="@tools:sample/backgrounds/scenic" />
 
             <!-- Video Player for Trailer (shown when trailer exists) -->
-            <VideoView
+            <com.google.android.exoplayer2.ui.PlayerView
                 android:id="@+id/video_trailer"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"
                 android:layout_centerInParent="true"
-                android:background="@android:color/black" />
+                android:background="@android:color/black"
+                android:keepScreenOn="true"
+                app:use_controller="false"
+                app:resize_mode="fit" />
 
             <!-- WebView for YouTube trailers -->
             <WebView
@@ -128,14 +131,15 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginTop="300dp"
             android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="10dp"
-                android:layout_marginTop="@dimen/activity_margin_top"
-                android:layout_marginBottom="20dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
 
@@ -205,8 +209,9 @@
                     android:orientation="vertical">
 
                     <RelativeLayout
+                        android:id="@+id/poster_container"
                         android:layout_width="match_parent"
-                        android:layout_height="450dp">
+                        android:layout_height="0dp">
 
 
                         <RelativeLayout
@@ -215,9 +220,9 @@
                             android:layout_centerInParent="true">
 
                             <androidx.constraintlayout.utils.widget.ImageFilterView
+                                android:id="@+id/img_vertical_poster"
                                 android:layout_width="match_parent"
                                 android:layout_height="match_parent"
-
                                 android:scaleType="centerCrop"
                                 app:image_url="@{content.verticalPoster}"
                                 app:round="25dp"
@@ -271,7 +276,7 @@
                                 style="@style/TextViewLocal"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="15dp"
+                                android:layout_marginTop="10dp"
                                 android:fontFamily="@font/outfit_semi_bold"
                                 android:gravity="center"
                                 android:text="@{content.title}"
@@ -284,7 +289,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginHorizontal="10dp"
-                                android:layout_marginVertical="15dp"
+                                android:layout_marginVertical="10dp"
                                 android:gravity="center"
                                 app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager"
                                 tools:itemCount="1"
@@ -296,7 +301,7 @@
 
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
+                                android:layout_marginTop="5dp"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal">
 
