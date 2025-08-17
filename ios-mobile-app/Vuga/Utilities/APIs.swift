@@ -10,6 +10,7 @@ import Foundation
 enum APIs : String {
     case userRegistration                   = "userRegistration"
     case updateProfile                      = "profile/update"
+    case userUpdateProfile                  = "updateProfile"
     case fetchProfile                       = "fetchProfile"
     case logOut                             = "logOut"
     case getUserSubscription                = "getUserSubscription"

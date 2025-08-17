@@ -138,7 +138,7 @@ struct AgeRatingDetailSheet: View {
     let badgeColor: Color
     let ratingIcon: String
     let ratingDescription: String
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     var body: some View {
         NavigationView {
@@ -199,7 +199,7 @@ struct AgeRatingDetailSheet: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        dismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }
                     .foregroundColor(.white)
                 }

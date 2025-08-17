@@ -183,14 +183,14 @@ class MarketingPreferencesViewModel: BaseViewModel {
         
         startLoading()
         
+        // Use both userId and appUserId for compatibility
         let params: [Params: Any] = [
             .userId: userId,
-            .appUserId: userId,
             .emailConsent: emailConsent ? 1 : 0,
             .smsConsent: smsConsent ? 1 : 0
         ]
         
-        NetworkManager.callWebService(url: .updateProfile, params: params) { [weak self] (obj: UserModel) in
+        NetworkManager.callWebService(url: .userUpdateProfile, params: params) { [weak self] (obj: UserModel) in
             self?.stopLoading()
             
             if let user = obj.data {

@@ -40,7 +40,7 @@ struct ExpandableDescriptionView: View {
 
 struct FullDescriptionSheet: View {
     let description: String
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     var body: some View {
         NavigationView {
@@ -66,7 +66,7 @@ struct FullDescriptionSheet: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Done") {
-                        dismiss()
+                        presentationMode.wrappedValue.dismiss()
                     }
                     .foregroundColor(.white)
                 }

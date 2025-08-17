@@ -11,7 +11,7 @@ struct SubtitleTrackSelectionView: View {
     let tracks: [SubtitleTrack]
     @Binding var selectedTrack: SubtitleTrack?
     let onTrackSelected: (SubtitleTrack?) -> Void
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     var body: some View {
         NavigationView {

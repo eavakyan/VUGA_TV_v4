@@ -10,7 +10,7 @@ import SwiftUI
 struct CheckoutView: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
     @StateObject private var viewModel = CheckoutViewModel()
-    @Environment(\.dismiss) private var dismiss
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     
     let planId: Int
     let planType: String // "base" or "distributor"
@@ -58,7 +58,7 @@ struct CheckoutView: View {
         .loaderView(viewModel.isProcessing)
         .alert("Payment Successful", isPresented: $viewModel.showSuccessAlert) {
             Button("OK") {
-                dismiss()
+                presentationMode.wrappedValue.dismiss()
             }
         } message: {
             Text("Your subscription has been activated successfully!")
@@ -68,7 +68,7 @@ struct CheckoutView: View {
                 viewModel.showErrorAlert = false
             }
             Button("Cancel") {
-                dismiss()
+                presentationMode.wrappedValue.dismiss()
             }
         } message: {
             Text(viewModel.errorMessage)
@@ -84,7 +84,7 @@ struct CheckoutView: View {
                 if viewModel.currentStep > 1 {
                     viewModel.previousStep()
                 } else {
-                    dismiss()
+                    presentationMode.wrappedValue.dismiss()
                 }
             }) {
                 Image(systemName: "chevron.left")
@@ -100,7 +100,7 @@ struct CheckoutView: View {
             
             Spacer()
             
-            Button(action: { dismiss() }) {
+            Button(action: { presentationMode.wrappedValue.dismiss() }) {
                 Image(systemName: "xmark")
                     .font(.system(size: 18))
                     .foregroundColor(.white.opacity(0.7))

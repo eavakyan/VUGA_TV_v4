@@ -95,7 +95,7 @@ struct CommonButton: View {
 
 struct BackButton: View {
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     var onTap : (() -> ())? = nil
     var iconSize : CGFloat = 12
     var body: some View {
@@ -104,13 +104,17 @@ struct BackButton: View {
             .rotationEffect(.degrees(language == .Arabic ? 180 : 0))
             .makeBgOfButton()
             .onTap {
-                onTap?() ?? dismiss()
+                if let customTap = onTap {
+                    customTap()
+                } else {
+                    presentationMode.wrappedValue.dismiss()
+                }
             }
     }
 }
 
 struct SimpleBackButton: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     var onTap : (() -> ())? = nil
     var iconSize : CGFloat = 12
     var body: some View {
@@ -118,7 +122,7 @@ struct SimpleBackButton: View {
             .font(.system(size: iconSize, weight: .bold))
             .padding(10)
             .onTap {
-                onTap?() ?? dismiss()
+                onTap?() ?? presentationMode.wrappedValue.dismiss()
             }
     }
 }
@@ -135,7 +139,7 @@ struct SearchButton: View {
 }
 
 struct CommonIcon: View {
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     var image: Image
     var onTap : (() -> ())? = nil
     var body: some View {
@@ -147,7 +151,7 @@ struct CommonIcon: View {
             .clipShape(Circle())
             .overlay(Circle().stroke(Color.text.opacity(0.2),lineWidth: 1))
             .onTap {
-                onTap?() ?? dismiss()
+                onTap?() ?? presentationMode.wrappedValue.dismiss()
             }
     }
 }

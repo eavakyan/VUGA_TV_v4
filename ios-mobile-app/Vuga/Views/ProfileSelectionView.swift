@@ -3,7 +3,7 @@ import SwiftUI
 struct ProfileSelectionView: View {
     @StateObject private var viewModel = ProfileSelectionViewModel()
     @EnvironmentObject var sessionManager: SessionManager
-    @Environment(\.dismiss) var dismiss
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var showCreateProfile = false
     @State private var isEditMode = false
     @State private var selectedProfile: Profile?
@@ -95,7 +95,7 @@ struct ProfileSelectionView: View {
                 // Notify that a profile was selected
                 onProfileSelected?()
                 // Dismiss the view if presented as a sheet
-                dismiss()
+                presentationMode.wrappedValue.dismiss()
             }
         }
         .alert(isPresented: $viewModel.showError) {

@@ -7,16 +7,16 @@
 
 import Foundation
 
-enum Environment {
+enum AppEnvironment {
     case development
     case staging
     case production
     
     // Current environment - change this when switching environments
     #if DEBUG
-    static let current: Environment = .staging  // Use staging even in debug for now
+    static let current: AppEnvironment = .staging  // Use staging even in debug for now
     #else
-    static let current: Environment = .staging  // Will become .production when ready
+    static let current: AppEnvironment = .staging  // Will become .production when ready
     #endif
     
     var baseURL: String {
@@ -55,13 +55,13 @@ enum Environment {
     }
 }
 
-// Update WebService to use Environment
+// Update WebService to use AppEnvironment
 extension WebService {
-    static var environment: Environment {
-        return Environment.current
+    static var environment: AppEnvironment {
+        return AppEnvironment.current
     }
     
-    // Override existing properties to use Environment
+    // Override existing properties to use AppEnvironment
     static var environmentBase: String {
         return environment.baseURL
     }

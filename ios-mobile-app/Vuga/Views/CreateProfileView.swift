@@ -2,7 +2,7 @@ import SwiftUI
 
 struct CreateProfileView: View {
     @StateObject private var viewModel = CreateProfileViewModel()
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var profileName = ""
     @State private var selectedColor = "#FF5252"
     @State private var isKidsProfile = false
