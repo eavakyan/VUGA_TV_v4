@@ -20,13 +20,12 @@ import android.widget.Toast;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
-import androidx.annotation.OptIn;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.media3.common.MediaItem;
-import androidx.media3.common.Player;
-import androidx.media3.common.util.UnstableApi;
-import androidx.media3.exoplayer.ExoPlayer;
+import com.google.android.exoplayer2.MediaItem;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.ExoPlayer;
+import com.google.android.exoplayer2.ui.PlayerView;
 
 import com.downloader.Error;
 import com.downloader.OnDownloadListener;
@@ -587,7 +586,6 @@ public class PlayerNewActivity extends BaseActivity {
 
 
     @SuppressLint("ClickableViewAccessibility")
-    @OptIn(markerClass = UnstableApi.class)
     private void initListeners() {
         MyInterstitialAds myInterstitialAds = new MyInterstitialAds(this);
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {

@@ -630,10 +630,38 @@ public class MovieDetailActivity extends BaseActivity {
             onBackPressed();
         });
         
-        // Add click listener for rating
-        binding.layoutRating.setOnClickListener(v -> {
+        // Add click listener for rating - moved to new rate button
+        binding.btnRate.setOnClickListener(v -> {
             if (contentItem != null) {
                 showRatingDialog();
+            }
+        });
+        
+        // Watchlist button
+        binding.btnWatchlist.setOnClickListener(v -> {
+            if (binding.imgAddToWatchList != null) {
+                binding.imgAddToWatchList.performClick();
+            }
+        });
+        
+        // Share button in bottom row
+        binding.btnShareBottom.setOnClickListener(v -> {
+            if (binding.btnShare != null) {
+                binding.btnShare.performClick();
+            }
+        });
+        
+        // Cast button in bottom row
+        binding.btnCastBottom.setOnClickListener(v -> {
+            if (binding.btnCast != null) {
+                binding.btnCast.performClick();
+            }
+        });
+        
+        // AirPlay button (Android doesn't support AirPlay, but we can show Cast)
+        binding.btnAirplay.setOnClickListener(v -> {
+            if (binding.btnCast != null) {
+                binding.btnCast.performClick();
             }
         });
         
@@ -1374,7 +1402,8 @@ public class MovieDetailActivity extends BaseActivity {
         binding.rvMoreLikeThis.setAdapter(moreLikeThisAdapter);
         binding.rvSeason.setAdapter(seasonCountAdapter);
         binding.rvEpisodes.setAdapter(episodeAdapter);
-        binding.rvGenere.setAdapter(genreAdapter);
+        // Genre chips removed to match iOS design
+        // binding.rvGenere.setAdapter(genreAdapter);
         binding.rvSource.setAdapter(contentSourceAdapter);
 
         binding.rvCast.setItemAnimator(null);
@@ -1390,7 +1419,8 @@ public class MovieDetailActivity extends BaseActivity {
         flayoutManager.setFlexDirection(FlexDirection.ROW);
         flayoutManager.setJustifyContent(JustifyContent.CENTER);
         flayoutManager.setAlignItems(AlignItems.CENTER);
-        binding.rvGenere.setLayoutManager(flayoutManager);
+        // Genre chips removed to match iOS design
+        // binding.rvGenere.setLayoutManager(flayoutManager);
 //....................................................
 
     }

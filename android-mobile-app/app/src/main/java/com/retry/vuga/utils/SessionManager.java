@@ -58,6 +58,15 @@ public class SessionManager {
         editor.putString(Const.DataKey.LANGUAGE, id);
         editor.apply();
     }
+    
+    public boolean getNotificationEnabled() {
+        return pref.getBoolean("notification_enabled", true);
+    }
+    
+    public void setNotificationEnabled(boolean enabled) {
+        editor.putBoolean("notification_enabled", enabled);
+        editor.apply();
+    }
 
     public UserRegistration.Data getUser() {
 

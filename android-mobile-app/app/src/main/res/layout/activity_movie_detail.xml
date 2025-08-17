@@ -271,93 +271,15 @@
                             android:gravity="center_horizontal"
                             android:orientation="vertical">
 
-                            <TextView
-                                android:id="@+id/tv_MovieName"
-                                style="@style/TextViewLocal"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="10dp"
-                                android:fontFamily="@font/outfit_semi_bold"
-                                android:gravity="center"
-                                android:text="@{content.title}"
-                                android:textSize="@dimen/_20sp"
-                                tools:text="Captain America" />
+                            <!-- Movie Title removed - title shown in trailer overlay -->
 
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rv_genere"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="10dp"
-                                android:layout_marginVertical="10dp"
-                                android:gravity="center"
-                                app:layoutManager="com.google.android.flexbox.FlexboxLayoutManager"
-                                tools:itemCount="1"
-                                tools:listitem="@layout/item_genre_chips">
-
-                            </androidx.recyclerview.widget.RecyclerView>
-
+                            <!-- Movie Info Row: Year | Rating | Duration | HD -->
                             <LinearLayout
-
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="5dp"
+                                android:layout_marginTop="15dp"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal">
-
-                                <LinearLayout
-                                    android:id="@+id/layout_rating"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:gravity="center_vertical"
-                                    android:orientation="horizontal"
-                                    android:clickable="true"
-                                    android:focusable="true"
-                                    android:background="?android:attr/selectableItemBackground"
-                                    android:padding="4dp"
-                                    >
-
-                                    <ImageView
-                                        android:layout_width="12dp"
-                                        android:layout_height="12dp"
-                                        android:src="@drawable/ic_star"
-                                        app:tint="@color/rating_yellow" />
-
-                                    <TextView
-                                        android:id="@+id/tv_ratings"
-                                        style="@style/TextViewLocal"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="5dp"
-                                        android:fontFamily="@font/outfit_light"
-                                        android:letterSpacing=".04"
-                                        android:maxLines="1"
-                                        android:text='@{String.format("%.1f",content.ratings)}'
-
-                                        android:textColor="@color/rating_yellow"
-                                        android:textSize="@dimen/_16sp"
-                                        tools:text="8.5" />
-                                    
-                                    <TextView
-                                        android:id="@+id/tv_user_rating"
-                                        style="@style/TextViewLocal"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginStart="8dp"
-                                        android:fontFamily="@font/outfit_light"
-                                        android:text='@{content.userRating != null ? "(" + String.format("%.0f", content.userRating) + ")" : "(Tap to rate)"}'
-                                        android:textColor="@color/text_color_light"
-                                        android:textSize="@dimen/_14sp"
-                                        android:visibility="visible"
-                                        tools:text="(8)" />
-                                </LinearLayout>
-
-                                <View
-                                    android:layout_width="1dp"
-                                    android:layout_height="match_parent"
-                                    android:layout_marginHorizontal="10dp"
-                                    android:layout_marginVertical="2dp"
-                                    android:background="@color/text_color_light" />
 
                                 <TextView
                                     android:id="@+id/tv_year"
@@ -365,27 +287,24 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/outfit_light"
-                                    android:letterSpacing=".04"
                                     android:text="@{String.valueOf(content.releaseYear)}"
                                     android:textColor="@color/text_color_light"
-                                    android:textSize="@dimen/_16sp"
-                                    tools:text="2021" />
+                                    android:textSize="@dimen/_14sp"
+                                    tools:text="2025" />
 
-
-                                <View
-                                    android:layout_width="1dp"
-                                    android:layout_height="match_parent"
-                                    android:layout_marginHorizontal="10dp"
-                                    android:layout_marginVertical="2dp"
-                                    android:background="@color/text_color_light"
-                                    android:visibility="@{content.duration.isEmpty?View.GONE:View.VISIBLE}" />
-
-                                <ImageView
-                                    android:layout_width="12dp"
-                                    android:layout_height="12dp"
-                                    android:layout_marginEnd="5dp"
-                                    android:src="@drawable/ic_time"
-                                    app:tint="@color/text_color_light" />
+                                <TextView
+                                    style="@style/TextViewLocal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginHorizontal="8dp"
+                                    android:fontFamily="@font/outfit_light"
+                                    android:text="PG-13"
+                                    android:textColor="@color/text_color_light"
+                                    android:textSize="@dimen/_14sp"
+                                    android:background="@drawable/bg_stoke_5"
+                                    android:paddingHorizontal="6dp"
+                                    android:paddingVertical="2dp"
+                                    tools:text="AG_18_PLUS" />
 
                                 <TextView
                                     android:id="@+id/tv_duration"
@@ -393,46 +312,215 @@
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/outfit_light"
-                                    android:letterSpacing=".04"
                                     android:text="@{content.formattedDuration}"
                                     android:textColor="@color/text_color_light"
-                                    android:textSize="@dimen/_16sp"
-                                    tools:text="2 hr 30 min" />
+                                    android:textSize="@dimen/_14sp"
+                                    tools:text="2h 35m" />
 
+                                <TextView
+                                    style="@style/TextViewLocal"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="8dp"
+                                    android:fontFamily="@font/outfit_semi_bold"
+                                    android:text="HD"
+                                    android:textColor="@color/text_color_light"
+                                    android:textSize="@dimen/_14sp"
+                                    android:background="@drawable/bg_stoke_5"
+                                    android:paddingHorizontal="6dp"
+                                    android:paddingVertical="2dp" />
 
                             </LinearLayout>
 
 
+                            <!-- Play Button -->
                             <LinearLayout
                                 android:id="@+id/btn_play"
                                 android:layout_width="match_parent"
-                                android:layout_height="@dimen/btn_height"
+                                android:layout_height="50dp"
                                 android:layout_marginTop="20dp"
-                                android:background="@drawable/bg_for_edit_text_13"
-                                android:backgroundTint="@color/app_color_30"
+                                android:background="@drawable/bg_round_rect_10"
+                                android:backgroundTint="@color/white"
                                 android:gravity="center"
                                 android:orientation="horizontal"
                                 android:visibility="@{content.type==1?View.VISIBLE:View.GONE}">
 
                                 <ImageView
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
-                                    android:background="@drawable/bg_round_rect_500"
-                                    android:backgroundTint="@color/app_color"
-                                    android:padding="10dp"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
                                     android:src="@drawable/ic_play"
-                                    app:tint="@color/text_color" />
+                                    app:tint="@color/app_black" />
 
                                 <TextView
-
                                     style="@style/TextViewLocal"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_marginStart="10dp"
-                                    android:fontFamily="@font/outfit_regular"
+                                    android:fontFamily="@font/outfit_semi_bold"
                                     android:gravity="center"
-                                    android:text="@string/watch_now"
-                                    android:textSize="@dimen/_20sp" />
+                                    android:text="Play"
+                                    android:textColor="@color/app_black"
+                                    android:textSize="@dimen/_18sp" />
+                            </LinearLayout>
+
+                            <!-- Action Buttons Row -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:gravity="center"
+                                android:orientation="horizontal">
+
+                                <!-- Rate Button -->
+                                <LinearLayout
+                                    android:id="@+id/btn_rate"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="10dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_star"
+                                        app:tint="@color/text_color_light" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="5dp"
+                                        android:fontFamily="@font/outfit_light"
+                                        android:text="Rate"
+                                        android:textColor="@color/text_color_light"
+                                        android:textSize="@dimen/_12sp" />
+                                </LinearLayout>
+
+                                <!-- Watchlist Button -->
+                                <LinearLayout
+                                    android:id="@+id/btn_watchlist"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="10dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@{isWatchlist?@drawable/ic_bookmark:@drawable/ic_bookmark_not}"
+                                        app:tint="@color/text_color_light" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="5dp"
+                                        android:fontFamily="@font/outfit_light"
+                                        android:text="Watchlist"
+                                        android:textColor="@color/text_color_light"
+                                        android:textSize="@dimen/_12sp" />
+                                </LinearLayout>
+
+                                <!-- Share Button -->
+                                <LinearLayout
+                                    android:id="@+id/btn_share_bottom"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="10dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_share"
+                                        app:tint="@color/text_color_light" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="5dp"
+                                        android:fontFamily="@font/outfit_light"
+                                        android:text="Share"
+                                        android:textColor="@color/text_color_light"
+                                        android:textSize="@dimen/_12sp" />
+                                </LinearLayout>
+
+                                <!-- Cast Button -->
+                                <LinearLayout
+                                    android:id="@+id/btn_cast_bottom"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="10dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_cast"
+                                        app:tint="@color/text_color_light" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="5dp"
+                                        android:fontFamily="@font/outfit_light"
+                                        android:text="Cast"
+                                        android:textColor="@color/text_color_light"
+                                        android:textSize="@dimen/_12sp" />
+                                </LinearLayout>
+
+                                <!-- AirPlay Button -->
+                                <LinearLayout
+                                    android:id="@+id/btn_airplay"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:gravity="center"
+                                    android:orientation="vertical"
+                                    android:padding="10dp"
+                                    android:clickable="true"
+                                    android:focusable="true"
+                                    android:background="?android:attr/selectableItemBackground">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_airplay"
+                                        app:tint="@color/text_color_light" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginTop="5dp"
+                                        android:fontFamily="@font/outfit_light"
+                                        android:text="AirPlay"
+                                        android:textColor="@color/text_color_light"
+                                        android:textSize="@dimen/_12sp" />
+                                </LinearLayout>
+
                             </LinearLayout>
 
                             <LinearLayout

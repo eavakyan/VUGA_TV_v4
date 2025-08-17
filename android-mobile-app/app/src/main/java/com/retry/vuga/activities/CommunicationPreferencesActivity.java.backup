@@ -1,0 +1,190 @@
+package com.retry.vuga.activities;
+
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
+
+import androidx.databinding.DataBindingUtil;
+
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.retry.vuga.R;
+import com.retry.vuga.databinding.ActivityCommunicationPreferencesBinding;
+import com.retry.vuga.model.UserRegistration;
+import com.retry.vuga.retrofit.RetrofitClient;
+import com.retry.vuga.utils.Const;
+import com.retry.vuga.utils.SessionManager;
+
+import java.util.HashMap;
+
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+
+public class CommunicationPreferencesActivity extends BaseActivity {
+    ActivityCommunicationPreferencesBinding binding;
+    SessionManager sessionManager;
+    CompositeDisposable disposable;
+    
+    // Communication preferences
+    boolean pushNotificationsOn = true;
+    boolean emailConsent = true;
+    boolean smsConsent = true;
+    boolean hasMarketingChanges = false;
+    
+    private static final String NOTIFICATION_TOPIC = "vuga_android";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_communication_preferences);
+        sessionManager = new SessionManager(this);
+        disposable = new CompositeDisposable();
+        
+        setUserPreferences();
+        setListeners();
+    }
+
+    private void setUserPreferences() {
+        // Load push notification preference from SharedPreferences
+        pushNotificationsOn = sessionManager.getNotificationEnabled();
+        
+        // Load marketing preferences from user object if available
+        UserRegistration user = sessionManager.getUser();
+        if (user != null) {
+            // These fields will be available after database update
+            emailConsent = user.isEmailConsent();
+            smsConsent = user.isSmsConsent();
+        }
+        
+        // Update UI
+        binding.switchPushNotifications.setChecked(pushNotificationsOn);
+        binding.switchEmailMarketing.setChecked(emailConsent);
+        binding.switchSmsMarketing.setChecked(smsConsent);
+        
+        updateSaveButtonVisibility();
+    }
+
+    private void setListeners() {
+        binding.btnBack.setOnClickListener(v -> {
+            getOnBackPressedDispatcher().onBackPressed();
+        });
+
+        // Push Notifications toggle (local device setting)
+        binding.switchPushNotifications.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            pushNotificationsOn = isChecked;
+            sessionManager.setNotificationEnabled(isChecked);
+            
+            // Subscribe/unsubscribe from Firebase topic
+            if (isChecked) {
+                subscribeToPushNotifications();
+            } else {
+                unsubscribeFromPushNotifications();
+            }
+            
+            // Show immediate feedback
+            String message = isChecked ? "Push notifications enabled" : "Push notifications disabled";
+            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+        });
+
+        // Email Marketing toggle
+        binding.switchEmailMarketing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            emailConsent = isChecked;
+            hasMarketingChanges = true;
+            updateSaveButtonVisibility();
+        });
+
+        // SMS Marketing toggle
+        binding.switchSmsMarketing.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            smsConsent = isChecked;
+            hasMarketingChanges = true;
+            updateSaveButtonVisibility();
+        });
+
+        // Save button for marketing preferences
+        binding.btnSaveMarketing.setOnClickListener(v -> {
+            updateMarketingPreferences();
+        });
+    }
+
+    private void updateSaveButtonVisibility() {
+        binding.btnSaveMarketing.setVisibility(hasMarketingChanges ? View.VISIBLE : View.GONE);
+    }
+
+    private void subscribeToPushNotifications() {
+        FirebaseMessaging.getInstance().subscribeToTopic(NOTIFICATION_TOPIC)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Successfully subscribed
+                    }
+                });
+    }
+
+    private void unsubscribeFromPushNotifications() {
+        FirebaseMessaging.getInstance().unsubscribeFromTopic(NOTIFICATION_TOPIC)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        // Successfully unsubscribed
+                    }
+                });
+    }
+
+    private void updateMarketingPreferences() {
+        UserRegistration user = sessionManager.getUser();
+        if (user == null) {
+            Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Show loading
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.btnSaveMarketing.setEnabled(false);
+
+        // Prepare API request
+        HashMap<String, Object> params = new HashMap<>();
+        params.put(Const.USER_ID, user.getId());
+        params.put("email_consent", emailConsent ? 1 : 0);
+        params.put("sms_consent", smsConsent ? 1 : 0);
+
+        RequestBody body = RequestBody.create(
+                gson.toJson(params),
+                MediaType.parse("application/json")
+        );
+
+        disposable.add(RetrofitClient.getRetrofitInstance()
+                .updateProfile(body, sessionManager.getUserToken())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    binding.progressBar.setVisibility(View.GONE);
+                    binding.btnSaveMarketing.setEnabled(true);
+                    
+                    if (response.getCode() == 200 && response.getStatus()) {
+                        // Update local user object
+                        UserRegistration updatedUser = response.getData();
+                        if (updatedUser != null) {
+                            sessionManager.saveUser(updatedUser);
+                        }
+                        
+                        hasMarketingChanges = false;
+                        updateSaveButtonVisibility();
+                        Toast.makeText(this, "Marketing preferences updated successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(this, response.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                }, throwable -> {
+                    binding.progressBar.setVisibility(View.GONE);
+                    binding.btnSaveMarketing.setEnabled(true);
+                    Toast.makeText(this, "Failed to update preferences", Toast.LENGTH_SHORT).show();
+                }));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
+    }
+}

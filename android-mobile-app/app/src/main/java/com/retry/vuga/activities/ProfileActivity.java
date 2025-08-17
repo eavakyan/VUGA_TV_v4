@@ -145,7 +145,9 @@ public class ProfileActivity extends BaseActivity {
 
         });
         binding.loutMarketing.setOnClickListener(v -> {
-            startActivity(new Intent(this, MarketingPreferencesActivity.class));
+            // TODO: Fix CommunicationPreferencesActivity layout issues
+            // startActivity(new Intent(this, CommunicationPreferencesActivity.class));
+            Toast.makeText(this, "Communication preferences temporarily unavailable", Toast.LENGTH_SHORT).show();
         });
 
         binding.loutDownloads.setOnClickListener(v -> {
