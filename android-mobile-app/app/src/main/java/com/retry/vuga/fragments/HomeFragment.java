@@ -229,9 +229,11 @@ public class HomeFragment extends BaseFragment {
                 }
             });
         }
-        binding.swipeRefresh.setOnRefreshListener(() -> {
-            getHomePageData();
-        });
+        if (binding.swipeRefresh != null) {
+            binding.swipeRefresh.setOnRefreshListener(() -> {
+                getHomePageData();
+            });
+        }
 
 //        binding.appBar.addOnOffsetChangedListener(new AppBarLayout.BaseOnOffsetChangedListener() {
 //            @Override
@@ -350,7 +352,7 @@ public class HomeFragment extends BaseFragment {
                 })
                 .subscribe((homePage, throwable) -> {
 
-                    if (homePage != null && !requireActivity().isDestroyed()) {
+                    if (homePage != null && !requireActivity().isDestroyed() && binding != null) {
 
                         if (homePage.getFeatured() != null && !homePage.getFeatured().isEmpty()) {
                             featuredList = new ArrayList<>();

@@ -89,6 +89,8 @@ public class RecentlyWatchedAPIAdapter extends RecyclerView.Adapter<RecentlyWatc
                 binding.getRoot().setOnClickListener(v -> {
                     Intent intent = new Intent(itemView.getContext(), MovieDetailActivity.class);
                     intent.putExtra(Const.DataKey.CONTENT_ID, item.getContentId());
+                    intent.putExtra("FROM_RECENTLY_WATCHED", true);
+                    intent.putExtra("WATCH_PROGRESS", item.getWatchPosition());
                     itemView.getContext().startActivity(intent);
                 });
             }

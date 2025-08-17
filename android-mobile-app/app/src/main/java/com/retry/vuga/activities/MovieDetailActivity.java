@@ -113,6 +113,7 @@ public class MovieDetailActivity extends BaseActivity {
     // ExoPlayer instance for trailer playback
     private ExoPlayer exoPlayer;
     private boolean isPlayerMuted = true;
+    private Handler uiHandler = new Handler();
     MyRewardAds myRewardAds;
     
     // Gesture detector for pull-down to close
@@ -191,6 +192,21 @@ public class MovieDetailActivity extends BaseActivity {
 
 
         contentId = getIntent().getIntExtra(Const.DataKey.CONTENT_ID, 0);
+        boolean isFromRecentlyWatched = getIntent().getBooleanExtra("FROM_RECENTLY_WATCHED", false);
+        int watchProgress = getIntent().getIntExtra("WATCH_PROGRESS", 0);
+        
+        // Handle Recently Watched UI
+        if (isFromRecentlyWatched && watchProgress > 0) {
+            // Show Resume and Start Over buttons, hide Play button
+            binding.btnPlay.setVisibility(View.GONE);
+            binding.btnResume.setVisibility(View.VISIBLE);
+            binding.btnStartOver.setVisibility(View.VISIBLE);
+        } else {
+            // Show Play button (default)
+            binding.btnPlay.setVisibility(View.VISIBLE);
+            binding.btnResume.setVisibility(View.GONE);
+            binding.btnStartOver.setVisibility(View.GONE);
+        }
 
         if (contentId != 0) {
             getContentDetail();
@@ -316,7 +332,7 @@ public class MovieDetailActivity extends BaseActivity {
                         downloadProgressDialog.updateDownloadSize(downloadedSize, totalSize);
                     } else if (downloads.getDownloadStatus() == Const.DownloadStatus.COMPLETED) {
                         // Auto dismiss after 2 seconds when completed
-                        new Handler().postDelayed(() -> {
+                        uiHandler.postDelayed(() -> {
                             if (downloadProgressDialog != null && downloadProgressDialog.isShowing()) {
                                 downloadProgressDialog.dismiss();
                             }
@@ -437,7 +453,7 @@ public class MovieDetailActivity extends BaseActivity {
             if (binding.rvCast.getVisibility() == View.VISIBLE) {
                 binding.btnCloseCast.animate().rotation(-90).setDuration(100);
                 binding.rvCast.animate().translationY(-50).setDuration(300);
-                new Handler().postDelayed(() -> {
+                uiHandler.postDelayed(() -> {
                     binding.rvCast.setVisibility(View.GONE);
                 }, 200);
             } else {
@@ -707,6 +723,101 @@ public class MovieDetailActivity extends BaseActivity {
 
                 } else if (sourceToPlay.getAccess_type() == 3) {
                     // Video ad pop up
+                    showADDPopup(sourceToPlay, VIEW, null);
+                }
+            } else {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        // Resume button click listener
+        binding.btnResume.setOnClickListener(v -> {
+            if (contentItem == null || contentItem.getContent_sources() == null || contentItem.getContent_sources().isEmpty()) {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            ContentDetail.SourceItem sourceToPlay = contentItem.getContent_sources().get(0);
+            
+            // Get watch progress from intent
+            int watchProgress = getIntent().getIntExtra("WATCH_PROGRESS", 0);
+            
+            // Also check history for play progress
+            ArrayList<MovieHistory> movieHistories = sessionManager.getMovieHistories();
+            for (MovieHistory movieHistory : movieHistories) {
+                if (movieHistory != null && movieHistory.getSources() != null && 
+                    movieHistory.getMovieId() != null && movieHistory.getMovieId() == contentId) {
+                    for (ContentDetail.SourceItem historySource : movieHistory.getSources()) {
+                        if (historySource.getId() == sourceToPlay.getId()) {
+                            sourceToPlay.playProgress = Math.max(historySource.playProgress, watchProgress);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            // Set play progress to resume from
+            if (sourceToPlay.playProgress == 0) {
+                sourceToPlay.playProgress = watchProgress;
+            }
+
+            if (isNetworkConnected()) {
+                if (sourceToPlay.getAccess_type() == 1) {
+                    increaseViews(sourceToPlay);
+
+                    Intent intent = new Intent(MovieDetailActivity.this, PlayerNewActivity.class);
+                    intent.putExtra(Const.DataKey.CONTENT_SOURCE, new Gson().toJson(sourceToPlay));
+                    intent.putExtra(Const.DataKey.SUB_TITLES, new Gson().toJson(subTitlesList));
+                    intent.putExtra(Const.DataKey.NAME, titleName);
+                    intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
+                    intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
+                    intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                    intent.putExtra(Const.DataKey.RELEASE_YEAR, contentItem.getReleaseYear());
+                    intent.putExtra(Const.DataKey.DURATION, contentItem.getDuration());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+
+                } else if (sourceToPlay.getAccess_type() == 2) {
+                    showPremiumPopup();
+                } else if (sourceToPlay.getAccess_type() == 3) {
+                    showADDPopup(sourceToPlay, VIEW, null);
+                }
+            } else {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
+            }
+        });
+        
+        // Start Over button click listener  
+        binding.btnStartOver.setOnClickListener(v -> {
+            if (contentItem == null || contentItem.getContent_sources() == null || contentItem.getContent_sources().isEmpty()) {
+                Toast.makeText(MovieDetailActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            ContentDetail.SourceItem sourceToPlay = contentItem.getContent_sources().get(0);
+            
+            // Reset play progress to start from beginning
+            sourceToPlay.playProgress = 0;
+
+            if (isNetworkConnected()) {
+                if (sourceToPlay.getAccess_type() == 1) {
+                    increaseViews(sourceToPlay);
+
+                    Intent intent = new Intent(MovieDetailActivity.this, PlayerNewActivity.class);
+                    intent.putExtra(Const.DataKey.CONTENT_SOURCE, new Gson().toJson(sourceToPlay));
+                    intent.putExtra(Const.DataKey.SUB_TITLES, new Gson().toJson(subTitlesList));
+                    intent.putExtra(Const.DataKey.NAME, titleName);
+                    intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
+                    intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
+                    intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+                    intent.putExtra(Const.DataKey.RELEASE_YEAR, contentItem.getReleaseYear());
+                    intent.putExtra(Const.DataKey.DURATION, contentItem.getDuration());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                    startActivity(intent);
+
+                } else if (sourceToPlay.getAccess_type() == 2) {
+                    showPremiumPopup();
+                } else if (sourceToPlay.getAccess_type() == 3) {
                     showADDPopup(sourceToPlay, VIEW, null);
                 }
             } else {
@@ -1231,6 +1342,11 @@ public class MovieDetailActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         
+        // Cancel all pending Handler callbacks
+        if (uiHandler != null) {
+            uiHandler.removeCallbacksAndMessages(null);
+        }
+        
         // Release ExoPlayer resources
         if (exoPlayer != null) {
             exoPlayer.stop();
@@ -1649,7 +1765,7 @@ public class MovieDetailActivity extends BaseActivity {
             final String finalTitle = title;
             
             // Small delay to ensure connection is established
-            new Handler().postDelayed(() -> {
+            uiHandler.postDelayed(() -> {
                 castManager.castMedia(finalVideoUrl, finalTitle, contentItem.getDescription(), imageUrl);
             }, 500);
         } else {
@@ -2255,18 +2371,24 @@ public class MovieDetailActivity extends BaseActivity {
                     binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_pause);
                     
                     // Hide play button after 3 seconds
-                    new Handler().postDelayed(() -> {
-                        if (exoPlayer.isPlaying()) {
+                    uiHandler.postDelayed(() -> {
+                        if (exoPlayer != null && exoPlayer.isPlaying() && binding != null && binding.btnPlayPauseTrailer != null) {
                             binding.btnPlayPauseTrailer.animate()
                                 .alpha(0f)
                                 .setDuration(300)
-                                .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+                                .withEndAction(() -> {
+                                    if (binding != null && binding.btnPlayPauseTrailer != null) {
+                                        binding.btnPlayPauseTrailer.setVisibility(View.GONE);
+                                    }
+                                });
                         }
                     }, 3000);
                 } else if (playbackState == Player.STATE_ENDED) {
                     // Should not happen with REPEAT_MODE_ONE, but just in case
-                    exoPlayer.seekTo(0);
-                    exoPlayer.play();
+                    if (exoPlayer != null) {
+                        exoPlayer.seekTo(0);
+                        exoPlayer.play();
+                    }
                 }
             }
             
@@ -2280,6 +2402,8 @@ public class MovieDetailActivity extends BaseActivity {
         
         // Set up play/pause button
         binding.btnPlayPauseTrailer.setOnClickListener(v -> {
+            if (exoPlayer == null) return;
+            
             if (exoPlayer.isPlaying()) {
                 exoPlayer.pause();
                 binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_play);
@@ -2290,12 +2414,16 @@ public class MovieDetailActivity extends BaseActivity {
                 binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_pause);
                 
                 // Hide the play button after 3 seconds when playing
-                new Handler().postDelayed(() -> {
-                    if (exoPlayer.isPlaying()) {
+                uiHandler.postDelayed(() -> {
+                    if (exoPlayer != null && exoPlayer.isPlaying() && binding != null && binding.btnPlayPauseTrailer != null) {
                         binding.btnPlayPauseTrailer.animate()
                             .alpha(0f)
                             .setDuration(300)
-                            .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+                            .withEndAction(() -> {
+                                if (binding != null && binding.btnPlayPauseTrailer != null) {
+                                    binding.btnPlayPauseTrailer.setVisibility(View.GONE);
+                                }
+                            });
                     }
                 }, 3000);
             }
@@ -2303,7 +2431,7 @@ public class MovieDetailActivity extends BaseActivity {
         
         // Show play button again when video is tapped
         binding.videoTrailer.setOnClickListener(v -> {
-            if (exoPlayer.isPlaying()) {
+            if (exoPlayer != null && exoPlayer.isPlaying()) {
                 binding.btnPlayPauseTrailer.setVisibility(View.VISIBLE);
                 binding.btnPlayPauseTrailer.setAlpha(0f);
                 binding.btnPlayPauseTrailer.animate()
@@ -2311,12 +2439,16 @@ public class MovieDetailActivity extends BaseActivity {
                     .setDuration(300);
                 
                 // Hide again after 3 seconds
-                new Handler().postDelayed(() -> {
-                    if (exoPlayer.isPlaying()) {
+                uiHandler.postDelayed(() -> {
+                    if (exoPlayer != null && exoPlayer.isPlaying() && binding != null && binding.btnPlayPauseTrailer != null) {
                         binding.btnPlayPauseTrailer.animate()
                             .alpha(0f)
                             .setDuration(300)
-                            .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+                            .withEndAction(() -> {
+                                if (binding != null && binding.btnPlayPauseTrailer != null) {
+                                    binding.btnPlayPauseTrailer.setVisibility(View.GONE);
+                                }
+                            });
                     }
                 }, 3000);
             }
@@ -2324,6 +2456,8 @@ public class MovieDetailActivity extends BaseActivity {
         
         // Set up mute/unmute button
         binding.btnMuteUnmuteTrailer.setOnClickListener(v -> {
+            if (exoPlayer == null) return;
+            
             if (isPlayerMuted) {
                 // Unmute
                 exoPlayer.setVolume(1f);

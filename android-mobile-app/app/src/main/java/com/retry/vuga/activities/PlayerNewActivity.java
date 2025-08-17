@@ -388,6 +388,9 @@ public class PlayerNewActivity extends BaseActivity {
         binding.vclLout.setVisibility(View.GONE);
         binding.rtlLoader.setVisibility(View.GONE);
         binding.loader.setVisibility(View.VISIBLE);
+        // Ensure custom ads view is hidden
+        binding.customAdsView.setVisibility(View.GONE);
+        binding.customAdsView.removeAllViews();
         ((TextView) binding.exoPlayerView.findViewById(R.id.tv_rewind)).setText(String.valueOf(Const.PLAYER_SEC));
         ((TextView) binding.exoPlayerView.findViewById(R.id.tv_forward)).setText(String.valueOf(Const.PLAYER_SEC));
         binding.exoPlayerView.findViewById(R.id.btn_rewind).setOnClickListener(view -> simpleExoPlayer.seekTo(simpleExoPlayer.getCurrentPosition() - Const.PLAYER_SEC * 1000));
@@ -423,6 +426,9 @@ public class PlayerNewActivity extends BaseActivity {
     private void playByVLCPlayer() {
         binding.vclLout.setVisibility(View.VISIBLE);
         setControllerVisibility(View.VISIBLE);
+        // Ensure custom ads view is hidden
+        binding.customAdsView.setVisibility(View.GONE);
+        binding.customAdsView.removeAllViews();
 
         binding.vclLout.setHovered(true);
         binding.vclLout.setActivated(true);

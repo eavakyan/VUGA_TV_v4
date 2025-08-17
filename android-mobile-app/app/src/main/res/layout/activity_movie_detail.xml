@@ -342,6 +342,7 @@
                                         app:tint="@color/app_black" />
 
                                     <TextView
+                                        android:id="@+id/btn_play_text"
                                         style="@style/TextViewLocal"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
@@ -350,6 +351,67 @@
                                         android:gravity="center"
                                         android:text="Play"
                                         android:textColor="@color/app_black"
+                                        android:textSize="@dimen/_18sp" />
+                                </LinearLayout>
+                                
+                                <!-- Resume Button (shown for recently watched) -->
+                                <LinearLayout
+                                    android:id="@+id/btn_resume"
+                                    android:layout_width="0dp"
+                                    android:layout_height="50dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginEnd="5dp"
+                                    android:background="@drawable/bg_round_rect_10"
+                                    android:backgroundTint="@color/white"
+                                    android:gravity="center"
+                                    android:orientation="horizontal"
+                                    android:visibility="gone">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_play"
+                                        app:tint="@color/app_black" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:fontFamily="@font/outfit_semi_bold"
+                                        android:gravity="center"
+                                        android:text="Resume"
+                                        android:textColor="@color/app_black"
+                                        android:textSize="@dimen/_18sp" />
+                                </LinearLayout>
+                                
+                                <!-- Start Over Button (shown for recently watched) -->
+                                <LinearLayout
+                                    android:id="@+id/btn_start_over"
+                                    android:layout_width="0dp"
+                                    android:layout_height="50dp"
+                                    android:layout_weight="1"
+                                    android:layout_marginStart="5dp"
+                                    android:background="@drawable/bg_stoke_10"
+                                    android:backgroundTint="@color/trans_stroke_color"
+                                    android:gravity="center"
+                                    android:orientation="horizontal"
+                                    android:visibility="gone">
+
+                                    <ImageView
+                                        android:layout_width="24dp"
+                                        android:layout_height="24dp"
+                                        android:src="@drawable/ic_reply"
+                                        app:tint="@color/text_color" />
+
+                                    <TextView
+                                        style="@style/TextViewLocal"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginStart="10dp"
+                                        android:fontFamily="@font/outfit_regular"
+                                        android:gravity="center"
+                                        android:text="Start Over"
                                         android:textSize="@dimen/_18sp" />
                                 </LinearLayout>
 
