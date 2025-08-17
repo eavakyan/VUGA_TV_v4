@@ -1,23 +1,46 @@
 package com.retry.vuga.activities;
 
+import android.Manifest;
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.media.ExifInterface;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.InputType;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
+
+import com.bumptech.glide.Glide;
 
 import com.retry.vuga.R;
 import com.retry.vuga.adapters.AvatarColorAdapter;
 import com.retry.vuga.databinding.ActivityCreateProfileBinding;
 import com.retry.vuga.retrofit.RetrofitClient;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.List;
+import android.util.Base64;
+
+import okhttp3.MediaType;
+import okhttp3.MultipartBody;
+import okhttp3.RequestBody;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -33,6 +56,10 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
     private boolean isEditMode = false;
     private int selectedAvatarId = 1; // Default avatar ID
     private Integer profileAge = null;
+    private Uri selectedImageUri = null;
+    private File selectedImageFile = null;
+    private static final int PICK_IMAGE_REQUEST = 1001;
+    private static final int PERMISSION_REQUEST_CODE = 1002;
 
     private List<String> avatarColors = Arrays.asList(
             "#FF5252", "#E91E63", "#9C27B0", "#673AB7",
@@ -88,10 +115,27 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
 
         // Update preview
         updatePreview();
+        
+        // Load existing profile image if in edit mode
+        if (isEditMode && getIntent().hasExtra("profile_avatar_url")) {
+            String avatarUrl = getIntent().getStringExtra("profile_avatar_url");
+            if (avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null")) {
+                binding.ivProfileImage.setVisibility(View.VISIBLE);
+                binding.tvPreviewInitial.setVisibility(View.GONE);
+                Glide.with(this)
+                    .load(avatarUrl)
+                    .circleCrop()
+                    .into(binding.ivProfileImage);
+            }
+        }
     }
 
     private void setupListeners() {
         binding.btnBack.setOnClickListener(v -> finish());
+        
+        // Image upload listeners
+        binding.btnEditImage.setOnClickListener(v -> selectImage());
+        binding.btnUploadImage.setOnClickListener(v -> selectImage());
 
         binding.switchKidsProfile.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked && !isEditMode) {
@@ -120,9 +164,17 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             }
 
             if (isEditMode) {
-                updateProfile(profileName);
+                if (selectedImageFile != null) {
+                    updateProfileWithImage(profileName);
+                } else {
+                    updateProfile(profileName);
+                }
             } else {
-                createProfile(profileName);
+                if (selectedImageFile != null) {
+                    createProfileWithImage(profileName);
+                } else {
+                    createProfile(profileName);
+                }
             }
         });
     }
@@ -187,10 +239,28 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         }
 
         String name = binding.etProfileName.getText().toString().trim();
-        if (!name.isEmpty()) {
-            binding.tvPreviewInitial.setText(name.substring(0, 1).toUpperCase());
+        String initials = generateInitials(name);
+        binding.tvPreviewInitial.setText(initials);
+    }
+    
+    private String generateInitials(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "P";
+        }
+        
+        String trimmedName = name.trim();
+        String[] words = trimmedName.split("\\s+");
+        
+        if (words.length == 0) {
+            return "P";
+        } else if (words.length == 1) {
+            // Single word - take first letter
+            return words[0].substring(0, 1).toUpperCase();
         } else {
-            binding.tvPreviewInitial.setText("P");
+            // Multiple words - take first letter of first two words
+            String firstInitial = words[0].substring(0, 1).toUpperCase();
+            String secondInitial = words[1].substring(0, 1).toUpperCase();
+            return firstInitial + secondInitial;
         }
     }
 
@@ -250,11 +320,250 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         builder.show();
     }
 
+    private void selectImage() {
+        if (checkPermission()) {
+            openImagePicker();
+        } else {
+            requestPermission();
+        }
+    }
+    
+    private boolean checkPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ requires READ_MEDIA_IMAGES
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) 
+                    == PackageManager.PERMISSION_GRANTED;
+        } else {
+            // Android 12 and below use READ_EXTERNAL_STORAGE
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) 
+                    == PackageManager.PERMISSION_GRANTED;
+        }
+    }
+    
+    private void requestPermission() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            // Android 13+ requires READ_MEDIA_IMAGES
+            ActivityCompat.requestPermissions(this, 
+                    new String[]{Manifest.permission.READ_MEDIA_IMAGES}, 
+                    PERMISSION_REQUEST_CODE);
+        } else {
+            // Android 12 and below use READ_EXTERNAL_STORAGE
+            ActivityCompat.requestPermissions(this, 
+                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 
+                    PERMISSION_REQUEST_CODE);
+        }
+    }
+    
+    private void openImagePicker() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(intent, PICK_IMAGE_REQUEST);
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+            selectedImageUri = data.getData();
+            try {
+                // First, copy the original file to preserve EXIF data
+                InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
+                File tempFile = new File(getCacheDir(), "temp_" + System.currentTimeMillis() + ".jpg");
+                OutputStream tempOut = new FileOutputStream(tempFile);
+                
+                byte[] buffer = new byte[1024];
+                int length;
+                while ((length = inputStream.read(buffer)) > 0) {
+                    tempOut.write(buffer, 0, length);
+                }
+                tempOut.close();
+                inputStream.close();
+                
+                // Now read the EXIF orientation
+                ExifInterface exif = new ExifInterface(tempFile.getAbsolutePath());
+                int orientation = exif.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL);
+                
+                // Load bitmap for processing
+                Bitmap originalBitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), selectedImageUri);
+                
+                // DON'T apply rotation - keep original orientation
+                // Just scale if needed
+                int maxSize = 1024;
+                int width = originalBitmap.getWidth();
+                int height = originalBitmap.getHeight();
+                float scale = 1.0f;
+                
+                if (width > maxSize || height > maxSize) {
+                    if (width > height) {
+                        scale = (float) maxSize / width;
+                    } else {
+                        scale = (float) maxSize / height;
+                    }
+                }
+                
+                Bitmap finalBitmap;
+                if (scale < 1.0f) {
+                    int newWidth = Math.round(width * scale);
+                    int newHeight = Math.round(height * scale);
+                    finalBitmap = Bitmap.createScaledBitmap(originalBitmap, newWidth, newHeight, true);
+                } else {
+                    finalBitmap = originalBitmap;
+                }
+                
+                // Save compressed bitmap to file
+                selectedImageFile = new File(getCacheDir(), "profile_image_" + System.currentTimeMillis() + ".jpg");
+                FileOutputStream out = new FileOutputStream(selectedImageFile);
+                finalBitmap.compress(Bitmap.CompressFormat.JPEG, 85, out);
+                out.flush();
+                out.close();
+                
+                // Copy EXIF orientation to the new file
+                ExifInterface newExif = new ExifInterface(selectedImageFile.getAbsolutePath());
+                newExif.setAttribute(ExifInterface.TAG_ORIENTATION, String.valueOf(orientation));
+                newExif.saveAttributes();
+                
+                // Clean up
+                if (finalBitmap != originalBitmap) {
+                    finalBitmap.recycle();
+                }
+                originalBitmap.recycle();
+                tempFile.delete();
+                
+                // Display image in preview
+                binding.ivProfileImage.setVisibility(View.VISIBLE);
+                binding.tvPreviewInitial.setVisibility(View.GONE);
+                Glide.with(this)
+                    .load(selectedImageUri)
+                    .circleCrop()
+                    .into(binding.ivProfileImage);
+                    
+            } catch (IOException e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Failed to load image", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                openImagePicker();
+            } else {
+                Toast.makeText(this, "Permission denied to read storage", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    
+    private void createProfileWithImage(String profileName) {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.btnCreate.setEnabled(false);
+
+        int userId = sessionManager.getUser().getId();
+        
+        // First create the profile with color avatar
+        disposable.add(RetrofitClient.getService()
+                .createProfile(userId, profileName, selectedAvatarId, isKidsProfile ? 1 : 0)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((response, throwable) -> {
+                    if (response != null && response.isStatus() && response.getProfile() != null) {
+                        // Profile created, now upload the avatar image
+                        int newProfileId = response.getProfile().getProfileId();
+                        uploadAvatarImage(userId, newProfileId, true);
+                    } else {
+                        binding.progressBar.setVisibility(View.GONE);
+                        binding.btnCreate.setEnabled(true);
+                        String message = response != null ? response.getMessage() : "Failed to create profile";
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                    }
+                }));
+    }
+    
+    private void updateProfileWithImage(String profileName) {
+        binding.progressBar.setVisibility(View.VISIBLE);
+        binding.btnCreate.setEnabled(false);
+
+        int userId = sessionManager.getUser().getId();
+        
+        // First update the profile name (keeping existing avatar)
+        disposable.add(RetrofitClient.getService()
+                .updateProfile(profileId, userId, profileName, selectedAvatarId, isKidsProfile ? 1 : 0)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((response, throwable) -> {
+                    if (response != null && response.isStatus()) {
+                        // Profile updated, now upload the avatar image
+                        uploadAvatarImage(userId, profileId, false);
+                    } else {
+                        binding.progressBar.setVisibility(View.GONE);
+                        binding.btnCreate.setEnabled(true);
+                        String message = response != null ? response.getMessage() : "Failed to update profile";
+                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                    }
+                }));
+    }
+    
+    private void uploadAvatarImage(int userId, int profileId, boolean isNewProfile) {
+        try {
+            // Read the image file
+            byte[] imageBytes = new byte[(int) selectedImageFile.length()];
+            FileInputStream fis = new FileInputStream(selectedImageFile);
+            fis.read(imageBytes);
+            fis.close();
+            
+            // Convert to base64
+            String base64Image = Base64.encodeToString(imageBytes, Base64.NO_WRAP);
+            
+            // Upload to S3 via the dedicated endpoint
+            disposable.add(RetrofitClient.getService()
+                    .uploadProfileAvatar(userId, profileId, base64Image)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnTerminate(() -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        binding.btnCreate.setEnabled(true);
+                    })
+                    .subscribe((response, throwable) -> {
+                        if (response != null && response.isStatus()) {
+                            String successMessage = isNewProfile ? "Profile created successfully" : "Profile updated successfully";
+                            Toast.makeText(this, successMessage, Toast.LENGTH_SHORT).show();
+                            setResult(RESULT_OK);
+                            finish();
+                        } else {
+                            // Avatar upload failed, but profile was created/updated
+                            String message = "Profile saved but avatar upload failed";
+                            if (response != null && response.getMessage() != null) {
+                                message = response.getMessage();
+                            }
+                            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                            setResult(RESULT_OK);
+                            finish();
+                        }
+                    }));
+        } catch (Exception e) {
+            e.printStackTrace();
+            binding.progressBar.setVisibility(View.GONE);
+            binding.btnCreate.setEnabled(true);
+            Toast.makeText(this, "Failed to process image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            // Still consider it successful since profile was created/updated
+            setResult(RESULT_OK);
+            finish();
+        }
+    }
+    
     @Override
     protected void onDestroy() {
         super.onDestroy();
         if (disposable != null && !disposable.isDisposed()) {
             disposable.dispose();
+        }
+        // Clean up temp file
+        if (selectedImageFile != null && selectedImageFile.exists()) {
+            selectedImageFile.delete();
         }
     }
 }

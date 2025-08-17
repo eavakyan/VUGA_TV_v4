@@ -79,20 +79,44 @@
 
                     <RelativeLayout
                         android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_height="100dp">
 
-                        >
-
-                        <androidx.constraintlayout.utils.widget.ImageFilterView
-                            android:id="@+id/img_profile"
+                        <!-- For profile images -->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/card_image_holder"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:layout_centerInParent="true"
-                            android:scaleType="centerCrop"
-                            app:roundPercent="1"
-                            android:src="@color/text_color_light" />
+                            android:visibility="gone"
+                            app:cardCornerRadius="50dp"
+                            app:cardElevation="0dp">
+                            
+                            <androidx.constraintlayout.utils.widget.ImageFilterView
+                                android:id="@+id/img_profile"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:scaleType="centerCrop" />
+                        </androidx.cardview.widget.CardView>
 
+                        <!-- For color avatars with initials -->
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/view_color_avatar"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:visibility="gone"
+                            app:cardCornerRadius="50dp"
+                            app:cardElevation="0dp">
+                            
+                            <TextView
+                                android:id="@+id/tv_initial"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:gravity="center"
+                                android:textColor="@color/white"
+                                android:textSize="36sp"
+                                android:textStyle="bold" />
+                        </androidx.cardview.widget.CardView>
 
+                        <!-- Fallback user icon -->
                         <ImageView
                             android:id="@+id/img_user"
                             android:layout_width="match_parent"
@@ -100,6 +124,7 @@
                             android:layout_centerInParent="true"
                             android:layout_margin="20dp"
                             android:src="@drawable/ic_user"
+                            android:visibility="gone"
                             app:tint="@color/text_color" />
                     </RelativeLayout>
 

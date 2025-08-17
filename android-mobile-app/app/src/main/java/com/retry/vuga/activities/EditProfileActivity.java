@@ -220,11 +220,16 @@ public class EditProfileActivity extends BaseActivity {
 
         if (!sessionManager.getUser().getProfileImage().isEmpty()) {
             binding.imgUser.setVisibility(View.GONE);
-            Glide.with(this).load(Const.IMAGE_URL + sessionManager.getUser().getProfileImage()).apply(
-                    new RequestOptions().error(
-                            R.color.edit_text_bg_color
-                    ).priority(Priority.HIGH)
-            ).into(binding.imgProfile);
+            // Add timestamp to force cache refresh
+            String imageUrl = Const.IMAGE_URL + sessionManager.getUser().getProfileImage() + "?t=" + System.currentTimeMillis();
+            Glide.with(this)
+                    .load(imageUrl)
+                    .apply(new RequestOptions()
+                            .error(R.color.edit_text_bg_color)
+                            .priority(Priority.HIGH)
+                            .skipMemoryCache(true)  // Skip memory cache
+                            .signature(new com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis())))  // Force refresh
+                    .into(binding.imgProfile);
         }
         binding.etFullname.setText(sessionManager.getUser().getFullname());
 //        binding.etEmail.setText(sessionManager.getUser().getEmail());

@@ -17,6 +17,7 @@ class AppUserProfile extends Model
         'name',
         'avatar_type',
         'avatar_id',
+        'avatar_color',
         'custom_avatar_url',
         'is_kids',
         'is_active',
@@ -76,19 +77,31 @@ class AppUserProfile extends Model
         return $this->hasMany(ProfileDownload::class, 'profile_id', 'profile_id');
     }
     
-    // Methods
+    // Methods  
     public function getAvatarUrlAttribute()
     {
         if ($this->avatar_type === 'custom' && $this->custom_avatar_url) {
             return $this->custom_avatar_url;
         }
         
+        // For color avatars, return null (no image URL needed)
+        if ($this->avatar_type === 'color') {
+            return null;
+        }
+        
         return $this->defaultAvatar ? $this->defaultAvatar->image_url : null;
     }
     
-    public function getAvatarColorAttribute()
+    // Get the display color - either from DB or default avatar
+    public function getDisplayColorAttribute()
     {
-        return $this->defaultAvatar ? $this->defaultAvatar->color : null;
+        // If avatar_color is set in the database, use it
+        if (!empty($this->attributes['avatar_color'])) {
+            return $this->attributes['avatar_color'];
+        }
+        
+        // Otherwise fall back to default avatar color
+        return $this->defaultAvatar ? $this->defaultAvatar->color : '#FF5252';
     }
     
     // Scopes

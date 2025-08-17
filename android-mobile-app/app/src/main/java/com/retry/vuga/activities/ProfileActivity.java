@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import androidx.annotation.Nullable;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -27,6 +28,7 @@ import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.CustomDialogBuilder;
 import com.retry.vuga.utils.GoogleLoginManager;
+import com.retry.vuga.model.UserRegistration;
 import com.revenuecat.purchases.Purchases;
 
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +50,59 @@ public class ProfileActivity extends BaseActivity {
         setBlur(binding.blurView, binding.rootLout, 10f);
         setUserDetail();
         setListeners();
+    }
+    
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh user details when returning from EditProfileActivity
+        setUserDetail();
+    }
+    
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 100 && resultCode == RESULT_OK) {
+            // Profile was updated, refresh the user data
+            fetchUpdatedUserData();
+        }
+    }
+    
+    private void fetchUpdatedUserData() {
+        // Fetch updated profile data from API
+        disposable.add(RetrofitClient.getService()
+                .getUserProfiles(sessionManager.getUser().getId())
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe((response, throwable) -> {
+                    if (response != null && response.isStatus()) {
+                        // Update the current profile in session
+                        if (sessionManager.getUser() != null && 
+                            sessionManager.getUser().getLastActiveProfile() != null && 
+                            response.getProfiles() != null) {
+                            
+                            int currentProfileId = sessionManager.getUser().getLastActiveProfile().getProfileId();
+                            for (com.retry.vuga.model.Profile profile : response.getProfiles()) {
+                                if (profile.getProfileId() == currentProfileId) {
+                                    // Update the active profile in session
+                                    UserRegistration.Profile updatedProfile = new UserRegistration.Profile();
+                                    updatedProfile.setProfileId(profile.getProfileId());
+                                    updatedProfile.setName(profile.getName());
+                                    updatedProfile.setAvatarType(profile.getAvatarType());
+                                    updatedProfile.setAvatarUrl(profile.getAvatarUrl());
+                                    updatedProfile.setAvatarColor(profile.getAvatarColor());
+                                    updatedProfile.setKids(profile.isKids());
+                                    
+                                    UserRegistration.Data userData = sessionManager.getUser();
+                                    userData.setLastActiveProfile(updatedProfile);
+                                    sessionManager.saveUser(userData);
+                                    break;
+                                }
+                            }
+                        }
+                        setUserDetail(); // Refresh the UI
+                    }
+                }));
     }
 
     private void setListeners() {
@@ -121,8 +176,20 @@ public class ProfileActivity extends BaseActivity {
         });
 
         binding.imgEdit.setOnClickListener(v -> {
-
-            startActivity(new Intent(this, EditProfileActivity.class));
+            // Launch CreateProfileActivity in edit mode for the current profile
+            if (sessionManager.getUser().getLastActiveProfile() != null) {
+                UserRegistration.Profile profile = sessionManager.getUser().getLastActiveProfile();
+                Intent intent = new Intent(this, CreateProfileActivity.class);
+                intent.putExtra("profile_id", profile.getProfileId());
+                intent.putExtra("profile_name", profile.getName());
+                intent.putExtra("profile_color", profile.getAvatarColor());
+                intent.putExtra("profile_avatar_url", profile.getAvatarUrl());
+                intent.putExtra("is_kids", profile.isKids());
+                startActivityForResult(intent, 100);
+            } else {
+                // Fallback to old EditProfileActivity for user-level editing
+                startActivity(new Intent(this, EditProfileActivity.class));
+            }
         });
 
         binding.loutLogOut.setOnClickListener(v -> {
@@ -328,16 +395,92 @@ public class ProfileActivity extends BaseActivity {
         boolean notification = sessionManager.getBooleanValue(Const.DataKey.NOTIFICATION);
         binding.switchNoti.setChecked(notification);
 
-        if (!sessionManager.getUser().getProfileImage().isEmpty()) {
+        // Show the current profile's avatar
+        if (sessionManager.getUser().getLastActiveProfile() != null) {
+            UserRegistration.Profile profile = sessionManager.getUser().getLastActiveProfile();
+            String avatarUrl = profile.getAvatarUrl();
+            String avatarType = profile.getAvatarType();
+            
+            // Check if profile has a custom image (avatar_type is "custom" and has URL)
+            if ("custom".equals(avatarType) && avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null")) {
+                // Show custom profile image
+                binding.cardImageHolder.setVisibility(View.VISIBLE);
+                binding.viewColorAvatar.setVisibility(View.GONE);
+                binding.imgUser.setVisibility(View.GONE);
+                
+                // Add timestamp to force cache refresh
+                String imageUrl = avatarUrl;
+                if (!imageUrl.startsWith("http")) {
+                    imageUrl = Const.IMAGE_URL + imageUrl;
+                }
+                if (!imageUrl.contains("?")) {
+                    imageUrl = imageUrl + "?t=" + System.currentTimeMillis();
+                }
+                
+                Glide.with(this)
+                        .load(imageUrl)
+                        .apply(new RequestOptions()
+                                .error(R.color.edit_text_bg_color)
+                                .priority(Priority.HIGH)
+                                .skipMemoryCache(true)  // Skip memory cache
+                                .signature(new com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis())))  // Force refresh
+                        .centerCrop()
+                        .into(binding.imgProfile);
+            } else {
+                // Show color avatar with initials
+                binding.cardImageHolder.setVisibility(View.GONE);
+                binding.viewColorAvatar.setVisibility(View.VISIBLE);
+                binding.imgUser.setVisibility(View.GONE);
+                
+                // Set avatar background color
+                String avatarColor = profile.getAvatarColor();
+                if (avatarColor == null || avatarColor.isEmpty() || avatarColor.equals("null")) {
+                    // Generate a color based on the name
+                    String[] colors = {"#FF5252", "#FF9800", "#4CAF50", "#2196F3", "#9C27B0", "#00BCD4"};
+                    int colorIndex = Math.abs(profile.getName().hashCode()) % colors.length;
+                    avatarColor = colors[colorIndex];
+                }
+                
+                try {
+                    binding.viewColorAvatar.setCardBackgroundColor(android.graphics.Color.parseColor(avatarColor));
+                } catch (Exception e) {
+                    binding.viewColorAvatar.setCardBackgroundColor(android.graphics.Color.parseColor("#FF5252"));
+                }
+                
+                // Generate initials - first letter of up to 2 words
+                String name = profile.getName();
+                String initials = generateInitials(name);
+                binding.tvInitial.setText(initials);
+            }
+        } else if (!sessionManager.getUser().getProfileImage().isEmpty()) {
+            // Fallback to user's profile image
+            binding.cardImageHolder.setVisibility(View.VISIBLE);
+            binding.viewColorAvatar.setVisibility(View.GONE);
             binding.imgUser.setVisibility(View.GONE);
-            Glide.with(this).load(Const.IMAGE_URL + sessionManager.getUser().getProfileImage()).apply(
-                    new RequestOptions().error(
-                            R.color.edit_text_bg_color
-                    ).priority(Priority.HIGH)
-            ).into(binding.imgProfile);
+            
+            String imageUrl = Const.IMAGE_URL + sessionManager.getUser().getProfileImage() + "?t=" + System.currentTimeMillis();
+            Glide.with(this)
+                    .load(imageUrl)
+                    .apply(new RequestOptions()
+                            .error(R.color.edit_text_bg_color)
+                            .priority(Priority.HIGH)
+                            .skipMemoryCache(true)
+                            .signature(new com.bumptech.glide.signature.ObjectKey(System.currentTimeMillis())))
+                    .centerCrop()
+                    .into(binding.imgProfile);
+        } else {
+            // No avatar at all, show default user icon
+            binding.cardImageHolder.setVisibility(View.GONE);
+            binding.viewColorAvatar.setVisibility(View.GONE);
+            binding.imgUser.setVisibility(View.VISIBLE);
         }
 
-        binding.tvFullAme.setText(sessionManager.getUser().getFullname());
+        // Show the current profile name, not the user's fullname
+        if (sessionManager.getUser().getLastActiveProfile() != null) {
+            binding.tvFullAme.setText(sessionManager.getUser().getLastActiveProfile().getName());
+        } else {
+            binding.tvFullAme.setText(sessionManager.getUser().getFullname());
+        }
         
         // Hide Connect TV if user is not logged in
         if (sessionManager.getUser() == null || sessionManager.getUser().getId() == 0) {
@@ -368,6 +511,27 @@ public class ProfileActivity extends BaseActivity {
             binding.loutPro.setEnabled(true);
 //                binding.loutDate.setVisibility(View.GONE);
 
+        }
+    }
+    
+    private String generateInitials(String name) {
+        if (name == null || name.trim().isEmpty()) {
+            return "P";
+        }
+        
+        String trimmedName = name.trim();
+        String[] words = trimmedName.split("\\s+");
+        
+        if (words.length == 0) {
+            return "P";
+        } else if (words.length == 1) {
+            // Single word - take first letter
+            return words[0].substring(0, 1).toUpperCase();
+        } else {
+            // Multiple words - take first letter of first two words
+            String firstInitial = words[0].substring(0, 1).toUpperCase();
+            String secondInitial = words[1].substring(0, 1).toUpperCase();
+            return firstInitial + secondInitial;
         }
     }
 

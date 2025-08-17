@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use App\Models\Profile;
+use App\Models\V2\AppUserProfile;
 
 class ProfileAvatarController extends Controller
 {
@@ -30,7 +30,7 @@ class ProfileAvatarController extends Controller
         }
 
         try {
-            $profile = Profile::findOrFail($request->profile_id);
+            $profile = AppUserProfile::findOrFail($request->profile_id);
             
             // Verify user owns this profile
             if ($profile->app_user_id != $request->user_id) {
@@ -49,47 +49,38 @@ class ProfileAvatarController extends Controller
                 ], 400);
             }
 
-            // Process image using native PHP functions
-            $sourceImage = imagecreatefromstring($imageData);
-            if (!$sourceImage) {
+            // Validate it's a valid image without processing it
+            $finfo = finfo_open(FILEINFO_MIME_TYPE);
+            $mimeType = finfo_buffer($finfo, $imageData);
+            finfo_close($finfo);
+            
+            $allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'];
+            if (!in_array($mimeType, $allowedMimeTypes)) {
                 return response()->json([
                     'status' => false,
-                    'message' => 'Invalid image format'
+                    'message' => 'Invalid image format. Allowed formats: JPEG, PNG, GIF, WebP'
                 ], 400);
             }
             
-            // Get original dimensions
-            $width = imagesx($sourceImage);
-            $height = imagesy($sourceImage);
+            // Use the original image data without any processing to preserve orientation
+            $processedImageData = $imageData;
             
-            // Calculate crop dimensions for square
-            $size = min($width, $height);
-            $x = ($width - $size) / 2;
-            $y = ($height - $size) / 2;
-            
-            // Create 500x500 image
-            $targetSize = 500;
-            $targetImage = imagecreatetruecolor($targetSize, $targetSize);
-            
-            // Resample the image
-            imagecopyresampled(
-                $targetImage, $sourceImage,
-                0, 0, $x, $y,
-                $targetSize, $targetSize,
-                $size, $size
-            );
-            
-            // Capture the image as JPEG
-            ob_start();
-            imagejpeg($targetImage, null, 80);
-            $processedImageData = ob_get_clean();
-            
-            // Clean up
-            imagedestroy($sourceImage);
-            imagedestroy($targetImage);
+            // Determine file extension based on mime type
+            $extension = 'jpg';
+            switch ($mimeType) {
+                case 'image/png':
+                    $extension = 'png';
+                    break;
+                case 'image/gif':
+                    $extension = 'gif';
+                    break;
+                case 'image/webp':
+                    $extension = 'webp';
+                    break;
+            }
 
             // Generate filename and path
-            $fileName = 'avatar-' . $profile->profile_id . '-' . time() . '.jpg';
+            $fileName = 'avatar-' . $profile->profile_id . '-' . time() . '.' . $extension;
             $path = 'profile-avatars/' . $profile->app_user_id . '/' . $profile->profile_id . '/' . $fileName;
 
             // Upload to Digital Ocean Spaces (S3-compatible)
@@ -121,12 +112,13 @@ class ProfileAvatarController extends Controller
 
             // Load fresh profile data with avatar info
             $profile->refresh();
+            $profile->load('defaultAvatar');
             
             return response()->json([
                 'status' => true,
                 'message' => 'Avatar uploaded successfully',
                 'avatar_url' => $profile->avatar_url, // Use the accessor to ensure consistency
-                'profile' => $profile
+                'profile' => $this->formatProfileResponse($profile)
             ]);
 
         } catch (\Exception $e) {
@@ -157,7 +149,7 @@ class ProfileAvatarController extends Controller
         }
 
         try {
-            $profile = Profile::findOrFail($request->profile_id);
+            $profile = AppUserProfile::findOrFail($request->profile_id);
             
             // Verify user owns this profile
             if ($profile->app_user_id != $request->user_id) {
@@ -208,5 +200,25 @@ class ProfileAvatarController extends Controller
         } catch (\Exception $e) {
             \Log::warning('Failed to delete old avatar: ' . $e->getMessage());
         }
+    }
+    
+    /**
+     * Format profile response
+     */
+    private function formatProfileResponse($profile)
+    {
+        return [
+            'profile_id' => $profile->profile_id,
+            'name' => $profile->name,
+            'avatar_type' => $profile->avatar_type,
+            'avatar_url' => $profile->avatar_url,
+            'avatar_color' => $profile->display_color, // Always return a color for backward compatibility
+            'avatar_id' => $profile->avatar_id,
+            'is_kids' => (bool) $profile->is_kids,
+            'is_kids_profile' => (bool) $profile->is_kids_profile,
+            'age' => $profile->age,
+            'created_at' => $profile->created_at,
+            'updated_at' => $profile->updated_at
+        ];
     }
 }

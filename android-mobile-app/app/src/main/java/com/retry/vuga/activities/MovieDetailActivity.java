@@ -1859,8 +1859,6 @@ public class MovieDetailActivity extends BaseActivity {
     private void setupTrailerPlayer() {
         Log.d("Trailer", "===== TRAILER PLAYER DEBUG =====");
         Log.d("Trailer", "setupTrailerPlayer() called");
-        Log.d("Trailer", "Current poster visibility: " + binding.imgPosterBackground.getVisibility());
-        Log.d("Trailer", "Current video visibility: " + binding.videoTrailer.getVisibility());
         
         if (contentItem == null) {
             Log.d("Trailer", "Content item is null, showing poster");
@@ -1887,25 +1885,17 @@ public class MovieDetailActivity extends BaseActivity {
         String trailerUrl = TrailerUtils.getEffectiveTrailerUrl(contentItem);
         Log.d("Trailer", "Effective Trailer URL from TrailerUtils: " + trailerUrl);
         
-        // TEST: If no trailer, use a test video to verify player works
-        boolean useTestTrailer = false; // Set to false for production
-        if (useTestTrailer && (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null"))) {
-            Log.d("Trailer", "Using TEST trailer to verify player functionality");
-            trailerUrl = "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4";
-        }
-        
         if (trailerUrl == null || trailerUrl.isEmpty() || trailerUrl.equals("null")) {
-            Log.d("Trailer", "No trailer URL available, showing poster only");
+            Log.d("Trailer", "No trailer URL available, showing poster");
             showPosterOnly();
             return;
         }
         
         Log.d("Trailer", "Setting up trailer player for URL: " + trailerUrl);
         
-        // Hide poster when we have a trailer
-        Log.d("Trailer", "Hiding poster image to show trailer");
+        // Always hide poster and blur when we have a trailer
         binding.imgPosterBackground.setVisibility(View.GONE);
-        Log.d("Trailer", "Poster visibility after hiding: " + binding.imgPosterBackground.getVisibility());
+        binding.blurView.setVisibility(View.GONE);
         
         // Check if it's a YouTube URL
         if (isYouTubeUrl(trailerUrl)) {
@@ -1926,6 +1916,16 @@ public class MovieDetailActivity extends BaseActivity {
         binding.btnPlayPauseTrailer.setVisibility(View.GONE);
         binding.btnMuteUnmuteTrailer.setVisibility(View.GONE);
         binding.imgPosterBackground.setVisibility(View.VISIBLE);
+        binding.blurView.setVisibility(View.GONE);
+        
+        // Load horizontal poster for better fit
+        if (contentItem != null && contentItem.getHorizontalPoster() != null) {
+            Glide.with(this)
+                .load(contentItem.getHorizontalPoster())
+                .centerCrop()
+                .into(binding.imgPosterBackground);
+        }
+        
         Log.d("Trailer", "Final poster visibility: " + binding.imgPosterBackground.getVisibility());
         Log.d("Trailer", "Final video visibility: " + binding.videoTrailer.getVisibility());
     }
@@ -2007,7 +2007,7 @@ public class MovieDetailActivity extends BaseActivity {
             "</head>" +
             "<body>" +
             "<iframe " +
-            "src=\"https://www.youtube.com/embed/" + videoId + "?autoplay=0&loop=1&playlist=" + videoId + "&rel=0&showinfo=0&modestbranding=1\" " +
+            "src=\"https://www.youtube.com/embed/" + videoId + "?autoplay=1&mute=1&loop=1&playlist=" + videoId + "&rel=0&showinfo=0&modestbranding=1\" " +
             "frameborder=\"0\" " +
             "allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\" " +
             "allowfullscreen>" +
@@ -2056,10 +2056,24 @@ public class MovieDetailActivity extends BaseActivity {
         // Handle video prepared
         binding.videoTrailer.setOnPreparedListener(mp -> {
             Log.d("Trailer", "Video prepared successfully");
-            // Video is ready but don't start playing automatically
+            // Auto-play the trailer
             mp.setLooping(true); // Loop the trailer
             mp.setVolume(0f, 0f); // Start muted
             binding.btnMuteUnmuteTrailer.setImageResource(R.drawable.ic_volume_off);
+            
+            // Start playing automatically
+            binding.videoTrailer.start();
+            binding.btnPlayPauseTrailer.setImageResource(R.drawable.ic_pause);
+            
+            // Hide play button after 3 seconds
+            new Handler().postDelayed(() -> {
+                if (binding.videoTrailer.isPlaying()) {
+                    binding.btnPlayPauseTrailer.animate()
+                        .alpha(0f)
+                        .setDuration(300)
+                        .withEndAction(() -> binding.btnPlayPauseTrailer.setVisibility(View.GONE));
+                }
+            }, 3000);
         });
         
         // Handle video errors - silently fall back to poster

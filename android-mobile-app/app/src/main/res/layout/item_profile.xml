@@ -30,12 +30,21 @@
 
         </androidx.cardview.widget.CardView>
 
-        <ImageView
-            android:id="@+id/imgProfile"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/cardImageHolder"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:scaleType="centerCrop"
-            android:visibility="gone" />
+            app:cardCornerRadius="50dp"
+            app:cardElevation="0dp"
+            android:visibility="gone">
+            
+            <ImageView
+                android:id="@+id/imgProfile"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop" />
+                
+        </androidx.cardview.widget.CardView>
 
         <ImageView
             android:id="@+id/imgDelete"

@@ -9,7 +9,6 @@ use App\Models\V2\DefaultAvatar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use App\GlobalFunction;
 
 class ProfileController extends Controller
 {
@@ -53,6 +52,8 @@ class ProfileController extends Controller
             'user_id' => 'required|integer|exists:app_user,app_user_id',
             'name' => 'required|string|max:100',
             'avatar_id' => 'nullable|integer|exists:default_avatar,avatar_id',
+            'avatar_type' => 'nullable|string|in:default,custom,color',
+            'avatar_color' => 'nullable|string|max:7',
             'is_kids' => 'boolean',
             'age' => 'nullable|integer|min:1|max:150',
             'is_kids_profile' => 'nullable|boolean'
@@ -81,8 +82,9 @@ class ProfileController extends Controller
         $profile = AppUserProfile::create([
             'app_user_id' => $request->user_id,
             'name' => $request->name,
-            'avatar_type' => 'default',
+            'avatar_type' => $request->avatar_type ?? 'color',
             'avatar_id' => $request->avatar_id ?? 1,
+            'avatar_color' => $request->avatar_color ?? '#FF5252',
             'is_kids' => $request->is_kids ?? false,
             'is_kids_profile' => $request->is_kids_profile ?? $request->is_kids ?? false,
             'age' => $request->age
@@ -107,10 +109,12 @@ class ProfileController extends Controller
             'user_id' => 'required|integer|exists:app_user,app_user_id',
             'name' => 'string|max:100',
             'avatar_id' => 'integer|exists:default_avatar,avatar_id',
+            'avatar_type' => 'nullable|string|in:default,custom,color',
+            'avatar_color' => 'nullable|string|max:7',
             'is_kids' => 'boolean',
             'age' => 'nullable|integer|min:1|max:150',
             'is_kids_profile' => 'nullable|boolean',
-            'profile_image' => 'nullable|file|image|max:2048' // 2MB max
+            'profile_image' => 'nullable|file|image|max:10240' // 10MB max
         ]);
 
         if ($validator->fails()) {
@@ -149,31 +153,74 @@ class ProfileController extends Controller
             }
         }
 
-        // Handle profile image upload
+        // Handle avatar updates
+        \Log::info('Profile update - avatar params', [
+            'profile_id' => $profile->profile_id,
+            'has_avatar_type' => $request->has('avatar_type'),
+            'avatar_type' => $request->avatar_type,
+            'avatar_color' => $request->avatar_color,
+            'avatar_id' => $request->avatar_id,
+            'current_avatar_type' => $profile->avatar_type
+        ]);
+        
         if ($request->hasFile('profile_image')) {
             // Delete old custom avatar if exists
             if ($profile->avatar_type === 'custom' && $profile->custom_avatar_url) {
-                GlobalFunction::deleteFile($profile->custom_avatar_url);
+                \App\GlobalFunction::deleteFile($profile->custom_avatar_url);
             }
 
             // Upload new image
-            $imagePath = GlobalFunction::uploadFileToPublic($request->file('profile_image'), 'profile_avatars');
+            $imagePath = \App\GlobalFunction::saveFileAndGivePath($request->file('profile_image'));
             $profile->avatar_type = 'custom';
             $profile->custom_avatar_url = $imagePath;
+        } elseif ($request->has('avatar_type')) {
+            // Handle avatar type changes
+            if ($request->avatar_type === 'color' || $request->avatar_type === 'default') {
+                // Switch to color or default avatar
+                $profile->avatar_type = $request->avatar_type;
+                
+                if ($request->has('avatar_id')) {
+                    $profile->avatar_id = $request->avatar_id;
+                }
+                
+                if ($request->has('avatar_color')) {
+                    $profile->avatar_color = $request->avatar_color;
+                }
+                
+                // Delete custom avatar if switching from custom
+                if ($profile->custom_avatar_url) {
+                    \App\GlobalFunction::deleteFile($profile->custom_avatar_url);
+                    $profile->custom_avatar_url = null;
+                }
+                
+                \Log::info('Profile avatar updated to color/default', [
+                    'profile_id' => $profile->profile_id,
+                    'new_avatar_type' => $profile->avatar_type,
+                    'new_avatar_color' => $profile->avatar_color
+                ]);
+            }
         } elseif ($request->has('avatar_id')) {
-            // Switch to default avatar
+            // Legacy support: just avatar_id means switch to default
             $profile->avatar_type = 'default';
             $profile->avatar_id = $request->avatar_id;
             
             // Delete custom avatar if switching from custom to default
             if ($profile->custom_avatar_url) {
-                GlobalFunction::deleteFile($profile->custom_avatar_url);
+                \App\GlobalFunction::deleteFile($profile->custom_avatar_url);
                 $profile->custom_avatar_url = null;
             }
         }
 
         $profile->save();
         $profile->load('defaultAvatar');
+        
+        \Log::info('Profile after save', [
+            'profile_id' => $profile->profile_id,
+            'avatar_type' => $profile->avatar_type,
+            'avatar_color' => $profile->avatar_color,
+            'avatar_id' => $profile->avatar_id,
+            'custom_avatar_url' => $profile->custom_avatar_url
+        ]);
 
         return response()->json([
             'status' => true,
@@ -224,7 +271,7 @@ class ProfileController extends Controller
 
         // Delete custom avatar if exists
         if ($profile->avatar_type === 'custom' && $profile->custom_avatar_url) {
-            GlobalFunction::deleteFile($profile->custom_avatar_url);
+            \App\GlobalFunction::deleteFile($profile->custom_avatar_url);
         }
 
         // Soft delete by setting is_active to 0
@@ -384,7 +431,8 @@ class ProfileController extends Controller
             'name' => $profile->name,
             'avatar_type' => $profile->avatar_type,
             'avatar_url' => $profile->avatar_url,
-            'avatar_color' => $profile->avatar_color,
+            'avatar_color' => $profile->display_color, // Always return a color for backward compatibility
+            'avatar_id' => $profile->avatar_id,
             'is_kids' => (bool) $profile->is_kids,
             'is_kids_profile' => (bool) $profile->is_kids_profile,
             'age' => $profile->age,

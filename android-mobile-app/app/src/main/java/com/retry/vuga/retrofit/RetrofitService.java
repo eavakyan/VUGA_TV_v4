@@ -173,12 +173,20 @@ public interface RetrofitService {
                                         @Field("is_kids") int isKids);
 
     @FormUrlEncoded
-    @POST("updateProfile")
+    @POST("profile/update")
     Single<ProfileResponse> updateProfile(@Field("profile_id") int profileId,
                                         @Field(Const.ApiKey.user_id) int userId,
                                         @Field("name") String name,
                                         @Field("avatar_id") int avatarId,
                                         @Field("is_kids") int isKids);
+    
+    @Multipart
+    @POST("profile/update")
+    Single<ProfileResponse> updateProfileWithImage(@Part("profile_id") RequestBody profileId,
+                                                 @Part("user_id") RequestBody userId,
+                                                 @Part("name") RequestBody name,
+                                                 @Part("avatar_type") RequestBody avatarType,
+                                                 @Part MultipartBody.Part profileImage);
 
     @FormUrlEncoded
     @POST("deleteProfile")

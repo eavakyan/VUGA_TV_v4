@@ -88,6 +88,13 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
                         profileList.clear();
                         if (response.getProfiles() != null) {
                             profileList.addAll(response.getProfiles());
+                            // Debug log the profiles
+                            for (Profile p : response.getProfiles()) {
+                                Log.d("ProfileSelection", "Profile loaded: " + p.getName() +
+                                    ", Type: " + p.getAvatarType() +
+                                    ", URL: " + p.getAvatarUrl() +
+                                    ", Color: " + p.getAvatarColor());
+                            }
                         }
                         profileAdapter.notifyDataSetChanged();
                         

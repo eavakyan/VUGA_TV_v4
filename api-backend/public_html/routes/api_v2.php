@@ -208,6 +208,22 @@ Route::prefix('v2')->group(function () {
         Route::post('/payment-history', [V2\SubscriptionController::class, 'getPaymentHistory']);
     });
     
+    // Popup System (One-time messages)
+    Route::prefix('popup')->group(function () {
+        // Client endpoints
+        Route::post('/pending', [V2\PopupController::class, 'getPendingPopups']);
+        Route::post('/dismiss', [V2\PopupController::class, 'dismissPopup']);
+        Route::post('/acknowledge', [V2\PopupController::class, 'acknowledgePopup']);
+        Route::post('/history', [V2\PopupController::class, 'getUserPopupHistory']);
+        
+        // Admin endpoints
+        Route::prefix('admin')->group(function () {
+            Route::post('/create', [V2\PopupController::class, 'createPopupDefinition']);
+            Route::get('/list', [V2\PopupController::class, 'getPopupDefinitions']);
+            Route::put('/update/{popupId}', [V2\PopupController::class, 'updatePopupDefinition']);
+        });
+    });
+    
     // Test endpoint to verify V2 API is working
     Route::get('/test', function () {
         return response()->json([

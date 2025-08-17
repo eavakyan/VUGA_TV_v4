@@ -32,7 +32,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="590dp">
+            android:layout_height="260dp">
 
             <!-- Poster Image (shown when no trailer) -->
             <ImageView
@@ -40,8 +40,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
-                android:visibility="visible"
-                app:image_url="@{content.verticalPoster}"
+                android:visibility="gone"
+                app:image_url="@{content.horizontalPoster}"
                 tools:src="@tools:sample/backgrounds/scenic" />
 
             <!-- Video Player for Trailer (shown when trailer exists) -->
@@ -50,7 +50,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"
-                android:layout_centerInParent="true" />
+                android:layout_centerInParent="true"
+                android:background="@android:color/black" />
 
             <!-- WebView for YouTube trailers -->
             <WebView
@@ -58,7 +59,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:visibility="gone"
-                android:layout_centerInParent="true" />
+                android:layout_centerInParent="true"
+                android:background="@android:color/black" />
 
             <!-- Play/Pause button overlay for trailer (only for non-YouTube videos) -->
             <ImageView
@@ -93,6 +95,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:elevation="16dp"
+                android:visibility="gone"
                 app:blurOverlayColor="@color/app_black_50">
 
                 <RelativeLayout
@@ -102,7 +105,7 @@
                     <ImageView
                         android:id="@+id/shadow_top"
                         android:layout_width="match_parent"
-                        android:layout_height="230dp"
+                        android:layout_height="100dp"
                         android:rotation="180"
                         android:scaleType="centerCrop"
                         android:src="@drawable/bg_gradient_linear_black" />
@@ -110,7 +113,7 @@
                     <ImageView
                         android:id="@+id/shadow_bottom"
                         android:layout_width="match_parent"
-                        android:layout_height="450dp"
+                        android:layout_height="100dp"
                         android:layout_alignParentBottom="true"
                         android:scaleType="centerCrop"
                         android:src="@drawable/bg_gradient_linear_black" />
