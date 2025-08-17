@@ -2,6 +2,14 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CFBundleIcons</key>
+	<dict>
+		<key>CFBundlePrimaryIcon</key>
+		<dict>
+			<key>CFBundleIconName</key>
+			<string>AppIcon</string>
+		</dict>
+	</dict>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -25,20 +33,48 @@
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
 	<false/>
-	<key>CFBundleIcons</key>
-	<dict>
-		<key>CFBundlePrimaryIcon</key>
-		<dict>
-			<key>CFBundleIconName</key>
-			<string>AppIcon</string>
-		</dict>
-	</dict>
 	<key>GADApplicationIdentifier</key>
 	<string>ca-app-pub-0482996021014353~5361423681</string>
 	<key>Item0</key>
-	<string></string>
+	<string/>
 	<key>Itme1</key>
-	<string></string>
+	<string/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>iosdev.gossip-stone.com</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+				<key>NSExceptionRequiresForwardSecrecy</key>
+				<false/>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+			</dict>
+			<key>localhost</key>
+			<dict>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
+	</dict>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_googlecast._tcp</string>
+		<string>_airplay._tcp</string>
+		<string>_raop._tcp</string>
+		<string>_upnp._tcp</string>
+		<string>_ssdp._tcp</string>
+	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>VUGA needs camera access to scan QR codes for TV authentication and take profile photos</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>VUGA needs local network access to discover and connect to TVs and streaming devices</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>VUGA needs access to your photo library to select profile photos</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Outfit-Black.ttf</string>
@@ -58,6 +94,17 @@
 		<string>fetch</string>
 		<string>remote-notification</string>
 	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>UIRequiresFullScreen~ipad</key>
+	<true/>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
 	<key>branch_key</key>
 	<dict>
 		<key>live</key>
@@ -70,30 +117,5 @@
 		<key>item1</key>
 		<string>vugatv-alternate.app.link</string>
 	</dict>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
-	<key>UIRequiresFullScreen</key>
-	<true/>
-	<key>UIRequiresFullScreen~ipad</key>
-	<true/>
-	<key>NSCameraUsageDescription</key>
-	<string>VUGA needs camera access to scan QR codes for TV authentication and take profile photos</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>VUGA needs access to your photo library to select profile photos</string>
-	<key>NSLocalNetworkUsageDescription</key>
-	<string>VUGA needs local network access to discover and connect to TVs and streaming devices</string>
-	<key>NSBonjourServices</key>
-	<array>
-		<string>_googlecast._tcp</string>
-		<string>_airplay._tcp</string>
-		<string>_raop._tcp</string>
-		<string>_upnp._tcp</string>
-		<string>_ssdp._tcp</string>
-	</array>
 </dict>
 </plist>

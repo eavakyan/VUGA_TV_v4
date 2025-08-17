@@ -30,7 +30,6 @@ struct ContentView: View {
             }
             .navigationViewStyle(StackNavigationViewStyle())
             .ignoresSafeArea(.container, edges: [])
-            .safeNetworkAware() // Add safe network monitoring
             
             if !isConnectedToInternet {
                 OfflineView()

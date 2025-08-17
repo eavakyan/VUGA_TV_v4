@@ -59,15 +59,38 @@ struct CreateProfileView: View {
                 
                 ScrollView {
                     VStack(spacing: 30) {
-                        // Profile Preview
+                        // Profile Preview - Show current avatar or initials
                         ZStack {
-                            Circle()
-                                .fill(Color(hexString: selectedColor))
-                                .frame(width: 120, height: 120)
-                            
-                            Text(profileName.isEmpty ? "P" : String(profileName.prefix(1)).uppercased())
-                                .font(.system(size: 48, weight: .bold))
-                                .foregroundColor(.white)
+                            if let profile = profile, let avatarUrl = profile.avatarUrl, !avatarUrl.isEmpty {
+                                // Show existing avatar image
+                                AsyncImage(url: URL(string: avatarUrl)) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 120, height: 120)
+                                        .clipShape(Circle())
+                                } placeholder: {
+                                    // Fallback to initials while loading
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(hexString: selectedColor))
+                                            .frame(width: 120, height: 120)
+                                        
+                                        Text(profileName.isEmpty ? "P" : String(profileName.prefix(2)).uppercased())
+                                            .font(.system(size: 48, weight: .bold))
+                                            .foregroundColor(.white)
+                                    }
+                                }
+                            } else {
+                                // Show initials in colored circle
+                                Circle()
+                                    .fill(Color(hexString: selectedColor))
+                                    .frame(width: 120, height: 120)
+                                
+                                Text(profileName.isEmpty ? "P" : String(profileName.prefix(2)).uppercased())
+                                    .font(.system(size: 48, weight: .bold))
+                                    .foregroundColor(.white)
+                            }
                         }
                         .padding(.top, 20)
                         
@@ -160,7 +183,11 @@ struct CreateProfileView: View {
                                     presentationMode.wrappedValue.dismiss()
                                 }
                             } else {
-                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId, age: profileAge) {
+                                // When updating, always use color avatar type since user is selecting from color options
+                                // This will replace any custom image with the selected color avatar
+                                print("UpdateProfile: Saving - Name: \(profileName), Color: \(selectedColor), AvatarId: \(selectedAvatarId)")
+                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId, age: profileAge, avatarType: "color") {
+                                    print("UpdateProfile: Success - Profile updated")
                                     onComplete()
                                     presentationMode.wrappedValue.dismiss()
                                 }
@@ -189,8 +216,9 @@ struct CreateProfileView: View {
         }
         .onAppear {
             if let profile = profile {
+                print("CreateProfileView: Loading profile - Name: \(profile.name), Color: \(profile.avatarColor ?? "default"), AvatarId: \(profile.avatarId ?? 0)")
                 profileName = profile.name
-                selectedColor = profile.avatarColor
+                selectedColor = profile.avatarColor ?? "#FF5252"  // Use default color if nil
                 isKidsProfile = profile.isKids
                 selectedAvatarId = profile.avatarId ?? 1
                 profileAge = profile.age
@@ -202,6 +230,9 @@ struct CreateProfileView: View {
                         selectedColor = avatarColors[colorIndex]
                     }
                 }
+                print("CreateProfileView: After loading - profileName: \(profileName), selectedColor: \(selectedColor)")
+            } else {
+                print("CreateProfileView: No profile provided, creating new profile")
             }
         }
         .alert("Enter Age", isPresented: $showAgeInputDialog) {

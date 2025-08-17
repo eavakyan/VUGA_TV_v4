@@ -9,7 +9,7 @@ import Foundation
 
 enum APIs : String {
     case userRegistration                   = "userRegistration"
-    case updateProfile                      = "updateProfile"
+    case updateProfile                      = "profile/update"
     case fetchProfile                       = "fetchProfile"
     case logOut                             = "logOut"
     case getUserSubscription                = "getUserSubscription"
@@ -73,6 +73,8 @@ enum APIs : String {
     case getPendingNotifications            = "user-notification/pending"
     case markNotificationShown              = "user-notification/mark-shown"
     case dismissNotification                = "user-notification/dismiss"
+    
+    // Popup System removed - files deleted
 }
 
 extension String {

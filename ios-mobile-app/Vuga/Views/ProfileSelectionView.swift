@@ -190,11 +190,11 @@ struct ProfileItem: View {
                 if isEditMode {
                     Button(action: onDelete) {
                         Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 24))
+                            .font(.system(size: 20))
                             .foregroundColor(.red)
-                            .background(Circle().fill(Color.black))
+                            .background(Circle().fill(Color.white).scaleEffect(0.7))
                     }
-                    .offset(x: 10, y: -10)
+                    .offset(x: 5, y: -5)
                 }
             }
             

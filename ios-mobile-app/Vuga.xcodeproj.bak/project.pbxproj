@@ -108,12 +108,12 @@
 		2BFF61672C0DD25A00BB409B /* ProView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BFF61662C0DD25A00BB409B /* ProView.swift */; };
 		2FEFA7CC9AFFA2177DDE2824 /* Pods_Vuga.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE8A9C1FEF5BF1811AB54C34 /* Pods_Vuga.framework */; };
 		32892791E2DC80982906575A /* PaymentMethodSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF5EB51E219A1FB20D19CE9 /* PaymentMethodSelectionView.swift */; };
+		34F66EFAEA83CE0F5A6D284A /* Popup.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24C302E1ADF5EF2FC8F76D2F /* Popup.swift */; };
 		4FB71E3714D7BA9D0CC3EB86 /* ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */; };
 		7B509AFE61B44DA0BB1B1E78 /* TrailerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EEC768CD90445586D9A12F /* TrailerModel.swift */; };
-		7E57DE34AD126F25A633B938 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656093B72253C2613F4CCDEF /* Environment.swift */; };
 		7F5A4165E505C6CB43EDE311 /* CheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D633B65BE77FD974AFC8C88 /* CheckoutView.swift */; };
-		868740679B26FF90F876D57A /* DebugLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D338CB9E9D3AAC9721187C /* DebugLogView.swift */; };
 		9D723CFE82D65FB2DD3D3G9A /* TrailerPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2AAD901EF89556697F9D34H /* TrailerPlayerView.swift */; };
+		9E55CFC0C1630990039E8190 /* PopupService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 998DB75A9AF102B43C19FB22 /* PopupService.swift */; };
 		A58ED3C18B0A6C35858ED6E0 /* RecentlyWatchedGroupedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */; };
 		AE834DGF93E76GC3EE4E4H0B /* TrailerInlinePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3BBE012FG9A667708GAE45I /* TrailerInlinePlayer.swift */; };
 		B00A3FEB2E4ADEBD00B16589 /* UserNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */; };
@@ -222,7 +222,7 @@
 		C4BC6A012C046A8100C63A66 /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A002C046A8100C63A66 /* EditProfileViewModel.swift */; };
 		C4BC6A032C04BCFF00C63A66 /* LanguageSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A022C04BCFF00C63A66 /* LanguageSheet.swift */; };
 		C4BC6A052C04BD2C00C63A66 /* GenreSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A042C04BD2C00C63A66 /* GenreSheet.swift */; };
-		D1D83A72E872898767FBEB49 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095D9A73A944810FCD44D2F4 /* AppLogger.swift */; };
+		DBAEB7CCADABD6489A81E643 /* PopupView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5370678C373C75202D0D1BF2 /* PopupView.swift */; };
 		DDE53BB3F2B64AAD437FB277 /* OrderReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */; };
 /* End PBXBuildFile section */
 
@@ -268,9 +268,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		095D9A73A944810FCD44D2F4 /* AppLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Utilities/AppLogger.swift; sourceTree = SOURCE_ROOT; };
 		0D633B65BE77FD974AFC8C88 /* CheckoutView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CheckoutView.swift; sourceTree = "<group>"; };
 		18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ComingSoonView.swift; sourceTree = "<group>"; };
+		24C302E1ADF5EF2FC8F76D2F /* Popup.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Popup.swift; path = Vuga/Models/Popup.swift; sourceTree = "<group>"; };
 		2B13AD022C22ABAA0037577A /* AdMetricModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMetricModel.swift; sourceTree = "<group>"; };
 		2B1403852C1028D700C7F4FB /* VLCplayer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VLCplayer.swift; sourceTree = "<group>"; };
 		2B1618EE2C0EF1EE0006609F /* StringExtention.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringExtention.swift; sourceTree = "<group>"; };
@@ -362,9 +362,9 @@
 		2BFCCE232C464AFD0087184F /* ActorDetailModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActorDetailModel.swift; sourceTree = "<group>"; };
 		2BFF61662C0DD25A00BB409B /* ProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProView.swift; sourceTree = "<group>"; };
 		2EFD6B55FE40A97DD91C0F59 /* Pods-Vuga.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Vuga.release.xcconfig"; path = "Target Support Files/Pods-Vuga/Pods-Vuga.release.xcconfig"; sourceTree = "<group>"; };
-		31D338CB9E9D3AAC9721187C /* DebugLogView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/DebugLogView.swift; sourceTree = SOURCE_ROOT; };
-		656093B72253C2613F4CCDEF /* Environment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Utilities/Environment.swift; sourceTree = SOURCE_ROOT; };
+		5370678C373C75202D0D1BF2 /* PopupView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PopupView.swift; path = Vuga/Views/PopupView.swift; sourceTree = "<group>"; };
 		6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrderReviewView.swift; sourceTree = "<group>"; };
+		998DB75A9AF102B43C19FB22 /* PopupService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = PopupService.swift; path = Vuga/Services/PopupService.swift; sourceTree = "<group>"; };
 		A0EEC768CD90445586D9A12F /* TrailerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerModel.swift; sourceTree = "<group>"; };
 		B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotification.swift; sourceTree = "<group>"; };
 		B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationViewModel.swift; sourceTree = "<group>"; };
@@ -595,6 +595,7 @@
 		9C663F456FAF7AD927AD1A73 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				998DB75A9AF102B43C19FB22 /* PopupService.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -752,8 +753,6 @@
 				2BB9C9272C11CC80002ADE68 /* WebView.swift */,
 				2BEE4AA42C1C4B7300AB3A66 /* CirculerProgress.swift */,
 				2BCD28112C3822F20076D8ED /* PagingView.swift */,
-				095D9A73A944810FCD44D2F4 /* AppLogger.swift */,
-				656093B72253C2613F4CCDEF /* Environment.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -796,6 +795,7 @@
 				2BD71F612C2044C700D1962D /* CustomAdModel.swift */,
 				2B13AD022C22ABAA0037577A /* AdMetricModel.swift */,
 				2BFCCE232C464AFD0087184F /* ActorDetailModel.swift */,
+				24C302E1ADF5EF2FC8F76D2F /* Popup.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -881,7 +881,7 @@
 				18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */,
 				F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */,
 				7F489C4C28369363B58E8714 /* Checkout */,
-				31D338CB9E9D3AAC9721187C /* DebugLogView.swift */,
+				5370678C373C75202D0D1BF2 /* PopupView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1044,7 +1044,6 @@
 				6BB848165C072ECC5243811C /* XCRemoteSwiftPackageReference "SwiftSubtitles" */,
 				D586F13B34012D8F136FEDBB /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */,
 				62800692E81A5D3112136246 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */,
-				2BF407562C08ACAC002DFFA8 /* XCRemoteSwiftPackageReference "WindowSceneReader" */,
 			);
 			productRefGroup = C434A43A2BE9FCBB0059889F /* Products */;
 			projectDirPath = "";
@@ -1109,13 +1108,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Vuga/Pods-Vuga-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Vuga/Pods-Vuga-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1152,13 +1147,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Vuga/Pods-Vuga-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Vuga/Pods-Vuga-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1330,9 +1321,9 @@
 				32892791E2DC80982906575A /* PaymentMethodSelectionView.swift in Sources */,
 				042D7BD4491D21AF58FCBE85 /* PaymentDetailsView.swift in Sources */,
 				DDE53BB3F2B64AAD437FB277 /* OrderReviewView.swift in Sources */,
-				D1D83A72E872898767FBEB49 /* AppLogger.swift in Sources */,
-				7E57DE34AD126F25A633B938 /* Environment.swift in Sources */,
-				868740679B26FF90F876D57A /* DebugLogView.swift in Sources */,
+				34F66EFAEA83CE0F5A6D284A /* Popup.swift in Sources */,
+				9E55CFC0C1630990039E8190 /* PopupService.swift in Sources */,
+				DBAEB7CCADABD6489A81E643 /* PopupView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1391,7 +1382,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = liveActivityExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = liveActivity/Info.plist;
@@ -1421,7 +1412,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = liveActivityExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 4;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = liveActivity/Info.plist;
@@ -1575,7 +1566,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1644,7 +1635,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 6;
+				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1754,6 +1745,30 @@
 				minimumVersion = 1.5.1;
 			};
 		};
+		2B1403872C103AE700C7F4FB /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.5.0;
+			};
+		};
+		2B14038C2C109A7400C7F4FB /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SvenTiigi/YouTubePlayerKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.8.0;
+			};
+		};
+		2B1618E82C0ED7F80006609F /* XCRemoteSwiftPackageReference "VideoPlayer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/wxxsw/VideoPlayer";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.4;
+			};
+		};
 		2B1618F02C0F21D90006609F /* XCRemoteSwiftPackageReference "swiftui-sliders" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/spacenation/swiftui-sliders";
@@ -1762,12 +1777,60 @@
 				minimumVersion = 2.1.0;
 			};
 		};
+		2B1992B02C1B2DEC00716804 /* XCRemoteSwiftPackageReference "ios-branch-deep-linking" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/BranchMetrics/ios-branch-deep-linking";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.4.4;
+			};
+		};
+		2B56420C2CBFF0640056AD9A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.3.0;
+			};
+		};
+		2BBF060F2C187A2600A15E85 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.4.3;
+			};
+		};
+		2BD47AA12C36A79800E1D544 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/tevelee/SwiftUI-Flow";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.6.0;
+			};
+		};
 		2BD47AA42C36AE7400E1D544 /* XCRemoteSwiftPackageReference "swiftui-wrapping-stack" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/diniska/swiftui-wrapping-stack";
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 1.1.0;
+			};
+		};
+		2BD71F5C2C20058800D1962D /* XCRemoteSwiftPackageReference "SwiftSubtitles" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/dagronf/SwiftSubtitles";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
+			};
+		};
+		2BDD420D2C16B76F003B36A4 /* XCRemoteSwiftPackageReference "purchases-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RevenueCat/purchases-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 4.43.0;
 			};
 		};
 		2BF407562C08ACAC002DFFA8 /* XCRemoteSwiftPackageReference "WindowSceneReader" */ = {
@@ -1874,6 +1937,38 @@
 				minimumVersion = 2.7.0;
 			};
 		};
+		C41324D42BF8B17700FF7E1C /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/exyte/ScalingHeaderScrollView";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.3;
+			};
+		};
+		C41324D72BF8B19200FF7E1C /* XCRemoteSwiftPackageReference "Kingfisher" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/onevcat/Kingfisher";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 7.11.0;
+			};
+		};
+		C41324DA2BF8BB0200FF7E1C /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/markiv/SwiftUI-Shimmer";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.4.2;
+			};
+		};
+		C425DC0C2BFC6DA300855455 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Alamofire/Alamofire";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.9.1;
+			};
+		};
 		C434A4A52BEA4FA30059889F /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
@@ -1943,17 +2038,17 @@
 /* Begin XCSwiftPackageProductDependency section */
 		2B1403882C103AE700C7F4FB /* GoogleMobileAds */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 966B9D881CBB6D6E1BE52D7E /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			package = 2B1403872C103AE700C7F4FB /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
 			productName = GoogleMobileAds;
 		};
 		2B14038D2C109A7400C7F4FB /* YouTubePlayerKit */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = D586F13B34012D8F136FEDBB /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */;
+			package = 2B14038C2C109A7400C7F4FB /* XCRemoteSwiftPackageReference "YouTubePlayerKit" */;
 			productName = YouTubePlayerKit;
 		};
 		2B1618E92C0ED7F80006609F /* VideoPlayer */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 362E829414ED5CC318AB1B30 /* XCRemoteSwiftPackageReference "VideoPlayer" */;
+			package = 2B1618E82C0ED7F80006609F /* XCRemoteSwiftPackageReference "VideoPlayer" */;
 			productName = VideoPlayer;
 		};
 		2B1618F12C0F21D90006609F /* Sliders */ = {
@@ -1963,37 +2058,37 @@
 		};
 		2B1992B12C1B2DEC00716804 /* BranchSDK */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = CB6B5EA3D14EF137A433645A /* XCRemoteSwiftPackageReference "ios-branch-deep-linking" */;
+			package = 2B1992B02C1B2DEC00716804 /* XCRemoteSwiftPackageReference "ios-branch-deep-linking" */;
 			productName = BranchSDK;
 		};
 		2B56422F2CC0CE530056AD9A /* FirebaseMessaging */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 59C9454B9937298ABC57764E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 2B56420C2CBFF0640056AD9A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseMessaging;
 		};
 		2B5642312CC0CEBD0056AD9A /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 59C9454B9937298ABC57764E /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = 2B56420C2CBFF0640056AD9A /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
 		};
 		2BBF06102C187A2600A15E85 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 70EE545AE8DFCA804B75A99F /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			package = 2BBF060F2C187A2600A15E85 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
 		};
 		2BC1355A2C2D4F9D0093B701 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 70EE545AE8DFCA804B75A99F /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			package = 2BBF060F2C187A2600A15E85 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
 		};
 		2BC606AC2C2ADFA40031D8DE /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F27726BF4EA6636F60414193 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = C41324D72BF8B19200FF7E1C /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
 		2BD47AA22C36A79800E1D544 /* Flow */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 62800692E81A5D3112136246 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */;
+			package = 2BD47AA12C36A79800E1D544 /* XCRemoteSwiftPackageReference "SwiftUI-Flow" */;
 			productName = Flow;
 		};
 		2BD47AA52C36AE7400E1D544 /* WrappingStack */ = {
@@ -2003,17 +2098,17 @@
 		};
 		2BD71F5D2C20058900D1962D /* SwiftSubtitles */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 6BB848165C072ECC5243811C /* XCRemoteSwiftPackageReference "SwiftSubtitles" */;
+			package = 2BD71F5C2C20058800D1962D /* XCRemoteSwiftPackageReference "SwiftSubtitles" */;
 			productName = SwiftSubtitles;
 		};
 		2BDD420E2C16B770003B36A4 /* RevenueCat */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 46EFC6338642438B69C0D53F /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			package = 2BDD420D2C16B76F003B36A4 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCat;
 		};
 		2BDD42102C16B770003B36A4 /* RevenueCatUI */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 46EFC6338642438B69C0D53F /* XCRemoteSwiftPackageReference "purchases-ios" */;
+			package = 2BDD420D2C16B76F003B36A4 /* XCRemoteSwiftPackageReference "purchases-ios" */;
 			productName = RevenueCatUI;
 		};
 		2BF407572C08ACAD002DFFA8 /* WindowSceneReader */ = {
@@ -2023,22 +2118,22 @@
 		};
 		C41324D52BF8B17700FF7E1C /* ScalingHeaderScrollView */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 35C8F7B5FF569521E0E63C67 /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */;
+			package = C41324D42BF8B17700FF7E1C /* XCRemoteSwiftPackageReference "ScalingHeaderScrollView" */;
 			productName = ScalingHeaderScrollView;
 		};
 		C41324D82BF8B19200FF7E1C /* Kingfisher */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = F27726BF4EA6636F60414193 /* XCRemoteSwiftPackageReference "Kingfisher" */;
+			package = C41324D72BF8B19200FF7E1C /* XCRemoteSwiftPackageReference "Kingfisher" */;
 			productName = Kingfisher;
 		};
 		C41324DB2BF8BB0200FF7E1C /* Shimmer */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0749BCEACA2FF65C26B1E221 /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */;
+			package = C41324DA2BF8BB0200FF7E1C /* XCRemoteSwiftPackageReference "SwiftUI-Shimmer" */;
 			productName = Shimmer;
 		};
 		C425DC0D2BFC6DA300855455 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 58C174A1F085E262D293FCCD /* XCRemoteSwiftPackageReference "Alamofire" */;
+			package = C425DC0C2BFC6DA300855455 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
 		};
 		C434A4A62BEA4FA30059889F /* GoogleSignIn */ = {

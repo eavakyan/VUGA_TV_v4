@@ -37,61 +37,7 @@ struct ProfileView: View {
                         .outfitSemiBold(20)
                         .foregroundColor(Color("textColor"))
                     
-                    // Show profile avatar in header with upload functionality
-                    Button(action: {
-                        showImageSourceMenu = true
-                    }) {
-                        ZStack(alignment: .bottomTrailing) {
-                            if let currentProfile = SessionManager.shared.currentProfile {
-                                let _ = print("ProfileView header - avatarUrl: \(currentProfile.avatarUrl ?? "nil"), avatarType: \(currentProfile.avatarType)")
-                                if let avatarUrl = currentProfile.avatarUrl, !avatarUrl.isEmpty {
-                                    // Use profile avatar URL
-                                    KFImage(URL(string: avatarUrl))
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .frame(width: 30, height: 30)
-                                        .clipShape(.circle)
-                                } else if currentProfile.avatarType == "color" {
-                                    // Use color avatar with first letter
-                                    ZStack {
-                                        Circle()
-                                            .fill(Color(hexString: currentProfile.avatarColor))
-                                            .frame(width: 30, height: 30)
-                                        Text(String(currentProfile.name.prefix(1)).uppercased())
-                                            .font(.system(size: 14, weight: .bold))
-                                            .foregroundColor(.white)
-                                    }
-                                } else {
-                                    // Default avatar
-                                    Image.person
-                                        .resizable()
-                                        .renderingMode(.template)
-                                        .scaledToFit()
-                                        .frame(width: 30, height: 30)
-                                        .foregroundColor(Color("textColor"))
-                                }
-                            } else {
-                                // No profile selected - show default
-                                Image.person
-                                    .resizable()
-                                    .renderingMode(.template)
-                                    .scaledToFit()
-                                    .frame(width: 30, height: 30)
-                                    .foregroundColor(Color("textColor"))
-                            }
-                            
-                            // Camera icon overlay
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 8))
-                                .foregroundColor(.white)
-                                .padding(3)
-                                .background(Color.base)
-                                .clipShape(Circle())
-                                .offset(x: 2, y: 2)
-                        }
-                    }
-                    
-                    // Show current profile name
+                    // Show current profile name without avatar
                     Text(SessionManager.shared.currentProfile?.name ?? "")
                         .outfitMedium(16)
                         .foregroundColor(Color("textColor"))
@@ -119,33 +65,33 @@ struct ProfileView: View {
                                             .aspectRatio(contentMode: .fill)
                                             .frame(width: 100, height: 100)
                                             .clipShape(.circle)
-                                    } else if currentProfile.avatarType == "color" {
-                                        // Use color avatar with first letter
+                                    } else {
+                                        // Always show initials in colored circle when no photo exists
+                                        let profileColor = currentProfile.avatarColor?.isEmpty ?? true ? "#FF6B6B" : (currentProfile.avatarColor ?? "#FF6B6B")
+                                        let profileInitials = String(currentProfile.name.prefix(2)).uppercased()
+                                        
                                         ZStack {
                                             Circle()
-                                                .fill(Color(hexString: currentProfile.avatarColor))
+                                                .fill(Color(hexString: profileColor))
                                                 .frame(width: 100, height: 100)
-                                            Text(String(currentProfile.name.prefix(1)).uppercased())
+                                            Text(profileInitials)
                                                 .font(.system(size: 40, weight: .bold))
                                                 .foregroundColor(.white)
                                         }
-                                    } else {
-                                        // Default avatar
+                                    }
+                                } else {
+                                    // No profile selected - show default with initials
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color(hexString: "#999999"))
+                                            .frame(width: 100, height: 100)
                                         Image.person
                                             .resizable()
                                             .renderingMode(.template)
                                             .scaledToFit()
-                                            .frame(width: 100, height: 100)
-                                            .foregroundColor(Color("textColor"))
+                                            .frame(width: 50, height: 50)
+                                            .foregroundColor(.white)
                                     }
-                                } else {
-                                    // No profile selected - show default
-                                    Image.person
-                                        .resizable()
-                                        .renderingMode(.template)
-                                        .scaledToFit()
-                                        .frame(width: 100, height: 100)
-                                        .foregroundColor(Color("textColor"))
                                 }
                                 
                                 // Camera icon overlay
@@ -161,9 +107,15 @@ struct ProfileView: View {
                             }
                         }
                         
-                        Text("Tap to change profile photo")
-                            .font(.system(size: 12))
-                            .foregroundColor(.gray)
+                        // Add Manage Profile link instead of "Tap to change profile photo"
+                        Button(action: {
+                            vm.showProfileSelection = true
+                        }) {
+                            Text("Manage Profile")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color.base)
+                                .underline()
+                        }
                     }
                     .padding(.vertical, 20)
                     /*

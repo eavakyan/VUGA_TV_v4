@@ -40,9 +40,7 @@ struct NetworkManager {
                 print("Time Duration in second:", duration)  // Duration of request
                 
                 // Report slow connection if request took more than 3 seconds
-                if duration > 3.0 {
-                    SafeNetworkMonitor.shared.reportSlowConnection()
-                }
+                // Removed SafeNetworkMonitor call - not added to project
                 
                 print("parameters = \(String(describing: convertedParams))")
                 print("header = \(String(describing: headers))")

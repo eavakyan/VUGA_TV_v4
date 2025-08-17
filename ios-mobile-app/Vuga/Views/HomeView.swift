@@ -18,6 +18,7 @@ struct HomeView: View {
     @StateObject private var vm = HomeViewModel()
     @StateObject private var recentlyWatchedVM = RecentlyWatchedViewModel()
     @StateObject private var userNotificationVM = UserNotificationViewModel()
+    // @StateObject private var popupViewModel = PopupViewModel() // Removed - popup files deleted
     @Binding var selectedTab : Tab
     @State private var progress: CGFloat = 0
     @State var isVideoStart = false
@@ -166,13 +167,19 @@ struct HomeView: View {
         .addBackground()
         .loaderView(vm.isLoading)
         .overlay(
-            // User notification overlay
-            UserNotificationView(viewModel: userNotificationVM)
+            ZStack {
+                // User notification overlay
+                UserNotificationView(viewModel: userNotificationVM)
+                
+                // Popup overlay removed - files deleted
+            }
         )
         .onAppear {
             // Check for pending notifications when view appears
             print("HomeView: onAppear - checking for notifications")
             userNotificationVM.checkPendingNotifications()
+            
+            // Popup checking removed - files deleted
         }
         .onChange(of: SessionManager.shared.currentProfile?.profileId) { newProfileId in
             // Clear shown notifications when profile changes
@@ -454,8 +461,8 @@ struct HomeView: View {
     private var recentlyWatched: some View {
         VStack(alignment: .leading) {
             Heading(title: .recentlyWatched, content: {
-                #if DEBUG
-                // Debug button to clear recently watched
+                // Button to clear recently watched (now available in all builds)
+                /*
                 Button(action: {
                     clearAllRecentlyWatched()
                     cachedUniqueRecentlyWatched = []
@@ -465,7 +472,7 @@ struct HomeView: View {
                         .outfitMedium(12)
                         .foregroundColor(.red)
                 }
-                #endif
+                */
             })
                 .padding(.horizontal, 10)
             ScrollView(.horizontal, showsIndicators: false) {

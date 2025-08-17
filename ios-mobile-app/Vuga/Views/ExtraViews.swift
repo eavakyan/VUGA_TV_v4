@@ -177,7 +177,7 @@ struct TopBar: View {
                         // Show color avatar
                         ZStack {
                             Circle()
-                                .fill(Color(hexString: currentProfile.avatarColor))
+                                .fill(Color(hexString: currentProfile.avatarColor ?? "#FF5252"))
                                 .frame(width: 35, height: 35)
                             
                             Text(currentProfile.initial)
@@ -199,7 +199,7 @@ struct TopBar: View {
                         // Fallback to color avatar
                         ZStack {
                             Circle()
-                                .fill(Color(hexString: currentProfile.avatarColor))
+                                .fill(Color(hexString: currentProfile.avatarColor ?? "#FF5252"))
                                 .frame(width: 35, height: 35)
                             
                             Text(currentProfile.initial)

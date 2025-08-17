@@ -7,7 +7,7 @@ struct Profile: Codable, Equatable {
     let name: String
     var avatarType: String
     var avatarUrl: String?
-    let avatarColor: String
+    let avatarColor: String?  // Make optional to handle null values
     let avatarId: Int?
     let isKids: Bool
     let isKidsProfile: Bool?
@@ -41,7 +41,7 @@ struct Profile: Codable, Equatable {
         name = try container.decode(String.self, forKey: .name)
         avatarType = try container.decode(String.self, forKey: .avatarType)
         avatarUrl = try container.decodeIfPresent(String.self, forKey: .avatarUrl)
-        avatarColor = try container.decode(String.self, forKey: .avatarColor)
+        avatarColor = try container.decodeIfPresent(String.self, forKey: .avatarColor)  // Handle null
         avatarId = try container.decodeIfPresent(Int.self, forKey: .avatarId)
         
         // Handle isKids as either Bool or Int
@@ -77,7 +77,7 @@ struct Profile: Codable, Equatable {
         try container.encode(name, forKey: .name)
         try container.encode(avatarType, forKey: .avatarType)
         try container.encodeIfPresent(avatarUrl, forKey: .avatarUrl)
-        try container.encode(avatarColor, forKey: .avatarColor)
+        try container.encodeIfPresent(avatarColor, forKey: .avatarColor)  // Encode as optional
         try container.encodeIfPresent(avatarId, forKey: .avatarId)
         try container.encode(isKids ? 1 : 0, forKey: .isKids) // Encode as Int
         if let isKidsProfile = isKidsProfile {
@@ -109,7 +109,10 @@ struct Profile: Codable, Equatable {
     
     // Helper to get UIColor from hex string
     var color: UIColor {
-        return UIColor(hex: avatarColor) ?? UIColor.systemBlue
+        if let avatarColor = avatarColor {
+            return UIColor(hex: avatarColor) ?? UIColor.systemBlue
+        }
+        return UIColor.systemBlue  // Default color when avatarColor is nil
     }
 }
 

@@ -47,7 +47,7 @@ struct AgeSettingsView: View {
                     // Profile info
                     VStack(spacing: 10) {
                         Circle()
-                            .fill(Color(hexString: profile.avatarColor))
+                            .fill(Color(hexString: profile.avatarColor ?? "#FF5252"))
                             .frame(width: 80, height: 80)
                             .overlay(
                                 Text(profile.initial)

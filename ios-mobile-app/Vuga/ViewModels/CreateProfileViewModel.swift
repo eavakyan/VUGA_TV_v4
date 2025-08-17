@@ -27,6 +27,8 @@ class CreateProfileViewModel: BaseViewModel {
             .userId: userId,
             .name: name,
             .avatarId: avatarId,
+            .avatarColor: color,  // Include the selected color
+            .avatarType: "color",  // Set avatar type to color for new profiles
             .isKids: isKids ? 1 : 0
         ]
         
@@ -47,7 +49,7 @@ class CreateProfileViewModel: BaseViewModel {
         }
     }
     
-    func updateProfile(profileId: Int, name: String, color: String, isKids: Bool, avatarId: Int? = nil, age: Int? = nil, completion: @escaping () -> Void) {
+    func updateProfile(profileId: Int, name: String, color: String, isKids: Bool, avatarId: Int? = nil, age: Int? = nil, avatarType: String = "color", completion: @escaping () -> Void) {
         guard let userId = myUser?.id else { return }
         
         startLoading()
@@ -64,6 +66,8 @@ class CreateProfileViewModel: BaseViewModel {
             .userId: userId,
             .name: name,
             .avatarId: finalAvatarId,
+            .avatarType: avatarType,  // Include avatar type to ensure color avatar is used
+            .avatarColor: color,  // Include the selected color
             .isKids: isKids ? 1 : 0
         ]
         
@@ -72,12 +76,15 @@ class CreateProfileViewModel: BaseViewModel {
             params[.age] = age
         }
         
+        print("UpdateProfile API Call - Params: \(params)")
         NetworkManager.callWebService(url: .updateProfile, params: params) { [weak self] (obj: ProfileResponse) in
             self?.stopLoading()
             
             if obj.status {
+                print("UpdateProfile API Success - Message: \(obj.message)")
                 completion()
             } else {
+                print("UpdateProfile API Failed - Error: \(obj.message)")
                 self?.showError = true
                 self?.errorMessage = obj.message
             }
