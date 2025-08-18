@@ -59,15 +59,11 @@ class MovieHistoryAdapter : RecyclerView.Adapter<MovieHistoryAdapter.MovieHistor
             binding.root.setOnClickListener {
                 val intent = Intent(
                     itemView.context,
-                    PlayerNewActivity::class.java
+                    MovieDetailActivity::class.java
                 )
-                intent.putExtra(Const.DataKey.CONTENT_SOURCE, Gson().toJson(source))
-                intent.putExtra(Const.DataKey.THUMBNAIL, model.thumbnail)
-                intent.putExtra(Const.DataKey.NAME, model.movieName)
-                intent.putExtra(Const.DataKey.CONTENT_NAME, model.movieName)
                 intent.putExtra(Const.DataKey.CONTENT_ID, model.movieId)
-//                intent.putExtra(Const.DataKey.SUB_TITLES, Gson().toJson(subTitlesList))
-                intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                intent.putExtra("FROM_RECENTLY_WATCHED", true)
+                intent.putExtra("WATCH_PROGRESS", source?.playProgress ?: 0)
                 itemView.context.startActivity(intent)
             }
             // Info icon removed - click on the whole item to view details

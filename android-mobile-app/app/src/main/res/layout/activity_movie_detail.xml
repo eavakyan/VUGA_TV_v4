@@ -315,20 +315,20 @@
                             </LinearLayout>
 
 
-                            <!-- Play and Download Buttons Row -->
+                            <!-- Play Button Row (shown when not from recently watched) -->
                             <LinearLayout
+                                android:id="@+id/play_button_row"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="20dp"
-                                android:orientation="horizontal">
+                                android:orientation="horizontal"
+                                android:visibility="visible">
 
                                 <!-- Play Button -->
                                 <LinearLayout
                                     android:id="@+id/btn_play"
-                                    android:layout_width="0dp"
+                                    android:layout_width="match_parent"
                                     android:layout_height="50dp"
-                                    android:layout_weight="1"
-                                    android:layout_marginEnd="5dp"
                                     android:background="@drawable/bg_round_rect_10"
                                     android:backgroundTint="@color/white"
                                     android:gravity="center"
@@ -353,8 +353,18 @@
                                         android:textColor="@color/app_black"
                                         android:textSize="@dimen/_18sp" />
                                 </LinearLayout>
+                            </LinearLayout>
+                            
+                            <!-- Resume and Start Over Buttons Row (shown for recently watched) -->
+                            <LinearLayout
+                                android:id="@+id/resume_start_over_row"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="20dp"
+                                android:orientation="horizontal"
+                                android:visibility="gone">
                                 
-                                <!-- Resume Button (shown for recently watched) -->
+                                <!-- Resume Button -->
                                 <LinearLayout
                                     android:id="@+id/btn_resume"
                                     android:layout_width="0dp"
@@ -364,8 +374,7 @@
                                     android:background="@drawable/bg_round_rect_10"
                                     android:backgroundTint="@color/white"
                                     android:gravity="center"
-                                    android:orientation="horizontal"
-                                    android:visibility="gone">
+                                    android:orientation="horizontal">
 
                                     <ImageView
                                         android:layout_width="24dp"
@@ -385,7 +394,7 @@
                                         android:textSize="@dimen/_18sp" />
                                 </LinearLayout>
                                 
-                                <!-- Start Over Button (shown for recently watched) -->
+                                <!-- Start Over Button -->
                                 <LinearLayout
                                     android:id="@+id/btn_start_over"
                                     android:layout_width="0dp"
@@ -395,8 +404,7 @@
                                     android:background="@drawable/bg_stoke_10"
                                     android:backgroundTint="@color/trans_stroke_color"
                                     android:gravity="center"
-                                    android:orientation="horizontal"
-                                    android:visibility="gone">
+                                    android:orientation="horizontal">
 
                                     <ImageView
                                         android:layout_width="24dp"
@@ -414,14 +422,19 @@
                                         android:text="Start Over"
                                         android:textSize="@dimen/_18sp" />
                                 </LinearLayout>
+                            </LinearLayout>
 
-                                <!-- Download Button -->
+                            <!-- Download Button Row (separate row, shown when applicable) -->
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:orientation="horizontal">
+                                
                                 <LinearLayout
                                     android:id="@+id/btn_download"
-                                    android:layout_width="0dp"
+                                    android:layout_width="match_parent"
                                     android:layout_height="50dp"
-                                    android:layout_weight="1"
-                                    android:layout_marginStart="5dp"
                                     android:background="@drawable/bg_stoke_10"
                                     android:backgroundTint="@color/trans_stroke_color"
                                     android:gravity="center"
@@ -444,7 +457,6 @@
                                         android:text="@string/download"
                                         android:textSize="@dimen/_18sp" />
                                 </LinearLayout>
-
                             </LinearLayout>
 
                             <!-- Action Buttons Row -->
@@ -670,7 +682,26 @@
                                 android:text="@{content.description}"
                                 android:textColor="@color/text_color_light"
                                 android:textSize="@dimen/_14sp"
+                                android:maxLines="3"
+                                android:ellipsize="end"
                                 tools:text="Captain America is the alter ego of Steve Rogers, a frail young artist enhanced to the peak of human perfection by an experimental&quot;   super-soldier serum&quot; after joining the military to aid the United States government's efforts in World War II." />
+                                
+                            <!-- MORE button for expanding description -->
+                            <TextView
+                                android:id="@+id/btn_more_description"
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:fontFamily="@font/outfit_medium"
+                                android:text="MORE"
+                                android:textColor="@color/app_color"
+                                android:textSize="@dimen/_14sp"
+                                android:visibility="gone"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:background="?android:attr/selectableItemBackground"
+                                android:padding="5dp" />
 
                             <View
                                 android:layout_width="match_parent"

@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_black"
+    android:orientation="vertical">
+
+    <!-- Header with close button -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="15dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            style="@style/TextViewLocal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toStartOf="@+id/btn_close"
+            android:fontFamily="@font/outfit_semi_bold"
+            android:textSize="@dimen/_24sp"
+            android:layout_marginEnd="10dp"
+            tools:text="Captain America" />
+
+        <ImageView
+            android:id="@+id/btn_close"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="5dp"
+            android:src="@drawable/ic_close"
+            app:tint="@color/text_color" />
+    </RelativeLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="15dp"
+            android:paddingBottom="20dp">
+
+            <!-- Movie Info Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="15dp">
+
+                <TextView
+                    android:id="@+id/tv_year"
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/outfit_light"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="@dimen/_14sp"
+                    tools:text="2025" />
+
+                <TextView
+                    android:id="@+id/tv_rating"
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:background="@drawable/bg_stoke_5"
+                    android:fontFamily="@font/outfit_light"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="@dimen/_14sp"
+                    tools:text="PG-13" />
+
+                <TextView
+                    android:id="@+id/tv_duration"
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/outfit_light"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="@dimen/_14sp"
+                    tools:text="2h 35m" />
+
+                <TextView
+                    style="@style/TextViewLocal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:background="@drawable/bg_stoke_5"
+                    android:fontFamily="@font/outfit_semi_bold"
+                    android:paddingHorizontal="6dp"
+                    android:paddingVertical="2dp"
+                    android:text="HD"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="@dimen/_14sp" />
+            </LinearLayout>
+
+            <!-- Story Line Section -->
+            <TextView
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:text="@string/story_line"
+                android:textSize="@dimen/_18sp" />
+
+            <TextView
+                android:id="@+id/tv_full_description"
+                style="@style/TextViewLocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/outfit_light"
+                android:lineSpacingMultiplier="1.2"
+                android:textColor="@color/text_color_light"
+                android:textSize="@dimen/_14sp"
+                tools:text="Captain America is the alter ego of Steve Rogers, a frail young artist enhanced to the peak of human perfection by an experimental super-soldier serum after joining the military to aid the United States government's efforts in World War II." />
+
+            <!-- Genres Section -->
+            <TextView
+                android:id="@+id/tv_genres_label"
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:text="Genres"
+                android:textSize="@dimen/_18sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_genres"
+                style="@style/TextViewLocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/outfit_light"
+                android:textColor="@color/text_color_light"
+                android:textSize="@dimen/_14sp"
+                android:visibility="gone"
+                tools:text="Action, Adventure, Sci-Fi" />
+
+            <!-- Cast Section -->
+            <TextView
+                android:id="@+id/tv_cast_label"
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:text="@string/star_cast"
+                android:textSize="@dimen/_18sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_cast"
+                style="@style/TextViewLocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:fontFamily="@font/outfit_light"
+                android:lineSpacingMultiplier="1.2"
+                android:textColor="@color/text_color_light"
+                android:textSize="@dimen/_14sp"
+                android:visibility="gone"
+                tools:text="Chris Evans, Scarlett Johansson, Samuel L. Jackson" />
+
+            <!-- Director Section -->
+            <TextView
+                android:id="@+id/tv_director_label"
+                style="@style/TextViewLocal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="10dp"
+                android:fontFamily="@font/outfit_semi_bold"
+                android:text="Director"
+                android:textSize="@dimen/_18sp"
+                android:visibility="gone" />
+
+            <TextView
+                android:id="@+id/tv_director"
+                style="@style/TextViewLocal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/outfit_light"
+                android:textColor="@color/text_color_light"
+                android:textSize="@dimen/_14sp"
+                android:visibility="gone"
+                tools:text="Joe Russo, Anthony Russo" />
+
+        </LinearLayout>
+    </ScrollView>
+</LinearLayout>

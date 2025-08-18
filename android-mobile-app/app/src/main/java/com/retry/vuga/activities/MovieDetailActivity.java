@@ -1,13 +1,20 @@
 package com.retry.vuga.activities;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.text.Layout;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.Window;
+import android.view.WindowManager;
 import android.webkit.MimeTypeMap;
 import android.webkit.URLUtil;
 import android.widget.Toast;
@@ -195,17 +202,15 @@ public class MovieDetailActivity extends BaseActivity {
         boolean isFromRecentlyWatched = getIntent().getBooleanExtra("FROM_RECENTLY_WATCHED", false);
         int watchProgress = getIntent().getIntExtra("WATCH_PROGRESS", 0);
         
-        // Handle Recently Watched UI
+        // Handle Recently Watched UI - show/hide appropriate button rows
         if (isFromRecentlyWatched && watchProgress > 0) {
-            // Show Resume and Start Over buttons, hide Play button
-            binding.btnPlay.setVisibility(View.GONE);
-            binding.btnResume.setVisibility(View.VISIBLE);
-            binding.btnStartOver.setVisibility(View.VISIBLE);
+            // Show Resume and Start Over buttons row, hide Play button row
+            binding.playButtonRow.setVisibility(View.GONE);
+            binding.resumeStartOverRow.setVisibility(View.VISIBLE);
         } else {
-            // Show Play button (default)
-            binding.btnPlay.setVisibility(View.VISIBLE);
-            binding.btnResume.setVisibility(View.GONE);
-            binding.btnStartOver.setVisibility(View.GONE);
+            // Show Play button row (default)
+            binding.playButtonRow.setVisibility(View.VISIBLE);
+            binding.resumeStartOverRow.setVisibility(View.GONE);
         }
 
         if (contentId != 0) {
@@ -1490,6 +1495,9 @@ public class MovieDetailActivity extends BaseActivity {
         
         // Setup trailer video player if trailer exists
         setupTrailerPlayer();
+        
+        // Check if description needs MORE button
+        setupDescriptionMoreButton();
 
         if (contentItem.getGenreList().isEmpty()) {
             List<String> list = Global.getGenreListFromIds(contentItem.getGenreIds(), this);
@@ -2470,6 +2478,101 @@ public class MovieDetailActivity extends BaseActivity {
                 isPlayerMuted = true;
             }
         });
+    }
+    
+    private void setupDescriptionMoreButton() {
+        if (contentItem == null || contentItem.getDescription() == null) {
+            return;
+        }
+        
+        // Post to ensure the TextView has been laid out
+        binding.tvDescription.post(() -> {
+            // Get the layout and check if text is ellipsized
+            Layout layout = binding.tvDescription.getLayout();
+            if (layout != null) {
+                int lines = layout.getLineCount();
+                if (lines > 0) {
+                    // Check if the last visible line is ellipsized
+                    int ellipsisCount = layout.getEllipsisCount(Math.min(lines - 1, 2)); // Check line 3 (index 2)
+                    
+                    // Show MORE button if text exceeds 3 lines or is ellipsized
+                    if (lines > 3 || ellipsisCount > 0) {
+                        binding.btnMoreDescription.setVisibility(View.VISIBLE);
+                        binding.btnMoreDescription.setOnClickListener(v -> showFullDetailsDialog());
+                    } else {
+                        binding.btnMoreDescription.setVisibility(View.GONE);
+                    }
+                }
+            }
+        });
+    }
+    
+    private void showFullDetailsDialog() {
+        if (contentItem == null) {
+            return;
+        }
+        
+        // Create dialog
+        Dialog dialog = new Dialog(this, android.R.style.Theme_Black_NoTitleBar_Fullscreen);
+        dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        dialog.setContentView(R.layout.dialog_film_details);
+        
+        Window window = dialog.getWindow();
+        if (window != null) {
+            window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            window.setLayout(WindowManager.LayoutParams.MATCH_PARENT, WindowManager.LayoutParams.MATCH_PARENT);
+        }
+        
+        // Find views
+        TextView tvTitle = dialog.findViewById(R.id.tv_title);
+        TextView tvYear = dialog.findViewById(R.id.tv_year);
+        TextView tvRating = dialog.findViewById(R.id.tv_rating);
+        TextView tvDuration = dialog.findViewById(R.id.tv_duration);
+        TextView tvFullDescription = dialog.findViewById(R.id.tv_full_description);
+        TextView tvGenresLabel = dialog.findViewById(R.id.tv_genres_label);
+        TextView tvGenres = dialog.findViewById(R.id.tv_genres);
+        TextView tvCastLabel = dialog.findViewById(R.id.tv_cast_label);
+        TextView tvCast = dialog.findViewById(R.id.tv_cast);
+        TextView tvDirectorLabel = dialog.findViewById(R.id.tv_director_label);
+        TextView tvDirector = dialog.findViewById(R.id.tv_director);
+        ImageView btnClose = dialog.findViewById(R.id.btn_close);
+        
+        // Set content
+        tvTitle.setText(contentItem.getTitle());
+        tvYear.setText(String.valueOf(contentItem.getReleaseYear()));
+        tvRating.setText("PG-13"); // You may want to get this from contentItem if available
+        tvDuration.setText(contentItem.getFormattedDuration());
+        tvFullDescription.setText(contentItem.getDescription());
+        
+        // Set genres if available
+        if (contentItem.getGenreList() != null && !contentItem.getGenreList().isEmpty()) {
+            tvGenresLabel.setVisibility(View.VISIBLE);
+            tvGenres.setVisibility(View.VISIBLE);
+            tvGenres.setText(String.join(", ", contentItem.getGenreList()));
+        }
+        
+        // Set cast if available
+        if (contentItem.getCast() != null && !contentItem.getCast().isEmpty()) {
+            tvCastLabel.setVisibility(View.VISIBLE);
+            tvCast.setVisibility(View.VISIBLE);
+            StringBuilder castNames = new StringBuilder();
+            for (int i = 0; i < Math.min(contentItem.getCast().size(), 10); i++) {
+                if (i > 0) castNames.append(", ");
+                castNames.append(contentItem.getCast().get(i).getActor().getName());
+            }
+            tvCast.setText(castNames.toString());
+        }
+        
+        // Set director if available (you may need to add this field to ContentDetail if not present)
+        // For now, hiding director section
+        tvDirectorLabel.setVisibility(View.GONE);
+        tvDirector.setVisibility(View.GONE);
+        
+        // Close button
+        btnClose.setOnClickListener(v -> dialog.dismiss());
+        
+        // Show dialog
+        dialog.show();
     }
 
 
