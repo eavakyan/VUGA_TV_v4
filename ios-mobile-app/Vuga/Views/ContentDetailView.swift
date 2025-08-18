@@ -369,36 +369,7 @@ struct ContentDetailView: View {
                         }
                         
                         if content.type == .series {
-                            SeasonTags(vm: vm, content: content)
-                            if let selectedSeason = vm.selectedSeason {
-                                ForEach(selectedSeason.episodes ?? [], id: \.id) { episode in
-                                    EpisodeCard(
-                                        episode: episode, 
-                                        episodeTotalView: (episode.totalView ?? 0) + (episode.id == vm.selectedEpisode?.id ? episodeIncreaseTotalView : 0),
-                                        onRatingTap: {
-                                            if vm.myUser != nil {
-                                                selectedEpisodeForRating = episode
-                                                currentEpisodeRating = episode.userRating ?? 0
-                                                showEpisodeRatingSheet = true
-                                            } else {
-                                                showLoginAlert = true
-                                            }
-                                        }
-                                    )
-                                    .onTap {
-                                            // Stop trailer playback when episode is clicked
-                                            shouldPlayTrailer = false
-                                            
-                                            // Navigate to Episode Detail View
-                                            Navigation.push(
-                                                EpisodeDetailView(
-                                                    episode: episode,
-                                                    seriesContent: content
-                                                )
-                                            )
-                                        }
-                                }
-                            }
+                            episodesSection
                         }
                     }
                 }
@@ -1252,6 +1223,64 @@ struct ContentDetailView: View {
             }
         }
         .padding(.bottom, 12)
+    }
+    
+    @ViewBuilder
+    private var episodesSection: some View {
+        if let content = vm.content {
+            VStack(spacing: 0) {
+                SeasonTags(vm: vm, content: content)
+                
+                if let selectedSeason = vm.selectedSeason,
+                   let episodes = selectedSeason.episodes {
+                    ForEach(episodes, id: \.id) { episode in
+                        episodeCard(for: episode, content: content)
+                    }
+                }
+            }
+        }
+    }
+    
+    private func episodeCard(for episode: Episode, content: VugaContent) -> some View {
+        EpisodeCard(
+            episode: episode,
+            episodeTotalView: calculateEpisodeViews(for: episode),
+            onRatingTap: {
+                handleEpisodeRatingTap(for: episode)
+            }
+        )
+        .onTapGesture {
+            handleEpisodeTap(episode: episode, content: content)
+        }
+    }
+    
+    private func calculateEpisodeViews(for episode: Episode) -> Int {
+        let baseViews = episode.totalView ?? 0
+        let additionalViews = (episode.id == vm.selectedEpisode?.id) ? episodeIncreaseTotalView : 0
+        return baseViews + additionalViews
+    }
+    
+    private func handleEpisodeRatingTap(for episode: Episode) {
+        if vm.myUser != nil {
+            selectedEpisodeForRating = episode
+            currentEpisodeRating = episode.userRating ?? 0
+            showEpisodeRatingSheet = true
+        } else {
+            showLoginAlert = true
+        }
+    }
+    
+    private func handleEpisodeTap(episode: Episode, content: VugaContent) {
+        // Stop trailer playback when episode is clicked
+        shouldPlayTrailer = false
+        
+        // Navigate to Episode Detail View
+        Navigation.pushToSwiftUiView(
+            EpisodeDetailView(
+                episode: episode,
+                seriesContent: content
+            )
+        )
     }
     
     private func handlePlayAction(_ content: VugaContent) {
