@@ -21,14 +21,20 @@ class User extends Model
         'device_type',
         'device_token',
         'status',
-        'is_premium'
+        'is_premium',
+        'email_consent',
+        'sms_consent',
+        'consent_updated_at'
     ];
     
     protected $casts = [
         'login_type' => 'integer',
         'device_type' => 'integer',
         'status' => 'integer',
-        'is_premium' => 'integer'
+        'is_premium' => 'integer',
+        'email_consent' => 'boolean',
+        'sms_consent' => 'boolean',
+        'consent_updated_at' => 'datetime'
     ];
     
     // Add accessor for backward compatibility with 'id' field

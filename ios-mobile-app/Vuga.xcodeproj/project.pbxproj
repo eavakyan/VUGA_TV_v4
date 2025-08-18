@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		03A1FF58C727A550F2912445 /* CommunicationPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A667257ACDFE1E4C78BE8123 /* CommunicationPreferencesView.swift */; };
+		03A1FF58C727A550F2912445 /* Vuga/Views/CommunicationPreferencesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A667257ACDFE1E4C78BE8123 /* Vuga/Views/CommunicationPreferencesView.swift */; };
 		042D7BD4491D21AF58FCBE85 /* PaymentDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F3211308B3ADF3A53805C8 /* PaymentDetailsView.swift */; };
 		2B13AD032C22ABAA0037577A /* AdMetricModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B13AD022C22ABAA0037577A /* AdMetricModel.swift */; };
 		2B1403862C1028D800C7F4FB /* VLCplayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2B1403852C1028D700C7F4FB /* VLCplayer.swift */; };
@@ -111,9 +111,9 @@
 		32892791E2DC80982906575A /* PaymentMethodSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF5EB51E219A1FB20D19CE9 /* PaymentMethodSelectionView.swift */; };
 		4FB71E3714D7BA9D0CC3EB86 /* ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */; };
 		7B509AFE61B44DA0BB1B1E78 /* TrailerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EEC768CD90445586D9A12F /* TrailerModel.swift */; };
-		7E57DE34AD126F25A633B938 /* Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656093B72253C2613F4CCDEF /* Environment.swift */; };
+		7E57DE34AD126F25A633B938 /* Vuga/Utilities/Environment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656093B72253C2613F4CCDEF /* Vuga/Utilities/Environment.swift */; };
 		7F5A4165E505C6CB43EDE311 /* CheckoutView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D633B65BE77FD974AFC8C88 /* CheckoutView.swift */; };
-		868740679B26FF90F876D57A /* DebugLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D338CB9E9D3AAC9721187C /* DebugLogView.swift */; };
+		868740679B26FF90F876D57A /* Vuga/Views/DebugLogView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31D338CB9E9D3AAC9721187C /* Vuga/Views/DebugLogView.swift */; };
 		9D723CFE82D65FB2DD3D3G9A /* TrailerPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2AAD901EF89556697F9D34H /* TrailerPlayerView.swift */; };
 		A58ED3C18B0A6C35858ED6E0 /* RecentlyWatchedGroupedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */; };
 		AE834DGF93E76GC3EE4E4H0B /* TrailerInlinePlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = D3BBE012FG9A667708GAE45I /* TrailerInlinePlayer.swift */; };
@@ -153,7 +153,7 @@
 		B0F1D7B62E389561006CBED0 /* CreateProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B42E389561006CBED0 /* CreateProfileViewModel.swift */; };
 		B0F1D7B72E389561006CBED0 /* ProfileSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B52E389561006CBED0 /* ProfileSelectionViewModel.swift */; };
 		B0F1D7B92E389588006CBED0 /* NavigationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F1D7B82E389588006CBED0 /* NavigationManager.swift */; };
-		B629ED89800959A855D43ACC /* ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C82F3E27C8723A91B43AE2D /* ToastView.swift */; };
+		B629ED89800959A855D43ACC /* Vuga/Views/ToastView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C82F3E27C8723A91B43AE2D /* Vuga/Views/ToastView.swift */; };
 		C40F2B432BFC8CF2008B1BCB /* ContentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F2B422BFC8CF2008B1BCB /* ContentDetailView.swift */; };
 		C40F2B452BFC8D28008B1BCB /* ContentDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C40F2B442BFC8D28008B1BCB /* ContentDetailViewModel.swift */; };
 		C41324D62BF8B17700FF7E1C /* ScalingHeaderScrollView in Frameworks */ = {isa = PBXBuildFile; productRef = C41324D52BF8B17700FF7E1C /* ScalingHeaderScrollView */; };
@@ -224,7 +224,7 @@
 		C4BC6A012C046A8100C63A66 /* EditProfileViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A002C046A8100C63A66 /* EditProfileViewModel.swift */; };
 		C4BC6A032C04BCFF00C63A66 /* LanguageSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A022C04BCFF00C63A66 /* LanguageSheet.swift */; };
 		C4BC6A052C04BD2C00C63A66 /* GenreSheet.swift in Sources */ = {isa = PBXBuildFile; fileRef = C4BC6A042C04BD2C00C63A66 /* GenreSheet.swift */; };
-		D1D83A72E872898767FBEB49 /* AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095D9A73A944810FCD44D2F4 /* AppLogger.swift */; };
+		D1D83A72E872898767FBEB49 /* Vuga/Utilities/AppLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 095D9A73A944810FCD44D2F4 /* Vuga/Utilities/AppLogger.swift */; };
 		DDE53BB3F2B64AAD437FB277 /* OrderReviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */; };
 /* End PBXBuildFile section */
 
@@ -270,7 +270,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		095D9A73A944810FCD44D2F4 /* AppLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Utilities/AppLogger.swift; sourceTree = SOURCE_ROOT; };
+		095D9A73A944810FCD44D2F4 /* Vuga/Utilities/AppLogger.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Utilities/AppLogger.swift; sourceTree = SOURCE_ROOT; };
 		0D633B65BE77FD974AFC8C88 /* CheckoutView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CheckoutView.swift; sourceTree = "<group>"; };
 		18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ComingSoonView.swift; sourceTree = "<group>"; };
 		2B13AD022C22ABAA0037577A /* AdMetricModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMetricModel.swift; sourceTree = "<group>"; };
@@ -364,12 +364,12 @@
 		2BFCCE232C464AFD0087184F /* ActorDetailModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActorDetailModel.swift; sourceTree = "<group>"; };
 		2BFF61662C0DD25A00BB409B /* ProView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProView.swift; sourceTree = "<group>"; };
 		2EFD6B55FE40A97DD91C0F59 /* Pods-Vuga.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Vuga.release.xcconfig"; path = "Target Support Files/Pods-Vuga/Pods-Vuga.release.xcconfig"; sourceTree = "<group>"; };
-		31D338CB9E9D3AAC9721187C /* DebugLogView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/DebugLogView.swift; sourceTree = SOURCE_ROOT; };
-		656093B72253C2613F4CCDEF /* Environment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Utilities/Environment.swift; sourceTree = SOURCE_ROOT; };
+		31D338CB9E9D3AAC9721187C /* Vuga/Views/DebugLogView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/DebugLogView.swift; sourceTree = SOURCE_ROOT; };
+		656093B72253C2613F4CCDEF /* Vuga/Utilities/Environment.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Utilities/Environment.swift; sourceTree = SOURCE_ROOT; };
 		6EFEB9C71CE0031ED9F7DA9E /* OrderReviewView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = OrderReviewView.swift; sourceTree = "<group>"; };
-		8C82F3E27C8723A91B43AE2D /* ToastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/ToastView.swift; sourceTree = SOURCE_ROOT; };
+		8C82F3E27C8723A91B43AE2D /* Vuga/Views/ToastView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/ToastView.swift; sourceTree = SOURCE_ROOT; };
 		A0EEC768CD90445586D9A12F /* TrailerModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerModel.swift; sourceTree = "<group>"; };
-		A667257ACDFE1E4C78BE8123 /* CommunicationPreferencesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/CommunicationPreferencesView.swift; sourceTree = SOURCE_ROOT; };
+		A667257ACDFE1E4C78BE8123 /* Vuga/Views/CommunicationPreferencesView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Vuga/Views/CommunicationPreferencesView.swift; sourceTree = SOURCE_ROOT; };
 		B00A3FEA2E4ADEBD00B16589 /* UserNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotification.swift; sourceTree = "<group>"; };
 		B00A3FEC2E4ADF2200B16589 /* UserNotificationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationViewModel.swift; sourceTree = "<group>"; };
 		B00A3FEE2E4ADF5600B16589 /* UserNotificationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNotificationView.swift; sourceTree = "<group>"; };
@@ -756,8 +756,8 @@
 				2BB9C9272C11CC80002ADE68 /* WebView.swift */,
 				2BEE4AA42C1C4B7300AB3A66 /* CirculerProgress.swift */,
 				2BCD28112C3822F20076D8ED /* PagingView.swift */,
-				095D9A73A944810FCD44D2F4 /* AppLogger.swift */,
-				656093B72253C2613F4CCDEF /* Environment.swift */,
+				095D9A73A944810FCD44D2F4 /* Vuga/Utilities/AppLogger.swift */,
+				656093B72253C2613F4CCDEF /* Vuga/Utilities/Environment.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -885,9 +885,9 @@
 				18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */,
 				F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */,
 				7F489C4C28369363B58E8714 /* Checkout */,
-				31D338CB9E9D3AAC9721187C /* DebugLogView.swift */,
-				8C82F3E27C8723A91B43AE2D /* ToastView.swift */,
-				A667257ACDFE1E4C78BE8123 /* CommunicationPreferencesView.swift */,
+				31D338CB9E9D3AAC9721187C /* Vuga/Views/DebugLogView.swift */,
+				8C82F3E27C8723A91B43AE2D /* Vuga/Views/ToastView.swift */,
+				A667257ACDFE1E4C78BE8123 /* Vuga/Views/CommunicationPreferencesView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -1336,11 +1336,11 @@
 				32892791E2DC80982906575A /* PaymentMethodSelectionView.swift in Sources */,
 				042D7BD4491D21AF58FCBE85 /* PaymentDetailsView.swift in Sources */,
 				DDE53BB3F2B64AAD437FB277 /* OrderReviewView.swift in Sources */,
-				D1D83A72E872898767FBEB49 /* AppLogger.swift in Sources */,
-				7E57DE34AD126F25A633B938 /* Environment.swift in Sources */,
-				868740679B26FF90F876D57A /* DebugLogView.swift in Sources */,
-				B629ED89800959A855D43ACC /* ToastView.swift in Sources */,
-				03A1FF58C727A550F2912445 /* CommunicationPreferencesView.swift in Sources */,
+				D1D83A72E872898767FBEB49 /* Vuga/Utilities/AppLogger.swift in Sources */,
+				7E57DE34AD126F25A633B938 /* Vuga/Utilities/Environment.swift in Sources */,
+				868740679B26FF90F876D57A /* Vuga/Views/DebugLogView.swift in Sources */,
+				B629ED89800959A855D43ACC /* Vuga/Views/ToastView.swift in Sources */,
+				03A1FF58C727A550F2912445 /* Vuga/Views/CommunicationPreferencesView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1583,7 +1583,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1602,7 +1602,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"bz2\"",
@@ -1652,7 +1652,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 8;
+				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1671,7 +1671,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.2;
+				MARKETING_VERSION = 2;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-l\"bz2\"",

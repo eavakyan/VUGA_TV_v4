@@ -90,7 +90,9 @@
       "Bash(pod cache clean:*)",
       "Bash(xcrun agvtool what-marketing-version:*)",
       "Bash(xcrun altool:*)",
-      "Bash(xcrun agvtool new-marketing-version:*)"
+      "Bash(xcrun agvtool new-marketing-version:*)",
+      "Bash(./fix_dismiss.sh:*)",
+      "Bash(security find-generic-password:*)"
     ],
     "deny": []
   }
