@@ -370,9 +370,20 @@ public class HomeFragment extends BaseFragment {
                             // }
 
                         }
-                        // Watchlist row is hidden per requirements
-                        if (binding.loutWathlist != null) {
-                            binding.loutWathlist.setVisibility(View.GONE);
+                        
+                        // Show Watchlist row only when there are items
+                        if (homePage.getWatchlist() != null && !homePage.getWatchlist().isEmpty()) {
+                            watchList = new ArrayList<>();
+                            watchList.addAll(homePage.getWatchlist());
+                            homeWatchlistAdapter.updateItems(watchList);
+                            if (binding.loutWathlist != null) {
+                                binding.loutWathlist.setVisibility(View.VISIBLE);
+                            }
+                        } else {
+                            // Hide watchlist row when empty
+                            if (binding.loutWathlist != null) {
+                                binding.loutWathlist.setVisibility(View.GONE);
+                            }
                         }
 
                         if (homePage.getTopContents() != null) {

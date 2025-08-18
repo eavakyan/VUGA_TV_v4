@@ -797,13 +797,13 @@
 
                         </LinearLayout>
 
+                        <!-- Season Selector Section -->
                         <LinearLayout
-                            android:id="@+id/lout_season_count"
+                            android:id="@+id/lout_season_selector"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="15dp"
-                            android:background="@color/text_color_10"
-                            android:gravity="center_vertical"
+                            android:layout_marginHorizontal="15dp"
                             android:orientation="vertical"
                             android:visibility="@{content.type==2?content.seasons.empty?View.GONE:View.VISIBLE:View.GONE}">
 
@@ -813,16 +813,36 @@
                                 android:layout_marginBottom="15dp"
                                 android:background="@drawable/bg_for_spark_gradient" />
 
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rv_season"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:layout_marginHorizontal="5dp"
+                            <!-- Season Dropdown -->
+                            <LinearLayout
+                                android:id="@+id/btn_season_dropdown"
+                                android:layout_width="match_parent"
+                                android:layout_height="50dp"
+                                android:background="@drawable/bg_round_rect_10"
+                                android:backgroundTint="@color/text_color_10"
+                                android:gravity="center_vertical"
                                 android:orientation="horizontal"
-                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                tools:itemCount="4"
-                                tools:listitem="@layout/item_content_season" />
+                                android:paddingHorizontal="15dp"
+                                android:clickable="true"
+                                android:focusable="true">
+
+                                <TextView
+                                    android:id="@+id/tv_selected_season"
+                                    style="@style/TextViewLocal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/outfit_medium"
+                                    android:text="Season 1"
+                                    android:textSize="@dimen/_16sp" />
+
+                                <ImageView
+                                    android:id="@+id/iv_dropdown_arrow"
+                                    android:layout_width="24dp"
+                                    android:layout_height="24dp"
+                                    android:src="@drawable/ic_arrow_down"
+                                    app:tint="@color/text_color" />
+                            </LinearLayout>
 
                             <View
                                 android:layout_width="match_parent"

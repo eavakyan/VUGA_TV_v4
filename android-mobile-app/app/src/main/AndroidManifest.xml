@@ -144,6 +144,10 @@
             </intent-filter>
         </activity>
         <activity
+            android:name=".activities.EpisodeDetailActivity"
+            android:screenOrientation="portrait"
+            android:exported="false" />
+        <activity
             android:name=".activities.ProfileSelectionActivity"
             android:screenOrientation="portrait" />
         <activity

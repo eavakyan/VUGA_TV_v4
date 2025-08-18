@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.VideoView;
+import android.widget.PopupMenu;
 import android.webkit.WebView;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
@@ -877,6 +878,16 @@ public class MovieDetailActivity extends BaseActivity {
         Log.d("Watchlist", "Watchlist button visibility: " + binding.imgAddToWatchList.getVisibility());
 
 
+        // Season dropdown click handler for TV shows
+        if (binding.btnSeasonDropdown != null) {
+            binding.btnSeasonDropdown.setOnClickListener(v -> {
+                if (contentItem != null && contentItem.getType() == 2 && 
+                    contentItem.getSeasons() != null && contentItem.getSeasons().size() > 1) {
+                    showSeasonDropdown();
+                }
+            });
+        }
+        
         seasonCountAdapter.setOnItemClick((model, position) -> {
             trailerUrl = contentItem.getSeasons().get(position).getTrailerUrl();
             episodeAdapter.updateItems(contentItem.getSeasons().get(position).getEpisodes());
@@ -896,65 +907,21 @@ public class MovieDetailActivity extends BaseActivity {
                 return;
             }
             
-            titleName = model.getTitle();
-            subTitlesList = model.getSubtitles();
-            episodeCount = position + 1;
-            dMap.put(Const.DataKey.EPISODE_COUNT, episodeCount);
-            dMap.put(Const.DataKey.episode_name, model.getTitle());
-            dMap.put(Const.DataKey.episode_image, model.getThumbnail());
-            dMap.put(Const.DataKey.content_duration, model.getDuration());
-
-            // Direct play without source selection
-            if (model.getSources() == null || model.getSources().isEmpty()) {
-                Toast.makeText(MovieDetailActivity.this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            // Get the first (and only) source
-            ContentDetail.SourceItem sourceToPlay = model.getSources().get(0);
+            // Open Episode Detail View instead of playing directly
+            Intent intent = new Intent(MovieDetailActivity.this, EpisodeDetailActivity.class);
             
-            // Check play progress from history
-            ArrayList<MovieHistory> movieHistories = sessionManager.getMovieHistories();
-            for (MovieHistory movieHistory : movieHistories) {
-                if (movieHistory != null && movieHistory.getSources() != null && 
-                    movieHistory.getMovieId() != null && movieHistory.getMovieId() == contentId) {
-                    for (ContentDetail.SourceItem historySource : movieHistory.getSources()) {
-                        if (historySource.getId() == sourceToPlay.getId()) {
-                            sourceToPlay.playProgress = historySource.playProgress;
-                            break;
-                        }
-                    }
-                }
+            // Pass episode data
+            intent.putExtra("EPISODE_DATA", new Gson().toJson(model));
+            intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
+            intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
+            intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
+            
+            // Pass subtitles if available
+            if (subTitlesList != null && !subTitlesList.isEmpty()) {
+                intent.putExtra(Const.DataKey.SUB_TITLES, new Gson().toJson(subTitlesList));
             }
-
-            // Check access type and play directly
-            if (isNetworkConnected()) {
-                if (sourceToPlay.getAccess_type() == 1) {
-                    increaseViews(sourceToPlay);
-
-                    Intent intent = new Intent(MovieDetailActivity.this, PlayerNewActivity.class);
-                    intent.putExtra(Const.DataKey.CONTENT_SOURCE, new Gson().toJson(sourceToPlay));
-                    intent.putExtra(Const.DataKey.SUB_TITLES, new Gson().toJson(subTitlesList));
-                    intent.putExtra(Const.DataKey.NAME, titleName);
-                    intent.putExtra(Const.DataKey.THUMBNAIL, contentItem.getHorizontalPoster());
-                    intent.putExtra(Const.DataKey.CONTENT_NAME, contentItem.getTitle());
-                    intent.putExtra(Const.DataKey.CONTENT_ID, contentItem.getId());
-                    intent.putExtra(Const.DataKey.RELEASE_YEAR, contentItem.getReleaseYear());
-                    intent.putExtra(Const.DataKey.DURATION, contentItem.getDuration());
-                    intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                    startActivity(intent);
-
-                } else if (sourceToPlay.getAccess_type() == 2) {
-                    // Premium pop up
-                    showPremiumPopup();
-
-                } else if (sourceToPlay.getAccess_type() == 3) {
-                    // Video ad pop up
-                    showADDPopup(sourceToPlay, VIEW, null);
-                }
-            } else {
-                Toast.makeText(MovieDetailActivity.this, getString(R.string.no_connection), Toast.LENGTH_SHORT).show();
-            }
+            
+            startActivity(intent);
         });
 
 
@@ -1543,9 +1510,26 @@ public class MovieDetailActivity extends BaseActivity {
         }
 
         if (contentItem.getType() == 2) {
-            seasonCountAdapter.updateItems(contentItem.getSeasons());
+            // Set up season selector for TV shows
             if (!contentItem.getSeasons().isEmpty()) {
+                // Default to Season 1
+                if (binding.tvSelectedSeason != null) {
+                    binding.tvSelectedSeason.setText("Season 1");
+                }
+                
+                // Hide the old season RecyclerView if it exists
+                if (binding.rvEpisodes != null) {
+                    // Episodes are shown in rvEpisodes
+                }
+                
+                // Load episodes for Season 1
                 episodeAdapter.updateItems(contentItem.getSeasons().get(0).getEpisodes());
+                
+                // If only one season, hide the dropdown arrow
+                if (contentItem.getSeasons().size() == 1 && binding.ivDropdownArrow != null) {
+                    binding.ivDropdownArrow.setVisibility(View.GONE);
+                    binding.btnSeasonDropdown.setClickable(false);
+                }
             }
         }
 
@@ -1612,7 +1596,7 @@ public class MovieDetailActivity extends BaseActivity {
 
         binding.rvCast.setAdapter(castAdapter);
         binding.rvMoreLikeThis.setAdapter(moreLikeThisAdapter);
-        binding.rvSeason.setAdapter(seasonCountAdapter);
+        // Season count adapter was for old UI, no longer needed
         binding.rvEpisodes.setAdapter(episodeAdapter);
         // Genre chips removed to match iOS design
         // binding.rvGenere.setAdapter(genreAdapter);
@@ -1620,7 +1604,7 @@ public class MovieDetailActivity extends BaseActivity {
 
         binding.rvCast.setItemAnimator(null);
         binding.rvMoreLikeThis.setItemAnimator(null);
-        binding.rvSeason.setItemAnimator(null);
+        // Season count adapter animation setup removed
         binding.rvEpisodes.setItemAnimator(null);
         binding.rvSource.setItemAnimator(null);
         binding.rvEpisodes.setItemAnimator(null);
@@ -2505,6 +2489,49 @@ public class MovieDetailActivity extends BaseActivity {
                 }
             }
         });
+    }
+    
+    private void showSeasonDropdown() {
+        if (contentItem == null || contentItem.getSeasons() == null || contentItem.getSeasons().isEmpty()) {
+            return;
+        }
+        
+        PopupMenu popupMenu = new PopupMenu(this, binding.btnSeasonDropdown);
+        
+        // Add season items to the popup menu
+        for (int i = 0; i < contentItem.getSeasons().size(); i++) {
+            ContentDetail.SeasonItem season = contentItem.getSeasons().get(i);
+            String seasonTitle = "Season " + (i + 1);
+            // Use Season N format since getSeasonName may not exist
+            // seasonTitle already set above
+            popupMenu.getMenu().add(0, i, i, seasonTitle);
+        }
+        
+        // Handle season selection
+        popupMenu.setOnMenuItemClickListener(item -> {
+            int position = item.getItemId();
+            ContentDetail.SeasonItem selectedSeason = contentItem.getSeasons().get(position);
+            
+            // Update the selected season text
+            binding.tvSelectedSeason.setText(item.getTitle());
+            
+            // Update trailer URL if available
+            if (selectedSeason.getTrailerUrl() != null) {
+                trailerUrl = selectedSeason.getTrailerUrl();
+            }
+            
+            // Load episodes for the selected season
+            episodeAdapter.updateItems(selectedSeason.getEpisodes());
+            
+            // Update season count
+            seasonCount = position + 1;
+            dMap.put(Const.DataKey.SEASON_COUNT, seasonCount);
+            
+            Log.i("TAG", "Selected season: " + seasonCount);
+            return true;
+        });
+        
+        popupMenu.show();
     }
     
     private void showFullDetailsDialog() {
