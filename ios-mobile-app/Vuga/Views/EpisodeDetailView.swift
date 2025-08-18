@@ -89,11 +89,14 @@ struct EpisodeDetailView: View {
     
     private var episodeThumbnail: some View {
         ZStack {
-            KFImage(episode.thumbnail?.addBaseURL())
-                .resizable()
-                .aspectRatio(16/9, contentMode: .fit)
-                .frame(maxWidth: .infinity)
-                .clipped()
+            if let thumbnailString = episode.thumbnail,
+               let url = thumbnailString.addBaseURL() {
+                KFImage(url)
+                    .resizable()
+                    .aspectRatio(16/9, contentMode: .fit)
+                    .frame(maxWidth: .infinity)
+                    .clipped()
+            }
             
             Button(action: playEpisode) {
                 Image(systemName: "play.circle.fill")
@@ -235,12 +238,15 @@ struct EpisodeDetailView: View {
                         HStack(spacing: 12) {
                             ForEach(episodes.filter { $0.id != episode.id }, id: \.id) { ep in
                                 VStack(alignment: .leading, spacing: 6) {
-                                    KFImage(ep.thumbnail?.addBaseURL())
-                                        .resizable()
-                                        .aspectRatio(16/9, contentMode: .fill)
-                                        .frame(width: 150, height: 84)
-                                        .clipped()
-                                        .cornerRadius(8)
+                                    if let thumbnailString = ep.thumbnail,
+                                       let url = thumbnailString.addBaseURL() {
+                                        KFImage(url)
+                                            .resizable()
+                                            .aspectRatio(16/9, contentMode: .fill)
+                                            .frame(width: 150, height: 84)
+                                            .clipped()
+                                            .cornerRadius(8)
+                                    }
                                     
                                     Text("Episode \(ep.number ?? 0)")
                                         .font(.system(size: 12, weight: .medium))
@@ -297,7 +303,7 @@ struct EpisodeDetailView: View {
                     episode: episode,
                     type: firstSource.type?.rawValue ?? 2,
                     isShowAdView: false,
-                    url: firstSource.sourceURL ?? "",
+                    url: firstSource.sourceURL.absoluteString,
                     progress: 0,
                     sourceId: firstSource.id
                 )
