@@ -196,6 +196,11 @@ Route::get('csv-import', [\App\Http\Controllers\Admin\CsvImportController::class
 Route::post('csv-import/import', [\App\Http\Controllers\Admin\CsvImportController::class, 'import'])->middleware(['checkLogin'])->name('admin.csv-import.import');
 Route::get('csv-import/template', [\App\Http\Controllers\Admin\CsvImportController::class, 'downloadTemplate'])->middleware(['checkLogin'])->name('admin.csv-import.template');
 
+// Enhanced CSV Import with Cast Support
+Route::get('enhanced-csv-import', [\App\Http\Controllers\Admin\EnhancedCsvImportController::class, 'index'])->middleware(['checkLogin'])->name('admin.enhanced-csv-import');
+Route::post('enhanced-csv-import/import', [\App\Http\Controllers\Admin\EnhancedCsvImportController::class, 'import'])->middleware(['checkLogin'])->name('admin.enhanced-csv-import.import');
+Route::get('enhanced-csv-import/template', [\App\Http\Controllers\Admin\EnhancedCsvImportController::class, 'downloadTemplate'])->middleware(['checkLogin'])->name('admin.enhanced-csv-import.template');
+
 // Content Distributors - Specific routes MUST come before resource route
 Route::get('distributors/content/manage', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'manageContent'])->middleware(['checkLogin'])->name('admin.distributors.content');
 Route::post('distributors/content/update', [\App\Http\Controllers\Admin\ContentDistributorController::class, 'updateContentDistributors'])->middleware(['checkLogin'])->name('admin.distributors.content.update');
