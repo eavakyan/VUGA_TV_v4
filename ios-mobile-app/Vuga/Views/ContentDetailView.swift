@@ -389,35 +389,13 @@ struct ContentDetailView: View {
                                             // Stop trailer playback when episode is clicked
                                             shouldPlayTrailer = false
                                             
-                                            // Check age restrictions first
-                                            let currentProfile = SessionManager.shared.getCurrentProfile()
-                                            if !content.isAppropriateFor(profile: currentProfile) {
-                                                displayAgeRestrictionAlert()
-                                                return
-                                            }
-                                            
-                                            vm.selectedEpisode = episode
-                                            // Direct play without source selection
-                                            if let sources = episode.sources, !sources.isEmpty {
-                                                let firstSource = sources[0]
-                                                if firstSource.accessType == .free || isPro {
-                                                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                                                        vm.pickedSource = firstSource
-                                                        // For episodes, we typically start from beginning since each episode is separate
-                                                        // But if you want to support resume for episodes too, remove this line
-                                                        vm.progress = 0 // Start from beginning for episodes
-                                                        vm.playSource(firstSource)
-                                                        vm.increaseEpisodeView(episodeId: episode.id ?? 0)
-                                                        episodeIncreaseTotalView += 1
-                                                    }
-                                                } else if firstSource.accessType == .premium {
-                                                    vm.pickedSource = firstSource
-                                                    vm.isShowPremiumDialog = true
-                                                } else if firstSource.accessType == .locked {
-                                                    vm.pickedSource = firstSource
-                                                    vm.isShowAdDialog = true
-                                                }
-                                            }
+                                            // Navigate to Episode Detail View
+                                            Navigation.push(
+                                                EpisodeDetailView(
+                                                    episode: episode,
+                                                    seriesContent: content
+                                                )
+                                            )
                                         }
                                 }
                             }
@@ -1011,38 +989,79 @@ struct ContentDetailView: View {
     
     @ViewBuilder
     private func actionButtonsSection(_ content: VugaContent) -> some View {
-        VStack(spacing: 12) {
-            if vm.progress > 0 {
-                // Content has been watched before - show Resume and Start from Beginning on same line
-                HStack(spacing: 12) {
-                    // Resume button
+        // Only show play/download buttons for movies, not TV shows
+        if content.type == .movie {
+            VStack(spacing: 12) {
+                if vm.progress > 0 {
+                    // Content has been watched before - show Resume and Start from Beginning on same line
+                    HStack(spacing: 12) {
+                        // Resume button
+                        Button(action: {
+                            handlePlayAction(content)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "play.fill")
+                                    .font(.system(size: 14))
+                                Text("Resume")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundColor(.black)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.white)
+                            .cornerRadius(8)
+                        }
+                        
+                        // Start from Beginning button
+                        Button(action: {
+                            vm.progress = 0
+                            handlePlayAction(content)
+                        }) {
+                            HStack(spacing: 6) {
+                                Image(systemName: "arrow.counterclockwise")
+                                    .font(.system(size: 14))
+                                Text("Start Over")
+                                    .font(.system(size: 14, weight: .medium))
+                            }
+                            .foregroundColor(.white)
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 12)
+                            .background(Color.white.opacity(0.2))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 8)
+                                    .stroke(Color.white.opacity(0.3), lineWidth: 1)
+                            )
+                            .cornerRadius(8)
+                        }
+                    }
+                } else {
+                    // Content has not been watched - show Play button
                     Button(action: {
                         handlePlayAction(content)
                     }) {
-                        HStack(spacing: 6) {
+                        HStack {
                             Image(systemName: "play.fill")
-                                .font(.system(size: 14))
-                            Text("Resume")
-                                .font(.system(size: 14, weight: .medium))
+                            Text("Play")
                         }
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.black)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
                         .background(Color.white)
                         .cornerRadius(8)
                     }
-                    
-                    // Start from Beginning button
+                }
+                
+                // Download button (if available) - full width on its own row
+                if content.contentSources?.first?.isDownload == 1 {
                     Button(action: {
-                        vm.progress = 0
-                        handlePlayAction(content)
+                        handleDownload()
                     }) {
-                        HStack(spacing: 6) {
-                            Image(systemName: "arrow.counterclockwise")
-                                .font(.system(size: 14))
-                            Text("Start Over")
-                                .font(.system(size: 14, weight: .medium))
+                        HStack {
+                            Image(systemName: "arrow.down.circle")
+                            Text("Download")
                         }
+                        .font(.system(size: 16, weight: .medium))
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 12)
@@ -1054,47 +1073,9 @@ struct ContentDetailView: View {
                         .cornerRadius(8)
                     }
                 }
-            } else {
-                // Content has not been watched - show Play button
-                Button(action: {
-                    handlePlayAction(content)
-                }) {
-                    HStack {
-                        Image(systemName: "play.fill")
-                        Text("Play")
-                    }
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.black)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.white)
-                    .cornerRadius(8)
-                }
             }
-            
-            // Download button (if available) - full width on its own row
-            if content.contentSources?.first?.isDownload == 1 {
-                Button(action: {
-                    handleDownload()
-                }) {
-                    HStack {
-                        Image(systemName: "arrow.down.circle")
-                        Text("Download")
-                    }
-                    .font(.system(size: 16, weight: .medium))
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(Color.white.opacity(0.2))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 8)
-                            .stroke(Color.white.opacity(0.3), lineWidth: 1)
-                    )
-                    .cornerRadius(8)
-                }
-            }
+            .padding(.horizontal, 16)
         }
-        .padding(.horizontal, 16)
     }
     
     @ViewBuilder
@@ -1846,38 +1827,60 @@ private struct StarCastCard: View {
 private struct SeasonTags : View {
     @ObservedObject var vm: ContentDetailViewModel
     @AppStorage(SessionKeys.language) var language = LocalizationService.shared.language
+    @State private var showSeasonDropdown = false
     var content: VugaContent
+    
     var body: some View {
-        if content.seasons?.isNotEmpty == true {
+        if let seasons = content.seasons, !seasons.isEmpty {
             VStack(spacing: 0) {
                 divider(topPadding: 0)
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack {
-                        ForEach(0..<(content.seasons ?? []).count, id: \.self) { index in
-                            let season = (content.seasons ?? [])[index]
-                            VStack(spacing: 0) {
-                                Text("\(content.seasons?[index].title ?? "")")
-                                    .outfitMedium(15)
-                                    .frame(width: 70, alignment: .center)
-                                    .padding(.vertical)
-                                    .onTap {
-                                        vm.selectSeason(season: season)
-                                        vm.seasonNumber = index + 1
-                                        print(vm.seasonNumber)
+                
+                if seasons.count > 1 {
+                    // Dropdown for multiple seasons
+                    Menu {
+                        ForEach(0..<seasons.count, id: \.self) { index in
+                            let season = seasons[index]
+                            Button(action: {
+                                vm.selectSeason(season: season)
+                                vm.seasonNumber = index + 1
+                            }) {
+                                HStack {
+                                    Text(season.title ?? "Season \(index + 1)")
+                                    if vm.selectedSeason?.id == season.id {
+                                        Image(systemName: "checkmark")
                                     }
-                                    .foregroundColor(vm.selectedSeason?.id == season.id ? .text : .textLight)
-                                Rectangle()
-                                    .frame(width: 55, height: 1, alignment: .leading)
-                                    .foregroundColor(vm.selectedSeason?.id == season.id ? .text : .clear)
+                                }
                             }
                         }
+                    } label: {
+                        HStack {
+                            Text(vm.selectedSeason?.title ?? "Season 1")
+                                .outfitMedium(16)
+                                .foregroundColor(.text)
+                            Spacer()
+                            Image(systemName: "chevron.down")
+                                .font(.system(size: 14))
+                                .foregroundColor(.textLight)
+                        }
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 12)
+                        .background(Color.text.opacity(0.10))
                     }
-                    .padding(.horizontal, 10)
+                } else {
+                    // Single season - show as static label
+                    HStack {
+                        Text(seasons.first?.title ?? "Season 1")
+                            .outfitMedium(16)
+                            .foregroundColor(.text)
+                        Spacer()
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(Color.text.opacity(0.10))
                 }
                 
                 divider(topPadding: 0)
             }
-            .background(Color.text.opacity(0.10))
             .padding(.horizontal, -10)
         }
     }
@@ -1903,10 +1906,6 @@ struct EpisodeCard : View {
                 KFImage(episode.thumbnail?.addBaseURL())
                     .resizeFillTo(width: 150, height: 105, compressSize: 2,radius: 15)
                     .addStroke(radius: 15)
-                    .overlay(
-                        PlayButton(size: 30, color: .bg)
-                            .addStroke(radius: 100)
-                    )
                 
                 VStack(alignment: .leading, spacing: 6) {
                     Text(episode.title ?? "")
