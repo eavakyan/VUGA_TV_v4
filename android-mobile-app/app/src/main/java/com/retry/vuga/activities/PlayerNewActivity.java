@@ -212,15 +212,19 @@ public class PlayerNewActivity extends BaseActivity {
             binding.tvTitle.setText(modelChannel.getTitle());
 
             if (modelChannel.getType() == 1) {
-
                 videoPath = modelChannel.getSource();
                 playByYoutubePlayer();
-
             } else if (modelChannel.getType() == 2) {
                 videoPath = modelChannel.getSource();
-                playByExoPlayer();
-//                playByVLCPlayer();
-
+                
+                // Check if the stream is MPD (MPEG-DASH) format
+                if (videoPath != null && videoPath.toLowerCase().contains(".mpd")) {
+                    // Use VLC player for MPD streams as it has better support
+                    playByVLCPlayer();
+                } else {
+                    // Use ExoPlayer for other streams (HLS, etc.)
+                    playByExoPlayer();
+                }
             }
         }
         if (download != null) {

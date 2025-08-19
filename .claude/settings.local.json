@@ -92,7 +92,8 @@
       "Bash(xcrun altool:*)",
       "Bash(xcrun agvtool new-marketing-version:*)",
       "Bash(./fix_dismiss.sh:*)",
-      "Bash(security find-generic-password:*)"
+      "Bash(security find-generic-password:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

@@ -179,6 +179,7 @@
 		C434A4622BEA08B40059889F /* Outfit-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C434A4592BEA08B40059889F /* Outfit-ExtraBold.ttf */; };
 		C434A4652BEA08F60059889F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A4642BEA08F60059889F /* AppDelegate.swift */; };
 		C434A4682BEA0A4F0059889F /* Const.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A4672BEA0A4F0059889F /* Const.swift */; };
+		C434A4682BEA0A4F0059AAAA /* AdaptiveContentSizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A4672BEA0A4F0059AAAA /* AdaptiveContentSizing.swift */; };
 		C434A46A2BEA0AA80059889F /* NetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A4692BEA0AA80059889F /* NetworkManager.swift */; };
 		C434A46C2BEA0AAF0059889F /* APIs.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A46B2BEA0AAF0059889F /* APIs.swift */; };
 		C434A46E2BEA0ACB0059889F /* Params.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A46D2BEA0ACB0059889F /* Params.swift */; };
@@ -430,6 +431,7 @@
 		C434A4592BEA08B40059889F /* Outfit-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "Outfit-ExtraBold.ttf"; sourceTree = "<group>"; };
 		C434A4642BEA08F60059889F /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		C434A4672BEA0A4F0059889F /* Const.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Const.swift; sourceTree = "<group>"; };
+		C434A4672BEA0A4F0059AAAA /* AdaptiveContentSizing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdaptiveContentSizing.swift; sourceTree = "<group>"; };
 		C434A4692BEA0AA80059889F /* NetworkManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkManager.swift; sourceTree = "<group>"; };
 		C434A46B2BEA0AAF0059889F /* APIs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIs.swift; sourceTree = "<group>"; };
 		C434A46D2BEA0ACB0059889F /* Params.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Params.swift; sourceTree = "<group>"; };
@@ -751,6 +753,7 @@
 				B05AC94D2E3F0237005EB298 /* StorageManager.swift */,
 				B07A74942E35BFEF00E4BC93 /* APIClient.swift */,
 				C434A4672BEA0A4F0059889F /* Const.swift */,
+				C434A4672BEA0A4F0059AAAA /* AdaptiveContentSizing.swift */,
 				C434A46B2BEA0AAF0059889F /* APIs.swift */,
 				C434A46D2BEA0ACB0059889F /* Params.swift */,
 				C434A4732BEA0B3E0059889F /* Extention */,
@@ -1256,6 +1259,7 @@
 				C46A0AA72BEDF34B002E2CE1 /* HomeView.swift in Sources */,
 				C434A44F2BEA08840059889F /* Navigation.swift in Sources */,
 				C434A4682BEA0A4F0059889F /* Const.swift in Sources */,
+				C434A4682BEA0A4F0059AAAA /* AdaptiveContentSizing.swift in Sources */,
 				C450DC272BF4E1D400212699 /* HomeModel.swift in Sources */,
 				B05AC9562E47A318005EB298 /* MarketingPreferencesView.swift in Sources */,
 				C491DD4D2BFCC12E0001DAF8 /* IntExtension.swift in Sources */,
@@ -1587,7 +1591,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -1656,7 +1660,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_ENTITLEMENTS = Vuga/Vuga.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 2;
+				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_ASSET_PATHS = "\"Vuga/Preview Content\"";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;

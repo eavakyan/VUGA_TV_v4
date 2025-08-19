@@ -76,6 +76,10 @@ struct LiveTVsView: View {
                 .padding(10)
                 .padding(.bottom, 20) // Reduced padding since global tab bar handles spacing
             })
+            .refreshable {
+                // Refresh Live TV data
+                vm.fetchData()
+            }
         }
         .loaderView(vm.isLoading)
         .noDataFound(!vm.isLoading && vm.categories.isEmpty)
@@ -85,7 +89,10 @@ struct LiveTVsView: View {
             if vm.selectedChannel?.type?.rawValue ?? 0 == 1 {
                 YoutubeView(youtubeUrl: vm.selectedChannel?.source ?? "")
             } else {
-                VideoPlayerView(type: 2,isShowAdView: false, isLiveVideo: true,url: vm.selectedChannel?.source ?? "")
+                // Check if it's an MPD stream
+                let streamUrl = vm.selectedChannel?.source ?? ""
+                let streamType = streamUrl.lowercased().contains(".mpd") ? 5 : 2
+                VideoPlayerView(type: streamType,isShowAdView: false, isLiveVideo: true,url: streamUrl)
             }
         })
     }
@@ -204,6 +211,11 @@ struct LiveTvView : View {
                 })
                 .padding(.horizontal)
                 .padding(.vertical,10)
+            }
+            .refreshable {
+                // Clear channels and refresh for this category
+                vm.channels.removeAll()
+                vm.fetchData(category: tvCategory)
             }
         }
         .onAppear(perform: {

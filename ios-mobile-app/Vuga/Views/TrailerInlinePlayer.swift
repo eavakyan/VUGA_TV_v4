@@ -7,6 +7,7 @@
 
 import SwiftUI
 import AVKit
+import AVFoundation
 import WebKit
 
 struct TrailerInlinePlayer: View {
@@ -16,6 +17,7 @@ struct TrailerInlinePlayer: View {
     @State private var player: AVPlayer?
     @State private var isPlaying = false
     @State private var showControls = true
+    @State private var isMuted = true  // Always start muted
     
     var body: some View {
         GeometryReader { geometry in
@@ -45,17 +47,40 @@ struct TrailerInlinePlayer: View {
                         )
                 }
                 
-                // Play button overlay for non-YouTube videos
+                // Controls overlay for non-YouTube videos
                 if !isYouTubeUrl && showControls {
-                    Button(action: {
-                        togglePlayPause()
-                    }) {
-                        Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                            .resizable()
-                            .frame(width: 70, height: 70)
-                            .foregroundColor(.white)
-                            .background(Color.black.opacity(0.5))
-                            .clipShape(Circle())
+                    VStack {
+                        Spacer()
+                        HStack {
+                            // Play/Pause button
+                            Button(action: {
+                                togglePlayPause()
+                            }) {
+                                Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
+                                    .resizable()
+                                    .frame(width: 60, height: 60)
+                                    .foregroundColor(.white)
+                                    .background(Color.black.opacity(0.5))
+                                    .clipShape(Circle())
+                            }
+                            .padding(.leading, 20)
+                            
+                            Spacer()
+                            
+                            // Mute/Unmute button
+                            Button(action: {
+                                toggleMute()
+                            }) {
+                                Image(systemName: isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                                    .font(.system(size: 24))
+                                    .foregroundColor(.white)
+                                    .frame(width: 50, height: 50)
+                                    .background(Color.black.opacity(0.5))
+                                    .clipShape(Circle())
+                            }
+                            .padding(.trailing, 20)
+                        }
+                        .padding(.bottom, 20)
                     }
                 }
             }
@@ -69,6 +94,9 @@ struct TrailerInlinePlayer: View {
     }
     
     private func analyzeTrailerUrl() {
+        // Configure audio session for muted playback (important for AirPods)
+        configureAudioSessionForMutedPlayback()
+        
         // Check if it's a YouTube URL
         if trailerUrl.contains("youtube.com") || trailerUrl.contains("youtu.be") || trailerUrl.contains("youtube-nocookie.com") {
             isYouTubeUrl = true
@@ -79,32 +107,63 @@ struct TrailerInlinePlayer: View {
         }
     }
     
+    private func configureAudioSessionForMutedPlayback() {
+        do {
+            try AVAudioSession.sharedInstance().setCategory(.playback, mode: .moviePlayback, options: [.mixWithOthers])
+            try AVAudioSession.sharedInstance().setActive(true)
+        } catch {
+            print("Failed to configure audio session: \(error)")
+        }
+    }
+    
     private func setupVideoPlayer() {
         guard let url = URL(string: trailerUrl) else { return }
         
-        let playerItem = AVPlayerItem(url: url)
-        player = AVPlayer(playerItem: playerItem)
+        // Load asset asynchronously to avoid blocking main thread
+        let asset = AVURLAsset(url: url)
+        let keys = ["playable", "hasProtectedContent", "duration"]
         
-        // Set up looping
-        NotificationCenter.default.addObserver(
-            forName: .AVPlayerItemDidPlayToEndTime,
-            object: playerItem,
-            queue: .main
-        ) { _ in
-            self.player?.seek(to: .zero)
-            self.player?.play()
-        }
-        
-        // Auto-start playing after player is ready
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            self.player?.play()
-            self.isPlaying = true
-        }
-        
-        // Auto-hide controls after 3 seconds
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
-            withAnimation {
-                showControls = false
+        asset.loadValuesAsynchronously(forKeys: keys) {
+            // Check if asset is playable
+            var error: NSError?
+            let status = asset.statusOfValue(forKey: "playable", error: &error)
+            
+            DispatchQueue.main.async {
+                if status == .loaded && asset.isPlayable {
+                    let playerItem = AVPlayerItem(asset: asset)
+                    self.player = AVPlayer(playerItem: playerItem)
+                    
+                    // IMPORTANT: Always start muted for auto-playing trailers
+                    // Multiple approaches to ensure muting works with AirPods/Bluetooth
+                    self.player?.isMuted = true
+                    self.player?.volume = 0.0  // Also set volume to 0 for AirPods
+                    self.isMuted = true  // Sync state
+                    
+                    // Set up looping
+                    NotificationCenter.default.addObserver(
+                        forName: .AVPlayerItemDidPlayToEndTime,
+                        object: playerItem,
+                        queue: .main
+                    ) { _ in
+                        self.player?.seek(to: .zero)
+                        self.player?.play()
+                    }
+                    
+                    // Auto-start playing after player is ready (ensure muted for AirPods)
+                    self.player?.isMuted = true
+                    self.player?.volume = 0.0  // Also volume 0 for AirPods
+                    self.player?.play()
+                    self.isPlaying = true
+                    
+                    // Auto-hide controls after 3 seconds
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                        withAnimation {
+                            self.showControls = false
+                        }
+                    }
+                } else {
+                    print("TrailerInlinePlayer: Asset not playable or error loading: \(error?.localizedDescription ?? "Unknown error")")
+                }
             }
         }
     }
@@ -132,6 +191,26 @@ struct TrailerInlinePlayer: View {
         // Show controls temporarily
         withAnimation {
             showControls = true
+        }
+    }
+    
+    private func toggleMute() {
+        isMuted.toggle()
+        player?.isMuted = isMuted
+        player?.volume = isMuted ? 0.0 : 1.0  // Also control volume for AirPods compatibility
+        
+        // Show controls temporarily when toggling mute
+        withAnimation {
+            showControls = true
+        }
+        
+        // Hide controls after 3 seconds if playing
+        if isPlaying {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                withAnimation {
+                    showControls = false
+                }
+            }
         }
     }
     

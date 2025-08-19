@@ -371,6 +371,12 @@ public class MainActivity extends BaseActivity {
             binding.viewPager.setCurrentItem(3);
         }
     }
+    
+    public void navigateToTab(int tabPosition) {
+        if (binding.viewPager != null) {
+            binding.viewPager.setCurrentItem(tabPosition, false);
+        }
+    }
 
 
     private void initialization() {
@@ -391,7 +397,7 @@ public class MainActivity extends BaseActivity {
         updateBottomNavProfileAvatar();
 
         if (binding.btnTv != null) {
-            if (sessionManager.getAppSettings().getSettings().getLiveTvEnable() == 0) {
+            if (!sessionManager.getAppSettings().getSettings().getLiveTvEnable()) {
                 binding.btnTv.setVisibility(View.GONE);
                 // Also hide tablet TV button if it exists
                 if (DeviceUtils.isTabletLandscape(this)) {

@@ -252,24 +252,59 @@ class LiveTvController extends Controller
      */
     public function fetchLiveTVPageData(Request $request)
     {
+        // Simple direct query to get all categories
         $categories = TvCategory::all();
         
         $categoriesWithChannels = [];
+        
         foreach ($categories as $category) {
-            $channels = TvChannel::whereHas('categories', function($query) use ($category) {
-                $query->where('tv_category.tv_category_id', $category->tv_category_id);
-            })->get();
+            // Direct query to get channels for this category using the junction table
+            $channels = \DB::table('tv_channel')
+                ->join('tv_channel_category', 'tv_channel.tv_channel_id', '=', 'tv_channel_category.tv_channel_id')
+                ->where('tv_channel_category.tv_category_id', $category->tv_category_id)
+                ->select('tv_channel.*')
+                ->get();
             
             if ($channels->count() > 0) {
-                $category->channels = $channels;
-                $categoriesWithChannels[] = $category;
+                $categoryData = [
+                    'tv_category_id' => $category->tv_category_id,
+                    'id' => $category->tv_category_id, // Add id field for iOS compatibility
+                    'title' => $category->title,
+                    'image' => $category->image,
+                    'created_at' => $category->created_at,
+                    'updated_at' => $category->updated_at,
+                    'channels' => $channels->toArray()
+                ];
+                $categoriesWithChannels[] = $categoryData;
+            }
+        }
+        
+        // If still no categories with channels, get all channels as fallback
+        if (empty($categoriesWithChannels)) {
+            $allChannels = TvChannel::all();
+            if ($allChannels->count() > 0) {
+                $defaultCategory = [
+                    'tv_category_id' => 1,
+                    'id' => 1, // Add id field for iOS compatibility
+                    'title' => 'All Channels',
+                    'image' => '',
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                    'channels' => $allChannels->map(function($channel) {
+                        // Ensure each channel has an id field for iOS
+                        $channelData = $channel->toArray();
+                        $channelData['id'] = $channel->tv_channel_id;
+                        return $channelData;
+                    })->toArray()
+                ];
+                $categoriesWithChannels[] = $defaultCategory;
             }
         }
         
         return response()->json([
             'status' => true,
             'message' => 'Fetch Live TV Page Data Successfully',
-            'categories' => $categoriesWithChannels
+            'data' => $categoriesWithChannels
         ]);
     }
     
@@ -279,7 +314,7 @@ class LiveTvController extends Controller
     public function fetchTVChannelByCategory(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'tv_category_id' => 'required|integer|exists:tv_category,tv_category_id'
+            'tv_category_id' => 'required|integer'
         ]);
 
         if ($validator->fails()) {
@@ -289,14 +324,22 @@ class LiveTvController extends Controller
             ]);
         }
         
-        $channels = TvChannel::whereHas('categories', function($query) use ($request) {
-            $query->where('tv_category.tv_category_id', $request->tv_category_id);
-        })->get();
+        // First try to get channels by category relationship
+        $category = TvCategory::with('channels')->find($request->tv_category_id);
+        
+        if ($category && $category->channels) {
+            $channels = $category->channels;
+        } else {
+            // Fallback: get all channels if category not found or has no channels
+            $channels = TvChannel::all();
+        }
         
         return response()->json([
             'status' => true,
             'message' => 'Fetch TV Channel By Category Successfully',
-            'channels' => $channels
+            'data' => [
+                'channels' => $channels
+            ]
         ]);
     }
     

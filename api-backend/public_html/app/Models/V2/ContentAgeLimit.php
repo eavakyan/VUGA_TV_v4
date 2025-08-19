@@ -7,6 +7,9 @@ class ContentAgeLimit extends BaseModel
     protected $table = 'content_age_limit';
     protected $primaryKey = 'content_age_limit_id';
     
+    // This table only has created_at, not updated_at
+    const UPDATED_AT = null;
+    
     protected $fillable = [
         'content_id',
         'age_limit_id'

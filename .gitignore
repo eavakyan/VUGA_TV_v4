@@ -13,3 +13,11 @@ android-tv-app/app/build/
 /android-tv-app/app/build
 /android-tv-app/app/build
 /ios-mobile-app/Vuga.xcarchive
+/android-mobile-app/.gradle
+/android-mobile-app/.gradle
+
+*.apk
+/ios-mobile-app/Archives
+/server_backup_08172025
+
+server_backup_08172025.zip

@@ -66,7 +66,7 @@ struct HomeView: View {
                         
                         if vm.featured.isNotEmpty {
                             topBar
-                                .frame(height: UIScreen.main.bounds.width * 0.95 * 1.4)
+                                .frame(height: AdaptiveContentSizing.featuredContentHeight())
                         }
                         LazyVStack {
                             if vm.newReleases.isNotEmpty {
@@ -290,8 +290,8 @@ struct HomeView: View {
                     // Add haptic feedback
                     let impactFeedback = UIImpactFeedbackGenerator(style: .light)
                     impactFeedback.impactOccurred()
-                    // Navigate to Coming Soon view for Live TV
-                    Navigation.pushToSwiftUiView(ComingSoonView(title: "Live TV"))
+                    // Navigate to Live TV view
+                    Navigation.pushToSwiftUiView(LiveTVsView())
                 }
                     
             // Categories button with menu
@@ -730,11 +730,15 @@ struct HomeView: View {
     
     private var featuredContentTabView: some View {
         GeometryReader { geometry in
+            let contentSize = AdaptiveContentSizing.featuredContentSize(for: geometry)
+            
             ZStack {
                 ForEach(0..<vm.featured.count, id: \.self) { index in
                     featuredContentCard(feature: vm.featured[index])
-                        .frame(width: geometry.size.width * 0.95, height: geometry.size.height * 0.9)
-                        .offset(x: CGFloat(index - vm.selectedImageIndex) * geometry.size.width)
+                        .frame(width: contentSize.width, height: contentSize.height)
+                        .position(x: geometry.size.width / 2, y: geometry.size.height / 2) // Center the poster
+                        .offset(x: CGFloat(index - vm.selectedImageIndex) * geometry.size.width) // Move full width for each poster
+                        .opacity(index == vm.selectedImageIndex ? 1.0 : 0.0) // Only show current poster
                         .animation(.easeInOut(duration: 0.6), value: vm.selectedImageIndex)
                 }
             }
@@ -746,7 +750,7 @@ struct HomeView: View {
                     .onEnded { value in
                         // Only respond to horizontal gestures
                         if abs(value.translation.width) > abs(value.translation.height) {
-                            let threshold = geometry.size.width * 0.2
+                            let threshold = contentSize.width * 0.2
                             withAnimation(.easeInOut(duration: 0.6)) {
                                 if value.translation.width > threshold && vm.selectedImageIndex > 0 {
                                     vm.selectedImageIndex -= 1
@@ -758,60 +762,28 @@ struct HomeView: View {
                     }
             )
         }
-        .frame(height: UIScreen.main.bounds.width * 0.95 * 1.5) // 95% width with 2:3 aspect ratio
+        .frame(height: AdaptiveContentSizing.featuredContentHeight())
     }
     
     private func featuredContentCard(feature: VugaContent) -> some View {
         GeometryReader { geometry in
             ZStack {
-                // Extended background with blurred edges
-                HStack(spacing: 0) {
-                    // Left edge extension
-                    featuredPosterImage(feature: feature)
-                        .frame(width: 20)
-                        .blur(radius: 20)
-                        .scaleEffect(1.2)
-                        .clipped()
-                    
-                    // Main poster image
-                    featuredPosterImage(feature: feature)
-                        .frame(width: geometry.size.width - 40, height: geometry.size.height)
-                        .clipped()
-                    
-                    // Right edge extension
-                    featuredPosterImage(feature: feature)
-                        .frame(width: 20)
-                        .blur(radius: 20)
-                        .scaleEffect(1.2)
-                        .clipped()
-                }
-                .frame(width: geometry.size.width, height: geometry.size.height)
-                .contentShape(Rectangle())
-                .onTapGesture {
-                    // Navigate to content detail when poster is tapped
-                    Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id ?? 0))
-                }
+                // Background shadow/glow effect
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color.black.opacity(0.2))
+                    .blur(radius: 10)
+                    .scaleEffect(0.95)
                 
-                // Enhanced gradient overlay for better edge blending
-                HStack(spacing: 0) {
-                    LinearGradient(
-                        colors: [.black.opacity(0.6), .clear],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: 30)
-                    
-                    Color.clear
-                        .frame(width: geometry.size.width - 60)
-                    
-                    LinearGradient(
-                        colors: [.clear, .black.opacity(0.6)],
-                        startPoint: .leading,
-                        endPoint: .trailing
-                    )
-                    .frame(width: 30)
-                }
-                .allowsHitTesting(false)
+                // Single full poster image, properly scaled to fit
+                featuredPosterImage(feature: feature)
+                    .frame(width: geometry.size.width, height: geometry.size.height)
+                    .cornerRadius(12)
+                    .shadow(color: .black.opacity(0.3), radius: 10, x: 0, y: 5)
+                    .contentShape(Rectangle())
+                    .onTapGesture {
+                        // Navigate to content detail when poster is tapped
+                        Navigation.pushToSwiftUiView(ContentDetailView(homeVm: vm, contentId: feature.id ?? 0))
+                    }
                 
                 // Gradient overlay for better text visibility
                 LinearGradient(
@@ -825,34 +797,35 @@ struct HomeView: View {
                 VStack(spacing: 12) {
                     Spacer()
                     
-                    // Title
+                    // Title with adaptive sizing
+                    let fontSizes = AdaptiveContentSizing.featuredContentFontSizes()
                     Text(feature.title ?? "")
-                        .outfitBold(20)
+                        .outfitBold(fontSizes.title)
                         .foregroundColor(.white)
                         .lineLimit(2)
                         .multilineTextAlignment(.center)
                         .shadow(color: .black.opacity(0.8), radius: 4, x: 0, y: 2)
                     
-                    // Action buttons
-                    HStack(spacing: 10) {
+                    // Action buttons with adaptive sizing
+                    HStack(spacing: AdaptiveContentSizing.isIPad ? 15 : 10) {
                         // WATCH NOW button
                         Button(action: {
                             handlePlayAction(feature: feature)
                         }) {
                             HStack(spacing: 6) {
                                 Image(systemName: "play.fill")
-                                    .font(.system(size: 14))
+                                    .font(.system(size: fontSizes.subtitle - 2))
                                 Text("WATCH NOW")
-                                    .outfitSemiBold(15)
+                                    .outfitSemiBold(fontSizes.subtitle)
                                     .tracking(0.5)
                             }
                             .foregroundColor(Color.gray.opacity(0.9))
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
+                            .padding(.vertical, AdaptiveContentSizing.isIPad ? 14 : 12)
                             .background(Color.white)
                             .clipShape(Capsule())
                         }
-                        .frame(width: geometry.size.width * 0.45)
+                        .frame(width: AdaptiveContentSizing.isIPad ? min(geometry.size.width * 0.35, 200) : geometry.size.width * 0.45)
                         
                         // + MY LIST button
                         Button(action: {
@@ -860,14 +833,14 @@ struct HomeView: View {
                         }) {
                             HStack(spacing: 6) {
                                 Image(systemName: isInWatchlist(contentId: feature.id ?? 0) ? "checkmark" : "plus")
-                                    .font(.system(size: 14, weight: .bold))
+                                    .font(.system(size: fontSizes.subtitle - 2, weight: .bold))
                                 Text("MY LIST")
-                                    .outfitSemiBold(15)
+                                    .outfitSemiBold(fontSizes.subtitle)
                                     .tracking(0.5)
                             }
                             .foregroundColor(.white)
                             .frame(maxWidth: .infinity)
-                            .padding(.vertical, 12)
+                            .padding(.vertical, AdaptiveContentSizing.isIPad ? 14 : 12)
                             .background(Color.gray.opacity(0.3))
                             .overlay(
                                 Capsule()
@@ -875,7 +848,7 @@ struct HomeView: View {
                             )
                             .clipShape(Capsule())
                         }
-                        .frame(width: geometry.size.width * 0.45)
+                        .frame(width: AdaptiveContentSizing.isIPad ? min(geometry.size.width * 0.35, 200) : geometry.size.width * 0.45)
                     }
                     
                     Spacer().frame(height: 20)
@@ -890,8 +863,7 @@ struct HomeView: View {
     private func featuredPosterImage(feature: VugaContent) -> some View {
         KFImage(feature.verticalPoster?.addBaseURL() ?? feature.horizontalPoster?.addBaseURL())
             .resizable()
-            .aspectRatio(contentMode: .fill)
-            .clipped()
+            .aspectRatio(contentMode: .fit) // Changed to .fit to show full poster
     }
     
     private func handlePlayAction(feature: VugaContent) {

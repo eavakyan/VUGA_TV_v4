@@ -3,12 +3,11 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Content;
-use App\Models\ContentGenre;
-use App\Models\Genre;
-use App\Models\AppLanguage;
-use App\Models\ContentAgeLimit;
-use App\Models\AgeLimit;
+use App\Models\V2\Content;
+use App\Models\V2\Genre;
+use App\Models\V2\AppLanguage;
+use App\Models\V2\ContentAgeLimit;
+use App\Models\V2\AgeLimit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -165,7 +164,6 @@ class CsvImportController extends Controller
             'release_year' => (int)$row['release_year'],
             'ratings' => !empty($row['ratings']) ? (float)$row['ratings'] : 0,
             'language_id' => $language->app_language_id,
-            'trailer_url' => !empty($row['trailer_url']) ? trim($row['trailer_url']) : null,
             'vertical_poster' => !empty($row['vertical_poster']) ? trim($row['vertical_poster']) : null,
             'horizontal_poster' => !empty($row['horizontal_poster']) ? trim($row['horizontal_poster']) : null,
             'genre_ids' => '', // Will be updated below
@@ -173,8 +171,31 @@ class CsvImportController extends Controller
             'is_show' => 1,
             'total_view' => 0,
             'total_download' => 0,
-            'total_share' => 0
+            'total_share' => 0,
+            'content_distributor_id' => null // Default to null for legacy content
         ]);
+        
+        // Add trailer if provided
+        if (!empty($row['trailer_url'])) {
+            $trailerUrl = trim($row['trailer_url']);
+            $youtubeId = null;
+            
+            // Extract YouTube ID if it's a YouTube URL
+            if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/', $trailerUrl, $matches)) {
+                $youtubeId = $matches[1];
+            }
+            
+            DB::table('content_trailer')->insert([
+                'content_id' => $content->content_id,
+                'title' => 'Official Trailer',
+                'youtube_id' => $youtubeId,
+                'trailer_url' => $trailerUrl,
+                'is_primary' => 1,
+                'sort_order' => 0,
+                'created_at' => now(),
+                'updated_at' => now()
+            ]);
+        }
         
         // Process genres
         if (!empty($row['genres'])) {
@@ -188,7 +209,7 @@ class CsvImportController extends Controller
                 $genreIds[] = $genre->genre_id;
                 
                 // Create content_genre relationship
-                ContentGenre::firstOrCreate([
+                DB::table('content_genre')->insertOrIgnore([
                     'content_id' => $content->content_id,
                     'genre_id' => $genre->genre_id
                 ]);
@@ -200,12 +221,15 @@ class CsvImportController extends Controller
         
         // Process age limits if provided
         if (!empty($row['age_rating'])) {
-            $ageLimit = AgeLimit::where('description', 'LIKE', '%' . trim($row['age_rating']) . '%')->first();
+            $ageLimit = AgeLimit::where('description', 'LIKE', '%' . trim($row['age_rating']) . '%')
+                ->orWhere('code', trim($row['age_rating']))
+                ->first();
             
             if ($ageLimit) {
-                ContentAgeLimit::create([
+                DB::table('content_age_limit')->insertOrIgnore([
                     'content_id' => $content->content_id,
-                    'age_limit_id' => $ageLimit->age_limit_id
+                    'age_limit_id' => $ageLimit->age_limit_id,
+                    'created_at' => now()
                 ]);
             }
         }

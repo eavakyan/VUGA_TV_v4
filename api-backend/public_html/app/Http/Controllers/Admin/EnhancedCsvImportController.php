@@ -3,14 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Content;
-use App\Models\ContentGenre;
-use App\Models\Genre;
-use App\Models\AppLanguage;
-use App\Models\ContentAgeLimit;
-use App\Models\AgeLimit;
-use App\Models\ContentSource;
-use App\Models\ContentTrailer;
+use App\Models\V2\Content;
+use App\Models\V2\Genre;
+use App\Models\V2\AppLanguage;
+use App\Models\V2\ContentAgeLimit;
+use App\Models\V2\AgeLimit;
+use App\Models\V2\ContentSource;
+use App\Models\V2\ContentTrailer;
 use App\Models\V2\Actor;
 use App\Models\V2\ContentCast;
 use Illuminate\Http\Request;
@@ -251,7 +250,7 @@ class EnhancedCsvImportController extends Controller
                 $genreIds[] = $genre->genre_id;
                 
                 // Create content_genre relationship
-                ContentGenre::firstOrCreate([
+                DB::table('content_genre')->insertOrIgnore([
                     'content_id' => $content->content_id,
                     'genre_id' => $genre->genre_id
                 ]);
@@ -410,9 +409,10 @@ class EnhancedCsvImportController extends Controller
             ->first();
         
         if ($ageLimit) {
-            ContentAgeLimit::create([
+            DB::table('content_age_limit')->insertOrIgnore([
                 'content_id' => $content->content_id,
-                'age_limit_id' => $ageLimit->age_limit_id
+                'age_limit_id' => $ageLimit->age_limit_id,
+                'created_at' => now()
             ]);
         }
     }

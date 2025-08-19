@@ -18,6 +18,8 @@ struct TrailerPlayerView: View {
     @State private var isYouTubeUrl = false
     @State private var youTubeVideoId: String?
     @State private var effectiveTrailerUrl: String = ""
+    @State private var player: AVPlayer?
+    @State private var isLoading = true
     
     // Multiple initializers for different use cases
     init(content: VugaContent) {
@@ -46,10 +48,15 @@ struct TrailerPlayerView: View {
                 // YouTube player using WebView
                 YouTubeWebView(videoId: videoId)
                     .edgesIgnoringSafeArea(.all)
-            } else if !effectiveTrailerUrl.isEmpty {
+            } else if let player = player {
                 // Regular video player for CDN URLs
-                VideoPlayer(player: AVPlayer(url: URL(string: effectiveTrailerUrl)!))
+                VideoPlayer(player: player)
                     .edgesIgnoringSafeArea(.all)
+            } else if isLoading && !effectiveTrailerUrl.isEmpty {
+                // Loading state
+                ProgressView()
+                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                    .scaleEffect(1.5)
             } else {
                 // No trailer available
                 VStack {
@@ -84,6 +91,9 @@ struct TrailerPlayerView: View {
         .onAppear {
             setupTrailerUrl()
             analyzeTrailerUrl()
+            if !isYouTubeUrl && !effectiveTrailerUrl.isEmpty {
+                setupVideoPlayer()
+            }
         }
     }
     
@@ -105,6 +115,7 @@ struct TrailerPlayerView: View {
         // Check if it's a YouTube URL
         if effectiveTrailerUrl.contains("youtube.com") || effectiveTrailerUrl.contains("youtu.be") || effectiveTrailerUrl.contains("youtube-nocookie.com") {
             isYouTubeUrl = true
+            isLoading = false
             // Try to get YouTube ID from trailer object first
             if let trailer = specificTrailer, !trailer.effectiveYoutubeId.isEmpty {
                 youTubeVideoId = trailer.effectiveYoutubeId
@@ -115,6 +126,34 @@ struct TrailerPlayerView: View {
             }
         } else {
             isYouTubeUrl = false
+        }
+    }
+    
+    private func setupVideoPlayer() {
+        guard let url = URL(string: effectiveTrailerUrl) else {
+            isLoading = false
+            return
+        }
+        
+        // Load asset asynchronously to avoid blocking main thread
+        let asset = AVURLAsset(url: url)
+        let keys = ["playable", "hasProtectedContent"]
+        
+        asset.loadValuesAsynchronously(forKeys: keys) {
+            var error: NSError?
+            let status = asset.statusOfValue(forKey: "playable", error: &error)
+            
+            DispatchQueue.main.async {
+                if status == .loaded && asset.isPlayable {
+                    let playerItem = AVPlayerItem(asset: asset)
+                    self.player = AVPlayer(playerItem: playerItem)
+                    self.player?.play() // Auto-play trailer
+                    self.isLoading = false
+                } else {
+                    print("TrailerPlayerView: Asset not playable or error loading")
+                    self.isLoading = false
+                }
+            }
         }
     }
     

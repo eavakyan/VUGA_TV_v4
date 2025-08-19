@@ -22,7 +22,8 @@ class Content extends BaseModel
         'is_show',
         'total_view',
         'total_download',
-        'total_share'
+        'total_share',
+        'content_distributor_id'
     ];
     
     protected $casts = [

@@ -581,6 +581,11 @@ public class HomeFragment extends BaseFragment {
     }
     
     private void setupHorizontalCategoryList() {
+        if (horizontalCategoryAdapter == null) {
+            Log.e("HomeFragment", "horizontalCategoryAdapter is null in setupHorizontalCategoryList!");
+            return;
+        }
+        
         // Set category click listener
         horizontalCategoryAdapter.setOnCategoryClickListener((genre, position) -> {
             // Navigate to category detail view
@@ -588,6 +593,61 @@ public class HomeFragment extends BaseFragment {
             intent.putExtra(Const.DataKey.DATA, new Gson().toJson(genre));
             startActivity(intent);
         });
+        
+        // Set static item click listener
+        horizontalCategoryAdapter.setOnStaticItemClickListener(itemType -> {
+            Log.d("HomeFragment", "Static item clicked: " + itemType);
+            switch (itemType) {
+                case "tv_shows":
+                    // Filter content to show only TV shows
+                    filterContentByType("tv_shows");
+                    break;
+                case "movies":
+                    // Filter content to show only movies
+                    filterContentByType("movies");
+                    break;
+                case "live_tv":
+                    // Navigate to Live TV fragment
+                    Log.d("HomeFragment", "Navigating to Live TV");
+                    navigateToLiveTv();
+                    break;
+            }
+        });
+        
+        Log.d("HomeFragment", "Static item listener set successfully");
+    }
+    
+    private void navigateToLiveTv() {
+        // Get the MainActivity and switch to Live TV tab (position 2)
+        Log.d("HomeFragment", "navigateToLiveTv called");
+        try {
+            // Try to get the ViewPager2 directly from the parent activity
+            if (getActivity() != null && getActivity().findViewById(R.id.viewPager) != null) {
+                Log.d("HomeFragment", "Found viewPager, switching to tab 2");
+                androidx.viewpager2.widget.ViewPager2 viewPager = getActivity().findViewById(R.id.viewPager);
+                viewPager.setCurrentItem(2, false); // Live TV is at position 2
+                Log.d("HomeFragment", "Successfully switched to Live TV tab");
+            } else {
+                Log.d("HomeFragment", "Could not find viewPager");
+                // Fallback: try MainActivity approach
+                if (getActivity() instanceof MainActivity) {
+                    Log.d("HomeFragment", "Using MainActivity fallback");
+                    MainActivity mainActivity = (MainActivity) getActivity();
+                    mainActivity.navigateToTab(2);
+                }
+            }
+        } catch (Exception e) {
+            Log.e("HomeFragment", "Error navigating to Live TV: " + e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+    
+    private void filterContentByType(String contentType) {
+        // This will filter the home content based on type
+        // You can implement specific filtering logic here if needed
+        selectedFilter = contentType.equals("tv_shows") ? "TV Shows" : "Movies";
+        // Refresh the content based on the filter
+        getHomePageData();
     }
     
     private void setupCategoryDropdown() {

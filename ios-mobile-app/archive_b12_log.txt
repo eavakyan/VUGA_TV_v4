@@ -1,0 +1,596 @@
+Command line invocation:
+    /Applications/Xcode.app/Contents/Developer/usr/bin/xcodebuild archive -workspace Vuga.xcworkspace -scheme Vuga -configuration Release -archivePath Archives/Vuga_v2.0_b12.xcarchive -destination generic/platform=iOS DEVELOPMENT_TEAM=39Z92MFKA3 CODE_SIGN_STYLE=Automatic
+
+Build settings from command line:
+    CODE_SIGN_STYLE = Automatic
+    DEVELOPMENT_TEAM = 39Z92MFKA3
+
+Resolve Package Graph
+
+
+Resolved source packages:
+  Sliders: https://github.com/spacenation/swiftui-sliders @ 2.1.0
+  Firebase: https://github.com/firebase/firebase-ios-sdk.git @ 11.15.0
+  DSFRegex: https://github.com/dagronf/DSFRegex @ 3.4.0
+  GoogleUserMessagingPlatform: https://github.com/googleads/swift-package-manager-google-user-messaging-platform.git @ 2.7.0
+  TinyCSV: https://github.com/dagronf/TinyCSV @ 1.0.1
+  YouTubePlayerKit: https://github.com/SvenTiigi/YouTubePlayerKit.git @ 1.9.0
+  SwiftUI-Shimmer: https://github.com/markiv/SwiftUI-Shimmer @ 1.5.1
+  AppAuth: https://github.com/openid/AppAuth-iOS.git @ 1.7.6
+  BranchSDK: https://github.com/BranchMetrics/ios-branch-deep-linking @ 3.12.2
+  gRPC: https://github.com/google/grpc-binary.git @ 1.69.0
+  WrappingStack: https://github.com/diniska/swiftui-wrapping-stack @ 1.1.0
+  GoogleDataTransport: https://github.com/google/GoogleDataTransport.git @ 10.1.0
+  GoogleSignIn: https://github.com/google/GoogleSignIn-iOS @ 7.1.0
+  GTMSessionFetcher: https://github.com/google/gtm-session-fetcher.git @ 3.5.0
+  ScalingHeaderScrollView: https://github.com/exyte/ScalingHeaderScrollView @ 1.1.7
+  Alamofire: https://github.com/Alamofire/Alamofire @ 5.10.2
+  nanopb: https://github.com/firebase/nanopb.git @ 2.30910.0
+  GSPlayer: https://github.com/wxxsw/GSPlayer.git @ 0.2.29
+  RevenueCat: https://github.com/RevenueCat/purchases-ios.git @ 4.43.7
+  GoogleAdsOnDeviceConversion: https://github.com/googleads/google-ads-on-device-conversion-ios-sdk @ 2.2.1
+  SwiftProtobuf: https://github.com/apple/swift-protobuf.git @ 1.30.0
+  AppCheck: https://github.com/google/app-check.git @ 11.2.0
+  WindowSceneReader: https://github.com/divadretlaw/WindowSceneReader.git @ 3.2.0
+  leveldb: https://github.com/firebase/leveldb.git @ 1.22.5
+  InteropForGoogle: https://github.com/google/interop-ios-for-google-sdks.git @ 101.0.0
+  abseil: https://github.com/google/abseil-cpp-binary.git @ 1.2024072200.0
+  Kingfisher: https://github.com/onevcat/Kingfisher @ 7.12.0
+  ExpandableText: https://github.com/n3d1117/ExpandableText @ main (2b0dd2f)
+  WindowReader: https://github.com/divadretlaw/WindowReader @ 3.0.0
+  VideoPlayer: https://github.com/wxxsw/VideoPlayer @ 1.2.5
+  Lottie: https://github.com/airbnb/lottie-ios @ 4.5.2
+  GoogleUtilities: https://github.com/google/GoogleUtilities.git @ 8.1.0
+  Marquee: https://github.com/stonko1994/Marquee @ 1.0.1
+  GTMAppAuth: https://github.com/google/GTMAppAuth.git @ 4.1.1
+  Promises: https://github.com/google/promises.git @ 2.4.0
+  SwiftSubtitles: https://github.com/dagronf/SwiftSubtitles @ 1.9.0
+  Flow: https://github.com/tevelee/SwiftUI-Flow @ 1.7.0
+  GoogleAppMeasurement: https://github.com/google/GoogleAppMeasurement.git @ 11.15.0
+  swiftui-introspect: https://github.com/siteline/swiftui-introspect @ 1.3.0
+  GoogleMobileAds: https://github.com/googleads/swift-package-manager-google-mobile-ads.git @ 11.13.0
+
+ComputePackagePrebuildTargetDependencyGraph
+
+Prepare packages
+
+CreateBuildRequest
+
+SendProjectDescription
+
+CreateBuildOperation
+
+ComputeTargetDependencyGraph
+note: Building targets in dependency order
+note: Target dependency graph (139 targets)
+    Target 'Vuga' in project 'Vuga'
+        ➜ Explicit dependency on target 'liveActivityExtension' in project 'Vuga'
+        ➜ Implicit dependency on target 'Pods-Vuga' in project 'Pods' via file 'Pods_Vuga.framework' in build phase 'Link Binary'
+        ➜ Implicit dependency on target 'AFNetworking' in project 'Pods' via options '-framework AFNetworking' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'CocoaAsyncSocket' in project 'Pods' via options '-framework CocoaAsyncSocket' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'CocoaUPnP' in project 'Pods' via options '-framework CocoaUPnP' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'GCDWebServer' in project 'Pods' via options '-framework GCDWebServer' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'Ono' in project 'Pods' via options '-framework Ono' in build setting 'OTHER_LDFLAGS'
+        ➜ Implicit dependency on target 'Protobuf' in project 'Pods' via options '-framework Protobuf' in build setting 'OTHER_LDFLAGS'
+        ➜ Explicit dependency on target 'Flow' in project 'Flow'
+        ➜ Explicit dependency on target 'WrappingStack' in project 'WrappingStack'
+        ➜ Explicit dependency on target 'FirebaseMessaging' in project 'Firebase'
+        ➜ Explicit dependency on target 'Sliders' in project 'Sliders'
+        ➜ Explicit dependency on target 'YouTubePlayerKit' in project 'YouTubePlayerKit'
+        ➜ Explicit dependency on target 'Alamofire' in project 'Alamofire'
+        ➜ Explicit dependency on target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'BranchSDK' in project 'BranchSDK'
+        ➜ Explicit dependency on target 'FirebaseAuth' in project 'Firebase'
+        ➜ Explicit dependency on target 'GoogleSignInSwift' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'ScalingHeaderScrollView' in project 'ScalingHeaderScrollView'
+        ➜ Explicit dependency on target 'Lottie' in project 'Lottie'
+        ➜ Explicit dependency on target 'RevenueCatUI' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'ExpandableText' in project 'ExpandableText'
+        ➜ Explicit dependency on target 'VideoPlayer' in project 'VideoPlayer'
+        ➜ Explicit dependency on target 'Shimmer' in project 'SwiftUI-Shimmer'
+        ➜ Explicit dependency on target 'WindowSceneReader' in project 'WindowSceneReader'
+        ➜ Explicit dependency on target 'SwiftSubtitles' in project 'SwiftSubtitles'
+        ➜ Explicit dependency on target 'GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'Marquee' in project 'Marquee'
+        ➜ Explicit dependency on target 'GoogleMobileAds' in project 'GoogleMobileAds'
+    Target 'GoogleMobileAds' in project 'GoogleMobileAds'
+        ➜ Explicit dependency on target 'GoogleMobileAdsTarget' in project 'GoogleMobileAds'
+        ➜ Explicit dependency on target 'GoogleUserMessagingPlatform' in project 'GoogleUserMessagingPlatform'
+    Target 'GoogleMobileAdsTarget' in project 'GoogleMobileAds'
+        ➜ Explicit dependency on target 'GoogleUserMessagingPlatform' in project 'GoogleUserMessagingPlatform'
+    Target 'GoogleUserMessagingPlatform' in project 'GoogleUserMessagingPlatform'
+        ➜ Explicit dependency on target 'UserMessagingPlatformTarget' in project 'GoogleUserMessagingPlatform'
+    Target 'UserMessagingPlatformTarget' in project 'GoogleUserMessagingPlatform' (no dependencies)
+    Target 'Marquee' in project 'Marquee'
+        ➜ Explicit dependency on target 'Marquee' in project 'Marquee'
+    Target 'Marquee' in project 'Marquee' (no dependencies)
+    Target 'GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignIn_GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'SwiftSubtitles' in project 'SwiftSubtitles'
+        ➜ Explicit dependency on target 'SwiftSubtitles' in project 'SwiftSubtitles'
+        ➜ Explicit dependency on target 'SwiftSubtitles_SwiftSubtitles' in project 'SwiftSubtitles'
+        ➜ Explicit dependency on target 'DSFRegex' in project 'DSFRegex'
+        ➜ Explicit dependency on target 'TinyCSV' in project 'TinyCSV'
+    Target 'SwiftSubtitles' in project 'SwiftSubtitles'
+        ➜ Explicit dependency on target 'SwiftSubtitles_SwiftSubtitles' in project 'SwiftSubtitles'
+        ➜ Explicit dependency on target 'DSFRegex' in project 'DSFRegex'
+        ➜ Explicit dependency on target 'TinyCSV' in project 'TinyCSV'
+    Target 'TinyCSV' in project 'TinyCSV'
+        ➜ Explicit dependency on target 'TinyCSV' in project 'TinyCSV'
+        ➜ Explicit dependency on target 'TinyCSV_TinyCSV' in project 'TinyCSV'
+    Target 'TinyCSV' in project 'TinyCSV'
+        ➜ Explicit dependency on target 'TinyCSV_TinyCSV' in project 'TinyCSV'
+    Target 'TinyCSV_TinyCSV' in project 'TinyCSV' (no dependencies)
+    Target 'DSFRegex' in project 'DSFRegex'
+        ➜ Explicit dependency on target 'DSFRegex' in project 'DSFRegex'
+        ➜ Explicit dependency on target 'DSFRegex_DSFRegex' in project 'DSFRegex'
+    Target 'DSFRegex' in project 'DSFRegex'
+        ➜ Explicit dependency on target 'DSFRegex_DSFRegex' in project 'DSFRegex'
+    Target 'DSFRegex_DSFRegex' in project 'DSFRegex' (no dependencies)
+    Target 'SwiftSubtitles_SwiftSubtitles' in project 'SwiftSubtitles' (no dependencies)
+    Target 'WindowSceneReader' in project 'WindowSceneReader'
+        ➜ Explicit dependency on target 'WindowSceneReader' in project 'WindowSceneReader'
+        ➜ Explicit dependency on target 'WindowReader' in project 'WindowReader'
+    Target 'WindowSceneReader' in project 'WindowSceneReader'
+        ➜ Explicit dependency on target 'WindowReader' in project 'WindowReader'
+    Target 'WindowReader' in project 'WindowReader'
+        ➜ Explicit dependency on target 'WindowReader' in project 'WindowReader'
+    Target 'WindowReader' in project 'WindowReader' (no dependencies)
+    Target 'Shimmer' in project 'SwiftUI-Shimmer'
+        ➜ Explicit dependency on target 'Shimmer' in project 'SwiftUI-Shimmer'
+    Target 'Shimmer' in project 'SwiftUI-Shimmer' (no dependencies)
+    Target 'VideoPlayer' in project 'VideoPlayer'
+        ➜ Explicit dependency on target 'VideoPlayer' in project 'VideoPlayer'
+        ➜ Explicit dependency on target 'GSPlayer' in project 'GSPlayer'
+    Target 'VideoPlayer' in project 'VideoPlayer'
+        ➜ Explicit dependency on target 'GSPlayer' in project 'GSPlayer'
+    Target 'GSPlayer' in project 'GSPlayer'
+        ➜ Explicit dependency on target 'GSPlayer' in project 'GSPlayer'
+    Target 'GSPlayer' in project 'GSPlayer' (no dependencies)
+    Target 'ExpandableText' in project 'ExpandableText'
+        ➜ Explicit dependency on target 'ExpandableText' in project 'ExpandableText'
+    Target 'ExpandableText' in project 'ExpandableText' (no dependencies)
+    Target 'RevenueCatUI' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCatUI' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat_RevenueCatUI' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat' in project 'RevenueCat'
+    Target 'RevenueCatUI' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat_RevenueCatUI' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat' in project 'RevenueCat'
+    Target 'RevenueCat_RevenueCatUI' in project 'RevenueCat' (no dependencies)
+    Target 'ScalingHeaderScrollView' in project 'ScalingHeaderScrollView'
+        ➜ Explicit dependency on target 'ScalingHeaderScrollView' in project 'ScalingHeaderScrollView'
+        ➜ Explicit dependency on target 'SwiftUIIntrospect' in project 'swiftui-introspect'
+    Target 'ScalingHeaderScrollView' in project 'ScalingHeaderScrollView'
+        ➜ Explicit dependency on target 'SwiftUIIntrospect' in project 'swiftui-introspect'
+    Target 'SwiftUIIntrospect' in project 'swiftui-introspect'
+        ➜ Explicit dependency on target 'SwiftUIIntrospect' in project 'swiftui-introspect'
+    Target 'SwiftUIIntrospect' in project 'swiftui-introspect' (no dependencies)
+    Target 'GoogleSignInSwift' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignInSwift' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignIn_GoogleSignInSwift' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'GoogleSignInSwift' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignIn_GoogleSignInSwift' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'GoogleSignIn_GoogleSignIn' in project 'GoogleSignIn'
+        ➜ Explicit dependency on target 'AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMAppAuth_GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+        ➜ Explicit dependency on target 'AppAuthCore' in project 'AppAuth'
+    Target 'GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMAppAuth_GTMAppAuth' in project 'GTMAppAuth'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+        ➜ Explicit dependency on target 'AppAuthCore' in project 'AppAuth'
+    Target 'AppAuthCore' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuthCore' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuth_AppAuthCore' in project 'AppAuth'
+    Target 'GTMAppAuth_GTMAppAuth' in project 'GTMAppAuth' (no dependencies)
+    Target 'AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuth_AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuthCore' in project 'AppAuth'
+    Target 'AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuth_AppAuth' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuthCore' in project 'AppAuth'
+    Target 'AppAuthCore' in project 'AppAuth'
+        ➜ Explicit dependency on target 'AppAuth_AppAuthCore' in project 'AppAuth'
+    Target 'AppAuth_AppAuthCore' in project 'AppAuth' (no dependencies)
+    Target 'AppAuth_AppAuth' in project 'AppAuth' (no dependencies)
+    Target 'GoogleSignIn_GoogleSignIn' in project 'GoogleSignIn' (no dependencies)
+    Target 'GoogleSignIn_GoogleSignInSwift' in project 'GoogleSignIn' (no dependencies)
+    Target 'FirebaseAuth' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAuth' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseAuth' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAuthInterop' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAuthInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Firebase'
+        ➜ Explicit dependency on target 'RecaptchaInterop' in project 'InteropForGoogle'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'FirebaseAuth' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseAuth' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAppCheckInterop' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAuthInterop' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseAuthInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreExtension' in project 'Firebase'
+        ➜ Explicit dependency on target 'RecaptchaInterop' in project 'InteropForGoogle'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+        ➜ Explicit dependency on target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+        ➜ Explicit dependency on target 'GTMSessionFetcher_GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+        ➜ Explicit dependency on target 'GTMSessionFetcher_GTMSessionFetcherCore' in project 'GTMSessionFetcher'
+    Target 'GTMSessionFetcher_GTMSessionFetcherCore' in project 'GTMSessionFetcher' (no dependencies)
+    Target 'FirebaseCoreExtension' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCoreExtension' in project 'Firebase'
+    Target 'Firebase_FirebaseCoreExtension' in project 'Firebase' (no dependencies)
+    Target 'FirebaseAuthInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'RecaptchaInterop' in project 'InteropForGoogle'
+    Target 'RecaptchaInterop' in project 'InteropForGoogle'
+        ➜ Explicit dependency on target 'RecaptchaInterop' in project 'InteropForGoogle'
+    Target 'RecaptchaInterop' in project 'InteropForGoogle' (no dependencies)
+    Target 'FirebaseAuthInterop' in project 'Firebase' (no dependencies)
+    Target 'FirebaseAppCheckInterop' in project 'Firebase' (no dependencies)
+    Target 'Firebase_FirebaseAuth' in project 'Firebase' (no dependencies)
+    Target 'BranchSDK' in project 'BranchSDK'
+        ➜ Explicit dependency on target 'BranchSDK' in project 'BranchSDK'
+        ➜ Explicit dependency on target 'BranchSDK_BranchSDK' in project 'BranchSDK'
+    Target 'BranchSDK' in project 'BranchSDK'
+        ➜ Explicit dependency on target 'BranchSDK_BranchSDK' in project 'BranchSDK'
+    Target 'BranchSDK_BranchSDK' in project 'BranchSDK' (no dependencies)
+    Target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat_RevenueCat' in project 'RevenueCat'
+    Target 'RevenueCat' in project 'RevenueCat'
+        ➜ Explicit dependency on target 'RevenueCat_RevenueCat' in project 'RevenueCat'
+    Target 'RevenueCat_RevenueCat' in project 'RevenueCat' (no dependencies)
+    Target 'Alamofire' in project 'Alamofire'
+        ➜ Explicit dependency on target 'Alamofire' in project 'Alamofire'
+        ➜ Explicit dependency on target 'Alamofire_Alamofire' in project 'Alamofire'
+    Target 'Alamofire' in project 'Alamofire'
+        ➜ Explicit dependency on target 'Alamofire_Alamofire' in project 'Alamofire'
+    Target 'Alamofire_Alamofire' in project 'Alamofire' (no dependencies)
+    Target 'YouTubePlayerKit' in project 'YouTubePlayerKit'
+        ➜ Explicit dependency on target 'YouTubePlayerKit' in project 'YouTubePlayerKit'
+        ➜ Explicit dependency on target 'YouTubePlayerKit_YouTubePlayerKit' in project 'YouTubePlayerKit'
+    Target 'YouTubePlayerKit' in project 'YouTubePlayerKit'
+        ➜ Explicit dependency on target 'YouTubePlayerKit_YouTubePlayerKit' in project 'YouTubePlayerKit'
+    Target 'YouTubePlayerKit_YouTubePlayerKit' in project 'YouTubePlayerKit' (no dependencies)
+    Target 'Sliders' in project 'Sliders'
+        ➜ Explicit dependency on target 'Sliders' in project 'Sliders'
+    Target 'Sliders' in project 'Sliders' (no dependencies)
+    Target 'FirebaseMessaging' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseMessaging' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseMessaging' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULReachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'GoogleDataTransport'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+    Target 'FirebaseMessaging' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseMessaging' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULReachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'GoogleDataTransport'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+    Target 'GoogleDataTransport' in project 'GoogleDataTransport'
+        ➜ Explicit dependency on target 'GoogleDataTransport' in project 'GoogleDataTransport'
+        ➜ Explicit dependency on target 'GoogleDataTransport_GoogleDataTransport' in project 'GoogleDataTransport'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+    Target 'GoogleDataTransport' in project 'GoogleDataTransport'
+        ➜ Explicit dependency on target 'GoogleDataTransport_GoogleDataTransport' in project 'GoogleDataTransport'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+    Target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb' in project 'nanopb'
+        ➜ Explicit dependency on target 'nanopb_nanopb' in project 'nanopb'
+    Target 'nanopb_nanopb' in project 'nanopb' (no dependencies)
+    Target 'GoogleDataTransport_GoogleDataTransport' in project 'GoogleDataTransport' (no dependencies)
+    Target 'GULReachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GULAppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Network' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Reachability' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-AppDelegateSwizzler' in project 'GoogleUtilities' (no dependencies)
+    Target 'FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseInstallations' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'GULUserDefaults' in project 'GoogleUtilities'
+    Target 'GULUserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-UserDefaults' in project 'GoogleUtilities' (no dependencies)
+    Target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'FBLPromises' in project 'Promises'
+        ➜ Explicit dependency on target 'Promises_FBLPromises' in project 'Promises'
+    Target 'Promises_FBLPromises' in project 'Promises' (no dependencies)
+    Target 'Firebase_FirebaseInstallations' in project 'Firebase' (no dependencies)
+    Target 'FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCore' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase' in project 'Firebase'
+        ➜ Explicit dependency on target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GULLogger' in project 'GoogleUtilities'
+    Target 'GULLogger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-Logger' in project 'GoogleUtilities' (no dependencies)
+    Target 'GULEnvironment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'third-party-IsAppEncrypted' in project 'GoogleUtilities'
+    Target 'third-party-IsAppEncrypted' in project 'GoogleUtilities' (no dependencies)
+    Target 'GoogleUtilities_GoogleUtilities-Environment' in project 'GoogleUtilities' (no dependencies)
+    Target 'Firebase_FirebaseCore' in project 'Firebase' (no dependencies)
+    Target 'FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'Firebase_FirebaseCoreInternal' in project 'Firebase'
+        ➜ Explicit dependency on target 'GULNSData' in project 'GoogleUtilities'
+    Target 'GULNSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities-NSData' in project 'GoogleUtilities'
+        ➜ Explicit dependency on target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities'
+    Target 'GoogleUtilities_GoogleUtilities-NSData' in project 'GoogleUtilities' (no dependencies)
+    Target 'Firebase_FirebaseCoreInternal' in project 'Firebase' (no dependencies)
+    Target 'Firebase' in project 'Firebase' (no dependencies)
+    Target 'Firebase_FirebaseMessaging' in project 'Firebase' (no dependencies)
+    Target 'WrappingStack' in project 'WrappingStack'
+        ➜ Explicit dependency on target 'WrappingStack' in project 'WrappingStack'
+    Target 'WrappingStack' in project 'WrappingStack' (no dependencies)
+    Target 'Flow' in project 'Flow'
+        ➜ Explicit dependency on target 'Flow' in project 'Flow'
+    Target 'Flow' in project 'Flow' (no dependencies)
+    Target 'Pods-Vuga' in project 'Pods'
+        ➜ Explicit dependency on target 'AFNetworking' in project 'Pods'
+        ➜ Explicit dependency on target 'CocoaAsyncSocket' in project 'Pods'
+        ➜ Explicit dependency on target 'CocoaUPnP' in project 'Pods'
+        ➜ Explicit dependency on target 'GCDWebServer' in project 'Pods'
+        ➜ Explicit dependency on target 'MobileVLCKit' in project 'Pods'
+        ➜ Explicit dependency on target 'Ono' in project 'Pods'
+        ➜ Explicit dependency on target 'Protobuf' in project 'Pods'
+        ➜ Explicit dependency on target 'google-cast-sdk' in project 'Pods'
+    Target 'google-cast-sdk' in project 'Pods'
+        ➜ Explicit dependency on target 'google-cast-sdk-GoogleCast' in project 'Pods'
+        ➜ Explicit dependency on target 'Protobuf' in project 'Pods'
+    Target 'google-cast-sdk-GoogleCast' in project 'Pods' (no dependencies)
+    Target 'Protobuf' in project 'Pods'
+        ➜ Explicit dependency on target 'Protobuf-Protobuf_Privacy' in project 'Pods'
+    Target 'Protobuf-Protobuf_Privacy' in project 'Pods' (no dependencies)
+    Target 'MobileVLCKit' in project 'Pods' (no dependencies)
+    Target 'CocoaUPnP' in project 'Pods'
+        ➜ Explicit dependency on target 'AFNetworking' in project 'Pods'
+        ➜ Explicit dependency on target 'CocoaAsyncSocket' in project 'Pods'
+        ➜ Explicit dependency on target 'GCDWebServer' in project 'Pods'
+        ➜ Explicit dependency on target 'Ono' in project 'Pods'
+    Target 'Ono' in project 'Pods' (no dependencies)
+    Target 'GCDWebServer' in project 'Pods' (no dependencies)
+    Target 'CocoaAsyncSocket' in project 'Pods' (no dependencies)
+    Target 'AFNetworking' in project 'Pods' (no dependencies)
+    Target 'liveActivityExtension' in project 'Vuga'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Lottie' in project 'Lottie'
+    Target 'Lottie' in project 'Lottie'
+        ➜ Explicit dependency on target 'Lottie' in project 'Lottie'
+        ➜ Explicit dependency on target 'Lottie_Lottie' in project 'Lottie'
+    Target 'Lottie' in project 'Lottie'
+        ➜ Explicit dependency on target 'Lottie_Lottie' in project 'Lottie'
+    Target 'Lottie_Lottie' in project 'Lottie' (no dependencies)
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher' in project 'Kingfisher'
+        ➜ Explicit dependency on target 'Kingfisher_Kingfisher' in project 'Kingfisher'
+    Target 'Kingfisher_Kingfisher' in project 'Kingfisher' (no dependencies)
+
+GatherProvisioningInputs
+
+CreateBuildDescription
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --version --output-format xml1
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/swiftc --version
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -arch arm64 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -x objective-c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/clang -v -E -dM -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk -x c -c /dev/null
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/momc --dry-run --action generate --swift-version 5.0 --sdkroot /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS18.5.sdk --iphoneos-deployment-target 16.1 --module Vuga /Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga/CoreData/Vuga.xcdatamodeld /Users/gene/Library/Developer/Xcode/DerivedData/Vuga-eglgmklexferlgdkzuwjbkoeqfpm/Build/Intermediates.noindex/ArchiveIntermediates/Vuga/IntermediateBuildFilesPath/Vuga.build/Release-iphoneos/Vuga.build/DerivedSources/CoreDataGenerated/Vuga
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/usr/bin/actool --print-asset-tag-combinations --output-format xml1 /Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga/Assets/Assets.xcassets
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ld -version_details
+
+ExecuteExternalTool /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool -V
+
+ReadFileContents /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/share/docc/features.json
+
+Build description signature: 191028e370a02f572d60c81850dbc0f0
+Build description path: /Users/gene/Library/Developer/Xcode/DerivedData/Vuga-eglgmklexferlgdkzuwjbkoeqfpm/Build/Intermediates.noindex/ArchiveIntermediates/Vuga/IntermediateBuildFilesPath/XCBuildData/191028e370a02f572d60c81850dbc0f0.xcbuilddata
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleSignIn' from project 'GoogleSignIn')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleDataTransport' from project 'GoogleDataTransport')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GTMAppAuth' from project 'GTMAppAuth')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseInstallations' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'AppAuth' from project 'AppAuth')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'YouTubePlayerKit' from project 'YouTubePlayerKit')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'SwiftSubtitles' from project 'SwiftSubtitles')
+/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga.xcodeproj: error: No profiles for 'com.vugaenterprises.vuga' were found: Xcode couldn't find any iOS App Development provisioning profiles matching 'com.vugaenterprises.vuga'. Automatic signing is disabled and unable to generate a profile. To enable automatic signing, pass -allowProvisioningUpdates to xcodebuild. (in target 'Vuga' from project 'Vuga')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Vuga' from project 'Vuga')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga/Assets/Managers/ConnectionMonitor.swift (in target 'Vuga' from project 'Vuga')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga/Views/SubscriptionsView.swift (in target 'Vuga' from project 'Vuga')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga/Views/TrailerPlayerView.swift (in target 'Vuga' from project 'Vuga')
+warning: Skipping duplicate build file in Compile Sources build phase: /Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga/Views/TrailerInlinePlayer.swift (in target 'Vuga' from project 'Vuga')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'WindowSceneReader' from project 'WindowSceneReader')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseCore' from project 'Firebase')
+/Users/gene/Documents/dev/VUGA_TV_v4/ios-mobile-app/Vuga.xcodeproj: error: No profiles for 'com.vugaenterprises.vuga.liveActivity' were found: Xcode couldn't find any iOS App Development provisioning profiles matching 'com.vugaenterprises.vuga.liveActivity'. Automatic signing is disabled and unable to generate a profile. To enable automatic signing, pass -allowProvisioningUpdates to xcodebuild. (in target 'liveActivityExtension' from project 'Vuga')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'liveActivityExtension' from project 'Vuga')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'nanopb' from project 'nanopb')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'TinyCSV' from project 'TinyCSV')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'google-cast-sdk-GoogleCast' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Flow' from project 'Flow')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleUtilities-Reachability' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'AFNetworking' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'AppAuthCore' from project 'AppAuth')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleUtilities-AppDelegateSwizzler' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Marquee' from project 'Marquee')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Shimmer' from project 'SwiftUI-Shimmer')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Kingfisher' from project 'Kingfisher')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Firebase' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleUtilities-Network' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Alamofire' from project 'Alamofire')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'VideoPlayer' from project 'VideoPlayer')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseCoreInternal' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleSignInSwift' from project 'GoogleSignIn')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'RevenueCat' from project 'RevenueCat')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleUtilities-Environment' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'google-cast-sdk' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleUtilities-NSData' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseAuthInternal' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Protobuf-Protobuf_Privacy' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'RecaptchaInterop' from project 'InteropForGoogle')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'MobileVLCKit' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseAppCheckInterop' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'UserMessagingPlatformTarget' from project 'GoogleUserMessagingPlatform')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'WrappingStack' from project 'WrappingStack')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Ono' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'third-party-IsAppEncrypted' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'ScalingHeaderScrollView' from project 'ScalingHeaderScrollView')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'RevenueCatUI' from project 'RevenueCat')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FBLPromises' from project 'Promises')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'WindowReader' from project 'WindowReader')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleUtilities-Logger' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GTMSessionFetcherCore' from project 'GTMSessionFetcher')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GSPlayer' from project 'GSPlayer')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Sliders' from project 'Sliders')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'GCDWebServer' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseCoreExtension' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'SwiftUIIntrospect' from project 'swiftui-introspect')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'Lottie' from project 'Lottie')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseAuth' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'DSFRegex' from project 'DSFRegex')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Pods-Vuga' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleMobileAdsTarget' from project 'GoogleMobileAds')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'CocoaUPnP' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseAuthInterop' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'ExpandableText' from project 'ExpandableText')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'GoogleUtilities-UserDefaults' from project 'GoogleUtilities')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'CocoaAsyncSocket' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'FirebaseMessaging' from project 'Firebase')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-O, expected -Onone (in target 'Protobuf' from project 'Pods')
+note: Disabling previews because SWIFT_VERSION is set and SWIFT_OPTIMIZATION_LEVEL=-Owholemodule, expected -Onone (in target 'BranchSDK' from project 'BranchSDK')
+** ARCHIVE FAILED **
+
+
+The following build commands failed:
+	Archiving workspace Vuga with scheme Vuga
+(1 failure)
