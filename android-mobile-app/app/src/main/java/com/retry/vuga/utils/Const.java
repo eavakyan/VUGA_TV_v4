@@ -67,7 +67,7 @@ public class Const {
         public static final String identity = "identity";
         public static final String login_type = "login_type";
         public static final String email = "email";
-        public static final String keyword = "keyword";
+        public static final String keyword = "search";  // Changed from "keyword" to match API v2
         public static final String language_id = "language_id";
         public static final String type = "type";
         public static final String profile_image = "profile_image";

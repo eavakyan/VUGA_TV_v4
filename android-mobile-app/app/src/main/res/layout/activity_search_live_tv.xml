@@ -66,7 +66,8 @@
                     <EditText
                         android:id="@+id/et_search"
                         style="@style/EditTextLocal"
-                        android:layout_width="match_parent"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
                         android:layout_height="match_parent"
                         android:background="@null"
                         android:fontFamily="@font/outfit_regular"
@@ -79,11 +80,97 @@
 
                         />
 
+                    <!-- Language Filter Button -->
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginHorizontal="8dp"
+                        android:layout_marginVertical="10dp"
+                        android:background="@color/et_stroke_color" />
+
+                    <ImageButton
+                        android:id="@+id/btn_language_filter"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="4dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_language"
+                        android:tint="@color/text_color_light"
+                        android:scaleType="centerInside" />
 
                 </LinearLayout>
 
 
             </LinearLayout>
+
+            <!-- Filter tabs for All, Movie, TV Shows, Cast -->
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:scrollbars="none"
+                android:layout_marginTop="10dp"
+                android:layout_marginHorizontal="15dp">
+
+                <LinearLayout
+                    android:id="@+id/filter_group"
+                    android:layout_width="wrap_content"
+                    android:layout_height="40dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/filter_all"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="All"
+                        android:paddingHorizontal="20dp"
+                        android:gravity="center"
+                        android:textColor="@color/white"
+                        android:background="@drawable/filter_selected_bg"
+                        android:fontFamily="@font/outfit_medium"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/filter_movie"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Movie"
+                        android:paddingHorizontal="20dp"
+                        android:gravity="center"
+                        android:textColor="@color/text_color"
+                        android:background="@drawable/filter_unselected_bg"
+                        android:fontFamily="@font/outfit_medium"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/filter_tv_shows"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="TV Shows"
+                        android:paddingHorizontal="20dp"
+                        android:gravity="center"
+                        android:textColor="@color/text_color"
+                        android:background="@drawable/filter_unselected_bg"
+                        android:fontFamily="@font/outfit_medium"
+                        android:textSize="14sp"
+                        android:layout_marginEnd="8dp"/>
+
+                    <TextView
+                        android:id="@+id/filter_cast"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:text="Cast"
+                        android:paddingHorizontal="20dp"
+                        android:gravity="center"
+                        android:textColor="@color/text_color"
+                        android:background="@drawable/filter_unselected_bg"
+                        android:fontFamily="@font/outfit_medium"
+                        android:textSize="14sp"/>
+
+                </LinearLayout>
+            </HorizontalScrollView>
 
             <RelativeLayout
                 android:layout_width="match_parent"
