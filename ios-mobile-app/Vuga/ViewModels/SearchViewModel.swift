@@ -35,6 +35,13 @@ class SearchViewModel : BaseViewModel {
             .perPage: Limits.pagination
         ]
         
+        // Add search type for cast searches
+        if contentType == .cast {
+            params[.searchType] = "cast"
+        } else {
+            params[.searchType] = "title"
+        }
+        
         // Add user and profile IDs if available
         if let userId = SessionManager.shared.currentUser?.id {
             params[.appUserId] = userId
@@ -44,7 +51,8 @@ class SearchViewModel : BaseViewModel {
             params[.profileId] = profileId
         }
         
-        if contentType != .all {
+        // Only send type parameter for movie/series filters (not for all or cast)
+        if contentType == .movie || contentType == .series {
             params[.type] = contentType.rawValue
         }
         

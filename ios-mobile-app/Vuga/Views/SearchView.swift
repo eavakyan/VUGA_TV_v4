@@ -48,9 +48,6 @@ struct SearchView: View {
         .onChange(of: vm.selectedLang.id, perform: { value in
             vm.searchContent()
         })
-        .onChange(of: vm.selectedGenre.id, perform: { value in
-            vm.searchContent()
-        })
         .onChange(of: vm.contentType, perform: { value in
             vm.searchContent()
         })
@@ -61,17 +58,8 @@ struct SearchView: View {
                 vm.showTabbar()
             }
         })
-        .onChange(of: vm.isGenreSheet, perform: { newValue in
-            if newValue {
-                vm.hideTabbar()
-            } else {
-                vm.showTabbar()
-            }
-        })
-        .blur(radius: vm.isGenreSheet || vm.isLanguageSheet ? 7 : 0)
+        .blur(radius: vm.isLanguageSheet ? 7 : 0)
         .overlay(LanguageSheet(isOn: $vm.isLanguageSheet, selectedLanguage: $vm.selectedLang))
-        .overlay(GenreSheet(isOn: $vm.isGenreSheet, selectedGenre: $vm.selectedGenre))
-        .animation(.default, value: vm.isGenreSheet)
         .animation(.default, value: vm.isLanguageSheet)
         .onReceive(NotificationCenter.default.publisher(for: .setSearchFilter)) { notification in
             if let userInfo = notification.userInfo,
@@ -192,6 +180,7 @@ private struct SearchTopView : View {
             }
             
             HStack(spacing: 10) {
+                // Content Type selector (All, Movie, TV Shows, Cast)
                 HStack(spacing: 0) {
                     ForEach(ContentType.allCases, id: \.self) { type in
                         ZStack {
@@ -217,41 +206,14 @@ private struct SearchTopView : View {
                 .padding(4)
                 .maxWidthFrame()
                 .searchOptionBg()
-                
-                HStack(spacing: 10) {
-                    Image.genre
-                        .resizeFitTo(size: 28, renderingMode: .template)
-                    
-                    Text(String.genre.localized(language))
-                        .outfitMedium()
-                }
-                .maxHeightFrame()
-                .padding(.horizontal)
-                .foregroundColor(vm.selectedGenre.id != 0 ? .text : .textLight)
-                .background(vm.selectedGenre.id != 0 ? Color.base : Color.clear)
-                .cornerRadius(radius: 11)
-                .padding(4)
-                .searchOptionBg()
-                .onTap {
-                    searchFieldFocused = false
-                    vm.isGenreSheet.toggle()
-                }
             }
             
-            if vm.selectedLang.id != 0 || vm.selectedGenre.id != 0 {
+            if vm.selectedLang.id != 0 {
                 HStack {
                     if vm.selectedLang.id != 0 {
                         SearchSelectedTag(text: vm.selectedLang.title ?? ""){
                             withAnimation {
                                 vm.selectedLang = ContentLanguage(id: 0, title: .all, createdAt: "", updatedAt: "")
-                            }
-                        }
-                    }
-                    
-                    if vm.selectedGenre.id != 0 {
-                        SearchSelectedTag(text: vm.selectedGenre.title ?? ""){
-                            withAnimation {
-                                vm.selectedGenre = Genre(id: 0, title: "", createdAt: "", updatedAt: "", contents: [])
                             }
                         }
                     }

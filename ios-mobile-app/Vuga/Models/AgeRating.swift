@@ -2,7 +2,7 @@ import Foundation
 
 struct AgeRating: Codable, Identifiable, Equatable {
     let id: Int
-    let name: String
+    let name: String?  // Made optional to handle missing data
     let minAge: Int
     let maxAge: Int?
     let description: String?

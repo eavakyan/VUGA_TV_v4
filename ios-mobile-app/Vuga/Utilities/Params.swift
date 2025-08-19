@@ -23,6 +23,7 @@ enum Params: String {
     case genreId = "genre_id"
     case keyword = "keyword"
     case search = "search"
+    case searchType = "search_type"
     case type = "type"
     case languageId = "language_id"
     case watchlistContentIds = "watchlist_content_ids"

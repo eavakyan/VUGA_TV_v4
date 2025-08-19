@@ -653,12 +653,14 @@ enum ContentType : Int, CaseIterable, Codable {
     case all = 0
     case movie = 1
     case series = 2
+    case cast = 3  // New option for cast/actor search
     
     var title: String {
         switch self {
-        case .all: .all
-        case .movie: .movie
-        case .series: .series
+        case .all: return String.all
+        case .movie: return String.movie
+        case .series: return String.series
+        case .cast: return "Cast"
         }
     }
 }

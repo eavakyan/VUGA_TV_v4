@@ -185,7 +185,7 @@ struct AgeRatingInfoRow: View {
                 .cornerRadius(6)
             
             VStack(alignment: .leading, spacing: 2) {
-                Text(rating.name)
+                Text(rating.name ?? rating.code)  // Use code as fallback if name is nil
                     .outfitMedium(14)
                     .foregroundColor(isAccessible ? .text : .textLight)
                 
