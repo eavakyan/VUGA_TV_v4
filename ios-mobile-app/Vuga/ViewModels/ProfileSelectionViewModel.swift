@@ -15,12 +15,12 @@ class ProfileSelectionViewModel: BaseViewModel {
         set { _showError = newValue }
     }
     
-    func loadProfiles() {
+    func loadProfiles(forceReload: Bool = false) {
         // Prevent multiple simultaneous loads
         guard !isLoadingProfiles else { return }
         
-        // If we already have profiles loaded, don't reload
-        if !profiles.isEmpty {
+        // If we already have profiles loaded, don't reload unless forced
+        if !profiles.isEmpty && !forceReload {
             print("ProfileSelectionViewModel: Profiles already loaded, count: \(profiles.count)")
             stopLoading()
             return
@@ -119,7 +119,9 @@ class ProfileSelectionViewModel: BaseViewModel {
             self?.stopLoading()
             
             if obj.status ?? false {
-                self?.loadProfiles()
+                // Force reload profiles after successful deletion
+                print("ProfileSelectionViewModel: Profile deleted successfully, refreshing profiles list")
+                self?.loadProfiles(forceReload: true)
             } else {
                 self?.showError = true
                 self?.errorMessage = obj.message ?? "Failed to delete profile"

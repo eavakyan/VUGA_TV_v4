@@ -90,7 +90,8 @@ struct ProfileSelectionView: View {
         }
         .sheet(isPresented: $showCreateProfile) {
             CreateProfileView(profile: selectedProfile) {
-                viewModel.loadProfiles()
+                // Force reload profiles after creating/editing a profile
+                viewModel.loadProfiles(forceReload: true)
             }
         }
         .onChange(of: viewModel.selectedProfile) { profile in
