@@ -82,7 +82,7 @@ public class AppSetting {
         private String appName;
 
         @SerializedName("is_live_tv_enable")
-        private boolean liveTvEnable;
+        private int liveTvEnable;
 
         @SerializedName("is_admob_android")
         private int isAdmobAnd;
@@ -109,10 +109,10 @@ public class AppSetting {
         }
 
         public boolean getLiveTvEnable() {
-            return liveTvEnable;
+            return liveTvEnable == 1;
         }
 
-        public void setLiveTvEnable(boolean liveTvEnable) {
+        public void setLiveTvEnable(int liveTvEnable) {
             this.liveTvEnable = liveTvEnable;
         }
 

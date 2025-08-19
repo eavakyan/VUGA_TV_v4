@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowInsets;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -362,6 +363,9 @@ public class BaseActivity extends AppCompatActivity {
         setStatusBarTransparentFlag();
         sessionManager = new SessionManager(this);
         disposable = new CompositeDisposable();
+
+        // Keep screen on while app is running
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         // Initialize connection monitor
         ConnectionMonitor.getInstance(this);
