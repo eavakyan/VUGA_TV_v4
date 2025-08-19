@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\V2\GlobalSetting;
 use App\Models\V2\CmsPage;
 use App\Models\V2\AdmobConfig;
+use App\Models\V2\Genre;
+use App\Models\V2\AppLanguage;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
@@ -17,6 +19,8 @@ class SettingsController extends Controller
     {
         $settings = GlobalSetting::first();
         $admobConfig = AdmobConfig::all();
+        $genres = Genre::orderBy('title')->get();
+        $languages = AppLanguage::orderBy('title')->get();
         
         if (!$settings) {
             return response()->json([
@@ -25,13 +29,14 @@ class SettingsController extends Controller
             ], 404);
         }
         
+        // Format response to match what iOS expects
         return response()->json([
             'status' => true,
             'message' => 'App settings fetched successfully',
-            'data' => [
-                'settings' => $settings,
-                'admob_config' => $admobConfig
-            ]
+            'setting' => $settings,  // iOS expects 'setting' not 'data.settings'
+            'genres' => $genres,
+            'languages' => $languages,
+            'admob' => $admobConfig  // iOS expects 'admob' not 'admob_config'
         ]);
     }
     

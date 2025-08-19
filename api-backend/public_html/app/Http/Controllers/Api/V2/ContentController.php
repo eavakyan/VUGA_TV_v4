@@ -242,12 +242,12 @@ class ContentController extends Controller
             'trailers',
             'casts.actor',
             'subtitles',
-            'audioTracks',
-            'subtitleTracks',
+            // 'audioTracks',  // Model doesn't exist yet
+            // 'subtitleTracks',  // Model doesn't exist yet
             'seasons.episodes.sources',
             'seasons.episodes.subtitles',
-            'seasons.episodes.audioTracks',
-            'seasons.episodes.subtitleTracks',
+            // 'seasons.episodes.audioTracks',  // Model doesn't exist yet
+            // 'seasons.episodes.subtitleTracks',  // Model doesn't exist yet
             'ageLimits'
         ])->find($request->content_id);
 
@@ -590,6 +590,7 @@ class ContentController extends Controller
         $validator = Validator::make($request->all(), [
             'search' => 'required|string|min:1',
             'type' => 'nullable|integer|in:1,2',
+            'search_type' => 'nullable|string|in:title,cast',  // New parameter for search type
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
             'app_user_id' => 'nullable|integer|exists:app_user,app_user_id',
@@ -610,12 +611,20 @@ class ContentController extends Controller
             $profileId = $user ? $user->last_active_profile_id : null;
         }
 
+        $searchType = $request->search_type ?? 'title';  // Default to title search
+        
         $query = Content::with(['language', 'genres', 'ageLimits'])
-                        ->visible()
-                        ->where(function($q) use ($request) {
-                            $q->where('title', 'LIKE', '%' . $request->search . '%')
-                              ->orWhere('description', 'LIKE', '%' . $request->search . '%');
-                        });
+                        ->visible();
+        
+        if ($searchType === 'cast') {
+            // Search by actor/cast name
+            $query->whereHas('actors', function($q) use ($request) {
+                $q->where('fullname', 'LIKE', '%' . $request->search . '%');
+            });
+        } else {
+            // Search by title (default)
+            $query->where('title', 'LIKE', '%' . $request->search . '%');
+        }
 
         if ($request->type) {
             $query->where('type', $request->type);
@@ -1068,6 +1077,7 @@ class ContentController extends Controller
             $data['age_limits'] = $content->ageLimits->map(function($limit) {
                 return [
                     'age_limit_id' => $limit->age_limit_id,
+                    'name' => $limit->display_name ?? $limit->name ?? $limit->code ?? '',  // iOS expects 'name' field, fallback to various fields
                     'code' => $limit->code,
                     'display_name' => $limit->display_name,
                     'icon' => $limit->icon,

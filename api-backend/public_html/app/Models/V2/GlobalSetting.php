@@ -19,11 +19,11 @@ class GlobalSetting extends BaseModel
     ];
     
     protected $casts = [
-        'is_live_tv_enable' => 'boolean',
-        'is_admob_android' => 'boolean',
-        'is_admob_ios' => 'boolean',
-        'is_custom_android' => 'boolean',
-        'is_custom_ios' => 'boolean',
+        'is_live_tv_enable' => 'integer',
+        'is_admob_android' => 'integer',
+        'is_admob_ios' => 'integer',
+        'is_custom_android' => 'integer',
+        'is_custom_ios' => 'integer',
         'videoad_skip_time' => 'integer',
         'storage_type' => 'integer',
         'created_at' => 'datetime',

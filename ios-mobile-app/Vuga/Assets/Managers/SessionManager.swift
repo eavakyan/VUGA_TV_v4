@@ -101,21 +101,34 @@ class SessionManager: ObservableObject {
     
     func setLanguages(data: [ContentLanguage]){
         do {
-            let data = try JSONEncoder().encode(data)
-            let dataString = String(decoding: data, as: UTF8.self)
+            print("SessionManager: Storing \(data.count) languages")
+            let encodedData = try JSONEncoder().encode(data)
+            let dataString = String(decoding: encodedData, as: UTF8.self)
             setStringValue(value: dataString, key: "languages")
+            print("SessionManager: Languages stored successfully")
         } catch let err {
-            print(err.localizedDescription)
+            print("SessionManager: Error storing languages: \(err.localizedDescription)")
         }
     }
     
     func getLanguages() -> [ContentLanguage] {
         let dataString = getStringValueForKey(key: "languages")
-        let data = Data(dataString.utf8)
-        if let loaded = try? JSONDecoder().decode([ContentLanguage].self, from: data) {
-            return loaded
+        print("SessionManager: Retrieved languages string length: \(dataString.count)")
+        
+        if dataString.isEmpty {
+            print("SessionManager: No languages stored in UserDefaults")
+            return []
         }
-        return []
+        
+        let data = Data(dataString.utf8)
+        do {
+            let loaded = try JSONDecoder().decode([ContentLanguage].self, from: data)
+            print("SessionManager: Successfully decoded \(loaded.count) languages")
+            return loaded
+        } catch {
+            print("SessionManager: Error decoding languages: \(error)")
+            return []
+        }
     }
     
     func setCustomAds(datum: [CustomAd]){
@@ -224,6 +237,13 @@ class SessionManager: ObservableObject {
         // synchronize() is deprecated and unnecessary in iOS 12+
     }
     
+    
+    // Force clear languages (for debugging)
+    func clearLanguages() {
+        print("SessionManager: Clearing stored languages")
+        UserDefaults.standard.removeObject(forKey: "languages")
+        UserDefaults.standard.synchronize()
+    }
     
     //MARK: Clear
     func clear() {

@@ -17,6 +17,16 @@ class AppLanguage extends BaseModel
         'updated_at' => 'datetime'
     ];
     
+    protected $appends = ['id'];
+    
+    /**
+     * Get the id attribute (iOS expects 'id' not 'app_language_id')
+     */
+    public function getIdAttribute()
+    {
+        return $this->app_language_id;
+    }
+    
     /**
      * Get the language's contents
      */

@@ -16,6 +16,16 @@ class Genre extends BaseModel
         'updated_at' => 'datetime'
     ];
     
+    protected $appends = ['id'];
+    
+    /**
+     * Get the id attribute (iOS expects 'id' not 'genre_id')
+     */
+    public function getIdAttribute()
+    {
+        return $this->genre_id;
+    }
+    
     /**
      * Get the genre's contents
      */

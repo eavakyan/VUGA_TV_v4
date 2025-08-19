@@ -13,6 +13,14 @@ class SplashViewModel : BaseViewModel {
 
     func fetchSettings(){
         print("SplashViewModel: Starting fetchSettings with 10s timeout")
+        
+        // Check if languages are empty and clear them to force re-fetch
+        let currentLanguages = SessionManager.shared.getLanguages()
+        if currentLanguages.isEmpty {
+            print("SplashViewModel: Detected empty languages, clearing storage to force re-fetch")
+            SessionManager.shared.clearLanguages()
+        }
+        
         NetworkManager.callWebService(url: .fetchSettings,
             timeout: 10, // 10 second timeout for faster startup
             callbackSuccess: { (obj: SettingModel) in
@@ -21,7 +29,25 @@ class SplashViewModel : BaseViewModel {
                     SessionManager.shared.setSetting(data: data)
                 }
                 SessionManager.shared.setGenres(data: obj.genres ?? [])
-                SessionManager.shared.setLanguages(data: obj.languages ?? [])
+                
+                // Debug logging for languages
+                if let languages = obj.languages {
+                    print("SplashViewModel: Received \(languages.count) languages from API")
+                    if languages.isEmpty {
+                        print("SplashViewModel: WARNING - Languages array is empty from API!")
+                    } else {
+                        for lang in languages {
+                            print("  - Language: \(lang.title ?? "nil") (id: \(lang.id ?? 0))")
+                        }
+                    }
+                    SessionManager.shared.setLanguages(data: languages)
+                } else {
+                    print("SplashViewModel: ERROR - languages field is nil in API response!")
+                    print("SplashViewModel: Full response object keys: status=\(obj.status ?? false), message=\(obj.message ?? "nil")")
+                    // Don't overwrite with empty array if languages field is missing
+                    // SessionManager.shared.setLanguages(data: [])
+                }
+                
                 SessionManager.shared.setAds(data: obj.admob ?? [])
                 // Temporarily disabled - configure valid AdMob IDs
                 // RewardedAdManager.shared.loadRewardAd()

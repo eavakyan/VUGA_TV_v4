@@ -33,9 +33,9 @@ struct SplashView: View {
                         self.vm.fetchProfile()
                     }
                     
-                    // Force continue after 2 seconds regardless of settings load status
-                    forceLoadTimeout = Timer.scheduledTimer(withTimeInterval: 2.0, repeats: false) { _ in
-                        print("SplashView: Force timeout after 2s - continuing without settings")
+                    // Force continue after 5 seconds regardless of settings load status
+                    forceLoadTimeout = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { _ in
+                        print("SplashView: Force timeout after 5s - continuing without settings")
                         if !vm.isSettingDataLoaded {
                             DispatchQueue.main.async {
                                 vm.isSettingDataLoaded = true
