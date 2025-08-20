@@ -14,7 +14,7 @@ class GenreController extends Controller
 
     public function genresList(Request $request)
     {
-        $query = Genre::query();
+        $query = Genre::withCount('contents');
         $totalData = $query->count();
 
         $columns = ['genre_id'];
@@ -31,7 +31,7 @@ class GenreController extends Controller
 
         $totalFiltered = $query->count();
 
-        $result = $query->orderBy($orderColumn, $orderDir)
+        $result = $query->orderBy('title', 'asc')
             ->offset($start)
             ->limit($limit)
             ->get();
@@ -40,8 +40,10 @@ class GenreController extends Controller
             $edit = "<a rel='{$item->genre_id}' data-title='{$item->title}' class='me-2 btn btn-success px-3 text-white edit'>" . __('edit') . "</a>";
             $delete = "<a href='#' class='btn btn-danger px-3 text-white delete' rel='{$item->genre_id}'>" . __('delete') . "</a>";
             $action = "<div class='text-end action'>{$edit}{$delete}</div>";
+            $badgeClass = $item->contents_count > 0 ? 'bg-danger' : 'bg-secondary';
+            $titleWithCount = $item->title . ' <span class="badge ' . $badgeClass . ' ms-2">' . $item->contents_count . '</span>';
             return [
-                $item->title,
+                $titleWithCount,
                 $action,
             ];
         });

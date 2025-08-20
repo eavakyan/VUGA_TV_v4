@@ -17,4 +17,12 @@ class Genre extends Model
     {
         return $this->genre_id;
     }
+    
+    /**
+     * Get the genre's contents
+     */
+    public function contents()
+    {
+        return $this->belongsToMany('App\Content', 'content_genre', 'genre_id', 'content_id');
+    }
 }
