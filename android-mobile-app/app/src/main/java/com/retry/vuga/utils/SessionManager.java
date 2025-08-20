@@ -343,6 +343,8 @@ public class SessionManager {
 
     public void updateMovieHistory(ContentDetail.SourceItem modelSource, int progress, String title, String thumbnail) {
         updateMovieHistory(modelSource, progress, title, thumbnail, null, null);
+        // Trigger sync in background
+        WatchHistorySyncHelper.getInstance(context).triggerSync();
     }
     
     public void updateMovieHistory(ContentDetail.SourceItem modelSource, int progress, String title, String thumbnail, Integer releaseYear, String duration) {
@@ -393,6 +395,8 @@ public class SessionManager {
 
     public void updateMovieHistory(int contentId, int id, int progress, String title, String thumbnail) {
         updateMovieHistory(contentId, id, progress, title, thumbnail, null, null);
+        // Trigger sync in background
+        WatchHistorySyncHelper.getInstance(context).triggerSync();
     }
     
     public void updateMovieHistory(int contentId, int id, int progress, String title, String thumbnail, Integer releaseYear, String duration) {

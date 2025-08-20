@@ -2,9 +2,9 @@
 
 namespace App\Models\V2;
 
-class AppUserWatchHistory extends BaseModel
+class AppProfileWatchHistory extends BaseModel
 {
-    protected $table = 'app_user_watch_history';
+    protected $table = 'app_profile_watch_history';
     protected $primaryKey = 'watch_history_id';
     
     protected $fillable = [

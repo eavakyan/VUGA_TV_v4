@@ -84,7 +84,9 @@ public class MyApplication extends Application {
 
             @Override
             public void onActivityPaused(@NonNull Activity activity) {
-
+                // Trigger sync when activity is paused (app going to background)
+                Log.d("WatchHistorySync", "Activity paused, triggering sync");
+                WatchHistorySyncHelper.getInstance(MyApplication.this).forceSync();
             }
 
             @Override

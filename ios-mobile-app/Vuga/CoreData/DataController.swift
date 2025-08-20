@@ -33,6 +33,9 @@ class DataController: ObservableObject {
     
     func saveData() {
         try? DataController.shared.container.viewContext.save()
+        
+        // Trigger watch history sync when data is saved
+        WatchHistorySyncService.shared.triggerSync()
     }
     
 }

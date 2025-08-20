@@ -75,6 +75,9 @@ enum APIs : String {
     case markNotificationShown              = "user-notification/mark-shown"
     case dismissNotification                = "user-notification/dismiss"
     
+    // Watch History Sync APIs
+    case syncWatchHistory                   = "watch/sync"
+    
     // Popup System removed - files deleted
 }
 

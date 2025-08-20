@@ -93,6 +93,9 @@ Route::prefix('v2')->group(function () {
         Route::post('/update-progress', [V2\WatchHistoryController::class, 'updateWatchProgress']);
         Route::post('/continue-watching', [V2\WatchHistoryController::class, 'getContinueWatching']);
         Route::post('/mark-completed', [V2\WatchHistoryController::class, 'markAsCompleted']);
+        
+        // Sync endpoint for mobile apps
+        Route::post('/sync', [V2\WatchHistoryController::class, 'syncWatchHistory']);
     });
     
     // Genres
