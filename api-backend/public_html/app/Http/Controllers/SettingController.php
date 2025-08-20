@@ -7,7 +7,7 @@ use App\Admin;
 use App\Admob;
 use App\Content;
 use App\CustomAd;
-use App\Genre;
+use App\Category;
 use App\GlobalSettings;
 use App\Language;
 use App\Notification;
@@ -25,7 +25,7 @@ class SettingController extends Controller
         $totalUser = User::count();
         $contents = Content::count();
         $actors = Actor::count();
-        $genres = Genre::count();
+        $categories = Category::count();
         $languages = Language::count();
         $liveTvCategories = TVCategory::count();
         $liveTvChannels = TVChannel::count();
@@ -37,7 +37,7 @@ class SettingController extends Controller
             'totalUser' => $totalUser,
             'contents' => $contents,
             'actors' => $actors,
-            'genres' => $genres,
+            'genres' => $categories,
             'languages' => $languages,
             'liveTvCategories' => $liveTvCategories,
             'liveTvChannels' => $liveTvChannels,
@@ -69,7 +69,7 @@ class SettingController extends Controller
     function fetchSettings()
     {
         $setting = GlobalSettings::first();
-        $genres = Genre::get();
+        $categories = Category::get();
         $languages = Language::get();
         $admob = Admob::get();
 
@@ -77,7 +77,7 @@ class SettingController extends Controller
             'status' => true,
             'message' => 'Fetch Setting Successfully',
             'setting' => $setting,
-            'genres' => $genres,
+            'genres' => $categories,
             'languages' => $languages,
             'admob' => $admob
         ]);
@@ -241,10 +241,10 @@ class SettingController extends Controller
 
     public function fetchContentFromTMDB()
     {
-        $genres = Genre::orderBy('created_at', 'DESC')->get();
+        $categories = Category::orderBy('created_at', 'DESC')->get();
         $languages = Language::orderBy('created_at', 'DESC')->get();
         return view('fetchContentFromTMDB', [
-                'genres' => $genres,
+                'genres' => $categories,
                 'languages' => $languages,
             ]
         );

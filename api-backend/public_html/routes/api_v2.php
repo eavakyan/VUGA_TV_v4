@@ -23,7 +23,7 @@ Route::prefix('v2')->group(function () {
     Route::post('/fetchProfile', [V2\UserController::class, 'fetchProfile']);
     Route::post('/fetchHomePageData', [V2\ContentController::class, 'fetchHomePageData']);
     Route::post('/fetchContentDetails', [V2\ContentController::class, 'fetchContentDetail']);
-    Route::post('/fetchContentsByGenre', [V2\ContentController::class, 'fetchContentsByGenre']);
+    Route::post('/fetchContentsByCategory', [V2\ContentController::class, 'fetchContentsByCategory']);
     Route::post('/fetchWatchList', [V2\UserController::class, 'fetchWatchList']);
     Route::post('/searchContent', [V2\ContentController::class, 'searchContent']);
     Route::post('/updateProfile', [V2\UserController::class, 'updateProfile']);
@@ -71,7 +71,7 @@ Route::prefix('v2')->group(function () {
         Route::post('/featured', [V2\ContentController::class, 'getFeaturedContent']);
         Route::post('/trending', [V2\ContentController::class, 'getTrendingContent']);
         Route::post('/new', [V2\ContentController::class, 'getNewContent']);
-        Route::post('/by-genre', [V2\ContentController::class, 'getContentByGenre']);
+        Route::post('/by-category', [V2\ContentController::class, 'getContentByCategory']);
         Route::post('/increase-view', [V2\ContentController::class, 'increaseContentView']);
         Route::post('/increase-share', [V2\ContentController::class, 'increaseContentShare']);
         Route::post('/increase-download', [V2\ContentController::class, 'increaseContentDownload']);
@@ -98,10 +98,10 @@ Route::prefix('v2')->group(function () {
         Route::post('/sync', [V2\WatchHistoryController::class, 'syncWatchHistory']);
     });
     
-    // Genres
-    Route::prefix('genre')->group(function () {
-        Route::post('/all', [V2\GenreController::class, 'getAllGenres']);
-        Route::post('/with-content-count', [V2\GenreController::class, 'getGenresWithContentCount']);
+    // Categories
+    Route::prefix('category')->group(function () {
+        Route::post('/all', [V2\CategoryController::class, 'getAllCategories']);
+        Route::post('/with-content-count', [V2\CategoryController::class, 'getCategoriesWithContentCount']);
     });
     
     // Languages

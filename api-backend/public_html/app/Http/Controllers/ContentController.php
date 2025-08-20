@@ -9,7 +9,7 @@ use App\ContentSource;
 use App\Episode;
 use App\EpisodeSource;
 use App\EpisodeSubtitle;
-use App\Genre;
+use App\Category;
 use App\GlobalFunction;
 use App\Language;
 use App\ContentCast;
@@ -59,12 +59,12 @@ class ContentController extends Controller
             $query->where('is_show', Constants::showContent);
         })->with('content')->orderBy('content_index', 'ASC')->get();
 
-        $genres = Genre::get();
+        $genres = Category::get();
         $genreContents = [];
 
         foreach ($genres as $genre) {
             $genreContent = Content::where('is_show', Constants::showContent)
-                                    ->whereRaw('FIND_IN_SET(?, genre_ids)', [$genre->genre_id])
+                                    ->whereRaw('FIND_IN_SET(?, genre_ids)', [$genre->category_id])
                                     ->inRandomOrder()
                                     ->limit(env('HOME_PAGE_GENRE_CONTENTS_LIMIT'))
                                     ->get();
@@ -146,7 +146,7 @@ class ContentController extends Controller
             return response()->json(['status' => false, 'message' => $msg]);
         }
 
-        $genre = Genre::where('genre_id', $request->genre_id)->first();
+        $genre = Category::where('category_id', $request->genre_id)->first();
         if ($genre == null) {
             return response()->json([
                 'status' => false,
@@ -427,7 +427,7 @@ class ContentController extends Controller
     // web
     public function contentList()
     {
-        $genres = Genre::orderBy('created_at', 'DESC')->get();
+        $genres = Category::orderBy('created_at', 'DESC')->get();
         $languages = Language::orderBy('created_at', 'DESC')->get();
         $movieCount = Content::where('type', Constants::movie)->count();
         $seriesCount = Content::where('type', Constants::series)->count();
@@ -802,7 +802,7 @@ class ContentController extends Controller
 
         $actors = Actor::orderBy('created_at', 'DESC')->get();
         $languages = Language::orderBy('created_at', 'DESC')->get();
-        $genres = Genre::orderBy('created_at', 'DESC')->get();
+        $genres = Category::orderBy('created_at', 'DESC')->get();
         $mediaGalleries = MediaGallery::orderBy('created_at', 'DESC')->get();
         $distributors = ContentDistributor::where('is_active', 1)->orderBy('name', 'ASC')->get();
         $ageLimits = AgeLimit::orderBy('min_age', 'ASC')->get();
@@ -1390,7 +1390,7 @@ class ContentController extends Controller
         $actors = Actor::orderBy('created_at', 'DESC')->get();
         $languages = Language::orderBy('created_at', 'DESC')->get();
         $seasons = Season::where('content_id', $request->id)->get();
-        $genres = Genre::orderBy('created_at', 'DESC')->get();
+        $genres = Category::orderBy('created_at', 'DESC')->get();
         $distributors = ContentDistributor::where('is_active', 1)->orderBy('name', 'ASC')->get();
         $ageLimits = AgeLimit::orderBy('min_age', 'ASC')->get();
         

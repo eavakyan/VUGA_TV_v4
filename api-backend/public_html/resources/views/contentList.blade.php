@@ -194,11 +194,11 @@
                 <textarea name="description" id="description" rows="4" class="form-control" required></textarea>
               </div>
               <div class="form-group">
-                <label for="selectGenre" class="form-label">{{ __('selectGenre') }} ({{ __('multiple') }})</label>
+                <label for="selectGenre" class="form-label">{{ __('selectCategory') }} ({{ __('multiple') }})</label>
                 <select name="genre_ids[]" class="form-control selectric" id="selectGenre" multiple="multiple" required tabindex="-1" aria-hidden="true">
-                  <option value="0" disabled class="d-none">{{ __('selectGenre') }}</option>
+                  <option value="0" disabled class="d-none">{{ __('selectCategory') }}</option>
                   @foreach ($genres as $genre)
-                  <option value="{{ $genre->id }}">{{ $genre->title }}</option>
+                  <option value="{{ $genre->category_id }}">{{ $genre->title }}</option>
                   @endforeach
                 </select>
               </div>
@@ -328,11 +328,11 @@
                 <textarea name="description" id="edit_description" rows="4" class="form-control" required=""></textarea>
               </div>
               <div class="form-group">
-                <label for="selectGenre" class="form-label">{{ __('selectGenre') }} ({{ __('multiple') }})</label>
+                <label for="selectGenre" class="form-label">{{ __('selectCategory') }} ({{ __('multiple') }})</label>
                 <select name="genre_ids[]" class="form-control selectric" id="edit_selectGenre" multiple="multiple" required="" tabindex="-1" aria-hidden="true">
-                  <option value disabled class="d-none">{{ __('selectGenre') }}</option>
+                  <option value disabled class="d-none">{{ __('selectCategory') }}</option>
                   @foreach ($genres as $genre)
-                  <option value="{{ $genre->id }}">{{ $genre->title }}</option>
+                  <option value="{{ $genre->category_id }}">{{ $genre->title }}</option>
                   @endforeach
                 </select>
               </div>

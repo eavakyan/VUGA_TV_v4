@@ -1,6 +1,6 @@
 @extends('include.app')
 @section('script')
-<script src="{{ asset('assets/script/genre.js') }}"></script>
+<script src="{{ asset('assets/script/category.js') }}"></script>
 @endsection
 
 @section('content')
@@ -9,15 +9,15 @@
     <div class="card-header">
       <div class="page-title w-100">
         <div class="d-flex align-items-center justify-content-between">
-          <h4 class="mb-0 fw-semibold">{{ __('genres') }}</h4>
-          <button type="button" class="btn btn-primary text-light px-4" data-bs-toggle="modal" data-bs-target="#addGenreModal">
-            {{ __('addGenre') }}
+          <h4 class="mb-0 fw-semibold">{{ __('categories') }}</h4>
+          <button type="button" class="btn btn-primary text-light px-4" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+            {{ __('addCategory') }}
           </button>
         </div>
       </div>
     </div>
     <div class="card-body">
-      <table class="table table-striped w-100" id="genresTable">
+      <table class="table table-striped w-100" id="categoriesTable">
         <thead>
           <tr>
             <th> {{ __('title') }}</th>
@@ -29,15 +29,15 @@
   </div>
 </section>
 
-<!-- Add Genre Modal -->
-<div class="modal fade" id="addGenreModal" tabindex="-1" aria-labelledby="addGenreModalLabel" aria-hidden="true">
+<!-- Add Category Modal -->
+<div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog  modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-semibold mb-0 text-white">{{ __('addGenre') }}</h5>
+        <h5 class="modal-title fw-semibold mb-0 text-white">{{ __('addCategory') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="addGenreForm" method="POST">
+      <form id="addCategoryForm" method="POST">
         <div class="modal-body">
           <div class="row">
             <div class="form-group">
@@ -55,16 +55,16 @@
   </div>
 </div>
 
-<!-- Edit Genre Modal -->
-<div class="modal fade" id="editGenreModal" tabindex="-1" aria-labelledby="editGenreModalLabel" aria-hidden="true">
+<!-- Edit Category Modal -->
+<div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
   <div class="modal-dialog  modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title fw-semibold mb-0 text-white">{{ __('editGenre') }}</h5>
+        <h5 class="modal-title fw-semibold mb-0 text-white">{{ __('editCategory') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form id="editGenreForm" method="POST">
-        <input type="hidden" name="genre_id" id="genre_id">
+      <form id="editCategoryForm" method="POST">
+        <input type="hidden" name="category_id" id="category_id">
         <div class="modal-body">
           <div class="row">
             <div class="form-group">

@@ -17,7 +17,7 @@ class Content extends BaseModel
         'language_id',
         'vertical_poster',
         'horizontal_poster',
-        'genre_ids',
+        'category_ids',
         'is_featured',
         'is_show',
         'total_view',
@@ -111,11 +111,19 @@ class Content extends BaseModel
     }
     
     /**
-     * Get the content's genres
+     * Get the content's categories
+     */
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'content_category', 'content_id', 'category_id');
+    }
+    
+    /**
+     * Alias for backward compatibility
      */
     public function genres()
     {
-        return $this->belongsToMany(Genre::class, 'content_genre', 'content_id', 'genre_id');
+        return $this->categories();
     }
     
     /**

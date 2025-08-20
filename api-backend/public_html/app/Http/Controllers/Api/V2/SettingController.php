@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\V2\GlobalSetting;
-use App\Models\V2\Genre;
+use App\Models\V2\Category;
 use App\Models\V2\AppLanguage;
 use App\Models\V2\AdmobConfig;
 use Illuminate\Http\Request;
@@ -17,7 +17,7 @@ class SettingController extends Controller
     public function fetchSettings()
     {
         $setting = GlobalSetting::first();
-        $genres = Genre::all();
+        $categories = Category::all();
         $languages = AppLanguage::all();
         $admob = AdmobConfig::all();
 
@@ -25,7 +25,8 @@ class SettingController extends Controller
             'status' => true,
             'message' => 'Fetch Setting Successfully',
             'setting' => $setting,
-            'genres' => $genres,
+            'categories' => $categories,
+            'genres' => $categories, // Keep for backward compatibility
             'languages' => $languages,
             'admob' => $admob
         ]);

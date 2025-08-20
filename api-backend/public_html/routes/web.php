@@ -4,7 +4,7 @@ use App\Http\Controllers\ActorController;
 use App\Http\Controllers\AdmobController;
 use App\Http\Controllers\ContentController;
 use App\Http\Controllers\CustomAdsController;
-use App\Http\Controllers\GenreController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\LanguageController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\LoginController;
@@ -99,11 +99,11 @@ Route::post('addSubtitleTrack', [ContentController::class, 'addSubtitleTrack'])-
 Route::post('updateSubtitleTrack', [ContentController::class, 'updateSubtitleTrack'])->middleware(['checkLogin'])->name('updateSubtitleTrack');
 Route::post('deleteSubtitleTrack', [ContentController::class, 'deleteSubtitleTrack'])->middleware(['checkLogin'])->name('deleteSubtitleTrack');
 
-Route::get('genres', [GenreController::class, 'genres'])->middleware(['checkLogin'])->name('genres');
-Route::post('genresList', [GenreController::class, 'genresList'])->middleware(['checkLogin'])->name('genresList');
-Route::post('addGenre', [GenreController::class, 'addGenre'])->middleware(['checkLogin'])->name('addGenre');
-Route::post('updateGenre', [GenreController::class, 'updateGenre'])->middleware(['checkLogin'])->name('updateGenre');
-Route::post('deleteGenre', [GenreController::class, 'deleteGenre'])->middleware(['checkLogin'])->name('deleteGenre');
+Route::get('categories', [CategoryController::class, 'categories'])->middleware(['checkLogin'])->name('categories');
+Route::post('categoriesList', [CategoryController::class, 'categoriesList'])->middleware(['checkLogin'])->name('categoriesList');
+Route::post('addCategory', [CategoryController::class, 'addCategory'])->middleware(['checkLogin'])->name('addCategory');
+Route::post('updateCategory', [CategoryController::class, 'updateCategory'])->middleware(['checkLogin'])->name('updateCategory');
+Route::post('deleteCategory', [CategoryController::class, 'deleteCategory'])->middleware(['checkLogin'])->name('deleteCategory');
 
 Route::get('languages', [LanguageController::class, 'languages'])->middleware(['checkLogin'])->name('languages');
 Route::post('languagesList', [LanguageController::class, 'languagesList'])->middleware(['checkLogin'])->name('languagesList');

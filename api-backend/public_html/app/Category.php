@@ -6,23 +6,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 
-class Genre extends Model
+class Category extends Model
 {
     use HasFactory;
-    protected $table = 'genre';
-    protected $primaryKey = 'genre_id';
+    protected $table = 'category';
+    protected $primaryKey = 'category_id';
     
     // Add accessor for backward compatibility with 'id' field
     public function getIdAttribute()
     {
-        return $this->genre_id;
+        return $this->category_id;
     }
     
     /**
-     * Get the genre's contents
+     * Get the category's contents
      */
     public function contents()
     {
-        return $this->belongsToMany('App\Content', 'content_genre', 'genre_id', 'content_id');
+        return $this->belongsToMany('App\Content', 'content_category', 'category_id', 'content_id');
     }
 }

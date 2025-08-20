@@ -48,7 +48,7 @@
                     <div class="d-flex align-items-center">
                         <label class="me-2 text-white">Sort by:</label>
                         <select id="sortBy" class="form-select form-select-sm me-3" style="width: 150px;">
-                            <option value="views">Most Viewed</option>
+                            <option value="views" selected>Most Viewed</option>
                             <option value="ratings">Highest Rated</option>
                             <option value="manual">Manual Selection</option>
                         </select>

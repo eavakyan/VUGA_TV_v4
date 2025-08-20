@@ -2,10 +2,10 @@
 
 namespace App\Models\V2;
 
-class Genre extends BaseModel
+class Category extends BaseModel
 {
-    protected $table = 'genre';
-    protected $primaryKey = 'genre_id';
+    protected $table = 'category';
+    protected $primaryKey = 'category_id';
     
     protected $fillable = [
         'title'
@@ -19,18 +19,18 @@ class Genre extends BaseModel
     protected $appends = ['id'];
     
     /**
-     * Get the id attribute (iOS expects 'id' not 'genre_id')
+     * Get the id attribute (iOS expects 'id' not 'category_id')
      */
     public function getIdAttribute()
     {
-        return $this->genre_id;
+        return $this->category_id;
     }
     
     /**
-     * Get the genre's contents
+     * Get the category's contents
      */
     public function contents()
     {
-        return $this->belongsToMany(Content::class, 'content_genre', 'genre_id', 'content_id');
+        return $this->belongsToMany(Content::class, 'content_category', 'category_id', 'content_id');
     }
 }

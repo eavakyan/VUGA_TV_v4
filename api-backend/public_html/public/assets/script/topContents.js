@@ -2,6 +2,11 @@ $(document).ready(function () {
     $(".sideBarli").removeClass("activeLi");
     $(".topContentsSideA").addClass("activeLi");
 
+    // Ensure default sort is views unless explicitly changed
+    if (!$('#sortBy').val()) {
+        $('#sortBy').val('views');
+    }
+
     var table = $("#topContentsTable").DataTable({
         autoWidth: false,
         processing: true,
@@ -27,7 +32,7 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}/topContentsList`,
+            url: `${domainUrl}topContentsList`,
             data: function(d) {
                 d.sortBy = $('#sortBy').val();
             },
@@ -76,7 +81,7 @@ $(document).ready(function () {
 
     function saveOrder(order) {
         $.ajax({
-            url: `${domainUrl}/saveOrder`,
+            url: `${domainUrl}saveOrder`,
             method: "POST",
             data: {
                 order: order,
@@ -107,7 +112,7 @@ $(document).ready(function () {
                 if (deleteValue) {
                     $.ajax({
                         type: "POST",
-                        url: `${domainUrl}/removeFromTopContent`,
+                        url: `${domainUrl}removeFromTopContent`,
                         dataType: "json",
                         data: {
                             top_content_id: id,
@@ -133,7 +138,7 @@ $(document).ready(function () {
             if (checked) {
                 $.ajax({
                     type: "POST",
-                    url: `${domainUrl}/addToTopContent`,
+                    url: `${domainUrl}addToTopContent`,
                     dataType: "json",
                     data: {content_id: id},
                     success: function (response) {

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\V2\Content;
-use App\Models\V2\Genre;
+use App\Models\V2\Category;
 use App\Models\V2\AppLanguage;
 use App\Models\V2\ContentAgeLimit;
 use App\Models\V2\AgeLimit;
@@ -246,13 +246,13 @@ class EnhancedCsvImportController extends Controller
             foreach ($genreNames as $genreName) {
                 if (empty($genreName)) continue;
                 
-                $genre = Genre::firstOrCreate(['title' => $genreName]);
-                $genreIds[] = $genre->genre_id;
+                $genre = Category::firstOrCreate(['title' => $genreName]);
+                $genreIds[] = $genre->category_id;
                 
-                // Create content_genre relationship
-                DB::table('content_genre')->insertOrIgnore([
+                // Create content_category relationship
+                DB::table('content_category')->insertOrIgnore([
                     'content_id' => $content->content_id,
-                    'genre_id' => $genre->genre_id
+                    'category_id' => $genre->category_id
                 ]);
             }
             

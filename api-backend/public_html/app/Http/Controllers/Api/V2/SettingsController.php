@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\V2\GlobalSetting;
 use App\Models\V2\CmsPage;
 use App\Models\V2\AdmobConfig;
-use App\Models\V2\Genre;
+use App\Models\V2\Category;
 use App\Models\V2\AppLanguage;
 use Illuminate\Http\Request;
 
@@ -19,7 +19,7 @@ class SettingsController extends Controller
     {
         $settings = GlobalSetting::first();
         $admobConfig = AdmobConfig::all();
-        $genres = Genre::orderBy('title')->get();
+        $categories = Category::orderBy('title')->get();
         $languages = AppLanguage::orderBy('title')->get();
         
         if (!$settings) {
@@ -34,7 +34,8 @@ class SettingsController extends Controller
             'status' => true,
             'message' => 'App settings fetched successfully',
             'setting' => $settings,  // iOS expects 'setting' not 'data.settings'
-            'genres' => $genres,
+            'genres' => $categories,  // Keep 'genres' key for backward compatibility
+            'categories' => $categories,
             'languages' => $languages,
             'admob' => $admobConfig  // iOS expects 'admob' not 'admob_config'
         ]);

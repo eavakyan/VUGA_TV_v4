@@ -4,9 +4,9 @@ namespace App\Http\Controllers\Api\V2;
 
 use App\Http\Controllers\Controller;
 use App\Models\V2\Content;
-use App\Models\V2\ContentGenre;
+use App\Models\V2\ContentCategory;
 use App\Models\V2\ContentTrailer;
-use App\Models\V2\Genre;
+use App\Models\V2\Category;
 use App\Models\V2\AppLanguage;
 use App\Models\V2\TopContent;
 use App\Models\V2\AppUserWatchHistory;
@@ -188,13 +188,13 @@ class ContentController extends Controller
             });
 
         // Genre content
-        $genres = Genre::all();
-        $genreContents = [];
+        $categorys = Category::all();
+        $categoryContents = [];
         
-        foreach ($genres as $genre) {
+        foreach ($categorys as $category) {
             $query = Content::visible()
-                ->whereHas('genres', function($q) use ($genre) {
-                    $q->where('genre.genre_id', $genre->genre_id);
+                ->whereHas('genres', function($q) use ($category) {
+                    $q->where('genre.category_id', $category->category_id);
                 })
                 ->inRandomOrder()
                 ->limit(10);
@@ -202,8 +202,8 @@ class ContentController extends Controller
             $contentModels = $this->filterContentByAge($query, $profileId)->get();
             
             if ($contentModels->isNotEmpty()) {
-                $genre->contents = $this->formatContentList($contentModels);
-                $genreContents[] = $genre;
+                $category->contents = $this->formatContentList($contentModels);
+                $categoryContents[] = $category;
             }
         }
 
@@ -213,7 +213,7 @@ class ContentController extends Controller
             'featured' => $this->formatContentList($featuredContent),
             'watchlist' => $this->formatContentList($watchlistContent),
             'topContents' => $topContents,
-            'genreContents' => $genreContents
+            'genreContents' => $categoryContents
         ]);
     }
 
@@ -307,12 +307,12 @@ class ContentController extends Controller
         }
         
         // Get more like this
-        $genreIds = $content->genres->pluck('genre_id');
+        $categoryIds = $content->genres->pluck('category_id');
         $query = Content::with(['language', 'genres'])
             ->visible()
             ->where('content_id', '!=', $content->content_id)
-            ->whereHas('genres', function($q) use ($genreIds) {
-                $q->whereIn('genre.genre_id', $genreIds);
+            ->whereHas('genres', function($q) use ($categoryIds) {
+                $q->whereIn('genre.category_id', $categoryIds);
             })
             ->limit(10);
         $moreLikeThis = $this->filterContentByAge($query, $profileId)->get();
@@ -388,12 +388,12 @@ class ContentController extends Controller
         $newReleases = $this->filterContentByAge($query, $profileId)->get();
 
         // Content by genres
-        $genreContent = Genre::all()
-            ->map(function($genre) use ($profileId) {
+        $categoryContent = Category::all()
+            ->map(function($category) use ($profileId) {
                 $query = Content::visible()
                     ->with(['language', 'genres', 'ageLimits'])
-                    ->whereHas('genres', function($q) use ($genre) {
-                        $q->where('genre.genre_id', $genre->genre_id);
+                    ->whereHas('genres', function($q) use ($category) {
+                        $q->where('genre.category_id', $category->category_id);
                     })
                     ->limit(10);
                     
@@ -404,8 +404,8 @@ class ContentController extends Controller
                 }
                 
                 return [
-                    'genre_id' => $genre->genre_id,
-                    'genre_title' => $genre->title,
+                    'category_id' => $category->category_id,
+                    'genre_title' => $category->title,
                     'contents' => $contents
                 ];
             })
@@ -420,7 +420,7 @@ class ContentController extends Controller
                 'top_content' => $this->formatContentList($topContent),
                 'continue_watching' => $continueWatching,
                 'new_releases' => $this->formatContentList($newReleases),
-                'genre_content' => $genreContent
+                'genre_content' => $categoryContent
             ]
         ]);
     }
@@ -435,7 +435,7 @@ class ContentController extends Controller
             'per_page' => 'integer|min:1|max:100',
             'type' => 'nullable|integer|in:1,2', // 1=movie, 2=series
             'language_id' => 'nullable|integer|exists:app_language,app_language_id',
-            'genre_id' => 'nullable|integer|exists:genre,genre_id',
+            'category_id' => 'nullable|integer|exists:category,category_id',
             'sort_by' => 'nullable|in:latest,oldest,popular,rating',
             'app_user_id' => 'nullable|integer|exists:app_user,app_user_id',
             'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
@@ -467,9 +467,9 @@ class ContentController extends Controller
             $query->where('language_id', $request->language_id);
         }
 
-        if ($request->genre_id) {
+        if ($request->category_id) {
             $query->whereHas('genres', function($q) use ($request) {
-                $q->where('genre.genre_id', $request->genre_id);
+                $q->where('genre.category_id', $request->category_id);
             });
         }
 
@@ -708,10 +708,10 @@ class ContentController extends Controller
     /**
      * Get content by genre
      */
-    public function getContentByGenre(Request $request)
+    public function getContentByCategory(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'genre_id' => 'required|integer|exists:genre,genre_id',
+            'category_id' => 'required|integer|exists:category,category_id',
             'page' => 'integer|min:1',
             'per_page' => 'integer|min:1|max:100',
         ]);
@@ -723,10 +723,10 @@ class ContentController extends Controller
             ], 400);
         }
 
-        $genre = Genre::find($request->genre_id);
+        $category = Category::find($request->category_id);
         
         $perPage = $request->per_page ?? 20;
-        $contents = $genre->contents()
+        $contents = $category->contents()
                          ->with(['language', 'genres'])
                          ->visible()
                          ->orderBy('created_at', 'desc')
@@ -735,7 +735,7 @@ class ContentController extends Controller
         return response()->json([
             'status' => true,
             'message' => 'Content by genre fetched successfully',
-            'genre' => $genre->title,
+            'genre' => $category->title,
             'data' => $this->formatContentList($contents->items()),
             'pagination' => [
                 'current_page' => $contents->currentPage(),
@@ -953,14 +953,14 @@ class ContentController extends Controller
     private function getRecommendations($content)
     {
         // Get content with similar genres
-        $genreIds = $content->genres->pluck('genre_id');
+        $categoryIds = $content->genres->pluck('category_id');
         
         return Content::with(['language', 'genres'])
             ->visible()
             ->where('content_id', '!=', $content->content_id)
-            ->where(function($query) use ($genreIds, $content) {
-                $query->whereHas('genres', function($q) use ($genreIds) {
-                    $q->whereIn('genre.genre_id', $genreIds);
+            ->where(function($query) use ($categoryIds, $content) {
+                $query->whereHas('genres', function($q) use ($categoryIds) {
+                    $q->whereIn('genre.category_id', $categoryIds);
                 })
                 ->orWhere('type', $content->type);
             })
@@ -982,10 +982,10 @@ class ContentController extends Controller
     /**
      * V1 Compatible: Fetch contents by genre
      */
-    public function fetchContentsByGenre(Request $request)
+    public function fetchContentsByCategory(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'genre_id' => 'required|integer|exists:genre,genre_id',
+            'category_id' => 'required|integer|exists:category,category_id',
             'start' => 'required|integer',
             'limit' => 'required|integer',
             'type' => 'nullable|integer'
@@ -1000,7 +1000,7 @@ class ContentController extends Controller
 
         $query = DB::table('content')
             ->where('is_show', 1)
-            ->whereRaw('FIND_IN_SET(?, genre_ids)', [$request->genre_id]);
+            ->whereRaw('FIND_IN_SET(?, category_ids)', [$request->category_id]);
         
         // Filter by type if provided
         if ($request->has('type') && $request->type != 0) {
@@ -1033,7 +1033,7 @@ class ContentController extends Controller
         
         // Add genre IDs as comma-separated string for backward compatibility
         if ($content->relationLoaded('genres')) {
-            $data['genre_ids'] = $content->genres->pluck('genre_id')->implode(',');
+            $data['category_ids'] = $content->genres->pluck('category_id')->implode(',');
         }
         
         // Add distributor information

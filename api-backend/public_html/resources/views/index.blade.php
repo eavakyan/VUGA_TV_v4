@@ -56,8 +56,8 @@
                 </div>
                 <div class="dashboard-blog-content-top">
                     <p> {{$genres}} </p>
-                    <a href="{{ route('genres') }}">
-                        {{ __('genres')}}
+                    <a href="{{ route('categories') }}">
+                        {{ __('categories')}}
                         <i data-feather="arrow-up-right"></i>
                     </a>
                 </div>

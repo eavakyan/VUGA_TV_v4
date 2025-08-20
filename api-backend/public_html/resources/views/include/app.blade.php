@@ -122,10 +122,10 @@
                                 <span> {{ __('actors') }} </span>
                             </a>
                         </li>
-                        <li class="sideBarli genreSideA">
-                            <a href="{{ route('genres') }}" class="nav-link">
+                        <li class="sideBarli categorySideA">
+                            <a href="{{ route('categories') }}" class="nav-link">
                                 <i data-feather="package"></i>
-                                <span> {{ __('genres') }} </span>
+                                <span> {{ __('categories') }} </span>
                             </a>
                         </li>
                         <li class="sideBarli languageSideA">

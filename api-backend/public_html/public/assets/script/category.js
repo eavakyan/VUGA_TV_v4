@@ -1,8 +1,8 @@
 $(document).ready(function () {
     $(".sideBarli").removeClass("activeLi");
-    $(".genreSideA").addClass("activeLi");
+    $(".categorySideA").addClass("activeLi");
 
-    $("#genresTable").dataTable({
+    $("#categoriesTable").dataTable({
         autoWidth: false,
         processing: true,
         serverSide: true,
@@ -22,28 +22,28 @@ $(document).ready(function () {
             },
         ],
         ajax: {
-            url: `${domainUrl}/genresList`,
+            url: `${domainUrl}categoriesList`,
             error: (error) => {
                 console.log(error);
             },
         },
     });
 
-    $(document).on("submit", "#addGenreForm", function (e) {
+    $(document).on("submit", "#addCategoryForm", function (e) {
         e.preventDefault();
         checkUserType(function () {
-            let formData = new FormData($("#addGenreForm")[0]);
+            let formData = new FormData($("#addCategoryForm")[0]);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}/addGenre`,
+                url: `${domainUrl}addCategory`,
                 data: formData,
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     if (response.status) {
                         showSuccessToast();
-                        $("#genresTable").DataTable().ajax.reload(null, false);
-                        $("#addGenreModal").modal("hide");
+                        $("#categoriesTable").DataTable().ajax.reload(null, false);
+                        $("#addCategoryModal").modal("hide");
                     }
                 },
             });
@@ -57,29 +57,29 @@ $(document).ready(function () {
         var id = $(this).attr("rel");
         var title = $(this).data("title");
 
-        $("#genre_id").val(id);
+        $("#category_id").val(id);
         $("#edit_title").val(title);
 
-        $("#editGenreModal").modal("show");
+        $("#editCategoryModal").modal("show");
     });
 
-    $(document).on("submit", "#editGenreForm", function (e) {
+    $(document).on("submit", "#editCategoryForm", function (e) {
         e.preventDefault();
-        var id = $("#genre_id").val();
+        var id = $("#category_id").val();
         checkUserType(function (e) {
-            let editformData = new FormData($("#editGenreForm")[0]);
-            editformData.append("genre_id", id);
+            let editformData = new FormData($("#editCategoryForm")[0]);
+            editformData.append("category_id", id);
             $.ajax({
                 type: "POST",
-                url: `${domainUrl}/updateGenre`,
+                url: `${domainUrl}updateCategory`,
                 data: editformData,
                 contentType: false,
                 processData: false,
                 success: function (response) {
                     if (response.status) {
                         showSuccessToast();
-                        $("#genresTable").DataTable().ajax.reload(null, false);
-                        $("#editGenreModal").modal("hide");
+                        $("#categoriesTable").DataTable().ajax.reload(null, false);
+                        $("#editCategoryModal").modal("hide");
                     } else {
                         somethingWentWrongToast();
                     }
@@ -102,15 +102,15 @@ $(document).ready(function () {
                     if (deleteValue) {
                         $.ajax({
                             type: "POST",
-                            url: `${domainUrl}/deleteGenre`,
+                            url: `${domainUrl}deleteCategory`,
                             dataType: "json",
                             data: {
-                                genre_id: id,
+                                category_id: id,
                             },
                             success: function (response) {
                                 if (response.status) {
                                     showSuccessToast();
-                                    $("#genresTable")
+                                    $("#categoriesTable")
                                         .DataTable()
                                         .ajax.reload(null, false);
                                 } else {
