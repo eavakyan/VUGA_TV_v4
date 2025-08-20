@@ -12,6 +12,9 @@ class Category extends Model
     protected $table = 'category';
     protected $primaryKey = 'category_id';
     
+    // Append 'id' to all JSON responses for iOS compatibility
+    protected $appends = ['id'];
+    
     // Add accessor for backward compatibility with 'id' field
     public function getIdAttribute()
     {

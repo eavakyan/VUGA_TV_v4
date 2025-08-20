@@ -194,7 +194,7 @@ class ContentController extends Controller
         foreach ($categorys as $category) {
             $query = Content::visible()
                 ->whereHas('genres', function($q) use ($category) {
-                    $q->where('genre.category_id', $category->category_id);
+                    $q->where('category.category_id', $category->category_id);
                 })
                 ->inRandomOrder()
                 ->limit(10);
@@ -202,8 +202,13 @@ class ContentController extends Controller
             $contentModels = $this->filterContentByAge($query, $profileId)->get();
             
             if ($contentModels->isNotEmpty()) {
-                $category->contents = $this->formatContentList($contentModels);
-                $categoryContents[] = $category;
+                $categoryData = $category->toArray();
+                $categoryData['contents'] = $this->formatContentList($contentModels);
+                // Ensure id is set for iOS compatibility
+                if (!isset($categoryData['id'])) {
+                    $categoryData['id'] = $category->category_id;
+                }
+                $categoryContents[] = $categoryData;
             }
         }
 
@@ -312,7 +317,7 @@ class ContentController extends Controller
             ->visible()
             ->where('content_id', '!=', $content->content_id)
             ->whereHas('genres', function($q) use ($categoryIds) {
-                $q->whereIn('genre.category_id', $categoryIds);
+                $q->whereIn('category.category_id', $categoryIds);
             })
             ->limit(10);
         $moreLikeThis = $this->filterContentByAge($query, $profileId)->get();
@@ -393,7 +398,7 @@ class ContentController extends Controller
                 $query = Content::visible()
                     ->with(['language', 'genres', 'ageLimits'])
                     ->whereHas('genres', function($q) use ($category) {
-                        $q->where('genre.category_id', $category->category_id);
+                        $q->where('category.category_id', $category->category_id);
                     })
                     ->limit(10);
                     
@@ -469,7 +474,7 @@ class ContentController extends Controller
 
         if ($request->category_id) {
             $query->whereHas('genres', function($q) use ($request) {
-                $q->where('genre.category_id', $request->category_id);
+                $q->where('category.category_id', $request->category_id);
             });
         }
 
@@ -960,7 +965,7 @@ class ContentController extends Controller
             ->where('content_id', '!=', $content->content_id)
             ->where(function($query) use ($categoryIds, $content) {
                 $query->whereHas('genres', function($q) use ($categoryIds) {
-                    $q->whereIn('genre.category_id', $categoryIds);
+                    $q->whereIn('category.category_id', $categoryIds);
                 })
                 ->orWhere('type', $content->type);
             })

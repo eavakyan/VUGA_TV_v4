@@ -17,7 +17,7 @@ struct Genre: Codable {
     let contents: [VugaContent]?
 
     enum CodingKeys: String, CodingKey {
-        case id = "genre_id"
+        case id
         case title
         case createdAt = "created_at"
         case updatedAt = "updated_at"
