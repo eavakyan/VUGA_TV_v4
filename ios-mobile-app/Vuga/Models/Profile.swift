@@ -102,9 +102,23 @@ struct Profile: Codable, Equatable {
         return age
     }
     
-    // Helper to get the display initial
+    // Helper to get the display initial(s) - up to 2 letters
     var initial: String {
-        return String(name.prefix(1)).uppercased()
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedName.isEmpty {
+            return "P"
+        }
+        
+        let words = trimmedName.split(separator: " ")
+        if words.isEmpty {
+            return "P"
+        } else if words.count == 1 {
+            return String(words[0].prefix(1)).uppercased()
+        } else {
+            let firstInitial = String(words[0].prefix(1)).uppercased()
+            let secondInitial = String(words[1].prefix(1)).uppercased()
+            return firstInitial + secondInitial
+        }
     }
     
     // Helper to get UIColor from hex string
@@ -113,6 +127,11 @@ struct Profile: Codable, Equatable {
             return UIColor(hex: avatarColor) ?? UIColor.systemBlue
         }
         return UIColor.systemBlue  // Default color when avatarColor is nil
+    }
+    
+    // Helper to get the hex color string
+    var colorHex: String {
+        return avatarColor ?? "#3B82F6"  // Default blue color
     }
 }
 

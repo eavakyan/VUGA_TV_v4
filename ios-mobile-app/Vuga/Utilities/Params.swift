@@ -56,4 +56,5 @@ enum Params: String {
     case notificationId = "notification_id"
     case imageData = "image_data"
     case watchHistory = "watch_history"
+    case removePhoto = "remove_photo"
 }

@@ -29,8 +29,9 @@ struct ProfileSelectionView: View {
                     ], spacing: 20) {
                         ForEach(viewModel.profiles, id: \.profileId) { profile in
                             ProfileItem(profile: profile, isEditMode: isEditMode) {
-                                print("ProfileSelectionView: Profile tapped - \(profile.name)")
+                                print("ProfileSelectionView: Profile tapped - \(profile.name), isEditMode: \(isEditMode)")
                                 if isEditMode {
+                                    print("ProfileSelectionView: Setting selectedProfile to \(profile.name) with ID \(profile.profileId)")
                                     selectedProfile = profile
                                     showCreateProfile = true
                                 } else {
@@ -89,9 +90,20 @@ struct ProfileSelectionView: View {
             }
         }
         .sheet(isPresented: $showCreateProfile) {
-            CreateProfileView(profile: selectedProfile) {
-                // Force reload profiles after creating/editing a profile
-                viewModel.loadProfiles(forceReload: true)
+            // Ensure we capture the current selectedProfile value
+            if let profile = selectedProfile {
+                // Edit existing profile
+                CreateProfileView(profile: profile) {
+                    // Force reload profiles after creating/editing a profile
+                    viewModel.loadProfiles(forceReload: true)
+                    selectedProfile = nil  // Clear after use
+                }
+            } else {
+                // Create new profile
+                CreateProfileView(profile: nil) {
+                    // Force reload profiles after creating/editing a profile
+                    viewModel.loadProfiles(forceReload: true)
+                }
             }
         }
         .onChange(of: viewModel.selectedProfile) { profile in

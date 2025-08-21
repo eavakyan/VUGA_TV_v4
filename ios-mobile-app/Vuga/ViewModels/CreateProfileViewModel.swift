@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 
 class CreateProfileViewModel: BaseViewModel {
     @Published var showError = false
@@ -49,7 +50,7 @@ class CreateProfileViewModel: BaseViewModel {
         }
     }
     
-    func updateProfile(profileId: Int, name: String, color: String, isKids: Bool, avatarId: Int? = nil, age: Int? = nil, avatarType: String = "color", completion: @escaping () -> Void) {
+    func updateProfile(profileId: Int, name: String, color: String, isKids: Bool, avatarId: Int? = nil, age: Int? = nil, avatarType: String = "color", shouldRemovePhoto: Bool = false, completion: @escaping () -> Void) {
         guard let userId = myUser?.id else { return }
         
         startLoading()
@@ -76,6 +77,11 @@ class CreateProfileViewModel: BaseViewModel {
             params[.age] = age
         }
         
+        // Add flag to remove photo if user selected a color to replace it
+        if shouldRemovePhoto {
+            params[.removePhoto] = true
+        }
+        
         print("UpdateProfile API Call - Params: \(params)")
         NetworkManager.callWebService(url: .updateProfile, params: params) { [weak self] (obj: ProfileResponse) in
             self?.stopLoading()
@@ -88,6 +94,75 @@ class CreateProfileViewModel: BaseViewModel {
                 self?.showError = true
                 self?.errorMessage = obj.message
             }
+        }
+    }
+    
+    func updateProfileWithImage(profileId: Int, name: String, color: String, isKids: Bool, avatarId: Int? = nil, age: Int? = nil, image: UIImage, completion: @escaping () -> Void) {
+        guard let userId = myUser?.id else { return }
+        
+        startLoading()
+        showError = false
+        
+        // First update the profile details
+        var finalAvatarId = avatarId ?? 1
+        if avatarId == nil, let colorIndex = avatarColors.firstIndex(of: color) {
+            finalAvatarId = (colorIndex % 8) + 1
+        }
+        
+        var params: [Params: Any] = [
+            .profileId: profileId,
+            .userId: userId,
+            .name: name,
+            .avatarId: finalAvatarId,
+            .avatarType: "custom",  // Set to custom since we're uploading an image
+            .avatarColor: color,
+            .isKids: isKids ? 1 : 0
+        ]
+        
+        if let age = age {
+            params[.age] = age
+        }
+        
+        // Update profile first
+        NetworkManager.callWebService(url: .updateProfile, params: params) { [weak self] (obj: ProfileResponse) in
+            if obj.status {
+                // Profile updated, now upload the image
+                self?.uploadProfileAvatar(userId: userId, profileId: profileId, image: image) { success in
+                    self?.stopLoading()
+                    if success {
+                        completion()
+                    } else {
+                        self?.showError = true
+                        self?.errorMessage = "Profile updated but image upload failed"
+                        // Still call completion as profile was updated
+                        completion()
+                    }
+                }
+            } else {
+                self?.stopLoading()
+                self?.showError = true
+                self?.errorMessage = obj.message
+            }
+        }
+    }
+    
+    private func uploadProfileAvatar(userId: Int, profileId: Int, image: UIImage, completion: @escaping (Bool) -> Void) {
+        // Convert image to base64
+        guard let imageData = image.jpegData(compressionQuality: 0.8) else {
+            completion(false)
+            return
+        }
+        
+        let base64String = imageData.base64EncodedString()
+        
+        let params: [Params: Any] = [
+            .userId: userId,
+            .profileId: profileId,
+            .imageData: base64String
+        ]
+        
+        NetworkManager.callWebService(url: .uploadProfileAvatar, params: params) { (obj: ProfileResponse) in
+            completion(obj.status)
         }
     }
 }

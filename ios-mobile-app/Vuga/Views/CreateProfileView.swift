@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 struct CreateProfileView: View {
     @StateObject private var viewModel = CreateProfileViewModel()
@@ -10,6 +11,9 @@ struct CreateProfileView: View {
     @State private var profileAge: Int? = nil
     @State private var showAgeInputDialog = false
     @State private var ageInputText = ""
+    @State private var hasSelectedColor = false  // Track if user selected a color to replace photo
+    @State private var showImagePicker = false
+    @State private var selectedImage: UIImage? = nil
     
     let profile: Profile?
     let onComplete: () -> Void
@@ -61,8 +65,18 @@ struct CreateProfileView: View {
                     VStack(spacing: 30) {
                         // Profile Preview - Show current avatar or initials
                         ZStack {
-                            if let profile = profile, let avatarUrl = profile.avatarUrl, !avatarUrl.isEmpty {
-                                // Show existing avatar image
+                            // Show selected image if available
+                            if let selectedImage = selectedImage {
+                                Image(uiImage: selectedImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .frame(width: 120, height: 120)
+                                    .clipShape(Circle())
+                            }
+                            // Show existing photo if no color selected and no new image
+                            else if !hasSelectedColor, let profile = profile, let avatarUrl = profile.avatarUrl, !avatarUrl.isEmpty,
+                               avatarUrl.starts(with: "http") {
+                                // Show existing avatar image only if no color has been selected
                                 AsyncImage(url: URL(string: avatarUrl)) { image in
                                     image
                                         .resizable()
@@ -76,23 +90,33 @@ struct CreateProfileView: View {
                                             .fill(Color(hexString: selectedColor))
                                             .frame(width: 120, height: 120)
                                         
-                                        Text(profileName.isEmpty ? "P" : String(profileName.prefix(2)).uppercased())
+                                        Text(getInitials(from: profileName))
                                             .font(.system(size: 48, weight: .bold))
                                             .foregroundColor(.white)
                                     }
                                 }
                             } else {
-                                // Show initials in colored circle
+                                // Show initials in colored circle (when no photo or user selected a color)
                                 Circle()
                                     .fill(Color(hexString: selectedColor))
                                     .frame(width: 120, height: 120)
                                 
-                                Text(profileName.isEmpty ? "P" : String(profileName.prefix(2)).uppercased())
+                                Text(getInitials(from: profileName))
                                     .font(.system(size: 48, weight: .bold))
                                     .foregroundColor(.white)
                             }
                         }
                         .padding(.top, 20)
+                        
+                        // Upload Photo Button
+                        Button(action: {
+                            showImagePicker = true
+                        }) {
+                            Text("Upload Photo")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(Color.blue)
+                                .padding(.vertical, 5)
+                        }
                         
                         // Profile Name
                         VStack(alignment: .leading, spacing: 10) {
@@ -130,6 +154,8 @@ struct CreateProfileView: View {
                                         )
                                         .onTapGesture {
                                             selectedColor = color
+                                            hasSelectedColor = true  // Mark that user selected a color
+                                            selectedImage = nil  // Clear any selected image
                                             // Map color to avatar ID (1-based index, limited to 1-8 range)
                                             if let colorIndex = avatarColors.firstIndex(of: color) {
                                                 selectedAvatarId = (colorIndex % 8) + 1
@@ -183,13 +209,23 @@ struct CreateProfileView: View {
                                     presentationMode.wrappedValue.dismiss()
                                 }
                             } else {
-                                // When updating, always use color avatar type since user is selecting from color options
-                                // This will replace any custom image with the selected color avatar
-                                print("UpdateProfile: Saving - Name: \(profileName), Color: \(selectedColor), AvatarId: \(selectedAvatarId)")
-                                viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId, age: profileAge, avatarType: "color") {
-                                    print("UpdateProfile: Success - Profile updated")
-                                    onComplete()
-                                    presentationMode.wrappedValue.dismiss()
+                                // When updating, check if we have a new image to upload
+                                if let selectedImage = selectedImage {
+                                    // Upload the new image
+                                    viewModel.updateProfileWithImage(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId, age: profileAge, image: selectedImage) {
+                                        print("UpdateProfile: Success - Profile updated with new image")
+                                        onComplete()
+                                        presentationMode.wrappedValue.dismiss()
+                                    }
+                                } else {
+                                    // No new image, determine avatar type based on whether user selected a color
+                                    let avatarType = hasSelectedColor ? "color" : (profile!.avatarType ?? "color")
+                                    print("UpdateProfile: Saving - Name: \(profileName), Color: \(selectedColor), AvatarId: \(selectedAvatarId), AvatarType: \(avatarType)")
+                                    viewModel.updateProfile(profileId: profile!.profileId, name: profileName, color: selectedColor, isKids: isKidsProfile, avatarId: selectedAvatarId, age: profileAge, avatarType: avatarType, shouldRemovePhoto: hasSelectedColor) {
+                                        print("UpdateProfile: Success - Profile updated")
+                                        onComplete()
+                                        presentationMode.wrappedValue.dismiss()
+                                    }
                                 }
                             }
                         }) {
@@ -215,21 +251,17 @@ struct CreateProfileView: View {
             }
         }
         .onAppear {
+            print("CreateProfileView: onAppear - profile is \(profile == nil ? "nil" : "not nil")")
             if let profile = profile {
-                print("CreateProfileView: Loading profile - Name: \(profile.name), Color: \(profile.avatarColor ?? "default"), AvatarId: \(profile.avatarId ?? 0)")
+                print("CreateProfileView: Loading profile - Name: \(profile.name), ID: \(profile.profileId), Color: \(profile.colorHex), AvatarId: \(profile.avatarId ?? 0)")
                 profileName = profile.name
-                selectedColor = profile.avatarColor ?? "#FF5252"  // Use default color if nil
                 isKidsProfile = profile.isKids
                 selectedAvatarId = profile.avatarId ?? 1
                 profileAge = profile.age
                 
-                // If we don't have the exact color in our list, use the avatar ID to determine which color to select
-                if !avatarColors.contains(selectedColor) && selectedAvatarId > 0 && selectedAvatarId <= 8 {
-                    let colorIndex = (selectedAvatarId - 1) % avatarColors.count
-                    if colorIndex >= 0 && colorIndex < avatarColors.count {
-                        selectedColor = avatarColors[colorIndex]
-                    }
-                }
+                // Use the colorHex property which handles nil avatarColor
+                selectedColor = profile.colorHex
+                
                 print("CreateProfileView: After loading - profileName: \(profileName), selectedColor: \(selectedColor)")
             } else {
                 print("CreateProfileView: No profile provided, creating new profile")
@@ -264,6 +296,27 @@ struct CreateProfileView: View {
                 message: Text(viewModel.errorMessage),
                 dismissButton: .default(Text("OK"))
             )
+        }
+        .sheet(isPresented: $showImagePicker) {
+            ImagePicker(image: $selectedImage)
+        }
+    }
+    
+    private func getInitials(from name: String) -> String {
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        if trimmedName.isEmpty {
+            return "P"
+        }
+        
+        let words = trimmedName.split(separator: " ")
+        if words.isEmpty {
+            return "P"
+        } else if words.count == 1 {
+            return String(words[0].prefix(1)).uppercased()
+        } else {
+            let firstInitial = String(words[0].prefix(1)).uppercased()
+            let secondInitial = String(words[1].prefix(1)).uppercased()
+            return firstInitial + secondInitial
         }
     }
 }
