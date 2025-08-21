@@ -228,7 +228,7 @@
 
 
                     <LinearLayout
-                        android:id="@+id/lout_notification"
+                        android:id="@+id/lout_communications"
                         android:layout_width="match_parent"
                         android:layout_height="65dp"
                         android:layout_marginVertical="5dp"
@@ -237,7 +237,6 @@
                         android:orientation="horizontal"
                         android:paddingHorizontal="15dp"
                         android:paddingVertical="18dp">
-
 
                         <ImageView
                             android:layout_width="20dp"
@@ -251,51 +250,7 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="10dp"
                             android:fontFamily="@font/outfit_regular"
-                            android:text="@string/notification"
-                            android:textSize="@dimen/_14sp" />
-
-                        <View
-                            android:layout_width="0dp"
-                            android:layout_height="0dp"
-                            android:layout_weight="1" />
-
-                        <androidx.appcompat.widget.SwitchCompat
-                            android:id="@+id/switch_noti"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:checked="true"
-                            app:thumbTint="@color/white"
-                            app:track="@drawable/bg_for_custom_track"
-
-                            />
-
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/lout_marketing"
-                        android:layout_width="match_parent"
-                        android:layout_height="65dp"
-                        android:layout_marginVertical="5dp"
-                        android:background="@drawable/bg_for_profile_tab"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="15dp"
-                        android:paddingVertical="18dp">
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_email"
-                            app:tint="@color/text_color" />
-
-                        <TextView
-                            style="@style/TextViewLocal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:fontFamily="@font/outfit_regular"
-                            android:text="Marketing Preferences"
+                            android:text="Communications Settings"
                             android:textSize="@dimen/_14sp" />
 
                     </LinearLayout>
@@ -325,6 +280,68 @@
                             android:layout_marginStart="10dp"
                             android:fontFamily="@font/outfit_regular"
                             android:text="@string/downloads"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_language"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_language"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="@string/language"
+                            android:textDirection="locale"
+                            android:textSize="@dimen/_14sp" />
+
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/lout_tv_connect"
+                        android:layout_width="match_parent"
+                        android:layout_height="65dp"
+                        android:layout_marginVertical="5dp"
+                        android:background="@drawable/bg_for_profile_tab"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingHorizontal="15dp"
+                        android:paddingVertical="18dp">
+
+
+                        <ImageView
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:src="@drawable/ic_tv"
+                            app:tint="@color/text_color" />
+
+                        <TextView
+                            style="@style/TextViewLocal"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:fontFamily="@font/outfit_regular"
+                            android:text="Connect TV"
                             android:textDirection="locale"
                             android:textSize="@dimen/_14sp" />
 
@@ -390,37 +407,6 @@
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/lout_language"
-                        android:layout_width="match_parent"
-                        android:layout_height="65dp"
-                        android:layout_marginVertical="5dp"
-                        android:background="@drawable/bg_for_profile_tab"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="15dp"
-                        android:paddingVertical="18dp">
-
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_language"
-                            app:tint="@color/text_color" />
-
-                        <TextView
-                            style="@style/TextViewLocal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:fontFamily="@font/outfit_regular"
-                            android:text="@string/language"
-                            android:textDirection="locale"
-                            android:textSize="@dimen/_14sp" />
-
-
-                    </LinearLayout>
-
-                    <LinearLayout
                         android:id="@+id/lout_Privacy"
                         android:layout_width="match_parent"
                         android:layout_height="65dp"
@@ -476,37 +462,6 @@
                             android:layout_marginStart="10dp"
                             android:fontFamily="@font/outfit_regular"
                             android:text="@string/terms_of_use"
-                            android:textDirection="locale"
-                            android:textSize="@dimen/_14sp" />
-
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:id="@+id/lout_tv_connect"
-                        android:layout_width="match_parent"
-                        android:layout_height="65dp"
-                        android:layout_marginVertical="5dp"
-                        android:background="@drawable/bg_for_profile_tab"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal"
-                        android:paddingHorizontal="15dp"
-                        android:paddingVertical="18dp">
-
-
-                        <ImageView
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
-                            android:src="@drawable/ic_tv"
-                            app:tint="@color/text_color" />
-
-                        <TextView
-                            style="@style/TextViewLocal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginStart="10dp"
-                            android:fontFamily="@font/outfit_regular"
-                            android:text="Connect TV"
                             android:textDirection="locale"
                             android:textSize="@dimen/_14sp" />
 

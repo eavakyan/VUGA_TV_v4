@@ -110,6 +110,7 @@
 		2FEFA7CC9AFFA2177DDE2824 /* Pods_Vuga.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BE8A9C1FEF5BF1811AB54C34 /* Pods_Vuga.framework */; };
 		32892791E2DC80982906575A /* PaymentMethodSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DDF5EB51E219A1FB20D19CE9 /* PaymentMethodSelectionView.swift */; };
 		35C6CC3BDB4C0927D2EE30B0 /* WatchHistorySyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE463D064F3A1FA2B6C8B0C5 /* WatchHistorySyncService.swift */; };
+		35C6CC3BDB4C0927D2EE30B1 /* VideoCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE463D074F3A1FA2B6C8B0C6 /* VideoCacheManager.swift */; };
 		4D4650246EF3E24CDC509866 /* EpisodeDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB5CB06627019501FD40EBF /* EpisodeDetailView.swift */; };
 		4FB71E3714D7BA9D0CC3EB86 /* ComingSoonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18699F7A3CCC5D04B9896980 /* ComingSoonView.swift */; };
 		7B509AFE61B44DA0BB1B1E78 /* TrailerModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A0EEC768CD90445586D9A12F /* TrailerModel.swift */; };
@@ -481,6 +482,7 @@
 		D3BBE012FG9A667708GAE45I /* TrailerInlinePlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrailerInlinePlayer.swift; sourceTree = "<group>"; };
 		DDF5EB51E219A1FB20D19CE9 /* PaymentMethodSelectionView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PaymentMethodSelectionView.swift; sourceTree = "<group>"; };
 		DE463D064F3A1FA2B6C8B0C5 /* WatchHistorySyncService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = WatchHistorySyncService.swift; path = Services/WatchHistorySyncService.swift; sourceTree = "<group>"; };
+		DE463D074F3A1FA2B6C8B0C6 /* VideoCacheManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = VideoCacheManager.swift; path = Services/VideoCacheManager.swift; sourceTree = "<group>"; };
 		F3FF04547AE0611E4D479B03 /* RecentlyWatchedGroupedView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecentlyWatchedGroupedView.swift; sourceTree = "<group>"; };
 		FEE8FB4FB1F2086E0E735BF3 /* Pods-Vuga.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Vuga.debug.xcconfig"; path = "Target Support Files/Pods-Vuga/Pods-Vuga.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -606,6 +608,7 @@
 			isa = PBXGroup;
 			children = (
 				DE463D064F3A1FA2B6C8B0C5 /* WatchHistorySyncService.swift */,
+				DE463D074F3A1FA2B6C8B0C6 /* VideoCacheManager.swift */,
 			);
 			name = Services;
 			sourceTree = "<group>";
@@ -1353,6 +1356,7 @@
 				03A1FF58C727A550F2912445 /* CommunicationPreferencesView.swift in Sources */,
 				4D4650246EF3E24CDC509866 /* EpisodeDetailView.swift in Sources */,
 				35C6CC3BDB4C0927D2EE30B0 /* WatchHistorySyncService.swift in Sources */,
+				35C6CC3BDB4C0927D2EE30B1 /* VideoCacheManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -1,11 +1,13 @@
 package com.retry.vuga.activities;
 
+import android.app.NotificationManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
 import androidx.databinding.DataBindingUtil;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.retry.vuga.R;
 import com.retry.vuga.databinding.ActivityMarketingPreferencesBinding;
 import com.retry.vuga.model.UserRegistration;
@@ -41,7 +43,11 @@ public class MarketingPreferencesActivity extends BaseActivity {
     }
 
     private void setUserPreferences() {
-        // Set default values for now - can be retrieved from API later
+        // Get notification preference from session
+        boolean notificationEnabled = sessionManager.getBooleanValue(Const.DataKey.NOTIFICATION);
+        binding.switchNotification.setChecked(notificationEnabled);
+        
+        // Set default values for marketing preferences - can be retrieved from API later
         emailConsent = false;
         smsConsent = false;
         
@@ -52,6 +58,21 @@ public class MarketingPreferencesActivity extends BaseActivity {
     private void setListeners() {
         binding.btnBack.setOnClickListener(v -> {
             getOnBackPressedDispatcher().onBackPressed();
+        });
+
+        // Notification switch listener
+        binding.switchNotification.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            if (isChecked) {
+                sessionManager.saveBooleanValue(Const.DataKey.NOTIFICATION, true);
+                FirebaseMessaging.getInstance().subscribeToTopic(Const.FIREBASE_SUB_TOPIC);
+                Toast.makeText(this, "Push notifications enabled", Toast.LENGTH_SHORT).show();
+            } else {
+                NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
+                notificationManager.cancelAll();
+                sessionManager.saveBooleanValue(Const.DataKey.NOTIFICATION, false);
+                FirebaseMessaging.getInstance().unsubscribeFromTopic(Const.FIREBASE_SUB_TOPIC);
+                Toast.makeText(this, "Push notifications disabled", Toast.LENGTH_SHORT).show();
+            }
         });
 
         binding.cbEmailConsent.setOnCheckedChangeListener((buttonView, isChecked) -> {

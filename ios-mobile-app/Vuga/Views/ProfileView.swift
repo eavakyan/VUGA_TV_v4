@@ -58,7 +58,11 @@ struct ProfileView: View {
                             ZStack(alignment: .bottomTrailing) {
                                 if let currentProfile = SessionManager.shared.currentProfile {
                                     let _ = print("ProfileView large - avatarUrl: \(currentProfile.avatarUrl ?? "nil"), avatarType: \(currentProfile.avatarType)")
-                                    if let avatarUrl = currentProfile.avatarUrl, !avatarUrl.isEmpty {
+                                    // Only show photo if avatarType is "custom" AND we have a valid URL
+                                    if currentProfile.avatarType == "custom",
+                                       let avatarUrl = currentProfile.avatarUrl,
+                                       !avatarUrl.isEmpty,
+                                       avatarUrl.hasPrefix("http") {
                                         // Use profile avatar URL
                                         KFImage(URL(string: avatarUrl))
                                             .resizable()
@@ -66,7 +70,7 @@ struct ProfileView: View {
                                             .frame(width: 100, height: 100)
                                             .clipShape(.circle)
                                     } else {
-                                        // Always show initials in colored circle when no photo exists
+                                        // Show initials in colored circle for color avatars or invalid URLs
                                         let profileColor = currentProfile.avatarColor?.isEmpty ?? true ? "#FF6B6B" : (currentProfile.avatarColor ?? "#FF6B6B")
                                         let profileInitials = String(currentProfile.name.prefix(2)).uppercased()
                                         

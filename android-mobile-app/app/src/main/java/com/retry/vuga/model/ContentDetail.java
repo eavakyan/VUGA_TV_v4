@@ -322,8 +322,11 @@ public class ContentDetail {
             }
             
             try {
-                // Try to parse duration as integer (minutes)
-                int totalMinutes = Integer.parseInt(duration);
+                // Parse duration as integer (seconds from database)
+                int totalSeconds = Integer.parseInt(duration);
+                
+                // Convert seconds to minutes
+                int totalMinutes = totalSeconds / 60;
                 
                 if (totalMinutes < 60) {
                     // Under 1 hour - show only minutes
@@ -866,6 +869,38 @@ public class ContentDetail {
 
             public String getDuration() {
                 return duration == null ? "" : duration;
+            }
+            
+            public String getFormattedDuration() {
+                if (duration == null || duration.isEmpty()) {
+                    return "";
+                }
+                
+                try {
+                    // Parse duration as integer (seconds from database)
+                    int totalSeconds = Integer.parseInt(duration);
+                    
+                    // Convert seconds to minutes
+                    int totalMinutes = totalSeconds / 60;
+                    
+                    if (totalMinutes < 60) {
+                        // Under 1 hour - show only minutes
+                        return totalMinutes + " min";
+                    } else {
+                        // 1 hour or more - show hours and minutes
+                        int hours = totalMinutes / 60;
+                        int minutes = totalMinutes % 60;
+                        
+                        if (minutes == 0) {
+                            return hours + " hr";
+                        } else {
+                            return hours + " hr " + minutes + " min";
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    // If duration is not a number, return as is
+                    return duration;
+                }
             }
 
             public void setDuration(String duration) {

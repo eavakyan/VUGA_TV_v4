@@ -643,8 +643,73 @@
                             </androidx.constraintlayout.widget.ConstraintLayout>
                         </LinearLayout>
 
+                        <!-- New Releases Section -->
                         <LinearLayout
-                            android:id="@+id/lout_wathlist"
+                            android:id="@+id/lout_new_releases"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:orientation="vertical"
+                            android:visibility="gone">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal"
+                                android:paddingHorizontal="10dp">
+
+                                <TextView
+                                    style="@style/TextViewLocal"
+                                    android:layout_width="0dp"
+                                    android:layout_height="wrap_content"
+                                    android:layout_weight="1"
+                                    android:fontFamily="@font/outfit_semi_bold"
+                                    android:text="New Releases"
+                                    android:textSize="@dimen/_20sp" />
+
+                            </LinearLayout>
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_new_releases"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:nestedScrollingEnabled="false"
+                                android:orientation="horizontal"
+                                android:paddingStart="10dp"
+                                android:paddingEnd="0dp"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                tools:listitem="@layout/item_watch_list" />
+
+                        </LinearLayout>
+
+                        <!-- Recently Watched Section -->
+                        <TextView
+                            android:id="@+id/tv_history"
+                            style="@style/TextViewLocal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:fontFamily="@font/outfit_semi_bold"
+                            android:paddingHorizontal="10dp"
+                            android:text="@string/recently_watched"
+                            android:textSize="@dimen/_20sp" />
+
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/rv_history"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:nestedScrollingEnabled="false"
+                            android:orientation="horizontal"
+                            android:paddingStart="10dp"
+                            android:paddingEnd="0dp"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            tools:listitem="@layout/item_movie_history" />
+
+                        <!-- Watchlist Section -->
+                        <LinearLayout
+                            android:id="@+id/lout_watchlist"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
@@ -695,69 +760,6 @@
                             </androidx.recyclerview.widget.RecyclerView>
 
                         </LinearLayout>
-
-                        <!-- New Releases Section -->
-                        <LinearLayout
-                            android:id="@+id/lout_new_releases"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
-                            android:orientation="vertical"
-                            android:visibility="gone">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="horizontal"
-                                android:paddingHorizontal="10dp">
-
-                                <TextView
-                                    style="@style/TextViewLocal"
-                                    android:layout_width="0dp"
-                                    android:layout_height="wrap_content"
-                                    android:layout_weight="1"
-                                    android:fontFamily="@font/outfit_semi_bold"
-                                    android:text="New Releases"
-                                    android:textSize="@dimen/_20sp" />
-
-                            </LinearLayout>
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rv_new_releases"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginTop="5dp"
-                                android:nestedScrollingEnabled="false"
-                                android:orientation="horizontal"
-                                android:paddingStart="10dp"
-                                android:paddingEnd="0dp"
-                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                tools:listitem="@layout/item_watch_list" />
-
-                        </LinearLayout>
-
-                        <TextView
-                            android:id="@+id/tv_history"
-                            style="@style/TextViewLocal"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="20dp"
-                            android:fontFamily="@font/outfit_semi_bold"
-                            android:paddingHorizontal="10dp"
-                            android:text="@string/recently_watched"
-                            android:textSize="@dimen/_20sp" />
-
-                        <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/rv_history"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:nestedScrollingEnabled="false"
-                            android:orientation="horizontal"
-                            android:paddingStart="10dp"
-                            android:paddingEnd="0dp"
-                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                            tools:listitem="@layout/item_movie_history" />
 
                         <LinearLayout
                             android:id="@+id/lout_top"

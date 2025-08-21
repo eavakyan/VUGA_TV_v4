@@ -29,7 +29,8 @@
     <color name="text_color_10">#1ADDDDDD</color>
     <color name="text_color_20">#33DDDDDD</color>
     <color name="text_color_40">#66DDDDDD</color>
-    <color name="text_color_light">#7A7A7D</color>
+    <color name="text_color_light">#B0B0B0</color>
+    <color name="bottom_nav_inactive">#FFFFFF</color>
     <color name="text_color_hint">@color/text_color_20</color>
     <color name="et_stroke_color">#3E3E43</color>
     <color name="edit_text_bg_color">#16161D</color>

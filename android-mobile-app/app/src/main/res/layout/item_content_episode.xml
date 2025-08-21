@@ -107,7 +107,7 @@
                                 android:layout_height="wrap_content"
                                 android:fontFamily="@font/outfit_light"
                                 android:letterSpacing=".04"
-                                android:text="@{String.valueOf(content.duration)}"
+                                android:text="@{content.formattedDuration}"
                                 android:textColor="@color/text_color_light"
                                 android:textSize="@dimen/_16sp"
                                 tools:text="45 min" />

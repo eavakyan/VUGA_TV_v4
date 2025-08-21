@@ -46,8 +46,9 @@
                 android:background="@color/app_black"
                 android:paddingTop="10dp"
                 android:paddingBottom="35dp"
+                android:layout_marginBottom="10dp"
                 android:visibility="visible"
-                tools:visibility="gone">
+                tools:visibility="visible">
 
                 <!-- Home -->
                 <LinearLayout
@@ -63,18 +64,17 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_home"
-                        android:tint="@{currentPosition == 0 ? @color/app_color : @color/text_color_light}" />
+                        android:tint="@{currentPosition == 0 ? @color/app_color : @color/bottom_nav_inactive}" />
 
                     <TextView
                         android:id="@+id/tv_home"
-                        style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:fontFamily="@font/outfit_regular"
                         android:gravity="center"
                         android:text="@string/home"
-                        android:textColor="@{currentPosition == 0 ? @color/app_color : @color/text_color_light}"
+                        android:textColor="@{currentPosition == 0 ? @color/app_color : @color/bottom_nav_inactive}"
                         android:textSize="@dimen/_12sp" />
 
                 </LinearLayout>
@@ -93,18 +93,17 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_search"
-                        android:tint="@{currentPosition == 1 ? @color/app_color : @color/text_color_light}" />
+                        android:tint="@{currentPosition == 1 ? @color/app_color : @color/bottom_nav_inactive}" />
 
                     <TextView
                         android:id="@+id/tv_search_nav"
-                        style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:fontFamily="@font/outfit_regular"
                         android:gravity="center"
                         android:text="@string/search"
-                        android:textColor="@{currentPosition == 1 ? @color/app_color : @color/text_color_light}"
+                        android:textColor="@{currentPosition == 1 ? @color/app_color : @color/bottom_nav_inactive}"
                         android:textSize="@dimen/_12sp" />
 
                 </LinearLayout>
@@ -123,18 +122,17 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_subscription_boxes"
-                        android:tint="@{currentPosition == 2 ? @color/app_color : @color/text_color_light}" />
+                        android:tint="@{currentPosition == 2 ? @color/app_color : @color/bottom_nav_inactive}" />
 
                     <TextView
                         android:id="@+id/tv_subscriptions"
-                        style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:fontFamily="@font/outfit_regular"
                         android:gravity="center"
                         android:text="Subscriptions"
-                        android:textColor="@{currentPosition == 2 ? @color/app_color : @color/text_color_light}"
+                        android:textColor="@{currentPosition == 2 ? @color/app_color : @color/bottom_nav_inactive}"
                         android:textSize="@dimen/_12sp" />
 
                 </LinearLayout>
@@ -153,18 +151,17 @@
                         android:layout_width="20dp"
                         android:layout_height="20dp"
                         android:src="@drawable/ic_bookmark_not"
-                        android:tint="@{currentPosition == 3 ? @color/app_color : @color/text_color_light}" />
+                        android:tint="@{currentPosition == 3 ? @color/app_color : @color/bottom_nav_inactive}" />
 
                     <TextView
                         android:id="@+id/tv_watch"
-                        style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:fontFamily="@font/outfit_regular"
                         android:gravity="center"
                         android:text="@string/watch_list"
-                        android:textColor="@{currentPosition == 3 ? @color/app_color : @color/text_color_light}"
+                        android:textColor="@{currentPosition == 3 ? @color/app_color : @color/bottom_nav_inactive}"
                         android:textSize="@dimen/_12sp" />
 
                 </LinearLayout>
@@ -201,14 +198,13 @@
 
                     <TextView
                         android:id="@+id/tv_profile"
-                        style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
                         android:fontFamily="@font/outfit_regular"
                         android:gravity="center"
                         android:text="Profile"
-                        android:textColor="@{currentPosition == 4 ? @color/app_color : @color/text_color_light}"
+                        android:textColor="@{currentPosition == 4 ? @color/app_color : @color/bottom_nav_inactive}"
                         android:textSize="@dimen/_12sp" />
 
                 </LinearLayout>

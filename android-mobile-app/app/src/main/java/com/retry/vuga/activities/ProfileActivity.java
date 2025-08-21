@@ -144,10 +144,8 @@ public class ProfileActivity extends BaseActivity {
                     Uri.parse("http://play.google.com/store/apps/details?id=" + BuildConfig.APPLICATION_ID)));
 
         });
-        binding.loutMarketing.setOnClickListener(v -> {
-            // TODO: Fix CommunicationPreferencesActivity layout issues
-            // startActivity(new Intent(this, CommunicationPreferencesActivity.class));
-            Toast.makeText(this, "Communication preferences temporarily unavailable", Toast.LENGTH_SHORT).show();
+        binding.loutCommunications.setOnClickListener(v -> {
+            startActivity(new Intent(this, MarketingPreferencesActivity.class));
         });
 
         binding.loutDownloads.setOnClickListener(v -> {
@@ -161,9 +159,7 @@ public class ProfileActivity extends BaseActivity {
         });
         
         binding.loutAgeSettings.setOnClickListener(v -> {
-            // TODO: Temporarily disabled age settings
-            // startActivity(new Intent(this, AgeSettingsActivity.class));
-            Toast.makeText(this, "Age settings temporarily unavailable", Toast.LENGTH_SHORT).show();
+            startActivity(new Intent(this, AgeSettingsActivity.class));
         });
 
         binding.loutTvConnect.setOnClickListener(v -> {
@@ -205,22 +201,7 @@ public class ProfileActivity extends BaseActivity {
 
         });
 
-        binding.switchNoti.setOnCheckedChangeListener((buttonView, isChecked) -> {
-
-            if (isChecked) {
-
-                sessionManager.saveBooleanValue(Const.DataKey.NOTIFICATION, true);
-                FirebaseMessaging.getInstance().subscribeToTopic(Const.FIREBASE_SUB_TOPIC);
-
-            } else {
-                NotificationManager notificationManager = (NotificationManager) this.getSystemService(NOTIFICATION_SERVICE);
-                notificationManager.cancelAll();
-                sessionManager.saveBooleanValue(Const.DataKey.NOTIFICATION, false);
-                FirebaseMessaging.getInstance().unsubscribeFromTopic(Const.FIREBASE_SUB_TOPIC);
-
-
-            }
-        });
+        // Notification switch moved to Communications Settings
 
 
     }
@@ -393,9 +374,6 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void setUserDetail() {
-
-        boolean notification = sessionManager.getBooleanValue(Const.DataKey.NOTIFICATION);
-        binding.switchNoti.setChecked(notification);
 
         // Show the current profile's avatar
         if (sessionManager.getUser().getLastActiveProfile() != null) {

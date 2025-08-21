@@ -90,7 +90,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="15dp"
                         android:fontFamily="@font/outfit_light"
-                        android:text="@{String.valueOf(episode.duration) + ` min`}"
+                        android:text="@{episode.formattedDuration}"
                         android:textColor="@color/text_color_light"
                         android:textSize="@dimen/_14sp"
                         tools:text="45 min" />

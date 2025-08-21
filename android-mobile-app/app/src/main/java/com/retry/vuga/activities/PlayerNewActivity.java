@@ -26,6 +26,9 @@ import com.google.android.exoplayer2.MediaItem;
 import com.google.android.exoplayer2.Player;
 import com.google.android.exoplayer2.ExoPlayer;
 import com.google.android.exoplayer2.ui.PlayerView;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.ProgressiveMediaSource;
+import com.google.android.exoplayer2.source.hls.HlsMediaSource;
 
 import com.downloader.Error;
 import com.downloader.OnDownloadListener;
@@ -51,6 +54,7 @@ import com.retry.vuga.utils.subtitle.SubtitleDisplay;
 import com.retry.vuga.utils.subtitle.SubtitleParser;
 import com.retry.vuga.utils.UniversalCastButton;
 import com.retry.vuga.utils.UniversalCastManager;
+import com.retry.vuga.utils.VideoCacheManager;
 import com.retry.vuga.viewmodel.PlayerViewModel;
 
 import org.jetbrains.annotations.NotNull;
@@ -409,17 +413,33 @@ public class PlayerNewActivity extends BaseActivity {
             binding.exoPlayerView.findViewById(R.id.exo_play_btn).setVisibility(View.GONE);
             binding.exoPlayerView.findViewById(R.id.exo_pause_btn).setVisibility(View.VISIBLE);
         });
-        MediaItem mediaItem = new MediaItem.Builder()
-                .setUri(videoPath)
+        // Initialize video cache manager
+        VideoCacheManager cacheManager = VideoCacheManager.getInstance(this);
+        
+        // Create ExoPlayer with adaptive load control based on network
+        simpleExoPlayer = new ExoPlayer.Builder(this)
+                .setLoadControl(cacheManager.getAdaptiveLoadControl())
                 .build();
-
-
-        simpleExoPlayer = new ExoPlayer.Builder(this).build();
         binding.exoPlayerView.setPlayer(simpleExoPlayer);
         binding.exoPlayerView.setKeepScreenOn(true);
 
-        simpleExoPlayer.setMediaItem(mediaItem);
+        // Create media source with caching support
+        MediaItem mediaItem = new MediaItem.Builder()
+                .setUri(videoPath)
+                .build();
+        
+        MediaSource mediaSource;
+        if (videoPath.contains(".m3u8") || videoPath.contains(".M3U8")) {
+            // HLS stream with caching
+            mediaSource = new HlsMediaSource.Factory(cacheManager.getCacheDataSourceFactory())
+                    .createMediaSource(mediaItem);
+        } else {
+            // Progressive media (MP4, etc.) with caching
+            mediaSource = new ProgressiveMediaSource.Factory(cacheManager.getCacheDataSourceFactory())
+                    .createMediaSource(mediaItem);
+        }
 
+        simpleExoPlayer.setMediaSource(mediaSource);
         simpleExoPlayer.prepare();
         simpleExoPlayer.setPlayWhenReady(true);
         simpleExoPlayer.addListener(playerListener);

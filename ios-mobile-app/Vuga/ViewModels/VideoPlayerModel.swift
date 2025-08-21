@@ -153,7 +153,14 @@ class PlayerModel: BaseViewModel {
                     print("Failed to configure audio session: \(error)")
                 }
                 
-                player = AVPlayer(url: url)
+                // Use cached player item for better performance on poor networks
+                let cacheManager = VideoCacheManager.shared
+                let playerItem = cacheManager.getCachedPlayerItem(for: url)
+                player = AVPlayer(playerItem: playerItem)
+                
+                // Configure player with adaptive settings
+                cacheManager.configurePlayer(player!)
+                
                 // Enable AirPlay
                 player?.allowsExternalPlayback = true
                 player?.usesExternalPlaybackWhileExternalScreenIsActive = true

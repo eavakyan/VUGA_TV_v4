@@ -6,30 +6,39 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.retry.vuga.R;
 import com.retry.vuga.databinding.ItemAgeRatingBinding;
 import com.retry.vuga.model.AgeRating;
-import com.retry.vuga.model.Profile;
 
 import java.util.List;
 
 public class AgeRatingAdapter extends RecyclerView.Adapter<AgeRatingAdapter.ViewHolder> {
-
     private List<AgeRating> ageRatings;
-    private Profile profile;
+    private int selectedRatingId;
+    private OnRatingClickListener listener;
 
-    public AgeRatingAdapter(List<AgeRating> ageRatings, Profile profile) {
+    public interface OnRatingClickListener {
+        void onRatingClick(AgeRating rating);
+    }
+
+    public AgeRatingAdapter(List<AgeRating> ageRatings, int selectedRatingId, OnRatingClickListener listener) {
         this.ageRatings = ageRatings;
-        this.profile = profile;
+        this.selectedRatingId = selectedRatingId;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ItemAgeRatingBinding binding = ItemAgeRatingBinding.inflate(
-                LayoutInflater.from(parent.getContext()), parent, false);
+        ItemAgeRatingBinding binding = DataBindingUtil.inflate(
+                LayoutInflater.from(parent.getContext()),
+                R.layout.item_age_rating,
+                parent,
+                false
+        );
         return new ViewHolder(binding);
     }
 
@@ -41,7 +50,30 @@ public class AgeRatingAdapter extends RecyclerView.Adapter<AgeRatingAdapter.View
 
     @Override
     public int getItemCount() {
-        return ageRatings.size();
+        return ageRatings != null ? ageRatings.size() : 0;
+    }
+
+    public void setSelectedRatingId(int selectedRatingId) {
+        int oldPosition = getPositionForRatingId(this.selectedRatingId);
+        int newPosition = getPositionForRatingId(selectedRatingId);
+        
+        this.selectedRatingId = selectedRatingId;
+        
+        if (oldPosition != -1) {
+            notifyItemChanged(oldPosition);
+        }
+        if (newPosition != -1) {
+            notifyItemChanged(newPosition);
+        }
+    }
+
+    private int getPositionForRatingId(int ratingId) {
+        for (int i = 0; i < ageRatings.size(); i++) {
+            if (ageRatings.get(i).getId() == ratingId) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {
@@ -53,57 +85,55 @@ public class AgeRatingAdapter extends RecyclerView.Adapter<AgeRatingAdapter.View
         }
 
         void bind(AgeRating rating) {
-            // Rating badge
-            binding.tvRatingCode.setText(rating.getCode().replace("AG_", ""));
+            binding.setAgeRating(rating);
+            binding.setIsSelected(rating.getId() == selectedRatingId);
+            
+            // Set the badge color
             try {
                 binding.cardRating.setCardBackgroundColor(Color.parseColor(rating.getDisplayColor()));
             } catch (Exception e) {
                 binding.cardRating.setCardBackgroundColor(Color.parseColor("#757575"));
             }
-
-            // Rating info
-            binding.tvRatingName.setText(rating.getName());
-            if (rating.getDescription() != null && !rating.getDescription().isEmpty()) {
-                binding.tvRatingDescription.setText(rating.getDescription());
-                binding.tvRatingDescription.setVisibility(View.VISIBLE);
-            } else {
-                binding.tvRatingDescription.setVisibility(View.GONE);
-            }
-
-            // Check accessibility
-            boolean isAccessible = canAccessRating(rating);
             
-            // Update UI based on accessibility
-            if (isAccessible) {
-                binding.ivAccessStatus.setImageResource(R.drawable.ic_tick);
-                binding.ivAccessStatus.setColorFilter(Color.parseColor("#4CAF50"));
-                binding.getRoot().setAlpha(1.0f);
+            // Set the title text
+            String ageText = "Ages " + rating.getMinAge();
+            if (rating.getMaxAge() != null) {
+                ageText += "-" + rating.getMaxAge();
+            } else if (rating.getMinAge() > 0) {
+                ageText += "+";
+            } else if (rating.getCode() != null && rating.getCode().equals("AG_ALL")) {
+                ageText = "All Ages";
+            }
+            binding.tvRatingName.setText(ageText);
+            
+            // Set the description text
+            String description = "Suitable for ";
+            if (rating.getCode() != null && rating.getCode().equals("AG_ALL")) {
+                description = "No content restrictions";
+            } else if (rating.getMaxAge() != null) {
+                description += "ages " + rating.getMinAge() + " to " + rating.getMaxAge();
             } else {
-                binding.ivAccessStatus.setImageResource(R.drawable.ic_lock);
-                binding.ivAccessStatus.setColorFilter(Color.parseColor("#F44336"));
-                binding.getRoot().setAlpha(0.6f);
+                description += "ages " + rating.getMinAge() + " and above";
             }
-
-            // Set text colors based on accessibility
-            int textColor = isAccessible ? 
-                binding.getRoot().getContext().getResources().getColor(R.color.text_color) :
-                binding.getRoot().getContext().getResources().getColor(R.color.text_color_light);
-            binding.tvRatingName.setTextColor(textColor);
-        }
-
-        private boolean canAccessRating(AgeRating rating) {
-            // Kids profiles can only access content for ages 12 and under
-            if (profile.isKids()) {
-                return rating.isKidsFriendly();
+            if (rating.getDescription() != null && !rating.getDescription().isEmpty()) {
+                description += " (" + rating.getDescription() + ")";
             }
-
-            // If profile has age set, check if it meets the minimum age requirement
-            if (profile.getAge() != null && profile.getAge() > 0) {
-                return profile.getAge() >= rating.getMinAge();
-            }
-
-            // No age restriction if age not set
-            return true;
+            binding.tvRatingDescription.setText(description);
+            
+            // Handle click
+            binding.getRoot().setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onRatingClick(rating);
+                }
+            });
+            
+            binding.radioButton.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onRatingClick(rating);
+                }
+            });
+            
+            binding.executePendingBindings();
         }
     }
 }

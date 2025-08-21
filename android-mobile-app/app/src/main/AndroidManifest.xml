@@ -154,6 +154,9 @@
             android:name=".activities.CreateProfileActivity"
             android:screenOrientation="portrait" />
         <activity
+            android:name=".activities.AgeSettingsActivity"
+            android:screenOrientation="portrait" />
+        <activity
             android:name=".activities.CommunicationPreferencesActivity"
             android:screenOrientation="portrait" />
         <activity
