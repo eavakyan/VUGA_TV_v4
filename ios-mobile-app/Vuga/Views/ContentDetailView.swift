@@ -420,13 +420,14 @@ struct ContentDetailView: View {
                             castSection(cast)
                         }
                         
+                        // Episodes section (for TV shows)
+                        if content.type == .series {
+                            episodesSection
+                        }
+                        
                         // More Like This section
                         if let moreLikeThis = content.moreLikeThis, !moreLikeThis.isEmpty {
                             moreLikeThisSection(moreLikeThis)
-                        }
-                        
-                        if content.type == .series {
-                            episodesSection
                         }
                     }
                 }
