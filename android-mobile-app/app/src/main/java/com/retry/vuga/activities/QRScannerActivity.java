@@ -86,11 +86,12 @@ public class QRScannerActivity extends BaseActivity {
     private void startQRScanner() {
         IntentIntegrator integrator = new IntentIntegrator(this);
         integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE);
-        integrator.setPrompt("Scan TV QR Code");
+        integrator.setPrompt("Scan TV QR Code\n\nPress back button to cancel");
         integrator.setCameraId(0);
         integrator.setBeepEnabled(true);
         integrator.setBarcodeImageEnabled(false);
         integrator.setOrientationLocked(true);
+        integrator.setCaptureActivity(CaptureActivityPortrait.class);
         integrator.initiateScan();
     }
     
@@ -99,13 +100,22 @@ public class QRScannerActivity extends BaseActivity {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if (result != null) {
             if (result.getContents() == null) {
+                // User pressed back or cancelled the scan
                 Toast.makeText(this, "Scan cancelled", Toast.LENGTH_SHORT).show();
+                // Don't finish the activity, let user try again or press Cancel/Back
             } else {
                 handleQRCode(result.getContents());
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+    
+    @Override
+    public void onBackPressed() {
+        // Ensure the activity can be closed with back button
+        super.onBackPressed();
+        finish();
     }
     
     private void handleQRCode(String qrContent) {
