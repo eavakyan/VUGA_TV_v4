@@ -146,6 +146,8 @@ public class ProfileSelectionActivity extends BaseActivity implements ProfileAda
             intent.putExtra("profile_color", profile.getAvatarColor());
             intent.putExtra("avatar_id", profile.getAvatarId());
             intent.putExtra("is_kids", profile.isKids());
+            intent.putExtra("avatar_type", profile.getAvatarType());
+            intent.putExtra("profile_avatar_url", profile.getAvatarUrl());
             startActivityForResult(intent, 100);
         } else {
             // Select profile

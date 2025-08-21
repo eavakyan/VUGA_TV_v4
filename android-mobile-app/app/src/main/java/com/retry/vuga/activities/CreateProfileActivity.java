@@ -58,6 +58,9 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
     private Integer profileAge = null;
     private Uri selectedImageUri = null;
     private File selectedImageFile = null;
+    private String avatarType = "color"; // "color" or "custom"
+    private String existingAvatarUrl = null;
+    private boolean shouldRemovePhoto = false;
     private static final int PICK_IMAGE_REQUEST = 1001;
     private static final int PERMISSION_REQUEST_CODE = 1002;
 
@@ -83,6 +86,14 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             selectedAvatarId = getIntent().getIntExtra("avatar_id", 1);
             isKidsProfile = getIntent().getBooleanExtra("is_kids", false);
             profileAge = getIntent().hasExtra("profile_age") ? getIntent().getIntExtra("profile_age", 0) : null;
+            avatarType = getIntent().getStringExtra("avatar_type");
+            existingAvatarUrl = getIntent().getStringExtra("profile_avatar_url");
+            
+            // Debug logging
+            android.util.Log.d("CreateProfileActivity", "Edit Mode - Profile ID: " + profileId);
+            android.util.Log.d("CreateProfileActivity", "Avatar Type: " + avatarType);
+            android.util.Log.d("CreateProfileActivity", "Avatar URL: " + existingAvatarUrl);
+            android.util.Log.d("CreateProfileActivity", "Avatar Color: " + selectedColor);
 
             binding.etProfileName.setText(profileName);
             binding.switchKidsProfile.setChecked(isKidsProfile);
@@ -113,20 +124,37 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         binding.rvColors.setLayoutManager(new GridLayoutManager(this, 4));
         binding.rvColors.setAdapter(colorAdapter);
 
-        // Update preview
-        updatePreview();
+        // Check if we should show photo or color avatar
+        // Priority: existing photo > color avatar
+        android.util.Log.d("CreateProfileActivity", "setupViews - existingAvatarUrl: " + existingAvatarUrl);
+        android.util.Log.d("CreateProfileActivity", "setupViews - isEditMode: " + isEditMode);
         
-        // Load existing profile image if in edit mode
-        if (isEditMode && getIntent().hasExtra("profile_avatar_url")) {
-            String avatarUrl = getIntent().getStringExtra("profile_avatar_url");
-            if (avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null")) {
-                binding.ivProfileImage.setVisibility(View.VISIBLE);
-                binding.tvPreviewInitial.setVisibility(View.GONE);
-                Glide.with(this)
-                    .load(avatarUrl)
-                    .circleCrop()
-                    .into(binding.ivProfileImage);
-            }
+        if (isEditMode && existingAvatarUrl != null && !existingAvatarUrl.isEmpty() 
+                && !existingAvatarUrl.equals("null") && !existingAvatarUrl.equals("0")) {
+            // Profile has a photo - show it regardless of avatar_type
+            android.util.Log.d("CreateProfileActivity", "Showing existing photo");
+            avatarType = "custom";  // Ensure avatar type is set correctly
+            
+            // The CardView contains both ImageView and TextView - keep CardView visible
+            binding.viewPreviewAvatar.setVisibility(View.VISIBLE);
+            binding.ivProfileImage.setVisibility(View.VISIBLE);
+            binding.tvPreviewInitial.setVisibility(View.GONE);
+            
+            // Set card background to transparent when showing image
+            binding.viewPreviewAvatar.setCardBackgroundColor(Color.TRANSPARENT);
+            
+            // Load the image with Glide
+            com.bumptech.glide.Glide.with(this)
+                .load(existingAvatarUrl)
+                .placeholder(R.drawable.ic_user) // Add placeholder
+                .error(R.drawable.ic_user) // Add error image
+                .circleCrop()
+                .into(binding.ivProfileImage);
+        } else {
+            // No photo - show color avatar
+            android.util.Log.d("CreateProfileActivity", "Showing color avatar");
+            avatarType = "color";
+            updatePreview();
         }
     }
 
@@ -210,37 +238,96 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         binding.btnCreate.setEnabled(false);
 
         int userId = sessionManager.getUser().getId();
-
-        disposable.add(RetrofitClient.getService()
-                .updateProfile(profileId, userId, profileName, selectedAvatarId, isKidsProfile ? 1 : 0)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnTerminate(() -> {
-                    binding.progressBar.setVisibility(View.GONE);
-                    binding.btnCreate.setEnabled(true);
-                })
-                .subscribe((response, throwable) -> {
-                    if (response != null && response.isStatus()) {
-                        Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_OK);
-                        finish();
-                    } else {
-                        String message = response != null ? response.getMessage() : "Failed to update profile";
-                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
-                    }
-                }));
+        
+        // If user selected a color avatar and previously had a custom photo, we need to remove it
+        if (shouldRemovePhoto && "color".equals(avatarType)) {
+            // First remove the custom avatar by updating with color avatar
+            disposable.add(RetrofitClient.getService()
+                    .removeProfileAvatar(profileId, userId)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe((removeResponse, removeThrowable) -> {
+                        // After removing avatar, update the profile
+                        disposable.add(RetrofitClient.getService()
+                                .updateProfile(profileId, userId, profileName, selectedAvatarId, isKidsProfile ? 1 : 0)
+                                .subscribeOn(Schedulers.io())
+                                .observeOn(AndroidSchedulers.mainThread())
+                                .doOnTerminate(() -> {
+                                    binding.progressBar.setVisibility(View.GONE);
+                                    binding.btnCreate.setEnabled(true);
+                                })
+                                .subscribe((response, throwable) -> {
+                                    if (response != null && response.isStatus()) {
+                                        Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                                        setResult(RESULT_OK);
+                                        finish();
+                                    } else {
+                                        String message = response != null ? response.getMessage() : "Failed to update profile";
+                                        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                                    }
+                                }));
+                    }));
+        } else {
+            // Normal update without removing avatar
+            disposable.add(RetrofitClient.getService()
+                    .updateProfile(profileId, userId, profileName, selectedAvatarId, isKidsProfile ? 1 : 0)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .doOnTerminate(() -> {
+                        binding.progressBar.setVisibility(View.GONE);
+                        binding.btnCreate.setEnabled(true);
+                    })
+                    .subscribe((response, throwable) -> {
+                        if (response != null && response.isStatus()) {
+                            Toast.makeText(this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                            setResult(RESULT_OK);
+                            finish();
+                        } else {
+                            String message = response != null ? response.getMessage() : "Failed to update profile";
+                            Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+                        }
+                    }));
+        }
     }
 
     private void updatePreview() {
-        try {
-            binding.viewPreviewAvatar.setCardBackgroundColor(Color.parseColor(selectedColor));
-        } catch (Exception e) {
-            binding.viewPreviewAvatar.setCardBackgroundColor(Color.parseColor("#FF5252"));
+        // Determine what to show based on current state
+        boolean hasPhoto = false;
+        
+        if (selectedImageFile != null) {
+            // User just selected a new image
+            hasPhoto = true;
+        } else if ("custom".equals(avatarType) && existingAvatarUrl != null 
+                && !existingAvatarUrl.isEmpty() && !existingAvatarUrl.equals("null") 
+                && !existingAvatarUrl.equals("0")) {
+            // Has existing photo and hasn't been replaced
+            hasPhoto = true;
         }
+        
+        // The CardView always stays visible - we just change what's inside it
+        binding.viewPreviewAvatar.setVisibility(View.VISIBLE);
+        
+        if (hasPhoto) {
+            // Show photo inside the CardView
+            binding.ivProfileImage.setVisibility(View.VISIBLE);
+            binding.tvPreviewInitial.setVisibility(View.GONE);
+            // Set card background to transparent when showing image
+            binding.viewPreviewAvatar.setCardBackgroundColor(Color.TRANSPARENT);
+        } else {
+            // Show color avatar with initials
+            binding.ivProfileImage.setVisibility(View.GONE);
+            binding.tvPreviewInitial.setVisibility(View.VISIBLE);
+            
+            try {
+                binding.viewPreviewAvatar.setCardBackgroundColor(Color.parseColor(selectedColor));
+            } catch (Exception e) {
+                binding.viewPreviewAvatar.setCardBackgroundColor(Color.parseColor("#FF5252"));
+            }
 
-        String name = binding.etProfileName.getText().toString().trim();
-        String initials = generateInitials(name);
-        binding.tvPreviewInitial.setText(initials);
+            String name = binding.etProfileName.getText().toString().trim();
+            String initials = generateInitials(name);
+            binding.tvPreviewInitial.setText(initials);
+        }
     }
     
     private String generateInitials(String name) {
@@ -274,6 +361,22 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             // Use modulo to wrap around if we have more colors than avatars
             selectedAvatarId = (colorIndex % 8) + 1;
         }
+        
+        // When a color is selected, switch to color avatar mode
+        avatarType = "color";
+        selectedImageFile = null;
+        selectedImageUri = null;
+        
+        // Mark that we should remove photo only if there was an existing photo
+        if (existingAvatarUrl != null && !existingAvatarUrl.isEmpty() 
+                && !existingAvatarUrl.equals("null") && !existingAvatarUrl.equals("0")) {
+            shouldRemovePhoto = true;
+        }
+        
+        // Clear the existing avatar URL since user selected a color
+        existingAvatarUrl = null;
+        
+        // Update the preview to show color avatar
         updatePreview();
     }
 
@@ -366,6 +469,8 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         
         if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
             selectedImageUri = data.getData();
+            avatarType = "custom";  // Switch to custom avatar when image is selected
+            shouldRemovePhoto = false;  // We're adding a photo, not removing it
             try {
                 // First, copy the original file to preserve EXIF data
                 InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
@@ -431,6 +536,9 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
                 tempFile.delete();
                 
                 // Display image in preview
+                // Keep CardView visible, just show the image inside it
+                binding.viewPreviewAvatar.setVisibility(View.VISIBLE);
+                binding.viewPreviewAvatar.setCardBackgroundColor(Color.TRANSPARENT);
                 binding.ivProfileImage.setVisibility(View.VISIBLE);
                 binding.tvPreviewInitial.setVisibility(View.GONE);
                 Glide.with(this)
