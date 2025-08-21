@@ -94,7 +94,8 @@
       "Bash(./fix_dismiss.sh:*)",
       "Bash(security find-generic-password:*)",
       "Bash(git add:*)",
-      "WebFetch(domain:iosdev.gossip-stone.com)"
+      "WebFetch(domain:iosdev.gossip-stone.com)",
+      "Bash(~/Library/Android/sdk/build-tools/35.0.0/aapt dump badging app/build/outputs/apk/release/Vuga-release.apk)"
     ],
     "deny": []
   }
