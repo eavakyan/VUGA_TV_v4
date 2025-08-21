@@ -129,9 +129,13 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         android.util.Log.d("CreateProfileActivity", "setupViews - existingAvatarUrl: " + existingAvatarUrl);
         android.util.Log.d("CreateProfileActivity", "setupViews - isEditMode: " + isEditMode);
         
-        if (isEditMode && existingAvatarUrl != null && !existingAvatarUrl.isEmpty() 
-                && !existingAvatarUrl.equals("null") && !existingAvatarUrl.equals("0")) {
-            // Profile has a photo - show it regardless of avatar_type
+        // Check for valid custom image URL (must be http/https, not local avatar paths)
+        boolean hasValidCustomImage = existingAvatarUrl != null && !existingAvatarUrl.isEmpty() 
+                && !existingAvatarUrl.equals("null") && !existingAvatarUrl.equals("0")
+                && (existingAvatarUrl.startsWith("http://") || existingAvatarUrl.startsWith("https://"));
+        
+        if (isEditMode && hasValidCustomImage) {
+            // Profile has a valid photo URL - show it
             android.util.Log.d("CreateProfileActivity", "Showing existing photo");
             avatarType = "custom";  // Ensure avatar type is set correctly
             
@@ -143,17 +147,16 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             // Set card background to transparent when showing image
             binding.viewPreviewAvatar.setCardBackgroundColor(Color.TRANSPARENT);
             
-            // Load the image with Glide
+            // Load the image with Glide - don't use placeholder/error images
             com.bumptech.glide.Glide.with(this)
                 .load(existingAvatarUrl)
-                .placeholder(R.drawable.ic_user) // Add placeholder
-                .error(R.drawable.ic_user) // Add error image
                 .circleCrop()
                 .into(binding.ivProfileImage);
         } else {
-            // No photo - show color avatar
+            // No valid photo or has default avatar - show color avatar
             android.util.Log.d("CreateProfileActivity", "Showing color avatar");
             avatarType = "color";
+            existingAvatarUrl = null; // Clear any invalid URL
             updatePreview();
         }
     }
@@ -164,6 +167,23 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
         // Image upload listeners
         binding.btnEditImage.setOnClickListener(v -> selectImage());
         binding.btnUploadImage.setOnClickListener(v -> selectImage());
+        
+        // Update initials when name changes
+        binding.etProfileName.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+                // Update preview if showing color avatar
+                if (!"custom".equals(avatarType) || selectedImageFile == null) {
+                    updatePreview();
+                }
+            }
+        });
 
         binding.switchKidsProfile.setOnCheckedChangeListener((buttonView, isChecked) -> {
             if (isChecked && !isEditMode) {
@@ -299,8 +319,9 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             hasPhoto = true;
         } else if ("custom".equals(avatarType) && existingAvatarUrl != null 
                 && !existingAvatarUrl.isEmpty() && !existingAvatarUrl.equals("null") 
-                && !existingAvatarUrl.equals("0")) {
-            // Has existing photo and hasn't been replaced
+                && !existingAvatarUrl.equals("0")
+                && (existingAvatarUrl.startsWith("http://") || existingAvatarUrl.startsWith("https://"))) {
+            // Has existing photo with valid URL and hasn't been replaced
             hasPhoto = true;
         }
         
@@ -318,6 +339,11 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             binding.ivProfileImage.setVisibility(View.GONE);
             binding.tvPreviewInitial.setVisibility(View.VISIBLE);
             
+            // Make sure we have a valid color
+            if (selectedColor == null || selectedColor.isEmpty() || !selectedColor.startsWith("#")) {
+                selectedColor = "#FF5252"; // Default red color
+            }
+            
             try {
                 binding.viewPreviewAvatar.setCardBackgroundColor(Color.parseColor(selectedColor));
             } catch (Exception e) {
@@ -325,6 +351,10 @@ public class CreateProfileActivity extends BaseActivity implements AvatarColorAd
             }
 
             String name = binding.etProfileName.getText().toString().trim();
+            if (name.isEmpty() && isEditMode) {
+                // In edit mode, use the name that was passed in
+                name = getIntent().getStringExtra("profile_name");
+            }
             String initials = generateInitials(name);
             binding.tvPreviewInitial.setText(initials);
         }

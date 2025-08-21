@@ -63,7 +63,14 @@ public class ProfileAdapter extends RecyclerView.Adapter<ProfileAdapter.ProfileV
         
         // Check if profile has a custom image URL
         String avatarUrl = profile.getAvatarUrl();
-        if (avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null")) {
+        String avatarType = profile.getAvatarType();
+        
+        // Only show image if it's a custom avatar with a valid S3 URL
+        // Default avatars like "avatars/avatar_blue.png" should show color instead
+        boolean hasValidCustomImage = avatarUrl != null && !avatarUrl.isEmpty() && !avatarUrl.equals("null") 
+            && (avatarUrl.startsWith("http://") || avatarUrl.startsWith("https://"));
+            
+        if (hasValidCustomImage) {
             // Custom uploaded image
             android.util.Log.d("ProfileAdapter", "Showing image for " + profile.getName() + ": " + avatarUrl);
             
