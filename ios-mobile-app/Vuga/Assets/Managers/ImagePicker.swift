@@ -2,7 +2,6 @@
 //  ImagePicker.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 30/05/24.
 //
 
 import Foundation

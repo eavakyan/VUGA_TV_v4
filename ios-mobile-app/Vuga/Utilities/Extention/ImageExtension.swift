@@ -2,7 +2,6 @@
 //  ImageExtensions.swift
 //  QRCode
 //
-//  Created by Aniket Vaddoriya on 20/05/23.
 //
 
 import SwiftUI

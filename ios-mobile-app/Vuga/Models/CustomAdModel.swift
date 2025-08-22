@@ -2,7 +2,6 @@
 //  CustomAdModel.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 17/06/24.
 //
 
 import Foundation

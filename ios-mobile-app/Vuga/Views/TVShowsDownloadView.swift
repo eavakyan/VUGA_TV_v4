@@ -2,7 +2,6 @@
 //  TVShowsDownloadView.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 11/07/24.
 //
 
 import SwiftUI

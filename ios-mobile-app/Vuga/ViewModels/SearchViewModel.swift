@@ -2,7 +2,6 @@
 //  SearchViewModel.swift
 //  Vuga
 //
-//  Created by Aniket Vaddoriya on 23/05/24.
 //
 
 import SwiftUI

@@ -2,7 +2,6 @@
 //  VLCplayer.swift
 //  Vuga
 //
-//  Created by iMac on 07/10/21.
 //
 
 import SwiftUI

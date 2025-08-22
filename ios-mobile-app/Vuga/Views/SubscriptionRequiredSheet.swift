@@ -2,7 +2,6 @@
 //  SubscriptionRequiredSheet.swift
 //  Vuga
 //
-//  Created by Assistant on today's date.
 //
 
 import SwiftUI

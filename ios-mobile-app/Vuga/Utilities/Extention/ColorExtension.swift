@@ -2,7 +2,6 @@
 //  ColorExtension.swift
 //  AudioStories
 //
-//  Created by Aniket Vaddoriya on 04/04/23.
 //
 
 import SwiftUI

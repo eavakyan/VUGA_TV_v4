@@ -2,7 +2,6 @@
 //  FontExtention.swift
 //  service
 //
-//  Created by Aniket Vaddoriya on 01/03/22.
 //
 
 import Foundation

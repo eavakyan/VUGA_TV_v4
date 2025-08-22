@@ -2,7 +2,6 @@
 //  ActorDetailModel.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 16/07/24.
 //
 
 import Foundation

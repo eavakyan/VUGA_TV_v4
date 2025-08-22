@@ -2,7 +2,6 @@
 //  ViewExtensions.swift
 //  CustomAlert
 //
-//  Created by David Walter on 03.04.22.
 //
 
 import SwiftUI

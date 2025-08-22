@@ -2,7 +2,6 @@
 //  AdMetricModel.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 19/06/24.
 //
 
 import Foundation

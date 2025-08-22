@@ -2,7 +2,6 @@
 //  CastViewModel.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 09/07/24.
 //
 
 import Foundation

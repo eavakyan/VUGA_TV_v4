@@ -2,7 +2,6 @@
 //  TVCategoriesModel.swift
 //  Vuga
 //
-//  Created by Aniket Vaddoriya on 28/05/24.
 //
 
 import Foundation

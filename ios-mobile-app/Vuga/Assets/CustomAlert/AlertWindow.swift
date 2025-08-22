@@ -2,7 +2,6 @@
 //  AlertWindow.swift
 //  Woomeout
 //
-//  Created by Aniket Vaddoriya on 16/09/23.
 //
 
 import SwiftUI

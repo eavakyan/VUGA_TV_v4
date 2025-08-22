@@ -2,7 +2,6 @@
 //  NetworkManager.swift
 //  Woomeout
 //
-//  Created by Aniket Vaddoriya on 24/11/23.
 //
 
 import SwiftUI
@@ -40,14 +39,15 @@ struct NetworkManager {
                 let duration = response.metrics?.taskInterval.duration ?? 0
                 print("Time Duration in second:", duration)  // Duration of request
                 
-                // Report slow connection if request took more than 3 seconds
-                // Removed SafeNetworkMonitor call - not added to project
+                // Report response time to connection monitor
+                ConnectionMonitor.shared.recordResponseTime(duration)
                 
                 print("parameters = \(String(describing: convertedParams))")
                 print("header = \(String(describing: headers))")
                 response.value.decode(callbackSuccess: callbackSuccess, callbackFailure: callbackFailure)
             }
     }
+    
     
     static func callWebServiceWithFiles<T : Codable>(url: APIs,
                                               params:[Params: Any] = [:],

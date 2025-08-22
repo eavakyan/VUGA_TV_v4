@@ -2,7 +2,6 @@
 //  ContentDetailViewModel.swift
 //  Vuga
 //
-//  Created by Aniket Vaddoriya on 21/05/24.
 //
 
 import Foundation

@@ -2,7 +2,6 @@
 //  InterstitialAd.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 10/08/24.
 //
 
 import Foundation

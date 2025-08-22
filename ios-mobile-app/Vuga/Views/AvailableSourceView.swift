@@ -2,7 +2,6 @@
 //  AvailableSourceView.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 11/06/24.
 //
 
 import Foundation

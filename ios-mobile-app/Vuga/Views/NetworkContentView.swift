@@ -2,7 +2,6 @@
 //  NetworkContentView.swift
 //  Vuga
 //
-//  Created by Claude on Network Content Implementation
 //
 
 import SwiftUI

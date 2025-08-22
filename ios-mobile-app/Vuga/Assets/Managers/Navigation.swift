@@ -2,7 +2,6 @@
 //  Navigation.swift
 //  Document Scanner
 //
-//  Created by Aniket Vaddoriya on 08/01/23.
 //
 
 import SwiftUI

@@ -2,7 +2,6 @@
 //  EditProfileViewModel.swift
 //  Vuga
 //
-//  Created by Aniket Vaddoriya on 27/05/24.
 //
 
 import Foundation

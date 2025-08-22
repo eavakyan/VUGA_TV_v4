@@ -2,7 +2,6 @@
 //  LanguageView.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 18/07/24.
 //
 
 import SwiftUI

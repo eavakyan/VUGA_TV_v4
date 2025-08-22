@@ -2,7 +2,6 @@
 //  ViewExtention.swift
 //  sphere
 //
-//  Created by Aniket Vaddoriya on 12/11/23.
 //
 
 import SwiftUI

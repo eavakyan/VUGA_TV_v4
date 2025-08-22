@@ -2,7 +2,6 @@
 //  CollectionExtension.swift
 //  Vuga
 //
-//  Created by Aniket Vaddoriya on 18/05/24.
 //
 
 import Foundation

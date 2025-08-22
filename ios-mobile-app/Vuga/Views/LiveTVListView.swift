@@ -2,7 +2,6 @@
 //  LiveTVListView.swift
 //  Vuga
 //
-//  Created by Claude on Live TV List Implementation
 //
 
 import SwiftUI

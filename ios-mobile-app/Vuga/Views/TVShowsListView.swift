@@ -2,7 +2,6 @@
 //  TVShowsListView.swift
 //  Vuga
 //
-//  Created by Claude on TV Shows List Implementation
 //
 
 import SwiftUI

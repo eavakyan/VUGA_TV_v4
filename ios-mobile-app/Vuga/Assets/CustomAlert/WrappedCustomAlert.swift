@@ -2,7 +2,6 @@
 //  WrappedCustomAlert.swift
 //  CustomAlert
 //
-//  Created by David Walter on 28.06.23.
 //
 
 import SwiftUI

@@ -2,7 +2,6 @@
 //  DownloadProgressView.swift
 //  Vuga
 //
-//  Created by Assistant on 02/08/25.
 //
 
 import SwiftUI

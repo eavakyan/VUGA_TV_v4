@@ -2,7 +2,6 @@
 //  TrailerPlayerView.swift
 //  Vuga
 //
-//  Created by Assistant on iOS Trailer Update
 //
 
 import SwiftUI

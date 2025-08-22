@@ -2,7 +2,6 @@
 //  PagingView.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 05/07/24.
 //
 
 import Foundation

@@ -2,7 +2,6 @@
 //  IncreaseViewsModel.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 12/06/24.
 //
 
 import Foundation

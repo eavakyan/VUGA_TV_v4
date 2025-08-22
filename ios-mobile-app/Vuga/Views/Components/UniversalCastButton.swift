@@ -2,7 +2,6 @@
 //  UniversalCastButton.swift
 //  Vuga
 //
-//  Created by AI Assistant on 2025-08-03.
 //
 
 import SwiftUI

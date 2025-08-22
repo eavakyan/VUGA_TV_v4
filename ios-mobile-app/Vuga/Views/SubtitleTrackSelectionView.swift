@@ -2,7 +2,6 @@
 //  SubtitleTrackSelectionView.swift
 //  Vuga
 //
-//  Created by Claude on Today
 //
 
 import SwiftUI

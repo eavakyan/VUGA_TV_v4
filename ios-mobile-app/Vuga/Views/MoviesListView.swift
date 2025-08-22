@@ -2,7 +2,6 @@
 //  MoviesListView.swift
 //  Vuga
 //
-//  Created by Claude on Movies List Implementation
 //
 
 import SwiftUI

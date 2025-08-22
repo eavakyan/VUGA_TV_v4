@@ -2,7 +2,6 @@
 //  CirculerProgress.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 14/06/24.
 //
 
 import Foundation

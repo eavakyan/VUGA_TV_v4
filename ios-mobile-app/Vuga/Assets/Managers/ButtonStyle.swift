@@ -2,7 +2,6 @@
 //  ButtonStyle.swift
 //  ToDoList
 //
-//  Created by Aniket Vaddoriya on 31/08/22.
 //
 
 import Foundation

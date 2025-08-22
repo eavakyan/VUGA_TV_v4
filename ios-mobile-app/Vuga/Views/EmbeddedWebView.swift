@@ -2,7 +2,6 @@
 //  EmbeddedWebView.swift
 //  Vuga
 //
-//  Created by Arpit on 25/02/25.
 //
 
 import Foundation

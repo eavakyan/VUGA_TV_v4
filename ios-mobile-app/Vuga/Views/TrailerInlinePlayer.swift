@@ -2,7 +2,6 @@
 //  TrailerInlinePlayer.swift
 //  Vuga
 //
-//  Created by Assistant on iOS Trailer Inline Update
 //
 
 import SwiftUI

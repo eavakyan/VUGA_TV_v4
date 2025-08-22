@@ -2,7 +2,6 @@
 //  DeleteAccountModel.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 31/05/24.
 //
 
 import Foundation

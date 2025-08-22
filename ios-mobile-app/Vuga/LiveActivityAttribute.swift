@@ -2,7 +2,6 @@
 //  LiveActivityAttribute.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 25/06/24.
 //
 
 import Foundation

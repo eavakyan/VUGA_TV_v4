@@ -2,7 +2,6 @@
 //  ScrollViewExtension.swift
 //  Vuga
 //
-//  Created by Assistant on current date.
 //
 
 import SwiftUI

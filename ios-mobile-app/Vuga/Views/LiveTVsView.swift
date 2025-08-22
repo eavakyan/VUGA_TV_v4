@@ -2,7 +2,6 @@
 //  LiveTVsView.swift
 //  Vuga
 //
-//  Created by Aniket Vaddoriya on 10/05/24.
 //
 
 import SwiftUI

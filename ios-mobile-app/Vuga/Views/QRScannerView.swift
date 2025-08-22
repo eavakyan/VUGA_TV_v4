@@ -2,7 +2,6 @@
 //  QRScannerView.swift
 //  Vuga
 //
-//  Created by TV Authentication on 2025-07-26.
 //
 
 import SwiftUI

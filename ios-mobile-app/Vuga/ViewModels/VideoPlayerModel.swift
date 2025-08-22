@@ -2,7 +2,6 @@
 //  VideoPlayerModel.swift
 //  Vuga
 //
-//  Created by Arpit Kakdiya on 06/06/24.
 //
 
 
