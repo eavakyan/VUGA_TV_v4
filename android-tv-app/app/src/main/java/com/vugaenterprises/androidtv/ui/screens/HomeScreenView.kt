@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.LinearSmoothScroller
 import androidx.recyclerview.widget.PagerSnapHelper
 import com.vugaenterprises.androidtv.R
 import com.vugaenterprises.androidtv.data.model.Content
+import com.vugaenterprises.androidtv.data.model.GenreContents
 import com.vugaenterprises.androidtv.ui.components.ContentCardAdapter
 import com.vugaenterprises.androidtv.ui.components.FeaturedSliderAdapter
 
@@ -116,7 +117,8 @@ open class HomeScreenView @JvmOverloads constructor(
         trendingContent: List<Content>,
         newContent: List<Content>,
         continueWatching: List<Content>,
-        recommendations: List<Content>
+        recommendations: List<Content>,
+        categoryContent: List<GenreContents> = emptyList()
     ) {
         loadingIndicator.visibility = View.GONE
         errorText.visibility = View.GONE
@@ -130,21 +132,30 @@ open class HomeScreenView @JvmOverloads constructor(
             addFeaturedSection(featuredContent)
         }
         
-        // Add content rows
+        // Add content rows - only show non-empty sections
         if (trendingContent.isNotEmpty()) {
             addContentRow("Trending", trendingContent)
         }
         
+        // Only show watchlist if user is logged in and has items
         if (recommendations.isNotEmpty()) {
-            addContentRow("Watchlist", recommendations)
+            addContentRow("My List", recommendations)
         }
         
+        // Only show continue watching if user is logged in and has items  
         if (continueWatching.isNotEmpty()) {
             addContentRow("Continue Watching", continueWatching)
         }
         
         if (newContent.isNotEmpty()) {
             addContentRow("New Releases", newContent)
+        }
+        
+        // Add individual category rows - only show categories with content
+        categoryContent.forEach { genreContent ->
+            if (genreContent.contents.isNotEmpty()) {
+                addContentRow(genreContent.title, genreContent.contents)
+            }
         }
     }
     
@@ -249,7 +260,7 @@ class FeaturedSliderView @JvmOverloads constructor(
         val snapHelper = PagerSnapHelper()
         snapHelper.attachToRecyclerView(recyclerView)
         
-        adapter = FeaturedSliderAdapter()
+        adapter = FeaturedSliderAdapter(useSplitLayout = false, useImmersiveLayout = true)
         recyclerView.adapter = adapter
         
         // Enable focus for Android TV but don't force touch mode

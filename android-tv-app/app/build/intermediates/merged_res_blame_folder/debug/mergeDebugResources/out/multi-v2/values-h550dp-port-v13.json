@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-83:/values-h550dp-port-v13/values-h550dp-port-v13.xml",
             "map": [
                 {
-                    "source": "/Users/gene/.gradle/caches/8.13/transforms/3b1a6401704e79be4e94dea8085122ff/transformed/material-1.11.0/res/values-h550dp-port-v13/values-h550dp-port-v13.xml",
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/6e3eef85bfe7907a8dc91b23ccadc4e7/transformed/material-1.11.0/res/values-h550dp-port-v13/values-h550dp-port-v13.xml",
                     "from": {
                         "startLines": "2",
                         "startColumns": "4",

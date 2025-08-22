@@ -61,8 +61,10 @@ fun MainScreen(
     
     // Handle navigation item selection
     LaunchedEffect(selectedNavItem) {
+        android.util.Log.d("MainScreen", "Selected nav item: $selectedNavItem")
         when (selectedNavItem) {
             "watch" -> {
+                android.util.Log.d("MainScreen", "Navigating to Watch/Home")
                 if (navController.currentDestination?.route != Screen.Home.route) {
                     navController.navigate(Screen.Home.route) {
                         popUpTo(Screen.Home.route) { inclusive = true }
@@ -70,14 +72,16 @@ fun MainScreen(
                 }
             }
             "search" -> {
+                android.util.Log.d("MainScreen", "Navigating to Search")
                 navController.navigate(Screen.Search.route) {
                     popUpTo(Screen.Home.route)
                 }
             }
             "tv" -> {
-                // For now, navigate to home or create a TV-specific screen
-                navController.navigate(Screen.Home.route) {
-                    popUpTo(Screen.Home.route) { inclusive = true }
+                android.util.Log.d("MainScreen", "Navigating to Live TV")
+                // Navigate to Live TV screen
+                navController.navigate(Screen.LiveTV.route) {
+                    popUpTo(Screen.Home.route)
                 }
             }
             "login" -> {
@@ -133,6 +137,7 @@ fun MainScreen(
             navigationItems = navigationItems,
             selectedItemId = selectedNavItem,
             onItemSelected = { item ->
+                android.util.Log.d("MainScreen", "Navigation item selected: ${item.id} (${item.title})")
                 selectedNavItem = item.id
             },
             currentProfile = selectedProfile,

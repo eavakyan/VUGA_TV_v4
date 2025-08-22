@@ -1,6 +1,8 @@
 package com.vugaenterprises.androidtv.data.api
 
 import com.vugaenterprises.androidtv.data.model.ActorDataResponse
+import com.vugaenterprises.androidtv.data.model.AgeRating
+import com.vugaenterprises.androidtv.data.model.AgeRatingResponse
 import com.vugaenterprises.androidtv.data.model.AllContentResponse
 import com.vugaenterprises.androidtv.data.model.AppSettingResponse
 import com.vugaenterprises.androidtv.data.model.ContentByGenreResponse
@@ -17,6 +19,8 @@ import com.vugaenterprises.androidtv.data.model.TVAuthCompleteRequest
 import com.vugaenterprises.androidtv.data.model.ProfilesResponse
 import com.vugaenterprises.androidtv.data.model.CreateProfileRequest
 import com.vugaenterprises.androidtv.data.model.SelectProfileRequest
+import com.vugaenterprises.androidtv.data.model.LiveChannelsResponse
+import com.vugaenterprises.androidtv.data.model.LiveCategoriesResponse
 import retrofit2.http.*
 
 interface ApiService {
@@ -240,6 +244,42 @@ interface ApiService {
         @Field("user_id") userId: Int,
         @Field("age") age: Int? = null,
         @Field("is_kids_profile") isKidsProfile: Boolean
+    ): RestResponse
+    
+    // Live TV Endpoints
+    @FormUrlEncoded
+    @POST("live-tv/channels")
+    suspend fun getLiveChannels(
+        @Field("user_id") userId: Int,
+        @Field("profile_id") profileId: Int? = null,
+        @Field("category") category: String? = null,
+        @Field("limit") limit: Int = 50,
+        @Field("offset") offset: Int = 0
+    ): LiveChannelsResponse
+    
+    @FormUrlEncoded
+    @POST("live-tv/channel-details")
+    suspend fun getLiveChannelDetails(
+        @Field("user_id") userId: Int,
+        @Field("channel_id") channelId: Int,
+        @Field("profile_id") profileId: Int? = null
+    ): LiveChannelsResponse
+    
+    @FormUrlEncoded
+    @POST("live-tv/categories")
+    suspend fun getLiveChannelCategories(
+        @Field("user_id") userId: Int,
+        @Field("profile_id") profileId: Int? = null
+    ): LiveCategoriesResponse
+    
+    @FormUrlEncoded
+    @POST("live-tv/track-view")
+    suspend fun trackLiveChannelView(
+        @Field("user_id") userId: Int,
+        @Field("channel_id") channelId: Int,
+        @Field("watch_duration") watchDuration: Int,
+        @Field("profile_id") profileId: Int? = null,
+        @Field("device_type") deviceType: Int = 2 // Android TV
     ): RestResponse
 }
 

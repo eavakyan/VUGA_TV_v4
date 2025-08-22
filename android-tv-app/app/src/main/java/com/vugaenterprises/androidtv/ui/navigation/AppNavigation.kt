@@ -134,39 +134,19 @@ fun AppNavigation(
                     contentDetailViewModel.loadContent(contentId)
                 }
                 
-                // Use Android View for better focus handling
-                AndroidView(
-                    factory = { context ->
-                        ContentDetailView(context).apply {
-                            setOnBackClick {
-                                navController.popBackStack()
-                            }
-                            setOnPlayClick { content ->
-                                // Direct play for movies
-                                videoPlayerDataStore.setCurrentContent(content)
-                                navController.navigate(Screen.VideoPlayer.createRoute())
-                            }
-                            setOnEpisodeClick { episode ->
-                                // Store the selected episode and navigate to video player
-                                episodeDataStore.setSelectedEpisode(episode)
-                                navController.navigate(Screen.VideoPlayer.createRoute())
-                            }
-                            setOnContentClick { content ->
-                                navController.navigate(Screen.ContentDetail.createRoute(content.contentId))
-                            }
-                            setOnMoreInfoClick { content ->
-                                navController.navigate(Screen.ContentInfo.createRoute(content.contentId))
-                            }
-                            setOnCastMemberClick { castMember ->
-                                castDetailDataStore.setCurrentCastMember(castMember, contentDetailState.content?.moreLikeThis ?: emptyList())
-                                navController.navigate(Screen.CastDetail.createRoute(castMember.actor.id, castMember.characterName))
-                            }
-                        }
+                // Use Compose Content Detail Screen
+                ContentDetailScreen(
+                    contentId = contentId,
+                    onContentClick = { content ->
+                        navController.navigate(Screen.ContentDetail.createRoute(content.contentId))
                     },
-                    update = { contentDetailView ->
-                        contentDetailState.content?.let { content ->
-                            contentDetailView.setContent(content)
-                        }
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    },
+                    onPlayVideo = { content ->
+                        // Direct play for movies
+                        videoPlayerDataStore.setCurrentContent(content)
+                        navController.navigate(Screen.VideoPlayer.createRoute())
                     }
                 )
             }
@@ -296,6 +276,30 @@ fun AppNavigation(
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.ProfileSelection.route) { inclusive = true }
                         }
+                    }
+                )
+            }
+            
+            composable(Screen.LiveTV.route) {
+                LiveTVScreen(
+                    onChannelClick = { channel ->
+                        navController.navigate(Screen.LiveTVPlayer.createRoute(channel.id))
+                    },
+                    onNavigateBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            
+            composable(
+                route = Screen.LiveTVPlayer.route,
+                arguments = Screen.LiveTVPlayer.arguments
+            ) { backStackEntry ->
+                val channelId = backStackEntry.arguments?.getInt("channelId") ?: 0
+                LiveTVPlayerScreen(
+                    channelId = channelId,
+                    onNavigateBack = {
+                        navController.popBackStack()
                     }
                 )
             }

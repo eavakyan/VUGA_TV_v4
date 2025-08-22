@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vugaenterprises.androidtv.data.model.Content
 import com.vugaenterprises.androidtv.data.model.WatchHistory
+import com.vugaenterprises.androidtv.data.model.GenreContents
 import com.vugaenterprises.androidtv.data.repository.ContentRepository
 import com.vugaenterprises.androidtv.data.UserDataStore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,6 +34,10 @@ class HomeViewModel @Inject constructor(
             try {
                 Log.d("HomeViewModel", "Starting to load content...")
                 _uiState.value = _uiState.value.copy(isLoading = true)
+                
+                // Check if user is logged in
+                val isLoggedIn = userDataStore.isLoggedIn().first()
+                Log.d("HomeViewModel", "User login status: $isLoggedIn")
                 
                 // Get user ID and profile ID from data store
                 val userId = userDataStore.getUserId().first() ?: 1
@@ -66,16 +71,14 @@ class HomeViewModel @Inject constructor(
                     }
                     Log.d("HomeViewModel", "Watchlist loaded: ${homeData.watchlist.size} items")
 
-                    _uiState.value = _uiState.value.copy(
-                        featuredContent = homeData.featured,
-                        trendingContent = homeData.topContents.map { it.content },
-                        newContent = homeData.genreContents.flatMap { it.contents },
-                        recommendations = homeData.watchlist,
-                        continueWatching = homeData.watchlist.map { content ->
+                    // Filter out personalized content if user is not logged in
+                    val watchlistContent = if (isLoggedIn) homeData.watchlist else emptyList()
+                    val continueWatchingContent = if (isLoggedIn) {
+                        homeData.watchlist.map { content ->
                             WatchHistory(
                                 id = content.contentId.toString(),
                                 contentId = content.contentId.toString(),
-                                userId = "1", // Default user ID
+                                userId = userId.toString(),
                                 content = content,
                                 progress = content.watchProgress,
                                 position = 0L,
@@ -83,7 +86,23 @@ class HomeViewModel @Inject constructor(
                                 lastWatched = System.currentTimeMillis(),
                                 completed = content.completed
                             )
-                        },
+                        }
+                    } else {
+                        emptyList()
+                    }
+                    
+                    Log.d("HomeViewModel", "Filtering content based on auth status - Watchlist: ${watchlistContent.size}, Continue Watching: ${continueWatchingContent.size}")
+
+                    // Filter categories to only include those with content
+                    val filteredCategoryContent = homeData.genreContents.filter { it.contents.isNotEmpty() }
+                    
+                    _uiState.value = _uiState.value.copy(
+                        featuredContent = homeData.featured,
+                        trendingContent = homeData.topContents.map { it.content },
+                        newContent = homeData.genreContents.flatMap { it.contents },
+                        recommendations = watchlistContent,
+                        continueWatching = continueWatchingContent,
+                        categoryContent = filteredCategoryContent,
                         isLoading = false,
                         error = null
                     )
@@ -150,6 +169,7 @@ data class HomeUiState(
     val newContent: List<Content> = emptyList(),
     val recommendations: List<Content> = emptyList(),
     val continueWatching: List<WatchHistory> = emptyList(),
+    val categoryContent: List<GenreContents> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null
 ) 

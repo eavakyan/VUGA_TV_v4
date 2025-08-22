@@ -58,8 +58,11 @@ fun QRCodeAuthScreen(
                 val errorReporter = remember { ErrorReporter(context, viewModel.errorLogger) }
                 val scope = rememberCoroutineScope()
                 
-                // Show debug screen on error for APIBKEND07
-                if (getErrorCode(uiState.error ?: "") == "APIBKEND07") {
+                // Show debug screen on error for APIBKEND07 or connection errors
+                if (getErrorCode(uiState.error ?: "") == "APIBKEND07" || 
+                    uiState.error?.contains("404") == true ||
+                    uiState.error?.contains("endpoint not found") == true ||
+                    uiState.error?.contains("Cannot connect") == true) {
                     TVAuthDebugScreen(
                         onBack = { viewModel.generateNewSession() }
                     )

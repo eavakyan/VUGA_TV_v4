@@ -3,10 +3,12 @@ package com.vugaenterprises.androidtv;
 import com.vugaenterprises.androidtv.di.ErrorModule;
 import com.vugaenterprises.androidtv.di.NetworkModule;
 import com.vugaenterprises.androidtv.ui.screens.TVAuthDebugViewModel_HiltModules;
+import com.vugaenterprises.androidtv.ui.viewmodels.AgeSettingsViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.FavoritesViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.HistoryViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel_HiltModules;
+import com.vugaenterprises.androidtv.ui.viewmodels.LiveTVViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileSelectionViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.ProfileViewModel_HiltModules;
 import com.vugaenterprises.androidtv.ui.viewmodels.QRCodeAuthViewModel_HiltModules;
@@ -162,11 +164,13 @@ public final class StreamingApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AgeSettingsViewModel_HiltModules.KeyModule.class,
           ContentDetailViewModel_HiltModules.KeyModule.class,
           FavoritesViewModel_HiltModules.KeyModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HistoryViewModel_HiltModules.KeyModule.class,
           HomeViewModel_HiltModules.KeyModule.class,
+          LiveTVViewModel_HiltModules.KeyModule.class,
           ProfileSelectionViewModel_HiltModules.KeyModule.class,
           ProfileViewModel_HiltModules.KeyModule.class,
           QRCodeAuthViewModel_HiltModules.KeyModule.class,
@@ -209,11 +213,13 @@ public final class StreamingApplication_HiltComponents {
 
   @Subcomponent(
       modules = {
+          AgeSettingsViewModel_HiltModules.BindsModule.class,
           ContentDetailViewModel_HiltModules.BindsModule.class,
           FavoritesViewModel_HiltModules.BindsModule.class,
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
           HistoryViewModel_HiltModules.BindsModule.class,
           HomeViewModel_HiltModules.BindsModule.class,
+          LiveTVViewModel_HiltModules.BindsModule.class,
           ProfileSelectionViewModel_HiltModules.BindsModule.class,
           ProfileViewModel_HiltModules.BindsModule.class,
           QRCodeAuthViewModel_HiltModules.BindsModule.class,

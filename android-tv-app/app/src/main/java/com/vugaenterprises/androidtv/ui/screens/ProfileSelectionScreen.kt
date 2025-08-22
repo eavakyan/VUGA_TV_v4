@@ -295,7 +295,7 @@ fun ProfileItem(
             }
             
             // Kids badge
-            if (profile.isKidsProfile) {
+            if (profile.effectiveKidsProfile) {
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)

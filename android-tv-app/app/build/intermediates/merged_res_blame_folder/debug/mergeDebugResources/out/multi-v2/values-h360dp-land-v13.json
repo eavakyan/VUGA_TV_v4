@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-h360dp-land-v13/values-h360dp-land-v13.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-83:/values-h360dp-land-v13/values-h360dp-land-v13.xml",
             "map": [
                 {
-                    "source": "/Users/gene/.gradle/caches/8.13/transforms/3b1a6401704e79be4e94dea8085122ff/transformed/material-1.11.0/res/values-h360dp-land-v13/values-h360dp-land-v13.xml",
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/6e3eef85bfe7907a8dc91b23ccadc4e7/transformed/material-1.11.0/res/values-h360dp-land-v13/values-h360dp-land-v13.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,7,8,9,10",
                         "startColumns": "4,4,4,4,4,4,4,4,4",

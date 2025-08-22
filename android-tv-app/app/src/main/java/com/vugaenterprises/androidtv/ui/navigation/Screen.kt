@@ -65,4 +65,18 @@ sealed class Screen(val route: String) {
     object ProfileSelection : Screen("profile_selection") {
         fun createRoute() = "profile_selection"
     }
+    
+    object LiveTV : Screen("live_tv") {
+        fun createRoute() = "live_tv"
+    }
+    
+    object LiveTVPlayer : Screen("live_tv_player/{channelId}") {
+        val arguments = listOf(
+            navArgument("channelId") {
+                type = NavType.IntType
+            }
+        )
+        
+        fun createRoute(channelId: Int) = "live_tv_player/$channelId"
+    }
 } 

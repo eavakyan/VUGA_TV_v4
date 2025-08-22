@@ -17,11 +17,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.tv.foundation.lazy.list.TvLazyColumn
-import androidx.tv.foundation.lazy.list.items
-import androidx.tv.material3.ExperimentalTvMaterial3Api
-import androidx.tv.material3.LocalContentColor
-import androidx.tv.material3.MaterialTheme
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.data.model.AgeRating
 import com.vugaenterprises.androidtv.data.model.Profile
@@ -29,7 +28,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import com.vugaenterprises.androidtv.ui.viewmodels.AgeSettingsViewModel
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalTvMaterial3Api::class)
 @Composable
 fun AgeSettingsScreen(
     profile: Profile,
@@ -222,7 +220,7 @@ fun AgeSettingsScreen(
                             color = Color.White
                         )
                         
-                        TvLazyColumn(
+                        LazyColumn(
                             modifier = Modifier.fillMaxWidth(),
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {

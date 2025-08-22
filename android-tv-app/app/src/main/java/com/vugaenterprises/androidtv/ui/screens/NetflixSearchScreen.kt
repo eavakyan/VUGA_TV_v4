@@ -36,6 +36,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.vugaenterprises.androidtv.data.model.Content
 import com.vugaenterprises.androidtv.ui.viewmodels.SearchViewModel
+import com.vugaenterprises.androidtv.ui.viewmodels.CategoryItem
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -91,10 +92,11 @@ fun NetflixSearchScreen(
             }
             
             searchQuery.text.isEmpty() -> {
-                // Show popular searches or categories
-                PopularSearches(
-                    onSearchTermClick = { term ->
-                        searchQuery = TextFieldValue(term)
+                // Show content categories
+                ContentCategories(
+                    categories = searchState.categories,
+                    onCategoryClick = { category ->
+                        viewModel.searchByCategory(category.id)
                     }
                 )
             }
@@ -275,42 +277,32 @@ fun NetflixSearchResultCard(
 }
 
 @Composable
-fun PopularSearches(
-    onSearchTermClick: (String) -> Unit
+fun ContentCategories(
+    categories: List<CategoryItem>,
+    onCategoryClick: (CategoryItem) -> Unit
 ) {
-    val popularTerms = listOf(
-        "Action Movies",
-        "Comedy Shows",
-        "New Releases",
-        "Trending Now",
-        "Award Winners",
-        "Documentaries",
-        "Kids & Family",
-        "Anime"
-    )
-    
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 48.dp)
     ) {
         Text(
-            text = "Popular Searches",
+            text = "Browse by Category",
             color = Color.White,
-            fontSize = 24.sp,
+            fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 24.dp)
         )
         
         LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            columns = GridCells.Fixed(3),
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(popularTerms.size) { index ->
-                PopularSearchItem(
-                    term = popularTerms[index],
-                    onClick = { onSearchTermClick(popularTerms[index]) }
+            items(categories) { category ->
+                CategoryItem(
+                    category = category,
+                    onClick = { onCategoryClick(category) }
                 )
             }
         }
@@ -318,39 +310,72 @@ fun PopularSearches(
 }
 
 @Composable
-fun PopularSearchItem(
-    term: String,
+fun CategoryItem(
+    category: CategoryItem,
     onClick: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
     
     val backgroundColor by animateColorAsState(
-        targetValue = if (isFocused) Color.White.copy(alpha = 0.2f) else Color.White.copy(alpha = 0.1f),
-        animationSpec = tween(150)
+        targetValue = if (isFocused) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.12f),
+        animationSpec = tween(200)
     )
     
-    Box(
+    val scale by animateFloatAsState(
+        targetValue = if (isFocused) 1.05f else 1.0f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        )
+    )
+    
+    Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(48.dp)
-            .clip(RoundedCornerShape(4.dp))
-            .background(backgroundColor)
+            .height(80.dp)
+            .scale(scale)
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
                 onClick = onClick
             )
-            .focusable(interactionSource = interactionSource)
-            .padding(horizontal = 16.dp),
-        contentAlignment = Alignment.CenterStart
-    ) {
-        Text(
-            text = term,
-            color = Color.White,
-            fontSize = 16.sp,
-            fontWeight = if (isFocused) FontWeight.Medium else FontWeight.Normal
+            .focusable(interactionSource = interactionSource),
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        ),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (isFocused) 8.dp else 2.dp
         )
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = category.title,
+                    color = Color.White,
+                    fontSize = 18.sp,
+                    fontWeight = if (isFocused) FontWeight.Bold else FontWeight.Medium,
+                    textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                )
+                
+                if (category.contentCount > 0) {
+                    Text(
+                        text = "${category.contentCount} titles",
+                        color = Color.White.copy(alpha = 0.7f),
+                        fontSize = 12.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
+            }
+        }
     }
 }
 

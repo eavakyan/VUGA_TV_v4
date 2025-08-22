@@ -40,9 +40,9 @@ fun FeaturedContentSection(
             .fillMaxWidth()
             .height(400.dp)
     ) {
-        // Background Image
+        // Background Image - use vertical poster for TV interface
         AsyncImage(
-            model = featuredContent.horizontalPoster.ifEmpty { featuredContent.verticalPoster },
+            model = featuredContent.verticalPoster.ifEmpty { featuredContent.horizontalPoster },
             contentDescription = featuredContent.title,
             modifier = Modifier.fillMaxSize(),
             contentScale = ContentScale.Crop
@@ -200,8 +200,8 @@ private fun FeaturedContentCard(
     
     Card(
         modifier = Modifier
-            .width(200.dp)
-            .height(120.dp)
+            .width(160.dp)
+            .height(240.dp)
             .scale(scale)
             .focusRequester(focusRequester)
             .focusable()
@@ -232,7 +232,7 @@ private fun FeaturedContentCard(
     ) {
         Box {
             AsyncImage(
-                model = content.horizontalPoster.ifEmpty { content.verticalPoster },
+                model = content.verticalPoster.ifEmpty { content.horizontalPoster },
                 contentDescription = content.title,
                 modifier = Modifier
                     .fillMaxSize()

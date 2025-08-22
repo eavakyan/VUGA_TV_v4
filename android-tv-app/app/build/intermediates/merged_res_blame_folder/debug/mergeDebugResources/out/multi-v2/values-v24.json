@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-81:/values-v24/values-v24.xml",
+            "outputFile": "com.vugaenterprises.androidtv.app-mergeDebugResources-83:/values-v24/values-v24.xml",
             "map": [
                 {
-                    "source": "/Users/gene/.gradle/caches/8.13/transforms/3b1a6401704e79be4e94dea8085122ff/transformed/material-1.11.0/res/values-v24/values-v24.xml",
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/6e3eef85bfe7907a8dc91b23ccadc4e7/transformed/material-1.11.0/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,9,12,15",
                         "startColumns": "4,4,4,4,4,4,4,4",
@@ -23,7 +23,7 @@
                     }
                 },
                 {
-                    "source": "/Users/gene/.gradle/caches/8.13/transforms/792e410d0fc1684bd15fae08db9f2b4e/transformed/media-1.6.0/res/values-v24/values-v24.xml",
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/3209589f11804de669b10653e60caebd/transformed/media-1.6.0/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3,4,5",
                         "startColumns": "4,4,4,4",
@@ -40,7 +40,7 @@
                     }
                 },
                 {
-                    "source": "/Users/gene/.gradle/caches/8.13/transforms/0fe521f0708937550446df9f8fac934a/transformed/appcompat-1.6.1/res/values-v24/values-v24.xml",
+                    "source": "/Users/gene/.gradle/caches/8.13/transforms/6ffed9ed409a6da94e82ed2691479c06/transformed/appcompat-1.6.1/res/values-v24/values-v24.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",

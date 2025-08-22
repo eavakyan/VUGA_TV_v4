@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.vugaenterprises.androidtv.data.model.Content
+import com.vugaenterprises.androidtv.data.model.GenreContents
 import com.vugaenterprises.androidtv.ui.components.AutoScrollingBanner
 import com.vugaenterprises.androidtv.ui.components.ContentRow
 import com.vugaenterprises.androidtv.ui.components.FeaturedContentSection
@@ -161,7 +162,8 @@ fun HomeScreen(
                                 trendingContent = uiState.trendingContent,
                                 newContent = uiState.newContent,
                                 continueWatching = uiState.continueWatching.map { it.content }.filterNotNull(),
-                                recommendations = uiState.recommendations
+                                recommendations = uiState.recommendations,
+                                categoryContent = uiState.categoryContent
                             )
                         }
                     }

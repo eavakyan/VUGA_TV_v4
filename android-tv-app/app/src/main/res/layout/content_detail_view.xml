@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@android:color/black"
@@ -10,20 +11,21 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Hero Section -->
+        <!-- Modern TV Hero Section -->
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="600dp">
+            android:layout_height="680dp">
 
-            <!-- Background Image -->
+            <!-- Background Image with better scaling -->
             <ImageView
                 android:id="@+id/backgroundImage"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
                 android:src="@drawable/placeholder_image" />
 
-            <!-- Gradient Overlay -->
+            <!-- Enhanced Gradient Overlay -->
             <View
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -32,38 +34,51 @@
             <!-- Back Button -->
             <ImageView
                 android:id="@+id/backButton"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_margin="24dp"
+                android:layout_width="64dp"
+                android:layout_height="64dp"
+                android:layout_margin="32dp"
                 android:background="@drawable/back_button_background"
                 android:src="@drawable/ic_back"
-                android:padding="16dp"
+                android:padding="18dp"
                 android:focusable="true"
-                android:focusableInTouchMode="true" />
+                android:focusableInTouchMode="true"
+                android:elevation="8dp" />
 
-            <!-- Content Info Overlay -->
+            <!-- Modern Content Layout -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom"
+                android:layout_gravity="center_vertical"
                 android:orientation="horizontal"
-                android:padding="48dp">
+                android:paddingStart="64dp"
+                android:paddingEnd="64dp"
+                android:paddingTop="32dp"
+                android:paddingBottom="32dp">
 
-                <!-- Poster Image -->
-                <ImageView
-                    android:id="@+id/posterImage"
-                    android:layout_width="200dp"
-                    android:layout_height="300dp"
-                    android:layout_marginEnd="32dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/placeholder_image" />
+                <!-- Vertical Poster -->
+                <androidx.cardview.widget.CardView
+                    android:layout_width="240dp"
+                    android:layout_height="360dp"
+                    android:layout_marginEnd="48dp"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="16dp">
+
+                    <ImageView
+                        android:id="@+id/posterImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/placeholder_image" />
+
+                </androidx.cardview.widget.CardView>
 
                 <!-- Content Details -->
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:orientation="vertical">
+                    android:orientation="vertical"
+                    android:layout_gravity="center_vertical">
 
                     <!-- Title -->
                     <TextView
@@ -72,26 +87,45 @@
                         android:layout_height="wrap_content"
                         android:text="Movie Title"
                         android:textColor="@android:color/white"
-                        android:textSize="36sp"
+                        android:textSize="42sp"
                         android:textStyle="bold"
-                        android:layout_marginBottom="12dp" />
+                        android:layout_marginBottom="16dp"
+                        android:shadowColor="@android:color/black"
+                        android:shadowDx="2"
+                        android:shadowDy="2"
+                        android:shadowRadius="4"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
 
-                    <!-- Rating, Year, Duration -->
+                    <!-- Metadata Row -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="16dp">
+                        android:layout_marginBottom="20dp"
+                        android:gravity="center_vertical">
 
-                        <TextView
-                            android:id="@+id/ratingText"
+                        <!-- Rating Badge -->
+                        <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="★ 8.5"
-                            android:textColor="#FFD700"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_marginEnd="16dp"
+                            app:cardCornerRadius="16dp"
+                            app:cardBackgroundColor="#FFD700"
+                            app:cardElevation="4dp">
+
+                            <TextView
+                                android:id="@+id/ratingText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="★ 8.5"
+                                android:textColor="@android:color/black"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="6dp" />
+
+                        </androidx.cardview.widget.CardView>
 
                         <TextView
                             android:id="@+id/yearText"
@@ -99,17 +133,35 @@
                             android:layout_height="wrap_content"
                             android:text="2023"
                             android:textColor="@android:color/white"
-                            android:textSize="18sp"
-                            android:layout_marginEnd="16dp" />
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:layout_marginEnd="20dp"
+                            android:shadowColor="@android:color/black"
+                            android:shadowDx="1"
+                            android:shadowDy="1"
+                            android:shadowRadius="2" />
 
-                        <TextView
-                            android:id="@+id/durationText"
+                        <!-- Duration Badge -->
+                        <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="2h 15m"
-                            android:textColor="@android:color/white"
-                            android:textSize="18sp"
-                            android:layout_marginEnd="16dp" />
+                            android:layout_marginEnd="16dp"
+                            app:cardCornerRadius="8dp"
+                            app:cardBackgroundColor="#33FFFFFF"
+                            app:cardElevation="2dp">
+
+                            <TextView
+                                android:id="@+id/durationText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="2h 15min"
+                                android:textColor="@android:color/white"
+                                android:textSize="16sp"
+                                android:textStyle="bold"
+                                android:paddingHorizontal="12dp"
+                                android:paddingVertical="6dp" />
+
+                        </androidx.cardview.widget.CardView>
 
                     </LinearLayout>
 
@@ -118,11 +170,15 @@
                         android:id="@+id/genreText"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Action, Adventure, Thriller"
+                        android:text="Action • Adventure • Thriller"
                         android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:layout_marginBottom="20dp"
-                        android:alpha="0.8" />
+                        android:textSize="18sp"
+                        android:layout_marginBottom="24dp"
+                        android:alpha="0.9"
+                        android:shadowColor="@android:color/black"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="2" />
 
                     <!-- Description -->
                     <TextView
@@ -131,59 +187,72 @@
                         android:layout_height="wrap_content"
                         android:text="Movie description goes here..."
                         android:textColor="@android:color/white"
-                        android:textSize="16sp"
-                        android:lineSpacingMultiplier="1.2"
-                        android:layout_marginBottom="16dp"
-                        android:maxLines="3"
-                        android:ellipsize="end" />
-
-                    <!-- Cast -->
-                    <TextView
-                        android:id="@+id/castText"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Cast information..."
-                        android:textColor="@android:color/white"
-                        android:textSize="14sp"
-                        android:layout_marginBottom="24dp"
-                        android:maxLines="2"
+                        android:textSize="18sp"
+                        android:lineSpacingMultiplier="1.3"
+                        android:layout_marginBottom="32dp"
+                        android:maxLines="4"
                         android:ellipsize="end"
-                        android:alpha="0.8" />
+                        android:alpha="0.9"
+                        android:shadowColor="@android:color/black"
+                        android:shadowDx="1"
+                        android:shadowDy="1"
+                        android:shadowRadius="2" />
 
                     <!-- Action Buttons -->
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="16dp">
+                        android:gravity="start">
 
-                        <TextView
-                            android:id="@+id/playButton"
+                        <!-- Play Button -->
+                        <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="▶ Play"
-                            android:textColor="@android:color/black"
-                            android:textSize="18sp"
-                            android:textStyle="bold"
-                            android:background="@drawable/play_button_background"
-                            android:padding="16dp"
                             android:layout_marginEnd="24dp"
-                            android:focusable="true"
-                            android:focusableInTouchMode="true" />
+                            app:cardCornerRadius="32dp"
+                            app:cardBackgroundColor="@android:color/white"
+                            app:cardElevation="8dp">
 
-                        <TextView
-                            android:id="@+id/moreInfoButton"
+                            <TextView
+                                android:id="@+id/playButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="▶ Play"
+                                android:textColor="@android:color/black"
+                                android:textSize="20sp"
+                                android:textStyle="bold"
+                                android:paddingHorizontal="32dp"
+                                android:paddingVertical="16dp"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:gravity="center" />
+
+                        </androidx.cardview.widget.CardView>
+
+                        <!-- More Info Button -->
+                        <androidx.cardview.widget.CardView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="ⓘ More Info"
-                            android:textColor="@android:color/white"
-                            android:textSize="16sp"
-                            android:background="@drawable/info_button_background"
-                            android:padding="16dp"
-                            android:layout_marginEnd="24dp"
-                            android:layout_marginBottom="8dp"
-                            android:focusable="true"
-                            android:focusableInTouchMode="true" />
+                            app:cardCornerRadius="32dp"
+                            app:cardBackgroundColor="#66FFFFFF"
+                            app:cardElevation="4dp">
+
+                            <TextView
+                                android:id="@+id/moreInfoButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="ⓘ More Info"
+                                android:textColor="@android:color/white"
+                                android:textSize="18sp"
+                                android:textStyle="bold"
+                                android:paddingHorizontal="24dp"
+                                android:paddingVertical="16dp"
+                                android:focusable="true"
+                                android:focusableInTouchMode="true"
+                                android:gravity="center" />
+
+                        </androidx.cardview.widget.CardView>
 
                     </LinearLayout>
 
