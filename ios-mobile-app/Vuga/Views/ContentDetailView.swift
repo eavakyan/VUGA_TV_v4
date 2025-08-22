@@ -1320,6 +1320,12 @@ struct ContentDetailView: View {
             episodeTotalView: calculateEpisodeViews(for: episode),
             onRatingTap: {
                 handleEpisodeRatingTap(for: episode)
+            },
+            isInWatchlist: vm.episodeWatchlistStatus[episode.id ?? 0] ?? false,
+            onWatchlistTap: {
+                if let episodeId = episode.id {
+                    vm.toggleEpisodeWatchlist(episodeId: episodeId)
+                }
             }
         )
         .onTapGesture {
@@ -2002,6 +2008,8 @@ struct EpisodeCard : View {
     var episode: Episode
     var episodeTotalView: Int
     var onRatingTap: (() -> Void)?
+    var isInWatchlist: Bool = false
+    var onWatchlistTap: (() -> Void)?
     
     var body: some View {
         VStack(alignment: .leading) {
@@ -2019,6 +2027,16 @@ struct EpisodeCard : View {
                         Text(episode.duration ?? "")
                             .outfitRegular(16)
                             .foregroundColor(.textLight)
+                        
+                        // Episode watchlist button
+                        Button(action: {
+                            onWatchlistTap?()
+                        }) {
+                            Image(systemName: isInWatchlist ? "checkmark.circle.fill" : "plus.circle")
+                                .resizable()
+                                .frame(width: 20, height: 20)
+                                .foregroundColor(isInWatchlist ? .green : .white)
+                        }
                         
                         // Episode rating
                         HStack(spacing: 4) {

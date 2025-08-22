@@ -202,6 +202,7 @@
 		C434A49D2BEA4D050059889F /* LoginViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A49C2BEA4D050059889F /* LoginViewModel.swift */; };
 		C434A4A72BEA4FA30059889F /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = C434A4A62BEA4FA30059889F /* GoogleSignIn */; };
 		C434A4A92BEA4FA30059889F /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C434A4A82BEA4FA30059889F /* GoogleSignInSwift */; };
+		001C972E73D54A23863D328D /* UnifiedWatchlistModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6925D5BEB24E4D1EA788E1EF /* UnifiedWatchlistModel.swift */; };
 		C434A4AB2BEA509C0059889F /* UserModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A4AA2BEA509C0059889F /* UserModel.swift */; };
 		C434A4AD2BEA51DB0059889F /* Function.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A4AC2BEA51DB0059889F /* Function.swift */; };
 		C434A4AF2BEA53CC0059889F /* ExtraExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C434A4AE2BEA53CC0059889F /* ExtraExtension.swift */; };
@@ -453,6 +454,7 @@
 		C434A4952BEA44790059889F /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
 		C434A4972BEA44790059889F /* LocalModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalModel.swift; sourceTree = "<group>"; };
 		C434A49C2BEA4D050059889F /* LoginViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewModel.swift; sourceTree = "<group>"; };
+		6925D5BEB24E4D1EA788E1EF /* UnifiedWatchlistModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnifiedWatchlistModel.swift; sourceTree = "<group>"; };
 		C434A4AA2BEA509C0059889F /* UserModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserModel.swift; sourceTree = "<group>"; };
 		C434A4AC2BEA51DB0059889F /* Function.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Function.swift; sourceTree = "<group>"; };
 		C434A4AE2BEA53CC0059889F /* ExtraExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtraExtension.swift; sourceTree = "<group>"; };
@@ -799,6 +801,7 @@
 				B0F1D7AE2E38951A006CBED0 /* Profile.swift */,
 				C434A4872BEA3C600059889F /* SettingModel.swift */,
 				C450DC262BF4E1D400212699 /* HomeModel.swift */,
+				6925D5BEB24E4D1EA788E1EF /* UnifiedWatchlistModel.swift */,
 				C434A4AA2BEA509C0059889F /* UserModel.swift */,
 				C450DC282BF4EB4000212699 /* ContentModel.swift */,
 				A0EEC768CD90445586D9A12F /* TrailerModel.swift */,
@@ -1275,6 +1278,7 @@
 				2BCD28122C3822F20076D8ED /* PagingView.swift in Sources */,
 				2B9D9BD72C75CD0A0078A63E /* Vuga.xcdatamodeld in Sources */,
 				C434A4AD2BEA51DB0059889F /* Function.swift in Sources */,
+				001C972E73D54A23863D328D /* UnifiedWatchlistModel.swift in Sources */,
 				C434A4AB2BEA509C0059889F /* UserModel.swift in Sources */,
 				B05AC94E2E3F0237005EB298 /* StorageManager.swift in Sources */,
 				B05AC9582E47A35B005EB298 /* TrailerUtils.swift in Sources */,

@@ -1096,13 +1096,16 @@ class UserController extends Controller
             }
             
             $contentItems = $contentQuery->get()->map(function ($content) {
+                // Use horizontal_poster for consistency with watchlist cards
+                $poster = $content->horizontal_poster ?: $content->vertical_poster;
+                
                 return [
                     'item_type' => 'content',
                     'content_id' => $content->content_id,
                     'episode_id' => null,
                     'title' => $content->title,
                     'type' => $content->type,
-                    'poster' => $content->poster,
+                    'poster' => $poster,
                     'ratings' => $content->ratings,
                     'series_title' => null,
                     'season_number' => null,

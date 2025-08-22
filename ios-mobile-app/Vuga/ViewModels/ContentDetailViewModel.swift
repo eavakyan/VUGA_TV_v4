@@ -14,7 +14,12 @@ class ContentDetailViewModel : BaseViewModel {
     @Published var isStarCastOn = true
     @Published var isSourceSheetOn = false
     @Published var isBookmarked = false
-    @Published var selectedSeason: Season?
+    @Published var selectedSeason: Season? {
+        didSet {
+            // When season changes, check watchlist status for new episodes
+            checkAllEpisodesWatchlistStatus()
+        }
+    }
     @Published var sources = [Source]()
     @Published var selectedSource : Source?
     @Published var pickedSource: Source?
@@ -29,6 +34,7 @@ class ContentDetailViewModel : BaseViewModel {
     @Published var seasonNumber = 0
     @Published var isShowAd = true
     @Published var showDistributorSubscriptionRequired = false
+    @Published var episodeWatchlistStatus: [Int: Bool] = [:] // Track watchlist status for each episode by ID
     
     func fetchContest(contentId: Int) {
         var params: [Params: Any] = [.userId : myUser?.id ?? 0,
@@ -62,6 +68,11 @@ class ContentDetailViewModel : BaseViewModel {
             }
             
             self?.isDataLoaded = true
+            
+            // Check watchlist status for all episodes if it's a TV series
+            if obj.data?.type == .series {
+                self?.checkAllEpisodesWatchlistStatus()
+            }
         }, callbackFailure: { error in
             self.stopLoading()
             print("ContentDetailViewModel fetchContest error: \(error)")
@@ -115,6 +126,63 @@ class ContentDetailViewModel : BaseViewModel {
         NetworkManager.callWebService(url: .increaseEpisodeView,params: params){ (obj: IncreaseEpisodeViewsModel) in
             self.stopLoading()
             print(obj.status!)
+        }
+    }
+    
+    // MARK: - Episode Watchlist Methods
+    
+    func checkEpisodeWatchlistStatus(episodeId: Int) {
+        guard let user = myUser, let userId = user.id else { return }
+        
+        var params: [Params: Any] = [
+            .appUserId: userId,
+            .episodeId: episodeId
+        ]
+        
+        if let profileId = user.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        NetworkManager.callWebService(url: .checkEpisodeWatchlist, params: params) { [weak self] (response: UserModel) in
+            if let data = response.data as? [String: Any],
+               let isInWatchlist = data["is_in_watchlist"] as? Bool {
+                DispatchQueue.main.async {
+                    self?.episodeWatchlistStatus[episodeId] = isInWatchlist
+                }
+            }
+        }
+    }
+    
+    func toggleEpisodeWatchlist(episodeId: Int) {
+        guard let user = myUser, let userId = user.id else { return }
+        
+        // Optimistically update UI
+        let wasInWatchlist = episodeWatchlistStatus[episodeId] ?? false
+        episodeWatchlistStatus[episodeId] = !wasInWatchlist
+        
+        var params: [Params: Any] = [
+            .appUserId: userId,
+            .episodeId: episodeId
+        ]
+        
+        if let profileId = user.lastActiveProfileId {
+            params[.profileId] = profileId
+        }
+        
+        NetworkManager.callWebService(url: .toggleEpisodeWatchlist, params: params) { [weak self] (response: UserModel) in
+            // Success - watchlist was toggled
+            print("Episode watchlist toggled successfully")
+        }
+    }
+    
+    func checkAllEpisodesWatchlistStatus() {
+        // Check watchlist status for all episodes in the current season
+        guard let episodes = selectedSeason?.episodes else { return }
+        
+        for episode in episodes {
+            if let episodeId = episode.id {
+                checkEpisodeWatchlistStatus(episodeId: episodeId)
+            }
         }
     }
     

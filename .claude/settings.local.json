@@ -95,7 +95,9 @@
       "Bash(security find-generic-password:*)",
       "Bash(git add:*)",
       "WebFetch(domain:iosdev.gossip-stone.com)",
-      "Bash(~/Library/Android/sdk/build-tools/35.0.0/aapt dump badging app/build/outputs/apk/release/Vuga-release.apk)"
+      "Bash(~/Library/Android/sdk/build-tools/35.0.0/aapt dump badging app/build/outputs/apk/release/Vuga-release.apk)",
+      "Bash(uuidgen)",
+      "Bash(mysql:*)"
     ],
     "deny": []
   }
