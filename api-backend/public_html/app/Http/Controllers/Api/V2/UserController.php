@@ -7,7 +7,9 @@ use App\Models\V2\AppUser;
 use App\Models\V2\AppUserProfile;
 use App\Models\V2\AppUserWatchlist;
 use App\Models\V2\AppUserFavorite;
+use App\Models\V2\AppProfileEpisodeWatchlist;
 use App\Models\V2\Content;
+use App\Models\V2\Episode;
 use App\GlobalFunction;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -912,6 +914,254 @@ class UserController extends Controller
             'status' => true,
             'message' => 'Get User Subscription Successfully',
             'subscription' => null
+        ]);
+    }
+
+    /**
+     * Toggle episode watchlist status
+     */
+    public function toggleEpisodeWatchlist(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'episode_id' => 'required|integer|exists:episode,episode_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Profile is required for episode watchlist
+        if (!$profileId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile ID is required'
+            ], 400);
+        }
+        
+        $profile = AppUserProfile::find($profileId);
+        if (!$profile || $profile->app_user_id != $request->app_user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found or unauthorized'
+            ], 404);
+        }
+        
+        // Check if episode exists in watchlist using direct query
+        $exists = DB::table('app_profile_episode_watchlist')
+            ->where('profile_id', $profileId)
+            ->where('episode_id', $request->episode_id)
+            ->exists();
+            
+        if ($exists) {
+            // Remove from watchlist
+            $profile->episodeWatchlist()->detach($request->episode_id);
+            $message = 'Removed from watchlist';
+            $isInWatchlist = false;
+        } else {
+            // Add to watchlist
+            $profile->episodeWatchlist()->attach($request->episode_id);
+            $message = 'Added to watchlist';
+            $isInWatchlist = true;
+        }
+
+        return response()->json([
+            'status' => true,
+            'message' => $message,
+            'is_in_watchlist' => $isInWatchlist
+        ]);
+    }
+
+    /**
+     * Check if episode is in watchlist
+     */
+    public function checkEpisodeWatchlist(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'app_user_id' => 'required|integer|exists:app_user,app_user_id',
+            'episode_id' => 'required|integer|exists:episode,episode_id',
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $user = AppUser::find($request->app_user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Profile is required for episode watchlist
+        if (!$profileId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile ID is required'
+            ], 400);
+        }
+        
+        $profile = AppUserProfile::find($profileId);
+        if (!$profile || $profile->app_user_id != $request->app_user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found or unauthorized'
+            ], 404);
+        }
+        
+        // Check if episode exists in watchlist using direct query
+        $isInWatchlist = DB::table('app_profile_episode_watchlist')
+            ->where('profile_id', $profileId)
+            ->where('episode_id', $request->episode_id)
+            ->exists();
+
+        return response()->json([
+            'status' => true,
+            'is_in_watchlist' => $isInWatchlist,
+            'message' => 'Episode watchlist status retrieved'
+        ]);
+    }
+
+    /**
+     * Fetch unified watchlist (movies, TV shows, and episodes)
+     */
+    public function fetchUnifiedWatchlist(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'user_id' => 'required|integer|exists:app_user,app_user_id',
+            'start' => 'required|integer|min:0',
+            'limit' => 'required|integer|min:1|max:100',
+            'type' => 'nullable|integer|in:1,2,3', // 1=movies, 2=series, 3=episodes
+            'profile_id' => 'nullable|integer|exists:app_user_profile,profile_id'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $user = AppUser::find($request->user_id);
+        $profileId = $request->profile_id;
+        
+        // If no profile_id provided, use last active profile
+        if (!$profileId) {
+            $profileId = $user->last_active_profile_id;
+        }
+        
+        // Profile is required for unified watchlist
+        if (!$profileId) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile ID is required'
+            ], 400);
+        }
+        
+        $profile = AppUserProfile::find($profileId);
+        if (!$profile || $profile->app_user_id != $request->user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Profile not found or unauthorized'
+            ], 404);
+        }
+
+        $watchlistItems = [];
+        $type = $request->type;
+
+        // Get content watchlist (movies and series)
+        if (!$type || in_array($type, [1, 2])) {
+            $contentQuery = $profile->watchlist()
+                ->where('content.is_show', 1);
+            
+            if ($type) {
+                $contentQuery->where('content.type', $type);
+            }
+            
+            $contentItems = $contentQuery->get()->map(function ($content) {
+                return [
+                    'item_type' => 'content',
+                    'content_id' => $content->content_id,
+                    'episode_id' => null,
+                    'title' => $content->title,
+                    'type' => $content->type,
+                    'poster' => $content->poster,
+                    'ratings' => $content->ratings,
+                    'series_title' => null,
+                    'season_number' => null,
+                    'episode_number' => null,
+                    'added_at' => $content->pivot->created_at->toISOString()
+                ];
+            });
+            
+            $watchlistItems = array_merge($watchlistItems, $contentItems->toArray());
+        }
+
+        // Get episode watchlist
+        if (!$type || $type == 3) {
+            $episodeItems = $profile->episodeWatchlist()
+                ->with(['season.content'])
+                ->get()
+                ->map(function ($episode) {
+                    $season = $episode->season;
+                    $content = $season ? $season->content : null;
+                    
+                    return [
+                        'item_type' => 'episode',
+                        'content_id' => $content ? $content->content_id : null,
+                        'episode_id' => $episode->episode_id,
+                        'title' => $episode->title,
+                        'type' => 2, // Episodes are part of TV series
+                        'poster' => $episode->thumbnail,
+                        'ratings' => $episode->ratings,
+                        'series_title' => $content ? $content->title : null,
+                        'season_number' => $season ? $season->season_number : null,
+                        'episode_number' => $episode->number,
+                        'added_at' => $episode->pivot->created_at->toISOString()
+                    ];
+                });
+            
+            $watchlistItems = array_merge($watchlistItems, $episodeItems->toArray());
+        }
+
+        // Sort by added_at date (newest first)
+        usort($watchlistItems, function ($a, $b) {
+            return strtotime($b['added_at']) - strtotime($a['added_at']);
+        });
+
+        // Apply pagination
+        $totalItems = count($watchlistItems);
+        $start = $request->start;
+        $limit = $request->limit;
+        $paginatedItems = array_slice($watchlistItems, $start, $limit);
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Unified watchlist fetched successfully',
+            'data' => $paginatedItems,
+            'pagination' => [
+                'current_page' => floor($start / $limit) + 1,
+                'total_items' => $totalItems,
+                'items_per_page' => $limit,
+                'total_pages' => ceil($totalItems / $limit)
+            ]
         ]);
     }
 }

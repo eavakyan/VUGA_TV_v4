@@ -78,6 +78,12 @@ class AppUserProfile extends Model
         return $this->hasMany(ProfileDownload::class, 'profile_id', 'profile_id');
     }
     
+    public function episodeWatchlist(): BelongsToMany
+    {
+        return $this->belongsToMany(Episode::class, 'app_profile_episode_watchlist', 'profile_id', 'episode_id')
+            ->withTimestamps();
+    }
+    
     // Methods  
     public function getAvatarUrlAttribute()
     {

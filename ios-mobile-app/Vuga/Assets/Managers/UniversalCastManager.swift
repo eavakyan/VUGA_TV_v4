@@ -159,25 +159,29 @@ class UniversalCastManager: NSObject, ObservableObject {
     }
     
     // MARK: - Casting Functions
-    func cast(to device: CastDevice, content: VugaContent, source: Source) {
+    func cast(to device: CastDevice, content: VugaContent, source: Source, episode: Episode? = nil) {
         switch device.type {
         case .googleCast:
-            castToGoogleCast(device: device, content: content, source: source)
+            castToGoogleCast(device: device, content: content, source: source, episode: episode)
         case .airplay:
             // AirPlay is handled through AVPlayer in VideoPlayerModel
+            var userInfo: [String: Any] = ["content": content, "source": source]
+            if let episode = episode {
+                userInfo["episode"] = episode
+            }
             NotificationCenter.default.post(
                 name: Notification.Name("StartAirPlayCasting"),
                 object: nil,
-                userInfo: ["content": content, "source": source]
+                userInfo: userInfo
             )
         case .dlna:
-            castToDLNA(device: device, content: content, source: source)
+            castToDLNA(device: device, content: content, source: source, episode: episode)
         case .unknown:
             break
         }
     }
     
-    private func castToGoogleCast(device: CastDevice, content: VugaContent, source: Source) {
+    private func castToGoogleCast(device: CastDevice, content: VugaContent, source: Source, episode: Episode? = nil) {
         guard let castDevice = discoveryManager?.devices.first(where: { $0.uniqueID == device.id }) else {
             return
         }
@@ -186,11 +190,11 @@ class UniversalCastManager: NSObject, ObservableObject {
         
         // Wait for session to connect
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-            self?.loadMediaOnGoogleCast(content: content, source: source)
+            self?.loadMediaOnGoogleCast(content: content, source: source, episode: episode)
         }
     }
     
-    private func loadMediaOnGoogleCast(content: VugaContent, source: Source) {
+    private func loadMediaOnGoogleCast(content: VugaContent, source: Source, episode: Episode? = nil) {
         guard let session = sessionManager?.currentCastSession,
               session.connectionState == .connected else {
             print("No connected Cast session")
@@ -198,8 +202,20 @@ class UniversalCastManager: NSObject, ObservableObject {
         }
         
         let metadata = GCKMediaMetadata(metadataType: content.type == .movie ? .movie : .tvShow)
-        metadata.setString(content.title ?? "", forKey: kGCKMetadataKeyTitle)
-        metadata.setString(content.description ?? "", forKey: kGCKMetadataKeySubtitle)
+        
+        // Use episode title if casting an episode, otherwise use content title
+        let title = episode?.title ?? content.title ?? ""
+        let subtitle = episode != nil ? content.title ?? "" : content.description ?? ""
+        
+        metadata.setString(title, forKey: kGCKMetadataKeyTitle)
+        metadata.setString(subtitle, forKey: kGCKMetadataKeySubtitle)
+        
+        // For episodes, add season and episode number
+        if let episode = episode {
+            if let seasonNum = episode.seasonID, let episodeNum = episode.number {
+                metadata.setString("S\(seasonNum) E\(episodeNum)", forKey: kGCKMetadataKeyEpisodeNumber)
+            }
+        }
         
         if let posterURL = content.verticalPoster?.addBaseURL() {
             metadata.addImage(GCKImage(url: URL(string: posterURL)!, width: 480, height: 720))
@@ -224,7 +240,7 @@ class UniversalCastManager: NSObject, ObservableObject {
         session.remoteMediaClient?.loadMedia(mediaInfo, with: loadOptions)
     }
     
-    private func castToDLNA(device: CastDevice, content: VugaContent, source: Source) {
+    private func castToDLNA(device: CastDevice, content: VugaContent, source: Source, episode: Episode? = nil) {
         // DLNA implementation will be added when CocoaUPnP is integrated
         print("DLNA casting not yet implemented")
     }

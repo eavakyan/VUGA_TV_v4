@@ -32,6 +32,8 @@ enum APIs : String {
     case toggleFavorite                     = "user/toggle-favorite"
     case rateContent                        = "user/rate-content"
     case rateEpisode                        = "user/rate-episode"
+    case toggleEpisodeWatchlist             = "user/toggle-episode-watchlist"
+    case checkEpisodeWatchlist              = "user/check-episode-watchlist"
     case updateWatchProgress                = "watch/update-progress"
     case getContinueWatching                = "watch/continue-watching"
     case markAsCompleted                    = "watch/mark-completed"

@@ -58,6 +58,9 @@ Route::prefix('v2')->group(function () {
         Route::post('/toggle-favorite', [V2\UserController::class, 'toggleFavorite']);
         Route::post('/rate-content', [V2\UserController::class, 'rateContent']);
         Route::post('/rate-episode', [V2\UserController::class, 'rateEpisode']);
+        Route::post('/toggle-episode-watchlist', [V2\UserController::class, 'toggleEpisodeWatchlist']);
+        Route::post('/check-episode-watchlist', [V2\UserController::class, 'checkEpisodeWatchlist']);
+        Route::post('/fetch-unified-watchlist', [V2\UserController::class, 'fetchUnifiedWatchlist']);
         Route::post('/watch-history', [V2\UserController::class, 'getWatchHistory']);
     });
     
