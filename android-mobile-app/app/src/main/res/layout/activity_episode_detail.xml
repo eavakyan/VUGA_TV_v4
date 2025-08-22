@@ -53,18 +53,31 @@
                 android:orientation="vertical"
                 android:padding="15dp">
 
-                <!-- Episode Title -->
+                <!-- Show Name (small text) -->
+                <TextView
+                    android:id="@+id/tv_show_name"
+                    style="@style/TextViewLocal"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/outfit_regular"
+                    android:text="Show Name"
+                    android:textColor="@color/text_color_light"
+                    android:textSize="@dimen/_14sp"
+                    tools:text="Ari Global Show" />
+
+                <!-- Episode Title with S#E# format -->
                 <TextView
                     android:id="@+id/tv_episode_title"
                     style="@style/TextViewLocal"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
                     android:fontFamily="@font/outfit_semi_bold"
                     android:text="@{episode.title}"
                     android:textSize="@dimen/_24sp"
-                    tools:text="Episode 1: The Beginning" />
+                    tools:text="S1E1: The Beginning" />
 
-                <!-- Episode Info Row -->
+                <!-- Episode Info Row (Date and Duration) -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -72,17 +85,19 @@
                     android:gravity="center_vertical"
                     android:orientation="horizontal">
 
+                    <!-- Release Date -->
                     <TextView
-                        android:id="@+id/tv_season_episode"
+                        android:id="@+id/tv_release_date"
                         style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/outfit_light"
-                        android:text='@{"Episode " + episode.number}'
+                        android:text=""
                         android:textColor="@color/text_color_light"
                         android:textSize="@dimen/_14sp"
-                        tools:text="S1 E1" />
+                        tools:text="2024" />
 
+                    <!-- Duration -->
                     <TextView
                         android:id="@+id/tv_duration"
                         style="@style/TextViewLocal"
@@ -95,6 +110,7 @@
                         android:textSize="@dimen/_14sp"
                         tools:text="45 min" />
 
+                    <!-- Rating -->
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -121,6 +137,165 @@
                             tools:text="8.5" />
                     </LinearLayout>
                 </LinearLayout>
+
+                <!-- Action Buttons Row (Rate, Watchlist, Share, Cast, AirPlay) -->
+                <HorizontalScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal">
+
+                        <!-- Rate Button -->
+                        <LinearLayout
+                            android:id="@+id/btn_rate"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="20dp"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackground">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_star"
+                                app:tint="@color/white" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:fontFamily="@font/outfit_light"
+                                android:text="Rate"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_12sp" />
+                        </LinearLayout>
+
+                        <!-- Watchlist Button -->
+                        <LinearLayout
+                            android:id="@+id/btn_watchlist"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="20dp"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackground">
+
+                            <ImageView
+                                android:id="@+id/iv_watchlist"
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_bookmark_not"
+                                app:tint="@color/white" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:fontFamily="@font/outfit_light"
+                                android:text="Watchlist"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_12sp" />
+                        </LinearLayout>
+
+                        <!-- Share Button -->
+                        <LinearLayout
+                            android:id="@+id/btn_share"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="20dp"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackground">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_share"
+                                app:tint="@color/white" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:fontFamily="@font/outfit_light"
+                                android:text="Share"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_12sp" />
+                        </LinearLayout>
+
+                        <!-- Cast Button -->
+                        <LinearLayout
+                            android:id="@+id/btn_cast"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="20dp"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackground">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_cast"
+                                app:tint="@color/white" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:fontFamily="@font/outfit_light"
+                                android:text="Cast"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_12sp" />
+                        </LinearLayout>
+
+                        <!-- AirPlay Button -->
+                        <LinearLayout
+                            android:id="@+id/btn_airplay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:orientation="vertical"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:background="?android:attr/selectableItemBackground">
+
+                            <ImageView
+                                android:layout_width="24dp"
+                                android:layout_height="24dp"
+                                android:src="@drawable/ic_airplay"
+                                app:tint="@color/white" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:fontFamily="@font/outfit_light"
+                                android:text="AirPlay"
+                                android:textColor="@color/white"
+                                android:textSize="@dimen/_12sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+                </HorizontalScrollView>
 
                 <!-- Play and Download Buttons Row -->
                 <LinearLayout
@@ -226,6 +401,7 @@
                     android:background="@drawable/bg_for_spark_gradient" />
 
                 <TextView
+                    android:id="@+id/tv_more_episodes_title"
                     style="@style/TextViewLocal"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -238,9 +414,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="15dp"
-                    android:orientation="horizontal"
+                    android:orientation="vertical"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/item_home_cat_item" />
+                    tools:listitem="@layout/item_content_episode" />
 
             </LinearLayout>
         </ScrollView>

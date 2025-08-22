@@ -7,6 +7,7 @@ import com.retry.vuga.model.ChannelByCategories;
 import com.retry.vuga.model.ContentByGenre;
 import com.retry.vuga.model.ContentByDistributor;
 import com.retry.vuga.model.ContentDetail;
+import com.retry.vuga.model.EpisodeWatchlistResponse;
 import com.retry.vuga.model.HomePage;
 import com.retry.vuga.model.LiveTv;
 import com.retry.vuga.model.ProfileResponse;
@@ -15,6 +16,7 @@ import com.retry.vuga.model.SearchChannel;
 import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.model.AgeRatingResponse;
 import com.retry.vuga.model.RecentlyWatchedContent;
+import com.retry.vuga.model.UnifiedWatchlistResponse;
 import com.retry.vuga.model.SubscriptionModels;
 import com.retry.vuga.model.ads.CustomAds;
 import com.retry.vuga.utils.Const;
@@ -89,6 +91,14 @@ public interface RetrofitService {
                                    @Field(Const.ApiKey.start) int start,
                                    @Field(Const.ApiKey.limit) int limit,
                                    @Field("profile_id") Integer profileId);
+    
+    @FormUrlEncoded
+    @POST("user/unified-watchlist")
+    Single<UnifiedWatchlistResponse> getUnifiedWatchlist(@Field(Const.ApiKey.user_id) int userId,
+                                                         @Field("profile_id") Integer profileId,
+                                                         @Field(Const.ApiKey.start) int start,
+                                                         @Field(Const.ApiKey.limit) int limit,
+                                                         @Field(Const.ApiKey.type) Integer type);
     
 
 
@@ -216,6 +226,14 @@ public interface RetrofitService {
     @FormUrlEncoded
     @POST("user/rate-episode")
     Single<RestResponse> rateEpisode(@FieldMap HashMap<String, Object> params);
+    
+    @FormUrlEncoded
+    @POST("user/toggle-episode-watchlist")
+    Single<RestResponse> toggleEpisodeWatchlist(@FieldMap HashMap<String, Object> params);
+    
+    @FormUrlEncoded
+    @POST("user/check-episode-watchlist")
+    Single<EpisodeWatchlistResponse> checkEpisodeWatchlist(@FieldMap HashMap<String, Object> params);
 
     @FormUrlEncoded
     @POST("watch/update-progress")

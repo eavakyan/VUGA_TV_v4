@@ -43,6 +43,10 @@
     <color name="rating_yellow">#F5C518</color>
     <color name="download_yellow">#F69036</color>
     <color name="rating_yellow_shadow">#FAC401</color>
+    <color name="rating">@color/rating_yellow</color>
+    <color name="text">@color/text_color</color>
+    <color name="text_light">@color/text_color_light</color>
+    <color name="text_opacity_20">@color/text_color_20</color>
 
     <!-- Subscription UI Colors -->
     <color name="bgColor">@color/app_black</color>

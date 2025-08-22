@@ -767,36 +767,6 @@
 
                         </LinearLayout>
 
-
-                        <LinearLayout
-                            android:id="@+id/lout_more"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginHorizontal="15dp"
-                            android:orientation="vertical"
-                            android:visibility="@{isMoreLikeThisVisible?View.VISIBLE:View.GONE}"
-                            tools:visibility="gone">
-
-
-                            <TextView
-                                style="@style/TextViewLocal"
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:fontFamily="@font/outfit_semi_bold"
-                                android:text="@string/more_like_this"
-                                android:textSize="@dimen/_20sp" />
-
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rv_more_like_this"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:layout_marginVertical="5dp"
-                                android:orientation="horizontal"
-                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                                tools:listitem="@layout/item_home_cat_item" />
-
-                        </LinearLayout>
-
                         <!-- Season Selector Section -->
                         <LinearLayout
                             android:id="@+id/lout_season_selector"
@@ -864,6 +834,42 @@
                             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                             tools:itemCount="4"
                             tools:listitem="@layout/item_content_episode" />
+
+                        <!-- More Like This Section (moved to bottom) -->
+                        <LinearLayout
+                            android:id="@+id/lout_more"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginHorizontal="15dp"
+                            android:layout_marginTop="15dp"
+                            android:orientation="vertical"
+                            android:visibility="@{isMoreLikeThisVisible?View.VISIBLE:View.GONE}"
+                            tools:visibility="gone">
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="1.2dp"
+                                android:layout_marginBottom="15dp"
+                                android:background="@drawable/bg_for_spark_gradient" />
+
+                            <TextView
+                                style="@style/TextViewLocal"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:fontFamily="@font/outfit_semi_bold"
+                                android:text="@string/more_like_this"
+                                android:textSize="@dimen/_20sp" />
+
+                            <androidx.recyclerview.widget.RecyclerView
+                                android:id="@+id/rv_more_like_this"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginVertical="5dp"
+                                android:orientation="horizontal"
+                                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                                tools:listitem="@layout/item_home_cat_item" />
+
+                        </LinearLayout>
 
 
                     </LinearLayout>
