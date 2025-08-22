@@ -133,6 +133,14 @@ Route::prefix('v2')->group(function () {
         Route::post('/logout', [V2\TvAuthController::class, 'logout']);
     });
     
+    // TV Authentication - Legacy endpoints for mobile app compatibility
+    Route::prefix('TV')->group(function () {
+        Route::post('/authenticateSession', [V2\TvAuthController::class, 'authenticateSession']);
+        Route::post('/checkAuthStatus', [V2\TvAuthController::class, 'checkStatus']);
+        Route::post('/generateAuthSession', [V2\TvAuthController::class, 'generateSession']);
+        Route::post('/completeAuth', [V2\TvAuthController::class, 'completeAuth']);
+    });
+    
     // Notifications
     Route::prefix('notification')->group(function () {
         Route::post('/all', [V2\NotificationController::class, 'getAllNotifications']);

@@ -183,4 +183,72 @@ class TvAuthController extends Controller
             'message' => 'TV session logged out successfully'
         ]);
     }
+    
+    /**
+     * Authenticate session - Legacy endpoint for mobile app compatibility
+     * The mobile app expects 'user_id' instead of 'app_user_id'
+     */
+    public function authenticateSession(Request $request)
+    {
+        // Map user_id to app_user_id for compatibility
+        if ($request->has('user_id') && !$request->has('app_user_id')) {
+            $request->merge(['app_user_id' => $request->user_id]);
+        }
+        
+        return $this->authenticate($request);
+    }
+    
+    /**
+     * Complete authentication and get user data - Legacy endpoint
+     */
+    public function completeAuth(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'session_token' => 'required|string',
+            'tv_device_id' => 'required|string'
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'message' => $validator->errors()->first()
+            ], 400);
+        }
+
+        $session = TvAuthSession::with('user')
+                                ->where('session_token', $request->session_token)
+                                ->where('tv_device_id', $request->tv_device_id)
+                                ->where('status', 'authenticated')
+                                ->first();
+
+        if (!$session || !$session->app_user_id) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Session not authenticated'
+            ], 400);
+        }
+
+        // Get user data
+        $user = AppUser::find($session->app_user_id);
+        if (!$user) {
+            return response()->json([
+                'status' => false,
+                'message' => 'User not found'
+            ], 404);
+        }
+
+        // Update user's device info for TV
+        $user->device_type = 2; // 2 for TV
+        $user->device_token = $request->tv_device_id;
+        $user->save();
+
+        // Delete the session after successful authentication
+        $session->delete();
+
+        return response()->json([
+            'status' => true,
+            'message' => 'Authentication completed successfully',
+            'data' => $user
+        ]);
+    }
 }
