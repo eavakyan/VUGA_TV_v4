@@ -225,12 +225,12 @@ class OfflineDataManager: ObservableObject {
         return getCachedData(for: .profiles, as: [Profile].self)
     }
     
-    func cacheHomeContent(_ homeData: HomePage) {
+    func cacheHomeContent(_ homeData: HomeModel) {
         cache(homeData, for: .homeContent)
     }
     
-    func getCachedHomeContent() -> HomePage? {
-        return getCachedData(for: .homeContent, as: HomePage.self)
+    func getCachedHomeContent() -> HomeModel? {
+        return getCachedData(for: .homeContent, as: HomeModel.self)
     }
     
     func cacheContentDetail(_ content: VugaContent, id: Int) {

@@ -20,9 +20,18 @@ struct SplashView: View {
                 .resizeFitTo(width: Device.width / 3, height: 40)
                 .addBackground()
                 .onAppear {
-                    print("SplashView: onAppear - fetching settings")
-                    // Clear the current profile to ensure profile selection is shown
-                    SessionManager.shared.clearProfile()
+                    print("SplashView: onAppear - checking connection status")
+                    
+                    let connectionMonitor = ConnectionMonitor.shared
+                    
+                    // Only clear profile if we're online (to force profile selection)
+                    // Keep cached profile if offline for better UX
+                    if connectionMonitor.isConnected && connectionMonitor.connectionQuality != .poor {
+                        print("SplashView: Online - clearing profile for fresh selection")
+                        SessionManager.shared.clearProfile()
+                    } else {
+                        print("SplashView: Offline/Poor connection - keeping cached profile if available")
+                    }
                     
                     // Start fetching settings
                     self.vm.fetchSettings()
@@ -32,9 +41,10 @@ struct SplashView: View {
                         self.vm.fetchProfile()
                     }
                     
-                    // Force continue after 5 seconds regardless of settings load status
-                    forceLoadTimeout = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: false) { _ in
-                        print("SplashView: Force timeout after 5s - continuing without settings")
+                    // Force continue after 3 seconds for offline mode (faster startup)
+                    let timeout = connectionMonitor.isConnected ? 5.0 : 3.0
+                    forceLoadTimeout = Timer.scheduledTimer(withTimeInterval: timeout, repeats: false) { _ in
+                        print("SplashView: Force timeout after \(timeout)s - continuing without settings")
                         if !vm.isSettingDataLoaded {
                             DispatchQueue.main.async {
                                 vm.isSettingDataLoaded = true
@@ -82,11 +92,26 @@ struct SplashView: View {
     }
     
     func checkProfileSelection() {
-        // Always show profile selection on app start if logged in
         print("SplashView: checkProfileSelection - isLoggedIn: \(isLoggedIn)")
         if isLoggedIn {
-            // Clear any saved profile to ensure selection screen is shown
-            SessionManager.shared.clearProfile()
+            let connectionMonitor = ConnectionMonitor.shared
+            
+            // If offline and we have a cached profile, skip profile selection
+            if !connectionMonitor.isConnected || connectionMonitor.connectionQuality == .poor {
+                if let cachedProfile = SessionManager.shared.currentProfile {
+                    print("SplashView: Offline mode - using cached profile: \(cachedProfile.name)")
+                    // Don't show profile selection, go straight to app
+                    DispatchQueue.main.async {
+                        self.showProfileSelection = false
+                    }
+                    return
+                }
+            }
+            
+            // Online mode or no cached profile - show profile selection
+            if connectionMonitor.isConnected && connectionMonitor.connectionQuality != .poor {
+                SessionManager.shared.clearProfile()
+            }
             DispatchQueue.main.async {
                 print("SplashView: Setting showProfileSelection to true")
                 self.showProfileSelection = true

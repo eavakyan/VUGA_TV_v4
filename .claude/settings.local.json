@@ -97,7 +97,14 @@
       "WebFetch(domain:iosdev.gossip-stone.com)",
       "Bash(~/Library/Android/sdk/build-tools/35.0.0/aapt dump badging app/build/outputs/apk/release/Vuga-release.apk)",
       "Bash(uuidgen)",
-      "Bash(mysql:*)"
+      "Bash(mysql:*)",
+      "Bash(/tmp/remove_created_by.sh:*)",
+      "Bash(/tmp/remove_remaining_created.sh:*)",
+      "Bash(kill:*)",
+      "Bash(kill:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(ssh:*)"
     ],
     "deny": []
   }

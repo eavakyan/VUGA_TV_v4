@@ -30,11 +30,45 @@ struct ContentView: View {
             .navigationViewStyle(StackNavigationViewStyle())
             .ignoresSafeArea(.container, edges: [])
             
-            if !isConnectedToInternet {
-                OfflineView()
+            // Show offline banner at the top instead of blocking the whole app
+            if !isConnectedToInternet && isLoggedIn {
+                VStack {
+                    HStack(spacing: 8) {
+                        Image(systemName: "wifi.slash")
+                            .foregroundColor(.white)
+                            .font(.system(size: 12, weight: .medium))
+                        Text("Offline Mode")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundColor(.white)
+                        Text("•")
+                            .foregroundColor(.white.opacity(0.6))
+                            .font(.system(size: 10))
+                        Text("Using cached content")
+                            .font(.system(size: 11))
+                            .foregroundColor(.white.opacity(0.9))
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(
+                        LinearGradient(
+                            gradient: Gradient(colors: [Color.orange, Color.red.opacity(0.9)]),
+                            startPoint: .leading,
+                            endPoint: .trailing
+                        )
+                    )
+                    .cornerRadius(20)
+                    .shadow(color: .black.opacity(0.3), radius: 5, x: 0, y: 2)
+                    .padding(.top, 50) // Account for status bar
+                    
+                    Spacer()
+                }
+                .transition(.asymmetric(
+                    insertion: .move(edge: .top).combined(with: .opacity),
+                    removal: .move(edge: .top).combined(with: .opacity)
+                ))
+                .animation(.spring(response: 0.5, dampingFraction: 0.8), value: isConnectedToInternet)
+                .zIndex(100) // Ensure it appears on top
             }
-            
-            // Removed global tab bar for now - will implement differently
         }
         .onOpenURL(perform: { url in
             Branch.getInstance().handleDeepLink(url)

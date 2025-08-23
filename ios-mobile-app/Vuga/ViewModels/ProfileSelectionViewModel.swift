@@ -33,6 +33,26 @@ class ProfileSelectionViewModel: BaseViewModel {
             return 
         }
         
+        // Check if we're completely offline (not just poor connection)
+        let connectionMonitor = ConnectionMonitor.shared
+        print("ProfileSelectionViewModel: Connection status - isConnected: \(connectionMonitor.isConnected), quality: \(connectionMonitor.connectionQuality)")
+        
+        if !connectionMonitor.isConnected {
+            print("ProfileSelectionViewModel: Device is offline - checking for cached profiles")
+            
+            // Try to load cached profiles from UserDefaults
+            if let cachedProfiles = getCachedProfiles(), !cachedProfiles.isEmpty {
+                print("ProfileSelectionViewModel: Found \(cachedProfiles.count) cached profiles")
+                self.profiles = cachedProfiles
+                self.stopLoading()
+                return
+            } else {
+                print("ProfileSelectionViewModel: No cached profiles found in offline mode")
+                // If no cached profiles and offline, still try network request
+                // in case connection detection is wrong or gets restored
+            }
+        }
+        
         isLoadingProfiles = true
         startLoading()
         showError = false
@@ -52,14 +72,22 @@ class ProfileSelectionViewModel: BaseViewModel {
                 print("ProfileSelectionViewModel: Received response - status: \(obj.status), profiles count: \(obj.profiles?.count ?? 0), message: \(obj.message)")
                 
                 if obj.status && !(obj.profiles?.isEmpty ?? true) {
-                    // We have profiles, use them (no cache)
+                    // We have profiles, cache them for offline use
                     self?.profiles = obj.profiles ?? []
+                    self?.cacheProfiles(self?.profiles ?? [])
+                    print("ProfileSelectionViewModel: Cached \(self?.profiles.count ?? 0) profiles for offline use")
                 } else {
-                    // No profiles or error - create default profile
-                    print("ProfileSelectionViewModel: No profiles or error occurred. Creating default profile.")
-                    self?.isAutoCreatingProfile = true
-                    self?.profiles = [] // Clear any existing profiles
-                    self?.createDefaultProfile()
+                    // No profiles or error - check cache first
+                    if let cachedProfiles = self?.getCachedProfiles(), !cachedProfiles.isEmpty {
+                        print("ProfileSelectionViewModel: Using cached profiles after API error")
+                        self?.profiles = cachedProfiles
+                    } else {
+                        // No cache and no profiles - create default
+                        print("ProfileSelectionViewModel: No profiles or cache. Creating default profile.")
+                        self?.isAutoCreatingProfile = true
+                        self?.profiles = []
+                        self?.createDefaultProfile()
+                    }
                 }
             },
             callbackFailure: { [weak self] error in
@@ -67,10 +95,17 @@ class ProfileSelectionViewModel: BaseViewModel {
                 self?.isLoadingProfiles = false
                 self?.stopLoading()
                 self?.showError = false
-                // Create default profile on network failure
-                self?.isAutoCreatingProfile = true
-                self?.profiles = []
-                self?.createDefaultProfile()
+                
+                // Try cached profiles first
+                if let cachedProfiles = self?.getCachedProfiles(), !cachedProfiles.isEmpty {
+                    print("ProfileSelectionViewModel: Using cached profiles after network failure")
+                    self?.profiles = cachedProfiles
+                } else {
+                    // Create default profile on network failure with no cache
+                    self?.isAutoCreatingProfile = true
+                    self?.profiles = []
+                    self?.createDefaultProfile()
+                }
             }
         )
     }
@@ -82,28 +117,50 @@ class ProfileSelectionViewModel: BaseViewModel {
         }
         
         print("ProfileSelectionViewModel: Selecting profile \(profile.name) with ID \(profile.profileId)")
+        
+        // Check if we're offline
+        let connectionMonitor = ConnectionMonitor.shared
+        if !connectionMonitor.isConnected {
+            print("ProfileSelectionViewModel: Offline - selecting profile locally")
+            // Update SessionManager's current profile immediately for offline use
+            SessionManager.shared.currentProfile = profile
+            self.selectedProfile = profile
+            stopLoading()
+            return
+        }
+        
         startLoading()
         let params: [Params: Any] = [
             .userId: userId,
             .profileId: profile.profileId
         ]
         
-        NetworkManager.callWebService(url: .selectProfile, params: params, timeout: 8) { [weak self] (obj: ProfileResponse) in
-            self?.stopLoading()
-            
-            print("ProfileSelectionViewModel: Select profile response - status: \(obj.status), message: \(obj.message)")
-            
-            if obj.status {
-                // Update SessionManager's current profile immediately
+        NetworkManager.callWebService(url: .selectProfile, params: params, timeout: 8, 
+            callbackSuccess: { [weak self] (obj: ProfileResponse) in
+                self?.stopLoading()
+                
+                print("ProfileSelectionViewModel: Select profile response - status: \(obj.status), message: \(obj.message)")
+                
+                if obj.status {
+                    // Update SessionManager's current profile immediately
+                    SessionManager.shared.currentProfile = profile
+                    self?.selectedProfile = profile
+                    print("ProfileSelectionViewModel: Profile selected successfully")
+                } else {
+                    // Even if server fails, select locally for better UX
+                    SessionManager.shared.currentProfile = profile
+                    self?.selectedProfile = profile
+                    print("ProfileSelectionViewModel: Server error but selected locally - \(obj.message)")
+                }
+            },
+            callbackFailure: { [weak self] error in
+                self?.stopLoading()
+                print("ProfileSelectionViewModel: Network error selecting profile - using locally")
+                // Select locally on network failure
                 SessionManager.shared.currentProfile = profile
                 self?.selectedProfile = profile
-                print("ProfileSelectionViewModel: Profile selected successfully")
-            } else {
-                self?.showError = true
-                self?.errorMessage = obj.message
-                print("ProfileSelectionViewModel: Failed to select profile - \(obj.message)")
             }
-        }
+        )
     }
     
     func deleteProfile(_ profile: Profile) {
@@ -179,6 +236,30 @@ class ProfileSelectionViewModel: BaseViewModel {
                 // Just show empty profiles so user can manually create one
                 self?.profiles = []
             }
+        }
+    }
+    
+    // MARK: - Caching Methods
+    private func cacheProfiles(_ profiles: [Profile]) {
+        do {
+            let data = try JSONEncoder().encode(profiles)
+            UserDefaults.standard.set(data, forKey: "cachedProfiles")
+        } catch {
+            print("ProfileSelectionViewModel: Failed to cache profiles: \(error)")
+        }
+    }
+    
+    private func getCachedProfiles() -> [Profile]? {
+        guard let data = UserDefaults.standard.data(forKey: "cachedProfiles") else {
+            return nil
+        }
+        
+        do {
+            let profiles = try JSONDecoder().decode([Profile].self, from: data)
+            return profiles
+        } catch {
+            print("ProfileSelectionViewModel: Failed to decode cached profiles: \(error)")
+            return nil
         }
     }
 }
