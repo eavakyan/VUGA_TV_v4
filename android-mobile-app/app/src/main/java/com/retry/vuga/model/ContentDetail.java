@@ -877,11 +877,8 @@ public class ContentDetail {
                 }
                 
                 try {
-                    // Parse duration as integer (seconds from database)
-                    int totalSeconds = Integer.parseInt(duration);
-                    
-                    // Convert seconds to minutes
-                    int totalMinutes = totalSeconds / 60;
+                    // Parse duration as integer (already in minutes from database for episodes)
+                    int totalMinutes = Integer.parseInt(duration);
                     
                     if (totalMinutes < 60) {
                         // Under 1 hour - show only minutes

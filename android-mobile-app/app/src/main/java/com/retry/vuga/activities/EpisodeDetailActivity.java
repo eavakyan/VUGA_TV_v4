@@ -127,6 +127,47 @@ public class EpisodeDetailActivity extends BaseActivity {
             fullTitle += episodeItem.getTitle();
             binding.tvEpisodeTitle.setText(fullTitle);
             
+            // Set episode source title if available
+            if (episodeItem.getSources() != null && !episodeItem.getSources().isEmpty()) {
+                ContentDetail.SourceItem firstSource = episodeItem.getSources().get(0);
+                if (firstSource.getTitle() != null && !firstSource.getTitle().isEmpty()) {
+                    binding.tvShowName.setText(firstSource.getTitle());
+                }
+            }
+            
+            // Set episode duration
+            String formattedDuration = episodeItem.getFormattedDuration();
+            if (formattedDuration != null && !formattedDuration.isEmpty()) {
+                binding.tvDuration.setText(formattedDuration);
+                binding.tvDuration.setVisibility(View.VISIBLE);
+            } else {
+                // Try to get duration from raw value
+                String duration = episodeItem.getDuration();
+                if (duration != null && !duration.isEmpty()) {
+                    try {
+                        // Duration is already in minutes from database
+                        int totalMinutes = Integer.parseInt(duration);
+                        
+                        if (totalMinutes < 60) {
+                            binding.tvDuration.setText(totalMinutes + " min");
+                        } else {
+                            int hours = totalMinutes / 60;
+                            int minutes = totalMinutes % 60;
+                            if (minutes == 0) {
+                                binding.tvDuration.setText(hours + " hr");
+                            } else {
+                                binding.tvDuration.setText(hours + " hr " + minutes + " min");
+                            }
+                        }
+                        binding.tvDuration.setVisibility(View.VISIBLE);
+                    } catch (NumberFormatException e) {
+                        binding.tvDuration.setVisibility(View.GONE);
+                    }
+                } else {
+                    binding.tvDuration.setVisibility(View.GONE);
+                }
+            }
+            
             // Hide release date for episodes (not available in model)
             binding.tvReleaseDate.setVisibility(View.GONE);
         }
@@ -334,23 +375,40 @@ public class EpisodeDetailActivity extends BaseActivity {
         
         // Find current season's episodes
         List<ContentDetail.SeasonItem.EpisodesItem> moreEpisodes = new ArrayList<>();
+        List<ContentDetail.SeasonItem.EpisodesItem> unseenEpisodes = new ArrayList<>();
+        
         for (ContentDetail.SeasonItem season : contentDetails.getSeasons()) {
             if (season.getId() == seasonId || (seasonId == 0 && season.getEpisodes() != null)) {
-                // Add all episodes except the current one
+                // Add all episodes from the same season
                 for (ContentDetail.SeasonItem.EpisodesItem episode : season.getEpisodes()) {
                     if (episode.getId() != episodeItem.getId()) {
                         moreEpisodes.add(episode);
+                        
+                        // Check if episode has been watched (you can enhance this with actual watch history)
+                        // For now, we'll show episodes that come after the current episode number as "unseen"
+                        if (episode.getNumber() > episodeItem.getNumber()) {
+                            unseenEpisodes.add(episode);
+                        }
                     }
                 }
                 break;
             }
         }
         
-        if (moreEpisodes.isEmpty()) {
+        // Prioritize showing unseen episodes, otherwise show all other episodes from the season
+        List<ContentDetail.SeasonItem.EpisodesItem> episodesToShow = unseenEpisodes.isEmpty() ? moreEpisodes : unseenEpisodes;
+        
+        if (episodesToShow.isEmpty()) {
             binding.tvMoreEpisodesTitle.setVisibility(View.GONE);
             binding.rvMoreEpisodes.setVisibility(View.GONE);
         } else {
-            moreEpisodesAdapter.setEpisodes(moreEpisodes);
+            // Limit to show max 10 episodes in the horizontal list
+            if (episodesToShow.size() > 10) {
+                episodesToShow = episodesToShow.subList(0, 10);
+            }
+            
+            moreEpisodesAdapter.setEpisodes(episodesToShow);
+            binding.tvMoreEpisodesTitle.setText(unseenEpisodes.isEmpty() ? "More Episodes" : "Episodes You Haven't Seen");
             binding.tvMoreEpisodesTitle.setVisibility(View.VISIBLE);
             binding.rvMoreEpisodes.setVisibility(View.VISIBLE);
         }
