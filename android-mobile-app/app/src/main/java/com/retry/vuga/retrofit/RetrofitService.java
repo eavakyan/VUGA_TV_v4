@@ -93,7 +93,7 @@ public interface RetrofitService {
                                    @Field("profile_id") Integer profileId);
     
     @FormUrlEncoded
-    @POST("user/unified-watchlist")
+    @POST("user/fetch-unified-watchlist")
     Single<UnifiedWatchlistResponse> getUnifiedWatchlist(@Field(Const.ApiKey.user_id) int userId,
                                                          @Field("profile_id") Integer profileId,
                                                          @Field(Const.ApiKey.start) int start,

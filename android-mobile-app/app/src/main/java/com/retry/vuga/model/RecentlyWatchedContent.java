@@ -69,6 +69,28 @@ public class RecentlyWatchedContent {
 
         @SerializedName("watch_percentage")
         private double watchPercentage;
+        
+        // Episode-specific fields
+        @SerializedName("episode_id")
+        private Integer episodeId;
+        
+        @SerializedName("episode_title")
+        private String episodeTitle;
+        
+        @SerializedName("episode_thumbnail")
+        private String episodeThumbnail;
+        
+        @SerializedName("season_number")
+        private Integer seasonNumber;
+        
+        @SerializedName("episode_number")
+        private Integer episodeNumber;
+        
+        @SerializedName("episode_duration")
+        private Integer episodeDuration;
+        
+        @SerializedName("series_title")
+        private String seriesTitle;
 
         // Getters and setters
         public int getContentId() {
@@ -180,6 +202,116 @@ public class RecentlyWatchedContent {
          */
         public String getYearString() {
             return String.valueOf(releaseYear);
+        }
+        
+        // Episode-specific getters
+        public Integer getEpisodeId() {
+            return episodeId;
+        }
+        
+        public void setEpisodeId(Integer episodeId) {
+            this.episodeId = episodeId;
+        }
+        
+        public String getEpisodeTitle() {
+            return episodeTitle;
+        }
+        
+        public void setEpisodeTitle(String episodeTitle) {
+            this.episodeTitle = episodeTitle;
+        }
+        
+        public String getEpisodeThumbnail() {
+            return episodeThumbnail;
+        }
+        
+        public void setEpisodeThumbnail(String episodeThumbnail) {
+            this.episodeThumbnail = episodeThumbnail;
+        }
+        
+        public Integer getSeasonNumber() {
+            return seasonNumber;
+        }
+        
+        public void setSeasonNumber(Integer seasonNumber) {
+            this.seasonNumber = seasonNumber;
+        }
+        
+        public Integer getEpisodeNumber() {
+            return episodeNumber;
+        }
+        
+        public void setEpisodeNumber(Integer episodeNumber) {
+            this.episodeNumber = episodeNumber;
+        }
+        
+        public Integer getEpisodeDuration() {
+            return episodeDuration;
+        }
+        
+        public void setEpisodeDuration(Integer episodeDuration) {
+            this.episodeDuration = episodeDuration;
+        }
+        
+        public String getSeriesTitle() {
+            return seriesTitle;
+        }
+        
+        public void setSeriesTitle(String seriesTitle) {
+            this.seriesTitle = seriesTitle;
+        }
+        
+        // Helper method to check if this is an episode
+        public boolean isEpisode() {
+            return episodeId != null && episodeId > 0;
+        }
+        
+        // Get display title (episode title for episodes, regular title for movies/shows)
+        public String getDisplayTitle() {
+            if (isEpisode() && episodeTitle != null && !episodeTitle.isEmpty()) {
+                String prefix = "";
+                if (seasonNumber != null && episodeNumber != null) {
+                    prefix = "S" + seasonNumber + "E" + episodeNumber + ": ";
+                }
+                return prefix + episodeTitle;
+            }
+            return getTitle();
+        }
+        
+        // Get display poster (episode thumbnail for episodes, regular poster for movies/shows)
+        public String getDisplayPoster() {
+            if (isEpisode() && episodeThumbnail != null && !episodeThumbnail.isEmpty()) {
+                return episodeThumbnail;
+            }
+            return getHorizontalPoster().isEmpty() ? getVerticalPoster() : getHorizontalPoster();
+        }
+        
+        // Get formatted episode duration
+        public String getFormattedEpisodeDuration() {
+            if (episodeDuration == null || episodeDuration <= 0) {
+                return "";
+            }
+            
+            // Episode duration is in minutes
+            if (episodeDuration < 60) {
+                return episodeDuration + " min";
+            } else {
+                int hours = episodeDuration / 60;
+                int minutes = episodeDuration % 60;
+                if (minutes == 0) {
+                    return hours + " hr";
+                } else {
+                    return hours + " hr " + minutes + " min";
+                }
+            }
+        }
+        
+        // Get display duration (episode duration for episodes, regular duration for movies/shows)
+        public String getDisplayDuration() {
+            if (isEpisode()) {
+                return getFormattedEpisodeDuration();
+            }
+            return getFormattedDuration();
         }
     }
 }

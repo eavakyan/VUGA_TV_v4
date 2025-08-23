@@ -224,4 +224,33 @@ class ContentRepository @Inject constructor(
             Log.e("ContentRepository", "Error increasing content share", e)
         }
     }
+
+    suspend fun toggleWatchlist(contentId: Int, userId: Int, profileId: Int?): Boolean {
+        return try {
+            Log.d("ContentRepository", "Toggling watchlist for content: $contentId, userId: $userId, profileId: $profileId")
+            val response = apiService.toggleWatchlist(userId, contentId, profileId)
+            Log.d("ContentRepository", "Toggle watchlist API response: status=${response.status}, message=${response.message}")
+            response.status
+        } catch (e: Exception) {
+            Log.e("ContentRepository", "Error toggling watchlist for content: $contentId", e)
+            false
+        }
+    }
+
+    suspend fun getWatchlist(userId: Int, profileId: Int?, start: Int = 0, limit: Int = 50): List<Content> {
+        return try {
+            Log.d("ContentRepository", "Getting watchlist for userId: $userId, profileId: $profileId")
+            val response = apiService.getWatchList(0, userId, start, limit, profileId)
+            Log.d("ContentRepository", "Watchlist API response: status=${response.status}, data size=${response.data.size}")
+            if (response.status) {
+                response.data
+            } else {
+                Log.w("ContentRepository", "Watchlist API returned status=false: ${response.message}")
+                emptyList()
+            }
+        } catch (e: Exception) {
+            Log.e("ContentRepository", "Error getting watchlist", e)
+            emptyList()
+        }
+    }
 } 

@@ -40,7 +40,8 @@ class HomeViewModel @Inject constructor(
                 Log.d("HomeViewModel", "User login status: $isLoggedIn")
                 
                 // Get user ID and profile ID from data store
-                val userId = userDataStore.getUserId().first() ?: 1
+                // Use userId = 0 for guest users to show all content
+                val userId = userDataStore.getUserId().first() ?: 0
                 val profileId = try {
                     userDataStore.getSelectedProfile().first()?.profileId
                 } catch (e: Exception) {
@@ -128,6 +129,36 @@ class HomeViewModel @Inject constructor(
         loadContent()
     }
 
+    fun refreshWatchlist() {
+        viewModelScope.launch {
+            try {
+                Log.d("HomeViewModel", "Refreshing watchlist data...")
+                
+                // Get user ID and profile ID from data store
+                // Use userId = 0 for guest users to show all content
+                val userId = userDataStore.getUserId().first() ?: 0
+                val profileId = try {
+                    userDataStore.getSelectedProfile().first()?.profileId
+                } catch (e: Exception) {
+                    null
+                }
+                
+                // Get fresh watchlist data
+                val updatedWatchlist = contentRepository.getWatchlist(userId, profileId)
+                Log.d("HomeViewModel", "Updated watchlist: ${updatedWatchlist.size} items")
+                
+                // Update only the watchlist/recommendations in the current state
+                _uiState.value = _uiState.value.copy(
+                    recommendations = updatedWatchlist
+                )
+                
+                Log.d("HomeViewModel", "Watchlist refresh completed")
+            } catch (e: Exception) {
+                Log.e("HomeViewModel", "Error refreshing watchlist", e)
+            }
+        }
+    }
+
     fun testApiConnection() {
         viewModelScope.launch {
             try {
@@ -139,7 +170,8 @@ class HomeViewModel @Inject constructor(
                 Log.d("HomeViewModel", "Basic connection test: $basicTest")
                 
                 // Then test the home data API
-                val userId = userDataStore.getUserId().first() ?: 1
+                // Use userId = 0 for guest users to show all content
+                val userId = userDataStore.getUserId().first() ?: 0
                 val profileId = try {
                     userDataStore.getSelectedProfile().first()?.profileId
                 } catch (e: Exception) {

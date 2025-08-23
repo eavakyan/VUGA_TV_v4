@@ -30,7 +30,8 @@ class ContentDetailViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
                 
                 // Get user ID and profile ID from data store
-                val userId = userDataStore.getUserId().first() ?: 1
+                // Use userId = 0 for guest users to show all content
+                val userId = userDataStore.getUserId().first() ?: 0
                 val profileId = try {
                     userDataStore.getSelectedProfile().first()?.profileId
                 } catch (e: Exception) {
@@ -62,10 +63,64 @@ class ContentDetailViewModel @Inject constructor(
             }
         }
     }
+
+    fun toggleWatchlist() {
+        val content = _uiState.value.content ?: return
+        
+        viewModelScope.launch {
+            try {
+                Log.d("ContentDetailViewModel", "Toggling watchlist for content: ${content.title}")
+                _uiState.value = _uiState.value.copy(isUpdatingWatchlist = true)
+                
+                // Get user ID and profile ID from data store
+                val userId = userDataStore.getUserId().first() ?: return@launch
+                val profileId = try {
+                    userDataStore.getSelectedProfile().first()?.profileId
+                } catch (e: Exception) {
+                    null
+                }
+                
+                val success = contentRepository.toggleWatchlist(content.contentId, userId, profileId)
+                
+                if (success) {
+                    // Update the content's watchlist status locally
+                    val updatedContent = content.copy(isWatchlist = !content.isWatchlist)
+                    _uiState.value = _uiState.value.copy(
+                        content = updatedContent,
+                        isUpdatingWatchlist = false,
+                        watchlistChanged = true
+                    )
+                    Log.d("ContentDetailViewModel", "Watchlist toggle successful: ${updatedContent.isWatchlist}")
+                } else {
+                    _uiState.value = _uiState.value.copy(
+                        isUpdatingWatchlist = false,
+                        error = "Failed to update watchlist"
+                    )
+                    Log.w("ContentDetailViewModel", "Watchlist toggle failed")
+                }
+            } catch (e: Exception) {
+                Log.e("ContentDetailViewModel", "Error toggling watchlist", e)
+                _uiState.value = _uiState.value.copy(
+                    isUpdatingWatchlist = false,
+                    error = e.message ?: "Unknown error occurred"
+                )
+            }
+        }
+    }
+    
+    fun clearError() {
+        _uiState.value = _uiState.value.copy(error = null)
+    }
+    
+    fun onWatchlistChangeHandled() {
+        _uiState.value = _uiState.value.copy(watchlistChanged = false)
+    }
 }
 
 data class ContentDetailUiState(
     val content: Content? = null,
     val isLoading: Boolean = false,
+    val isUpdatingWatchlist: Boolean = false,
+    val watchlistChanged: Boolean = false,
     val error: String? = null
 ) 

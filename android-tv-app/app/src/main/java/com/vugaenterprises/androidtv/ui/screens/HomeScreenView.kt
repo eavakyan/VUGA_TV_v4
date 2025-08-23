@@ -137,7 +137,8 @@ open class HomeScreenView @JvmOverloads constructor(
             addContentRow("Trending", trendingContent)
         }
         
-        // Only show watchlist if user is logged in and has items
+        // Only show watchlist if user has items in their watchlist
+        // The recommendations parameter contains the user's watchlist from the API
         if (recommendations.isNotEmpty()) {
             addContentRow("My List", recommendations)
         }

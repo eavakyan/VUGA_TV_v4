@@ -1106,10 +1106,16 @@ class UserController extends Controller
                     'title' => $content->title,
                     'type' => $content->type,
                     'poster' => $poster,
+                    'horizontal_poster' => $content->horizontal_poster,
+                    'vertical_poster' => $content->vertical_poster,
                     'ratings' => $content->ratings,
+                    'duration' => $content->duration,
+                    'release_year' => $content->release_year,
+                    'genre_ids' => $content->genre_ids,
                     'series_title' => null,
                     'season_number' => null,
                     'episode_number' => null,
+                    'episode_thumbnail' => null,
                     'added_at' => $content->pivot->created_at->toISOString()
                 ];
             });
@@ -1133,10 +1139,16 @@ class UserController extends Controller
                         'title' => $episode->title,
                         'type' => 2, // Episodes are part of TV series
                         'poster' => $episode->thumbnail,
+                        'horizontal_poster' => $content ? $content->horizontal_poster : null,
+                        'vertical_poster' => $content ? $content->vertical_poster : null,
                         'ratings' => $episode->ratings,
+                        'duration' => $episode->duration, // Episode duration in minutes
+                        'release_year' => $content ? $content->release_year : null,
+                        'genre_ids' => $content ? $content->genre_ids : null,
                         'series_title' => $content ? $content->title : null,
                         'season_number' => $season ? $season->season_number : null,
                         'episode_number' => $episode->number,
+                        'episode_thumbnail' => $episode->thumbnail,
                         'added_at' => $episode->pivot->created_at->toISOString()
                     ];
                 });

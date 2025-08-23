@@ -47,6 +47,8 @@ fun AppNavigation(
             startDestination = startDestination
         ) {
             composable(Screen.Home.route) {
+                val homeViewModel = hiltViewModel<com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel>()
+                
                 HomeScreen(
                     onContentClick = { content ->
                         navController.navigate(Screen.ContentDetail.createRoute(content.contentId))
@@ -60,7 +62,8 @@ fun AppNavigation(
                     onRequestNavBarFocus = {
                         android.util.Log.d("AppNavigation", "HomeScreen requested nav bar focus")
                         shouldFocusNavBar = true
-                    }
+                    },
+                    viewModel = homeViewModel
                 )
             }
             
@@ -130,6 +133,11 @@ fun AppNavigation(
                 val contentDetailViewModel: ContentDetailViewModel = hiltViewModel()
                 val contentDetailState by contentDetailViewModel.uiState.collectAsState()
                 
+                // Get home view model to refresh watchlist
+                val homeViewModel = hiltViewModel<com.vugaenterprises.androidtv.ui.viewmodels.HomeViewModel>(
+                    remember { navController.getBackStackEntry(Screen.Home.route) }
+                )
+                
                 LaunchedEffect(contentId) {
                     contentDetailViewModel.loadContent(contentId)
                 }
@@ -147,6 +155,10 @@ fun AppNavigation(
                         // Direct play for movies
                         videoPlayerDataStore.setCurrentContent(content)
                         navController.navigate(Screen.VideoPlayer.createRoute())
+                    },
+                    onWatchlistChanged = {
+                        // Refresh the home screen watchlist when watchlist changes
+                        homeViewModel.refreshWatchlist()
                     }
                 )
             }

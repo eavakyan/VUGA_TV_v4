@@ -104,7 +104,8 @@
       "Bash(kill:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(ssh:*)"
+      "Bash(ssh:*)",
+      "Bash(sqlite3:*)"
     ],
     "deny": []
   }

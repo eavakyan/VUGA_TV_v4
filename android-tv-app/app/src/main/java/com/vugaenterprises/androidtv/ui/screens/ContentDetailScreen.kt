@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.input.key.*
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.vugaenterprises.androidtv.data.model.Content
@@ -37,12 +39,21 @@ fun ContentDetailScreen(
     onContentClick: (Content) -> Unit,
     onNavigateBack: () -> Unit,
     onPlayVideo: (Content) -> Unit,
+    onWatchlistChanged: (() -> Unit)? = null,
     viewModel: ContentDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(contentId) {
         viewModel.loadContent(contentId)
+    }
+    
+    // Handle watchlist changes
+    LaunchedEffect(uiState.watchlistChanged) {
+        if (uiState.watchlistChanged) {
+            onWatchlistChanged?.invoke()
+            viewModel.onWatchlistChangeHandled()
+        }
     }
 
     when {
@@ -72,8 +83,40 @@ fun ContentDetailScreen(
             
             LazyColumn(
                 contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .onKeyEvent { keyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Back) {
+                            onNavigateBack()
+                            true
+                        } else {
+                            false
+                        }
+                    }
             ) {
+                // Back Button Section
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Button(
+                            onClick = onNavigateBack,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White.copy(alpha = 0.2f)
+                            ),
+                            shape = RoundedCornerShape(24.dp)
+                        ) {
+                            Text(
+                                text = "← Back to Home",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
+                }
                 // Modern Hero Section
                 item {
                     Box(
@@ -215,6 +258,32 @@ fun ContentDetailScreen(
                                             color = Color.Black,
                                             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
                                         )
+                                    }
+                                    
+                                    // Watchlist Button
+                                    Button(
+                                        onClick = { viewModel.toggleWatchlist() },
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = if (content.isWatchlist) 
+                                                Color(0xFF4CAF50) else Color.White.copy(alpha = 0.4f)
+                                        ),
+                                        shape = RoundedCornerShape(32.dp),
+                                        enabled = !uiState.isUpdatingWatchlist
+                                    ) {
+                                        if (uiState.isUpdatingWatchlist) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.size(16.dp),
+                                                strokeWidth = 2.dp,
+                                                color = Color.White
+                                            )
+                                        } else {
+                                            Text(
+                                                text = if (content.isWatchlist) "✓ In List" else "+ My List",
+                                                style = MaterialTheme.typography.titleMedium,
+                                                color = Color.White,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                            )
+                                        }
                                     }
                                     
                                     Button(

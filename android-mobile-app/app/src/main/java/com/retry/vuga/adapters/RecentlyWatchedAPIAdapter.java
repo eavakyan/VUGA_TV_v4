@@ -72,26 +72,60 @@ public class RecentlyWatchedAPIAdapter extends RecyclerView.Adapter<RecentlyWatc
             RecentlyWatchedContent.DataItem item = list.get(position);
 
             if (binding != null) {
+                // Use display poster (episode thumbnail for episodes, regular poster for content)
                 binding.setContent(item);
+                
+                // Override the image URL to use episode thumbnail if available
+                if (item.isEpisode() && item.getEpisodeThumbnail() != null && !item.getEpisodeThumbnail().isEmpty()) {
+                    // This will require updating the layout binding
+                }
 
                 // Format metadata line 1: Year and duration
-                String metadataLine1 = item.getYearString();
-                String duration = item.getFormattedDuration();
-                if (!duration.isEmpty()) {
-                    metadataLine1 += " • " + duration;
+                String metadataLine1 = "";
+                if (item.isEpisode()) {
+                    // For episodes, show series title and episode duration
+                    if (item.getSeriesTitle() != null && !item.getSeriesTitle().isEmpty()) {
+                        metadataLine1 = item.getSeriesTitle();
+                    }
+                    String duration = item.getDisplayDuration();
+                    if (!duration.isEmpty()) {
+                        if (!metadataLine1.isEmpty()) {
+                            metadataLine1 += " • ";
+                        }
+                        metadataLine1 += duration;
+                    }
+                } else {
+                    // For movies/shows, show year and duration
+                    metadataLine1 = item.getYearString();
+                    String duration = item.getDisplayDuration();
+                    if (!duration.isEmpty()) {
+                        metadataLine1 += " • " + duration;
+                    }
                 }
                 binding.tvMetadataLine1.setText(metadataLine1);
 
-                // Format metadata line 2: Title
-                binding.tvMetadataLine2.setText(item.getTitle());
+                // Format metadata line 2: Display title (includes S#E# for episodes)
+                binding.tvMetadataLine2.setText(item.getDisplayTitle());
 
                 // Set click listener
                 binding.getRoot().setOnClickListener(v -> {
-                    Intent intent = new Intent(itemView.getContext(), MovieDetailActivity.class);
-                    intent.putExtra(Const.DataKey.CONTENT_ID, item.getContentId());
-                    intent.putExtra("FROM_RECENTLY_WATCHED", true);
-                    intent.putExtra("WATCH_PROGRESS", item.getWatchPosition());
-                    itemView.getContext().startActivity(intent);
+                    if (item.isEpisode()) {
+                        // For episodes, navigate to Episode Detail View
+                        // We need to fetch the episode data first or pass minimal data
+                        Intent intent = new Intent(itemView.getContext(), MovieDetailActivity.class);
+                        intent.putExtra(Const.DataKey.CONTENT_ID, item.getContentId());
+                        intent.putExtra("EPISODE_ID", item.getEpisodeId());
+                        intent.putExtra("FROM_RECENTLY_WATCHED", true);
+                        intent.putExtra("WATCH_PROGRESS", item.getWatchPosition());
+                        itemView.getContext().startActivity(intent);
+                    } else {
+                        // For movies/shows, navigate to Movie Detail View
+                        Intent intent = new Intent(itemView.getContext(), MovieDetailActivity.class);
+                        intent.putExtra(Const.DataKey.CONTENT_ID, item.getContentId());
+                        intent.putExtra("FROM_RECENTLY_WATCHED", true);
+                        intent.putExtra("WATCH_PROGRESS", item.getWatchPosition());
+                        itemView.getContext().startActivity(intent);
+                    }
                 });
             }
         }

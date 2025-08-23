@@ -156,8 +156,19 @@ public class UnifiedWatchlistAdapter extends RecyclerView.Adapter<UnifiedWatchli
                 }
             }
 
-            // Set poster
-            String posterUrl = model.getBestPoster();
+            // Set poster - for episodes, use episode thumbnail; for content, use regular poster
+            String posterUrl = "";
+            if (model.isEpisode()) {
+                // For episodes, prioritize episode thumbnail
+                if (model.getEpisodeThumbnail() != null && !model.getEpisodeThumbnail().isEmpty()) {
+                    posterUrl = model.getEpisodeThumbnail();
+                } else {
+                    posterUrl = model.getBestPoster();
+                }
+            } else {
+                posterUrl = model.getBestPoster();
+            }
+            
             if (posterUrl != null && !posterUrl.isEmpty()) {
                 if (!posterUrl.startsWith("http")) {
                     posterUrl = Const.BASE + posterUrl;
@@ -185,13 +196,43 @@ public class UnifiedWatchlistAdapter extends RecyclerView.Adapter<UnifiedWatchli
                 tvRating.setVisibility(View.GONE);
             }
 
-            // Set genre
-            if (model.getGenreIds() != null && !model.getGenreIds().isEmpty()) {
-                String genreString = Global.getGenreStringFromIds(model.getGenreIds(), itemView.getContext());
-                tvGenre.setText(genreString);
-                tvGenre.setVisibility(View.VISIBLE);
+            // Set genre or duration for episodes
+            if (model.isEpisode()) {
+                // For episodes, show duration instead of genre
+                if (model.getDuration() != null && !model.getDuration().isEmpty()) {
+                    try {
+                        // Duration is already in minutes for episodes
+                        int durationMinutes = Integer.parseInt(model.getDuration());
+                        String durationText;
+                        if (durationMinutes < 60) {
+                            durationText = durationMinutes + " min";
+                        } else {
+                            int hours = durationMinutes / 60;
+                            int minutes = durationMinutes % 60;
+                            if (minutes == 0) {
+                                durationText = hours + " hr";
+                            } else {
+                                durationText = hours + " hr " + minutes + " min";
+                            }
+                        }
+                        tvGenre.setText(durationText);
+                        tvGenre.setVisibility(View.VISIBLE);
+                    } catch (NumberFormatException e) {
+                        tvGenre.setText(model.getDuration());
+                        tvGenre.setVisibility(View.VISIBLE);
+                    }
+                } else {
+                    tvGenre.setVisibility(View.GONE);
+                }
             } else {
-                tvGenre.setVisibility(View.GONE);
+                // For movies/shows, show genre
+                if (model.getGenreIds() != null && !model.getGenreIds().isEmpty()) {
+                    String genreString = Global.getGenreStringFromIds(model.getGenreIds(), itemView.getContext());
+                    tvGenre.setText(genreString);
+                    tvGenre.setVisibility(View.VISIBLE);
+                } else {
+                    tvGenre.setVisibility(View.GONE);
+                }
             }
 
             // Handle click
