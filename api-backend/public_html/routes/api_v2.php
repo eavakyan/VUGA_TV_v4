@@ -159,6 +159,7 @@ Route::prefix('v2')->group(function () {
     
     // Live TV
     Route::prefix('live-tv')->group(function () {
+        // V1 Compatible endpoints (POST)
         Route::post('/page-data', [V2\LiveTvController::class, 'getLiveTvPageData']);
         Route::post('/channels', [V2\LiveTvController::class, 'getAllChannels']);
         Route::post('/categories', [V2\LiveTvController::class, 'getCategories']);
@@ -167,6 +168,20 @@ Route::prefix('v2')->group(function () {
         Route::post('/search', [V2\LiveTvController::class, 'searchChannels']);
         Route::post('/increase-view', [V2\LiveTvController::class, 'increaseChannelView']);
         Route::post('/increase-share', [V2\LiveTvController::class, 'increaseChannelShare']);
+        
+        // Enhanced Live TV endpoints with EPG support (GET)
+        Route::get('/test-enhanced', [V2\LiveTvController::class, 'testEnhancedEndpoint']);
+        Route::get('/channels-with-programs', [V2\LiveTvController::class, 'getChannelsWithCurrentPrograms']);
+        Route::get('/schedule-grid', [V2\LiveTvController::class, 'getScheduleGrid']);
+        Route::get('/channel/{id}/schedule', [V2\LiveTvController::class, 'getChannelWithSchedule']);
+        Route::get('/programs/search', [V2\LiveTvController::class, 'searchPrograms']);
+        Route::post('/track-view', [V2\LiveTvController::class, 'trackChannelView']);
+        
+        // RESTful endpoints for new API consumers
+        Route::get('/v2/channels', [V2\LiveTvController::class, 'getChannelsWithCurrentPrograms']);
+        Route::get('/v2/schedule', [V2\LiveTvController::class, 'getScheduleGrid']);
+        Route::get('/v2/channel/{id}', [V2\LiveTvController::class, 'getChannelWithSchedule']);
+        Route::get('/v2/categories', [V2\LiveTvController::class, 'getCategories']);
     });
     
     // Profile Management (V1 Compatible routes)
@@ -236,6 +251,33 @@ Route::prefix('v2')->group(function () {
             Route::get('/list', [V2\PopupController::class, 'getPopupDefinitions']);
             Route::put('/update/{popupId}', [V2\PopupController::class, 'updatePopupDefinition']);
         });
+    });
+    
+    // Live TV Client Endpoints
+    Route::prefix('live-tv')->group(function () {
+        Route::post('/channels', [V2\LiveTvController::class, 'getChannelsWithCurrentPrograms']);
+        Route::post('/categories', [V2\LiveTvController::class, 'getCategories']);
+        Route::post('/schedule-grid', [V2\LiveTvController::class, 'getScheduleGrid']);
+        Route::post('/search', [V2\LiveTvController::class, 'searchChannels']);
+        Route::post('/track-view', [V2\LiveTvController::class, 'trackView']);
+        Route::get('/epg/{channelId}', [V2\LiveTvController::class, 'getChannelWithSchedule']);
+    });
+    
+    // Live TV Admin Management
+    Route::prefix('live-tv/admin')->group(function () {
+        // Channel Management
+        Route::get('/channels', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'getChannels']);
+        Route::post('/channels', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'createChannel']);
+        Route::put('/channels/{id}', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'updateChannel']);
+        Route::delete('/channels/{id}', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'deleteChannel']);
+        
+        // Schedule Management
+        Route::get('/channels/{id}/schedule', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'getChannelSchedule']);
+        Route::post('/schedule', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'createScheduleEntry']);
+        Route::post('/schedule/bulk-import', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'bulkImportSchedule']);
+        
+        // Analytics
+        Route::get('/analytics/overview', [\App\Http\Controllers\Api\V2\Admin\LiveTvAdminController::class, 'getAnalyticsOverview']);
     });
     
     // Test endpoint to verify V2 API is working

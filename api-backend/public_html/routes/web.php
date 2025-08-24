@@ -230,3 +230,58 @@ Route::post('distributors/base-pricing/store', [\App\Http\Controllers\Admin\Cont
 
 // Resource route MUST come AFTER all specific routes
 Route::resource('distributors', \App\Http\Controllers\Admin\ContentDistributorController::class)->middleware(['checkLogin']);
+
+// Live TV Admin Management
+Route::prefix('admin/live-tv')->middleware(['checkLogin'])->group(function () {
+    // Channels Management
+    Route::get('channels', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'index'])->name('admin.live-tv.channels.index');
+    Route::post('channels/list', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'fetchChannelsList'])->name('admin.live-tv.channels.list');
+    Route::post('channels', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'store'])->name('admin.live-tv.channels.store');
+    Route::get('channels/{id}', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'show'])->name('admin.live-tv.channels.show');
+    Route::put('channels/{id}', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'update'])->name('admin.live-tv.channels.update');
+    Route::delete('channels/{id}', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'destroy'])->name('admin.live-tv.channels.destroy');
+    Route::post('channels/{id}/toggle', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'toggleStatus'])->name('admin.live-tv.channels.toggle');
+    Route::post('channels/bulk-action', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'bulkAction'])->name('admin.live-tv.channels.bulk');
+    Route::post('channels/{id}/import-epg', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'importEpg'])->name('admin.live-tv.channels.epg');
+    Route::get('channels/{id}/stats', [\App\Http\Controllers\Admin\LiveTvChannelsController::class, 'getChannelStats'])->name('admin.live-tv.channels.stats');
+
+    // Schedule Management
+    Route::get('schedule', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'index'])->name('admin.live-tv.schedule.index');
+    Route::get('schedule/grid', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'getScheduleGrid'])->name('admin.live-tv.schedule.grid');
+    Route::get('schedule/calendar', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'getScheduleCalendar'])->name('admin.live-tv.schedule.calendar');
+    Route::post('schedule', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'store'])->name('admin.live-tv.schedule.store');
+    Route::get('schedule/{id}', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'show'])->name('admin.live-tv.schedule.show');
+    Route::put('schedule/{id}', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'update'])->name('admin.live-tv.schedule.update');
+    Route::delete('schedule/{id}', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'destroy'])->name('admin.live-tv.schedule.destroy');
+    Route::post('schedule/bulk-import', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'bulkImport'])->name('admin.live-tv.schedule.import');
+    Route::get('schedule/template/{format}', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'downloadTemplate'])->name('admin.live-tv.schedule.template');
+    Route::post('schedule/{id}/duplicate', [\App\Http\Controllers\Admin\LiveTvScheduleController::class, 'duplicateSchedule'])->name('admin.live-tv.schedule.duplicate');
+
+    // Categories Management
+    Route::get('categories', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'index'])->name('admin.live-tv.categories.index');
+    Route::post('categories/list', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'fetchCategoriesList'])->name('admin.live-tv.categories.list');
+    Route::get('categories/sorted', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'getSortedCategories'])->name('admin.live-tv.categories.sorted');
+    Route::post('categories', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'store'])->name('admin.live-tv.categories.store');
+    Route::get('categories/{id}', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'show'])->name('admin.live-tv.categories.show');
+    Route::put('categories/{id}', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'update'])->name('admin.live-tv.categories.update');
+    Route::delete('categories/{id}', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'destroy'])->name('admin.live-tv.categories.destroy');
+    Route::post('categories/{id}/toggle', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'toggleStatus'])->name('admin.live-tv.categories.toggle');
+    Route::post('categories/sort', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'updateSortOrder'])->name('admin.live-tv.categories.sort');
+    Route::post('categories/bulk-action', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'bulkAction'])->name('admin.live-tv.categories.bulk');
+    Route::get('categories/{id}/channels', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'getCategoryChannels'])->name('admin.live-tv.categories.channels');
+    Route::get('categories/select/list', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'getCategoriesForSelect'])->name('admin.live-tv.categories.select');
+    Route::post('categories/{id}/duplicate', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'duplicate'])->name('admin.live-tv.categories.duplicate');
+    Route::get('categories/{id}/stats', [\App\Http\Controllers\Admin\LiveTvCategoriesController::class, 'getCategoryStats'])->name('admin.live-tv.categories.stats');
+
+    // Analytics Dashboard
+    Route::get('analytics', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'index'])->name('admin.live-tv.analytics.index');
+    Route::get('analytics/dashboard-stats', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getDashboardStats'])->name('admin.live-tv.analytics.dashboard');
+    Route::get('analytics/channel/{id}', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getChannelAnalytics'])->name('admin.live-tv.analytics.channel');
+    Route::get('analytics/popular-programs', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getPopularPrograms'])->name('admin.live-tv.analytics.programs');
+    Route::get('analytics/peak-times', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getPeakViewingTimes'])->name('admin.live-tv.analytics.peak-times');
+    Route::get('analytics/geographic', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getGeographicDistribution'])->name('admin.live-tv.analytics.geographic');
+    Route::get('analytics/retention', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getViewerRetention'])->name('admin.live-tv.analytics.retention');
+    Route::get('analytics/export', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'exportAnalytics'])->name('admin.live-tv.analytics.export');
+    Route::get('analytics/genres', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getGenreAnalytics'])->name('admin.live-tv.analytics.genres');
+    Route::get('analytics/channel-comparison', [\App\Http\Controllers\Admin\LiveTvAnalyticsController::class, 'getChannelComparison'])->name('admin.live-tv.analytics.comparison');
+});

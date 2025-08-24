@@ -134,13 +134,33 @@
                                 <span> {{ __('languages') }} </span>
                             </a>
                         </li>
-                        <li class="sideBarli liveTvCategorySideA">
+                        <li class="dropdown sideBarli liveTvSideA">
+                            <a href="#" class="nav-link has-dropdown">
+                                <i data-feather="tv"></i>
+                                <span> {{ __('Live TV Management') }} </span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="nav-link" href="{{ route('admin.live-tv.channels.index') }}">
+                                    <i data-feather="airplay"></i> Channels Management
+                                </a></li>
+                                <li><a class="nav-link" href="{{ route('admin.live-tv.schedule.index') }}">
+                                    <i data-feather="calendar"></i> Schedule Management
+                                </a></li>
+                                <li><a class="nav-link" href="{{ route('admin.live-tv.categories.index') }}">
+                                    <i data-feather="folder"></i> Categories Management
+                                </a></li>
+                                <li><a class="nav-link" href="{{ route('admin.live-tv.analytics.index') }}">
+                                    <i data-feather="bar-chart-2"></i> Analytics Dashboard
+                                </a></li>
+                            </ul>
+                        </li>
+                        <li class="sideBarli liveTvCategorySideA" style="display: none;">
                             <a href="{{ route('liveTvCategories') }}" class="nav-link">
                                 <i data-feather="cast"></i>
                                 <span> {{ __('liveTvCategories') }} </span>
                             </a>
                         </li>
-                        <li class="sideBarli liveTvChannelSideA">
+                        <li class="sideBarli liveTvChannelSideA" style="display: none;">
                             <a href="{{ route('liveTvChannels') }}" class="nav-link">
                                 <i data-feather="airplay"></i>
                                 <span> {{ __('liveTvChannels') }} </span>
@@ -227,6 +247,7 @@
     <script src="{{ asset('assets/js/flatpickr.js') }}"></script>
     <script src="{{ asset('assets/js/hls.js') }}"></script>
     <script src="{{ asset('assets/js/jquery-ui.min.js') }}"></script>
+    <script src="{{ asset('assets/script/live-tv-admin.js') }}"></script>
     <script>
         $(document).ready(function() {
             $(".selectric").selectric({

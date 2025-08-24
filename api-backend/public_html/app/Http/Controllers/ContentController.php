@@ -191,7 +191,7 @@ class ContentController extends Controller
             ]);
         }
 
-        $content = Content::with('sources.media')->where('is_show', Constants::showContent)->where('content_id', $request->content_id)->first();
+        $content = Content::with(['sources.media', 'trailers'])->where('is_show', Constants::showContent)->where('content_id', $request->content_id)->first();
         if (!$content) {
             return response()->json([
                 'status' => false,
