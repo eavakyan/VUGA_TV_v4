@@ -390,7 +390,7 @@ class DownloadViewModel: BaseViewModel, URLSessionDownloadDelegate {
         newDownloadContent.episodeId = Int16(episode?.id ?? 0)
         newDownloadContent.sourceUrl = source.sourceURL
         newDownloadContent.downloadStatus = Int16(DownloadStatus.queued.rawValue)
-        newDownloadContent.contentDuration = content.type == .movie ? content.duration : episode?.duration
+        newDownloadContent.contentDuration = content.type == .movie ? content.duration?.stringValue : episode?.duration
         newDownloadContent.episodeDuration = episode?.duration
         newDownloadContent.seasonNo = String(seasonNumber)
         newDownloadContent.episodeHorizontalPoster = episode?.thumbnail

@@ -6,6 +6,38 @@
 
 import Foundation
 
+// Helper type to handle duration that can be either String or Int
+struct DurationValue: Codable {
+    let value: String
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        if let intValue = try? container.decode(Int.self) {
+            self.value = String(intValue)
+        } else if let stringValue = try? container.decode(String.self) {
+            self.value = stringValue
+        } else {
+            throw DecodingError.typeMismatch(DurationValue.self, DecodingError.Context(codingPath: decoder.codingPath, debugDescription: "Duration must be either String or Int"))
+        }
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(value)
+    }
+}
+
+extension DurationValue {
+    var stringValue: String {
+        return value
+    }
+    
+    var intValue: Int? {
+        return Int(value)
+    }
+}
+
 // Helper CodingKey that can be created from arbitrary strings
 private struct DynamicCodingKeys: CodingKey {
     var stringValue: String
@@ -91,7 +123,7 @@ struct VugaContent: Codable, Identifiable {
     let id: Int?
     let title, description: String?
     let type: ContentType?
-    let duration : String?
+    let duration : DurationValue?
     let releaseYear: Int?
     let ratings: Double?
     let languageID: Int?
@@ -175,7 +207,7 @@ struct VugaContent: Codable, Identifiable {
         title = try container.decodeIfPresent(String.self, forKey: .title)
         description = try container.decodeIfPresent(String.self, forKey: .description)
         type = try container.decodeIfPresent(ContentType.self, forKey: .type)
-        duration = try container.decodeIfPresent(String.self, forKey: .duration)
+        duration = try container.decodeIfPresent(DurationValue.self, forKey: .duration)
         releaseYear = try container.decodeIfPresent(Int.self, forKey: .releaseYear)
         ratings = try container.decodeIfPresent(Double.self, forKey: .ratings)
         languageID = try container.decodeIfPresent(Int.self, forKey: .languageID)

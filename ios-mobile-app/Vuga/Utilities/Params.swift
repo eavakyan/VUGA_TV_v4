@@ -20,6 +20,7 @@ enum Params: String {
     case page = "page"
     case perPage = "per_page"
     case genreId = "genre_id"
+    case categoryId = "category_id"
     case keyword = "keyword"
     case search = "search"
     case searchType = "search_type"

@@ -19,6 +19,8 @@ struct TabBarView: View {
                 HomeView(selectedTab: $selectedTab)
             case .search:
                 SearchView()
+            case .liveTV:
+                LiveTVsView()
             case .subscriptions:
                 SubscriptionsView()
             case .watchlist:
@@ -33,6 +35,7 @@ struct TabBarView: View {
                         HStack {
                             tabBtn(title: .home, image: .home, tab: .home)
                             tabBtn(title: .search, image: .search, tab: .search)
+                            tabBtn(title: "Live TV", image: .tv, tab: .liveTV)
                             tabBtn(title: .subscriptions, image: .grid, tab: .subscriptions)
                             tabBtn(title: .watchlist, image: .save, tab: .watchlist)
                             profileTabBtn()
@@ -125,7 +128,7 @@ struct TabBarView: View {
 }
 
 enum Tab : Int {
-    case home, search, subscriptions, watchlist, profile
+    case home, search, liveTV, subscriptions, watchlist, profile
 }
 
 

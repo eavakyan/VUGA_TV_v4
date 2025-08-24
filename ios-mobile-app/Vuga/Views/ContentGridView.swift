@@ -185,7 +185,7 @@ struct ContentGridItem: View {
             
             // Duration and rating
             HStack(spacing: 4) {
-                if let durationStr = content.duration, let duration = Int(durationStr), duration > 0 {
+                if let durationStr = content.duration?.stringValue, let duration = Int(durationStr), duration > 0 {
                     let hours = duration / 3600
                     let minutes = (duration % 3600) / 60
                     let durationText = hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"

@@ -280,9 +280,7 @@ class CategoryGridViewModel: BaseViewModel {
             .limit: 30
         ]
         
-        // Note: fetchContentsByGenre doesn't use userId or profileId
-        
-        NetworkManager.callWebService(url: .fetchContentsByGenre, params: params) { [weak self] (response: CategoryContentResponse) in
+        NetworkManager.callWebService(url: .fetchContentsByGenre, httpMethod: .post, params: params) { [weak self] (response: GenreContentResponse) in
             guard let self = self else { return }
             
             if append {
@@ -315,9 +313,3 @@ class CategoryGridViewModel: BaseViewModel {
     }
 }
 
-// MARK: - Response Model
-struct CategoryContentResponse: Codable {
-    let status: Bool?
-    let message: String?
-    let data: [VugaContent]?
-}

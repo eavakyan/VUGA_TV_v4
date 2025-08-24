@@ -51,6 +51,13 @@ enum APIs : String {
     case increaseTVChannelView              = "increaseTVChannelView"
     case increaseTVChannelShare             = "increaseTVChannelShare"
     
+    // Enhanced Live TV endpoints (V2 API) - Temporarily commented out to resolve build issue
+    // case getLiveTVChannelsWithPrograms      = "live-tv/channels-with-programs" // V2 endpoint
+    // case getLiveTVScheduleGrid             = "live-tv/schedule-grid"
+    // case searchLiveTVChannels              = "live-tv/search"
+    // case getLiveTVCategories               = "live-tv/categories"
+    // case trackLiveTVView                   = "live-tv/track-view"
+    
     case fetchSettings                      = "fetchSettings"
     case getAllNotification                 = "getAllNotification"
     

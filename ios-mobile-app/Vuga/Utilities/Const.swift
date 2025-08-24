@@ -18,7 +18,7 @@ let rateThisAppURL = "https://apps.apple.com/us/app/id\(APP_ID)?action=write-rev
 struct WebService {
     static let branchContentID              = "content_id"
     static let base                         = "https://iosdev.gossip-stone.com/"
-    static let apiBase                      = WebService.base + "api/v2/"
+    static let apiBase                      = WebService.base + "api/"
     static let itemBaseURLs                  = WebService.base + "public/storage/"
     static let itemBaseURL                  = ""
     static let youtubeBaseURL               = "https://www.youtube.com/watch?v="

@@ -136,7 +136,7 @@ struct MovieGridItem: View {
                 .overlay(
                     // Duration badge
                     Group {
-                        if let duration = content.duration, !duration.isEmpty {
+                        if let duration = content.duration?.stringValue, !duration.isEmpty {
                             Text(duration)
                                 .outfitRegular(10)
                                 .foregroundColor(.text)
