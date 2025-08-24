@@ -177,45 +177,21 @@ public class EpisodeDetailActivity extends BaseActivity {
         // Back button with swipe down support
         binding.btnBack.setOnClickListener(v -> onBackPressed());
         
-        // Enable swipe down to close - only on the video/thumbnail area
-        View.OnTouchListener swipeListener = new OnSwipeTouchListeners(this) {
+        // Setup pull-down gesture on video container
+        binding.videoContainer.setOnTouchListener(new OnSwipeTouchListeners(this) {
             @Override
             public void onSwipeDown() {
+                Log.d("EpisodeDetail", "Swipe down detected - closing activity");
                 finish();
                 overridePendingTransition(0, android.R.anim.fade_out);
             }
-        };
-        
-        // Find the parent container of the video/thumbnail area (first 300dp)
-        // Since the parent RelativeLayout doesn't have an ID, we need to get it through its children
-        if (binding.imgEpisodeThumbnail.getParent() instanceof View) {
-            View videoContainer = (View) binding.imgEpisodeThumbnail.getParent();
-            videoContainer.setOnTouchListener(swipeListener);
-        }
-        
-        // Also set on the individual elements as fallback
-        binding.imgEpisodeThumbnail.setOnTouchListener(swipeListener);
-        binding.btnPlayEpisode.setOnTouchListener(swipeListener);
+        });
         
         // Play button click (bottom bar)
         binding.btnPlay.setOnClickListener(v -> playEpisode());
         
-        // Play button overlay click - handle both click and swipe
+        // Play button overlay click
         binding.btnPlayEpisode.setOnClickListener(v -> playEpisode());
-        
-        // Override the swipe listener for play button to handle both click and swipe
-        binding.btnPlayEpisode.setOnTouchListener(new OnSwipeTouchListeners(this) {
-            @Override
-            public void onSwipeDown() {
-                finish();
-                overridePendingTransition(0, android.R.anim.fade_out);
-            }
-            
-            @Override
-            public void onSingleTouch() {
-                playEpisode();
-            }
-        });
         
         // Download button click
         binding.btnDownload.setOnClickListener(v -> {

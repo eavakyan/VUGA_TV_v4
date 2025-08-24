@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,7 +22,9 @@ public class OnSwipeTouchListeners implements View.OnTouchListener {
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        return gestureDetector.onTouchEvent(event);
+        boolean result = gestureDetector.onTouchEvent(event);
+        // Always return true to consume the event and allow gesture detection
+        return true;
     }
 
     public void onDoubleTouch() {
@@ -75,8 +78,10 @@ public class OnSwipeTouchListeners implements View.OnTouchListener {
                     // Vertical swipe
                     if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffY > 0) {
+                            Log.d("OnSwipeTouchListeners", "Swipe down detected: diffY=" + diffY + ", velocityY=" + velocityY);
                             onSwipeDown();
                         } else {
+                            Log.d("OnSwipeTouchListeners", "Swipe up detected: diffY=" + diffY + ", velocityY=" + velocityY);
                             onSwipeUp();
                         }
                         return true;
