@@ -49,27 +49,60 @@ fun ProfileScreen(
         ) {
             // Profile Icon
             val currentProfile = selectedProfile
+            val hasCustomImage = currentProfile?.avatarType == "custom" && 
+                                !currentProfile.avatarUrl.isNullOrBlank() && 
+                                currentProfile.avatarUrl != "null" &&
+                                (currentProfile.avatarUrl.startsWith("http://") || currentProfile.avatarUrl.startsWith("https://"))
+            
             Box(
                 modifier = Modifier
                     .size(120.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (currentProfile != null) {
-                            val colorHex = ProfileColors.getColorForId(currentProfile.avatarId ?: 1)
-                            val cleanHex = colorHex.removePrefix("#")
-                            Color(android.graphics.Color.parseColor("#$cleanHex"))
-                        } else {
-                            Color(0xFF333333)
-                        }
-                    ),
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = currentProfile?.initial ?: userData?.fullname?.firstOrNull()?.toString() ?: "U",
-                    fontSize = 48.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                if (hasCustomImage) {
+                    // Show custom uploaded image
+                    androidx.compose.foundation.Image(
+                        painter = coil.compose.rememberAsyncImagePainter(
+                            model = coil.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                                .data(currentProfile!!.avatarUrl)
+                                .crossfade(true)
+                                .build()
+                        ),
+                        contentDescription = "Profile image",
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    // Show color avatar with initials
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(
+                                if (currentProfile != null) {
+                                    val colorHex = currentProfile.avatarColor ?: ProfileColors.getColorForId(currentProfile.avatarId ?: 1)
+                                    val cleanHex = colorHex.removePrefix("#")
+                                    Color(android.graphics.Color.parseColor("#$cleanHex"))
+                                } else {
+                                    Color(0xFF333333)
+                                }
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Generate initials (matching ProfileSelectionScreen logic)
+                        val initials = if (currentProfile != null) {
+                            generateInitials(currentProfile.name)
+                        } else {
+                            userData?.fullname?.firstOrNull()?.toString()?.uppercase() ?: "U"
+                        }
+                        Text(
+                            text = initials,
+                            fontSize = 48.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
             }
             
             // Profile Name
@@ -178,6 +211,23 @@ fun ProfileScreen(
                     fontWeight = FontWeight.Medium
                 )
             }
+        }
+    }
+}
+
+// Helper function to generate initials (matching ProfileSelectionScreen logic)
+private fun generateInitials(name: String): String {
+    if (name.isBlank()) return "P"
+    
+    val words = name.trim().split("\\s+".toRegex())
+    return when {
+        words.isEmpty() -> "P"
+        words.size == 1 -> words[0].take(1).uppercase()
+        else -> {
+            // Take first letter of first two words
+            val first = words[0].take(1).uppercase()
+            val second = words[1].take(1).uppercase()
+            first + second
         }
     }
 }

@@ -342,34 +342,86 @@ fun ProfileAvatar(
 ) {
     var isFocused by remember { mutableStateOf(false) }
     
-    Box(
-        modifier = modifier
-            .clip(CircleShape)
-            .background(
-                Color(android.graphics.Color.parseColor(
-                    ProfileColors.getColorForId(profile.avatarId ?: 1).let { hex ->
-                        if (hex.startsWith("#")) hex else "#$hex"
-                    }
-                ))
-            )
-            .onFocusChanged { isFocused = it.isFocused }
-            .then(
-                if (isFocused) {
-                    Modifier.border(
-                        width = 2.dp,
-                        color = Color.White,
-                        shape = CircleShape
-                    )
-                } else Modifier
+    // Check if profile has a custom image
+    val hasCustomImage = profile.avatarType == "custom" && 
+                        !profile.avatarUrl.isNullOrBlank() && 
+                        profile.avatarUrl != "null" &&
+                        (profile.avatarUrl.startsWith("http://") || profile.avatarUrl.startsWith("https://"))
+    
+    if (hasCustomImage) {
+        // Show custom uploaded image
+        androidx.compose.foundation.Image(
+            painter = coil.compose.rememberAsyncImagePainter(
+                model = coil.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                    .data(profile.avatarUrl)
+                    .crossfade(true)
+                    .build()
             ),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = profile.initial,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.White
+            contentDescription = "Profile image",
+            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+            modifier = modifier
+                .clip(CircleShape)
+                .onFocusChanged { isFocused = it.isFocused }
+                .then(
+                    if (isFocused) {
+                        Modifier.border(
+                            width = 2.dp,
+                            color = Color.White,
+                            shape = CircleShape
+                        )
+                    } else Modifier
+                )
         )
+    } else {
+        // Show color avatar with initials
+        Box(
+            modifier = modifier
+                .clip(CircleShape)
+                .background(
+                    Color(android.graphics.Color.parseColor(
+                        (profile.avatarColor ?: ProfileColors.getColorForId(profile.avatarId ?: 1)).let { hex ->
+                            if (hex.startsWith("#")) hex else "#$hex"
+                        }
+                    ))
+                )
+                .onFocusChanged { isFocused = it.isFocused }
+                .then(
+                    if (isFocused) {
+                        Modifier.border(
+                            width = 2.dp,
+                            color = Color.White,
+                            shape = CircleShape
+                        )
+                    } else Modifier
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            // Generate initials (up to 2 letters)
+            val initials = generateProfileInitials(profile.name)
+            Text(
+                text = initials,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+        }
+    }
+}
+
+// Helper function to generate initials (matching mobile app logic)
+private fun generateProfileInitials(name: String): String {
+    if (name.isBlank()) return "P"
+    
+    val words = name.trim().split("\\s+".toRegex())
+    return when {
+        words.isEmpty() -> "P"
+        words.size == 1 -> words[0].take(1).uppercase()
+        else -> {
+            // Take first letter of first two words
+            val first = words[0].take(1).uppercase()
+            val second = words[1].take(1).uppercase()
+            first + second
+        }
     }
 }
 

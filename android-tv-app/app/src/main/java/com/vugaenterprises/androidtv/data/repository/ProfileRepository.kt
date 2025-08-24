@@ -3,6 +3,7 @@ package com.vugaenterprises.androidtv.data.repository
 import com.vugaenterprises.androidtv.data.api.ApiService
 import com.vugaenterprises.androidtv.data.model.CreateProfileRequest
 import com.vugaenterprises.androidtv.data.model.Profile
+import com.vugaenterprises.androidtv.data.model.ProfileColors
 import com.vugaenterprises.androidtv.data.model.ProfilesResponse
 import com.vugaenterprises.androidtv.data.model.SelectProfileRequest
 import com.vugaenterprises.androidtv.data.UserDataStore
@@ -97,6 +98,50 @@ class ProfileRepository @Inject constructor(
                     emit(Result.success(profile))
                 } else {
                     emit(Result.failure(Exception(response.message)))
+                }
+            } else {
+                emit(Result.failure(Exception("User not logged in")))
+            }
+        } catch (e: Exception) {
+            emit(Result.failure(e))
+        }
+    }
+    
+    suspend fun updateProfile(
+        profileId: Int,
+        name: String,
+        avatarId: Int,
+        isKids: Boolean,
+        avatarType: String = "color",
+        avatarUrl: String? = null
+    ) = flow {
+        try {
+            val userId = userDataStore.getUserId().first()
+            if (userId != null) {
+                val response = apiService.updateProfile(
+                    profileId = profileId,
+                    userId = userId,
+                    name = name,
+                    avatarType = avatarType,
+                    avatarId = avatarId,
+                    isKids = if (isKids) 1 else 0,
+                    avatarUrl = avatarUrl
+                )
+                
+                if (response.status) {
+                    // Return the updated profile
+                    val profile = Profile(
+                        profileId = profileId,
+                        name = name,
+                        avatarType = avatarType,
+                        avatarUrl = avatarUrl,
+                        avatarId = avatarId,
+                        isKids = isKids,
+                        avatarColor = ProfileColors.getColorForId(avatarId)
+                    )
+                    emit(Result.success(profile))
+                } else {
+                    emit(Result.failure(Exception(response.message ?: "Failed to update profile")))
                 }
             } else {
                 emit(Result.failure(Exception("User not logged in")))

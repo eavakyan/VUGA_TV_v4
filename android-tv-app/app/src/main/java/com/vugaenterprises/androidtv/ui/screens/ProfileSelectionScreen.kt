@@ -70,7 +70,7 @@ fun ProfileSelectionScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 80.dp, vertical = 60.dp),
+                .padding(horizontal = 80.dp, vertical = 40.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Header
@@ -79,7 +79,7 @@ fun ProfileSelectionScreen(
                 fontSize = 48.sp,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
-                modifier = Modifier.padding(bottom = 60.dp)
+                modifier = Modifier.padding(bottom = 40.dp)
             )
             
             // Profiles Grid
@@ -93,8 +93,11 @@ fun ProfileSelectionScreen(
                     columns = GridCells.Fixed(4),
                     state = gridState,
                     horizontalArrangement = Arrangement.spacedBy(40.dp, Alignment.CenterHorizontally),
-                    verticalArrangement = Arrangement.spacedBy(40.dp),
-                    modifier = Modifier.fillMaxWidth(0.8f)
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    modifier = Modifier
+                        .fillMaxWidth(0.8f)
+                        .heightIn(min = 300.dp),
+                    contentPadding = PaddingValues(vertical = 10.dp)
                 ) {
                     items(uiState.profiles) { profile ->
                         ProfileItem(
@@ -198,8 +201,17 @@ fun ProfileSelectionScreen(
             profile = profileToEdit,
             onDismiss = { showCreateDialog = false },
             onConfirm = { name, avatarId, isKids ->
-                if (profileToEdit != null) {
-                    // Edit functionality would go here
+                val editProfile = profileToEdit
+                if (editProfile != null) {
+                    // Update existing profile, preserving avatar type and URL if it's a custom photo
+                    viewModel.updateProfile(
+                        profileId = editProfile.profileId, 
+                        name = name, 
+                        avatarId = avatarId, 
+                        isKids = isKids,
+                        avatarType = editProfile.avatarType,
+                        avatarUrl = editProfile.avatarUrl
+                    )
                 } else {
                     viewModel.createProfile(name, avatarId, isKids)
                 }
@@ -244,18 +256,22 @@ fun ProfileItem(
                     }
                 } else false
             }
+            .width(160.dp)  // Reduced width for smaller profile items
     ) {
         Box(
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.padding(4.dp)  // Reduced padding around the avatar
         ) {
-            // Profile Avatar
-            val colorHex = ProfileColors.getColorForId(profile.avatarId ?: 1)
-            val cleanHex = colorHex.removePrefix("#")
+            // Profile Avatar - Check for custom image first
+            val hasCustomImage = profile.avatarType == "custom" && 
+                                !profile.avatarUrl.isNullOrBlank() && 
+                                profile.avatarUrl != "null" &&
+                                (profile.avatarUrl.startsWith("http://") || profile.avatarUrl.startsWith("https://"))
+            
             Box(
                 modifier = Modifier
-                    .size(180.dp)
+                    .size(126.dp)
                     .clip(CircleShape)
-                    .background(Color(android.graphics.Color.parseColor("#$cleanHex")))
                     .then(
                         if (isFocused) {
                             Modifier.border(
@@ -267,21 +283,48 @@ fun ProfileItem(
                     ),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = profile.initial,
-                    fontSize = 72.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
+                if (hasCustomImage) {
+                    // Show custom uploaded image
+                    androidx.compose.foundation.Image(
+                        painter = coil.compose.rememberAsyncImagePainter(
+                            model = coil.request.ImageRequest.Builder(androidx.compose.ui.platform.LocalContext.current)
+                                .data(profile.avatarUrl)
+                                .crossfade(true)
+                                .build()
+                        ),
+                        contentDescription = "Profile image",
+                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                } else {
+                    // Show color avatar with initials
+                    val colorHex = profile.avatarColor ?: ProfileColors.getColorForId(profile.avatarId ?: 1)
+                    val cleanHex = colorHex.removePrefix("#")
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color(android.graphics.Color.parseColor("#$cleanHex"))),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        // Generate initials like mobile app (up to 2 letters)
+                        val initials = generateInitials(profile.name)
+                        Text(
+                            text = initials,
+                            fontSize = 50.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
+                }
                 
                 // Edit mode overlay
                 if (isEditMode) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
+                            .clip(CircleShape)
                             .background(
-                                Color.Black.copy(alpha = 0.4f),
-                                shape = CircleShape
+                                Color.Black.copy(alpha = 0.4f)
                             )
                     )
                     
@@ -289,7 +332,7 @@ fun ProfileItem(
                         imageVector = androidx.compose.material.icons.Icons.Default.Edit,
                         contentDescription = "Edit",
                         tint = Color.White,
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(34.dp)
                     )
                 }
             }
@@ -299,16 +342,16 @@ fun ProfileItem(
                 Box(
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = (-10).dp, y = 10.dp)
+                        .offset(x = (-8).dp, y = 8.dp)
                         .background(
                             color = Color(0xFFFFB800),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(10.dp)
                         )
-                        .padding(horizontal = 12.dp, vertical = 4.dp)
+                        .padding(horizontal = 10.dp, vertical = 3.dp)
                 ) {
                     Text(
                         text = "KIDS",
-                        fontSize = 14.sp,
+                        fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
                     )
@@ -319,13 +362,33 @@ fun ProfileItem(
         // Profile Name
         Text(
             text = profile.name,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Medium,
-            color = if (isFocused) Color.White else Color.White.copy(alpha = 0.7f),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Normal,
+            color = Color.White,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.padding(top = 16.dp)
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .padding(top = 12.dp)
+                .fillMaxWidth()
         )
+    }
+}
+
+// Helper function to generate initials (matching mobile app logic)
+private fun generateInitials(name: String): String {
+    if (name.isBlank()) return "P"
+    
+    val words = name.trim().split("\\s+".toRegex())
+    return when {
+        words.isEmpty() -> "P"
+        words.size == 1 -> words[0].take(1).uppercase()
+        else -> {
+            // Take first letter of first two words
+            val first = words[0].take(1).uppercase()
+            val second = words[1].take(1).uppercase()
+            first + second
+        }
     }
 }
 
@@ -354,11 +417,11 @@ fun AddProfileButton(
     ) {
         Box(
             modifier = Modifier
-                .size(180.dp)
+                .size(126.dp)
                 .clip(CircleShape)
                 .background(Color(0xFF1A1A1A))
                 .border(
-                    width = if (isFocused) 4.dp else 2.dp,
+                    width = if (isFocused) 3.dp else 2.dp,
                     color = if (isFocused) Color.White else Color.White.copy(alpha = 0.3f),
                     shape = CircleShape
                 ),
@@ -368,16 +431,16 @@ fun AddProfileButton(
                 imageVector = androidx.compose.material.icons.Icons.Default.Add,
                 contentDescription = "Add Profile",
                 tint = if (isFocused) Color.White else Color.White.copy(alpha = 0.7f),
-                modifier = Modifier.size(72.dp)
+                modifier = Modifier.size(50.dp)
             )
         }
         
         Text(
             text = "Add Profile",
-            fontSize = 24.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Medium,
             color = if (isFocused) Color.White else Color.White.copy(alpha = 0.7f),
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = 12.dp)
         )
     }
 }

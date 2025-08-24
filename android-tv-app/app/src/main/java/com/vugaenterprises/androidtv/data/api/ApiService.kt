@@ -163,6 +163,18 @@ interface ApiService {
     suspend fun createProfile(@Body request: CreateProfileRequest): ProfilesResponse
     
     @FormUrlEncoded
+    @POST("profile/update")
+    suspend fun updateProfile(
+        @Field("profile_id") profileId: Int,
+        @Field("user_id") userId: Int,
+        @Field("name") name: String,
+        @Field("avatar_type") avatarType: String,
+        @Field("avatar_id") avatarId: Int,
+        @Field("is_kids") isKids: Int,
+        @Field("avatar_url") avatarUrl: String? = null
+    ): RestResponse
+    
+    @FormUrlEncoded
     @POST("deleteProfile")
     suspend fun deleteProfile(
         @Field("user_id") userId: Int,

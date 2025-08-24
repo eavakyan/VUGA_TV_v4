@@ -36,7 +36,7 @@ fun MainScreen(
     val userData by userDataStore.getUserData().collectAsState(initial = null)
     val selectedProfile by userDataStore.getSelectedProfile().collectAsState(initial = null)
     
-    val navigationItems = remember(isLoggedIn, userData) {
+    val navigationItems = remember(isLoggedIn, userData, selectedProfile) {
         listOf(
             NavigationItem(
                 id = "watch", 
@@ -54,7 +54,10 @@ fun MainScreen(
             NavigationItem("tv", "TV"),
             NavigationItem(
                 id = if (isLoggedIn) "profile" else "login",
-                title = if (isLoggedIn) userData?.fullname?.split(" ")?.firstOrNull() ?: "Profile" else "Log In"
+                title = if (isLoggedIn) {
+                    // Use selected profile name if available, otherwise use first name from user data
+                    selectedProfile?.name ?: userData?.fullname?.split(" ")?.firstOrNull() ?: "Profile"
+                } else "Log In"
             )
         )
     }

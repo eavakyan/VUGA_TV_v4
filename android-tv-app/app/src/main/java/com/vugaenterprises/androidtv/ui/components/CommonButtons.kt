@@ -16,7 +16,8 @@ import androidx.compose.ui.unit.sp
 fun TVButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true
 ) {
     var isFocused by remember { mutableStateOf(false) }
     
@@ -26,9 +27,12 @@ fun TVButton(
             .onFocusChanged { isFocused = it.isFocused }
             .height(56.dp)
             .widthIn(min = 200.dp),
+        enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = if (isFocused) Color.White else Color(0xFF464646),
-            contentColor = if (isFocused) Color.Black else Color.White
+            contentColor = if (isFocused) Color.Black else Color.White,
+            disabledContainerColor = Color(0xFF2A2A2A),
+            disabledContentColor = Color.Gray
         ),
         shape = RoundedCornerShape(28.dp)
     ) {

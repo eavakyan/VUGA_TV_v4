@@ -108,7 +108,9 @@
       "Bash(sqlite3:*)",
       "Bash(git restore:*)",
       "Bash(/opt/homebrew/bin/mysql -u root -e \"USE vuga_new_db; SELECT tv_channel_id, title, category_ids FROM tv_channel;\")",
-      "Bash(/opt/homebrew/bin/mysql -u root -e \"USE vuga_new_db; SELECT COUNT(*) as total_channels FROM tv_channel WHERE is_active = 1;\")"
+      "Bash(/opt/homebrew/bin/mysql -u root -e \"USE vuga_new_db; SELECT COUNT(*) as total_channels FROM tv_channel WHERE is_active = 1;\")",
+      "Bash(emulator:*)",
+      "Bash(~/Library/Android/sdk/emulator/emulator -list-avds)"
     ],
     "deny": []
   }

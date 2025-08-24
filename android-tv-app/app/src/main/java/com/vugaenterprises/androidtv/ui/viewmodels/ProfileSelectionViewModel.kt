@@ -127,6 +127,34 @@ class ProfileSelectionViewModel @Inject constructor(
         }
     }
     
+    fun updateProfile(profileId: Int, name: String, avatarId: Int, isKids: Boolean, avatarType: String = "color", avatarUrl: String? = null) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            
+            profileRepository.updateProfile(profileId, name, avatarId, isKids, avatarType, avatarUrl).collect { result ->
+                result.fold(
+                    onSuccess = { updatedProfile ->
+                        // Reload profiles after update
+                        loadProfiles()
+                    },
+                    onFailure = { exception ->
+                        errorLogger.logError(
+                            error = exception,
+                            errorType = "PROFILE_UPDATE",
+                            customMessage = "Failed to update profile: ${exception.message}"
+                        )
+                        _uiState.update { 
+                            it.copy(
+                                isLoading = false,
+                                error = "Failed to update profile: ${exception.message}"
+                            )
+                        }
+                    }
+                )
+            }
+        }
+    }
+    
     fun deleteProfile(profile: Profile) {
         // Don't allow deletion if it's the only profile
         if (_uiState.value.profiles.size <= 1) {
