@@ -83,6 +83,20 @@
                     android:textColor="@{type==2?@color/text_color:@color/text_color_light}"
                     tools:ignore="NestedWeights" />
 
+                <TextView
+                    android:id="@+id/tv_cast"
+                    style="@style/TextViewLocal"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="3dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/bg_round_rect_10"
+                    android:backgroundTint="@{type==3?@color/app_color:@color/transparent}"
+                    android:gravity="center"
+                    android:text="Cast"
+                    android:textColor="@{type==3?@color/text_color:@color/text_color_light}"
+                    tools:ignore="NestedWeights" />
+
             </LinearLayout>
 
 
