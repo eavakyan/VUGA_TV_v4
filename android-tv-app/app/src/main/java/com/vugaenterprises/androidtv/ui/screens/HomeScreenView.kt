@@ -132,32 +132,30 @@ open class HomeScreenView @JvmOverloads constructor(
             addFeaturedSection(featuredContent)
         }
         
-        // Add content rows - only show non-empty sections
-        if (trendingContent.isNotEmpty()) {
-            addContentRow("Trending", trendingContent)
-        }
-        
-        // Only show watchlist if user has items in their watchlist
-        // The recommendations parameter contains the user's watchlist from the API
-        if (recommendations.isNotEmpty()) {
-            addContentRow("My List", recommendations)
-        }
-        
-        // Only show continue watching if user is logged in and has items  
-        if (continueWatching.isNotEmpty()) {
-            addContentRow("Continue Watching", continueWatching)
-        }
-        
+        // Add content rows in the specified order:
+        // 1. New Releases first
         if (newContent.isNotEmpty()) {
             addContentRow("New Releases", newContent)
         }
         
-        // Add individual category rows - only show categories with content
+        // 2. Recently Watched (Continue Watching) second
+        if (continueWatching.isNotEmpty()) {
+            addContentRow("Recently Watched", continueWatching)
+        }
+        
+        // 3. Category rows - one for each category with content
         categoryContent.forEach { genreContent ->
             if (genreContent.contents.isNotEmpty()) {
                 addContentRow(genreContent.title, genreContent.contents)
             }
         }
+        
+        // 4. Trending at the end (optional - can be removed if not needed)
+        if (trendingContent.isNotEmpty()) {
+            addContentRow("Trending", trendingContent)
+        }
+        
+        // Note: My List row has been removed as requested
     }
     
     private fun addFeaturedSection(content: List<Content>) {

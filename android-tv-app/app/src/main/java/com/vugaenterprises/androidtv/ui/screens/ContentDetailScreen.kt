@@ -30,7 +30,9 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.vugaenterprises.androidtv.data.model.Content
+import com.vugaenterprises.androidtv.ui.components.TrailerPlayer
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel
+import com.vugaenterprises.androidtv.utils.CategoryUtils
 import com.vugaenterprises.androidtv.utils.TimeUtils
 
 @Composable
@@ -43,6 +45,7 @@ fun ContentDetailScreen(
     viewModel: ContentDetailViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showMoreInfo by remember { mutableStateOf(false) }
 
     LaunchedEffect(contentId) {
         viewModel.loadContent(contentId)
@@ -82,10 +85,9 @@ fun ContentDetailScreen(
             val content = uiState.content!!
             
             LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier
                     .fillMaxSize()
+                    .background(Color.Black)
                     .onKeyEvent { keyEvent ->
                         if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Back) {
                             onNavigateBack()
@@ -95,11 +97,12 @@ fun ContentDetailScreen(
                         }
                     }
             ) {
-                // Back Button Section
+                // Back Button
                 item {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
                     ) {
                         Button(
                             onClick = onNavigateBack,
@@ -109,7 +112,7 @@ fun ContentDetailScreen(
                             shape = RoundedCornerShape(24.dp)
                         ) {
                             Text(
-                                text = "← Back to Home",
+                                text = "← Back",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = Color.White,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
@@ -117,187 +120,242 @@ fun ContentDetailScreen(
                         }
                     }
                 }
-                // Modern Hero Section
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(500.dp)
-                    ) {
-                        // Background with vertical poster for TV
-                        AsyncImage(
-                            model = content.verticalPoster.ifEmpty { content.horizontalPoster },
-                            contentDescription = content.title,
-                            modifier = Modifier.fillMaxSize(),
-                            contentScale = ContentScale.Crop
+                
+                // Trailer Player Section
+                if (content.trailerUrl.isNotEmpty() && 
+                    (content.trailerUrl.startsWith("http://") || content.trailerUrl.startsWith("https://"))) {
+                    item {
+                        TrailerPlayer(
+                            trailerUrl = content.trailerUrl,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(320.dp),
+                            autoPlay = true,
+                            showControls = true
                         )
-                        
-                        // Gradient overlay
+                    }
+                } else {
+                    // Fallback to poster image if no trailer
+                    item {
                         Box(
                             modifier = Modifier
-                                .fillMaxSize()
-                                .background(
-                                    Brush.verticalGradient(
-                                        colors = listOf(
-                                            Color.Transparent,
-                                            Color.Black.copy(alpha = 0.7f)
-                                        ),
-                                        startY = 200f
+                                .fillMaxWidth()
+                                .height(320.dp)
+                        ) {
+                            AsyncImage(
+                                model = content.horizontalPoster.ifEmpty { content.verticalPoster },
+                                contentDescription = content.title,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                            
+                            // Gradient overlay
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        Brush.verticalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                Color.Black.copy(alpha = 0.8f)
+                                            ),
+                                            startY = 100f
+                                        )
                                     )
-                                )
+                            )
+                        }
+                    }
+                }
+                
+                // Content Info Section
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                    ) {
+                        // Title
+                        Text(
+                            text = content.title,
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontSize = 32.sp,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = Color.White,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
                         )
                         
-                        // Content overlay
+                        Spacer(modifier = Modifier.height(12.dp))
+                        
+                        // Metadata Row
                         Row(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(48.dp),
-                            horizontalArrangement = Arrangement.spacedBy(32.dp),
-                            verticalAlignment = Alignment.Bottom
+                            horizontalArrangement = Arrangement.spacedBy(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            // Vertical poster
+                            // Release Year
+                            Text(
+                                text = content.releaseYear.toString(),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = Color.White.copy(alpha = 0.9f)
+                            )
+                            
+                            // Duration
                             Card(
-                                modifier = Modifier
-                                    .width(180.dp)
-                                    .height(270.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                elevation = CardDefaults.cardElevation(16.dp)
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color.White.copy(alpha = 0.15f)
+                                ),
+                                shape = RoundedCornerShape(6.dp)
                             ) {
-                                AsyncImage(
-                                    model = content.verticalPoster.ifEmpty { content.horizontalPoster },
-                                    contentDescription = content.title,
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentScale = ContentScale.Crop
+                                Text(
+                                    text = TimeUtils.formatRuntimeFromString(content.duration),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = Color.White
                                 )
                             }
                             
-                            // Content info
-                            Column(
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(
-                                    text = content.title,
-                                    style = MaterialTheme.typography.headlineLarge.copy(
-                                        fontSize = 36.sp,
-                                        fontWeight = FontWeight.Bold
+                            // Rating
+                            if (content.ratings > 0) {
+                                Card(
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0xFFFFD700)
                                     ),
-                                    color = Color.White,
-                                    maxLines = 2,
-                                    overflow = TextOverflow.Ellipsis
-                                )
-                                
-                                Spacer(modifier = Modifier.height(16.dp))
-                                
-                                // Metadata row
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                                    verticalAlignment = Alignment.CenterVertically
+                                    shape = RoundedCornerShape(12.dp)
                                 ) {
-                                    // Rating badge
-                                    if (content.ratings > 0) {
-                                        Card(
-                                            colors = CardDefaults.cardColors(
-                                                containerColor = Color(0xFFFFD700)
-                                            ),
-                                            shape = RoundedCornerShape(16.dp)
-                                        ) {
-                                            Text(
-                                                text = "★ ${String.format("%.1f", content.ratings)}",
-                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                                style = MaterialTheme.typography.bodyMedium.copy(
-                                                    fontWeight = FontWeight.Bold
-                                                ),
-                                                color = Color.Black
-                                            )
-                                        }
-                                    }
-                                    
                                     Text(
-                                        text = content.releaseYear.toString(),
-                                        style = MaterialTheme.typography.titleMedium,
+                                        text = "★ ${String.format("%.1f", content.ratings)}",
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        color = Color.Black
+                                    )
+                                }
+                            }
+                            
+                            // TV Series Badge
+                            if (content.isShow == 1) {
+                                Card(
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = Color(0xFF2196F3)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = "SERIES",
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                        style = MaterialTheme.typography.bodySmall.copy(
+                                            fontWeight = FontWeight.Bold
+                                        ),
                                         color = Color.White
                                     )
-                                    
-                                    // Duration with proper formatting
+                                }
+                            }
+                        }
+                        
+                        Spacer(modifier = Modifier.height(20.dp))
+                        
+                        // Action Buttons
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            // Play Button
+                            Button(
+                                onClick = { onPlayVideo(content) },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(24.dp),
+                                elevation = ButtonDefaults.buttonElevation(6.dp)
+                            ) {
+                                Text(
+                                    text = if (content.isShow == 1 && content.seasons.isNotEmpty()) 
+                                        "▶ Select Episode" else "▶ Play",
+                                    style = MaterialTheme.typography.titleMedium.copy(
+                                        fontWeight = FontWeight.Bold
+                                    ),
+                                    color = Color.Black,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                )
+                            }
+                            
+                            // My List Button
+                            Button(
+                                onClick = { viewModel.toggleWatchlist() },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = if (content.isWatchlist) 
+                                        Color(0xFF4CAF50) else Color.White.copy(alpha = 0.3f)
+                                ),
+                                shape = RoundedCornerShape(24.dp),
+                                enabled = !uiState.isUpdatingWatchlist
+                            ) {
+                                if (uiState.isUpdatingWatchlist) {
+                                    CircularProgressIndicator(
+                                        modifier = Modifier.size(16.dp),
+                                        strokeWidth = 2.dp,
+                                        color = Color.White
+                                    )
+                                } else {
+                                    Text(
+                                        text = if (content.isWatchlist) "✓ My List" else "+ My List",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        color = Color.White,
+                                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                            
+                            // More Info Button
+                            Button(
+                                onClick = { showMoreInfo = true },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color.White.copy(alpha = 0.3f)
+                                ),
+                                shape = RoundedCornerShape(24.dp)
+                            ) {
+                                Text(
+                                    text = "ⓘ More Info",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = Color.White,
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                // Categories Section
+                if (content.genreIds.isNotEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "Categories",
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Bold
+                                ),
+                                color = Color.White,
+                                modifier = Modifier.padding(bottom = 12.dp)
+                            )
+                            
+                            LazyRow(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                val categories = CategoryUtils.getCategoryNames(content.genreIds)
+                                items(categories) { category ->
                                     Card(
                                         colors = CardDefaults.cardColors(
-                                            containerColor = Color.White.copy(alpha = 0.2f)
+                                            containerColor = Color.White.copy(alpha = 0.15f)
                                         ),
-                                        shape = RoundedCornerShape(8.dp)
+                                        shape = RoundedCornerShape(20.dp)
                                     ) {
                                         Text(
-                                            text = TimeUtils.formatRuntimeFromString(content.duration),
-                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                                            style = MaterialTheme.typography.bodyMedium.copy(
-                                                fontWeight = FontWeight.Bold
-                                            ),
+                                            text = category,
+                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                                            style = MaterialTheme.typography.bodyMedium,
                                             color = Color.White
-                                        )
-                                    }
-                                }
-                                
-                                Spacer(modifier = Modifier.height(16.dp))
-                                
-                                // Action buttons
-                                Row(
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    Button(
-                                        onClick = { onPlayVideo(content) },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color.White
-                                        ),
-                                        shape = RoundedCornerShape(32.dp),
-                                        elevation = ButtonDefaults.buttonElevation(8.dp)
-                                    ) {
-                                        Text(
-                                            text = if (content.isShow == 1 && content.seasons.isNotEmpty()) "▶ Select Episode" else "▶ Play",
-                                            style = MaterialTheme.typography.titleMedium.copy(
-                                                fontWeight = FontWeight.Bold
-                                            ),
-                                            color = Color.Black,
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
-                                        )
-                                    }
-                                    
-                                    // Watchlist Button
-                                    Button(
-                                        onClick = { viewModel.toggleWatchlist() },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = if (content.isWatchlist) 
-                                                Color(0xFF4CAF50) else Color.White.copy(alpha = 0.4f)
-                                        ),
-                                        shape = RoundedCornerShape(32.dp),
-                                        enabled = !uiState.isUpdatingWatchlist
-                                    ) {
-                                        if (uiState.isUpdatingWatchlist) {
-                                            CircularProgressIndicator(
-                                                modifier = Modifier.size(16.dp),
-                                                strokeWidth = 2.dp,
-                                                color = Color.White
-                                            )
-                                        } else {
-                                            Text(
-                                                text = if (content.isWatchlist) "✓ In List" else "+ My List",
-                                                style = MaterialTheme.typography.titleMedium,
-                                                color = Color.White,
-                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
-                                            )
-                                        }
-                                    }
-                                    
-                                    Button(
-                                        onClick = { /* More info action */ },
-                                        colors = ButtonDefaults.buttonColors(
-                                            containerColor = Color.White.copy(alpha = 0.4f)
-                                        ),
-                                        shape = RoundedCornerShape(32.dp)
-                                    ) {
-                                        Text(
-                                            text = "ⓘ More Info",
-                                            style = MaterialTheme.typography.titleMedium,
-                                            color = Color.White,
-                                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                         )
                                     }
                                 }
@@ -309,15 +367,15 @@ fun ContentDetailScreen(
                 // Description Section
                 item {
                     Column(
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
                         Text(
                             text = "Overview",
-                            style = MaterialTheme.typography.headlineMedium.copy(
+                            style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Bold
                             ),
                             color = Color.White,
-                            modifier = Modifier.padding(bottom = 16.dp)
+                            modifier = Modifier.padding(bottom = 8.dp)
                         )
                         
                         Text(
@@ -330,51 +388,27 @@ fun ContentDetailScreen(
                     }
                 }
                 
-                // Genres
-                if (content.genreList.isNotEmpty()) {
+                // Cast Preview
+                if (content.contentCast.isNotEmpty()) {
                     item {
                         Column(
-                            modifier = Modifier.padding(horizontal = 16.dp)
+                            modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
                         ) {
                             Text(
-                                text = "Genres",
+                                text = "Cast",
                                 style = MaterialTheme.typography.titleLarge.copy(
                                     fontWeight = FontWeight.Bold
                                 ),
                                 color = Color.White,
-                                modifier = Modifier.padding(bottom = 12.dp)
+                                modifier = Modifier.padding(bottom = 8.dp)
                             )
                             
-                            LazyRow(
-                                horizontalArrangement = Arrangement.spacedBy(8.dp)
-                            ) {
-                                items(content.genreList) { genre ->
-                                    Card(
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = Color.White.copy(alpha = 0.15f)
-                                        ),
-                                        shape = RoundedCornerShape(20.dp)
-                                    ) {
-                                        Text(
-                                            text = genre,
-                                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            color = Color.White
-                                        )
-                                    }
-                                }
-                            }
+                            Text(
+                                text = content.contentCast.take(5).joinToString(", ") { it.actor.name },
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
                         }
-                    }
-                }
-                
-                // Cast
-                if (content.contentCast.isNotEmpty()) {
-                    item {
-                        Text(
-                            text = "Cast: ${content.contentCast.joinToString(", ") { it.actor.name }}",
-                            style = MaterialTheme.typography.bodyMedium
-                        )
                     }
                 }
                 
@@ -388,6 +422,14 @@ fun ContentDetailScreen(
                     }
                 }
             }
+            
+            // More Info Dialog
+            if (showMoreInfo) {
+                MoreInfoDialog(
+                    content = content,
+                    onDismiss = { showMoreInfo = false }
+                )
+            }
         }
     }
 }
@@ -400,17 +442,10 @@ fun RelatedContentCard(
     val focusRequester = remember { FocusRequester() }
     var isFocused by remember { mutableStateOf(false) }
     
-    // Animation for scaling and glow effect
     val scale by animateFloatAsState(
         targetValue = if (isFocused) 1.1f else 1.0f,
         animationSpec = tween(durationMillis = 200),
         label = "scale"
-    )
-    
-    val glowAlpha by animateFloatAsState(
-        targetValue = if (isFocused) 1.0f else 0.0f,
-        animationSpec = tween(durationMillis = 200),
-        label = "glow"
     )
     
     Card(
@@ -423,17 +458,7 @@ fun RelatedContentCard(
             .onFocusChanged { isFocused = it.isFocused }
             .border(
                 width = if (isFocused) 3.dp else 0.dp,
-                brush = if (isFocused) {
-                    Brush.radialGradient(
-                        colors = listOf(
-                            Color(0xFF00BFFF), // Bright blue
-                            Color(0xFF0066CC), // Medium blue
-                            Color.Transparent
-                        )
-                    )
-                } else {
-                    Brush.linearGradient(listOf(Color.Transparent, Color.Transparent))
-                },
+                color = if (isFocused) Color(0xFF00BFFF) else Color.Transparent,
                 shape = RoundedCornerShape(12.dp)
             ),
         colors = CardDefaults.cardColors(
@@ -446,50 +471,15 @@ fun RelatedContentCard(
     ) {
         Column {
             // Content Poster
-            Box {
-                AsyncImage(
-                    model = content.verticalPoster.ifEmpty { content.horizontalPoster },
-                    contentDescription = content.title,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(240.dp)
-                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
-                    contentScale = ContentScale.Crop
-                )
-                
-                // Focus overlay with glow effect
-                if (isFocused) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                            .border(
-                                width = 2.dp,
-                                brush = Brush.radialGradient(
-                                    colors = listOf(
-                                        Color(0xFF00BFFF).copy(alpha = glowAlpha),
-                                        Color.Transparent
-                                    )
-                                ),
-                                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
-                            )
-                    )
-                }
-                
-                // Focus indicator - bright border overlay
-                if (isFocused) {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp))
-                            .border(
-                                width = 4.dp,
-                                color = Color(0xFF00BFFF),
-                                shape = RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)
-                            )
-                    )
-                }
-            }
+            AsyncImage(
+                model = content.verticalPoster.ifEmpty { content.horizontalPoster },
+                contentDescription = content.title,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp)
+                    .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                contentScale = ContentScale.Crop
+            )
             
             // Content Info
             Column(
@@ -511,9 +501,8 @@ fun RelatedContentCard(
                 )
                 
                 if (content.ratings > 0) {
-                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "${String.format("%.1f", content.ratings)}★",
+                        text = "★ ${String.format("%.1f", content.ratings)}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -528,14 +517,16 @@ fun RelatedContentSection(
     relatedContent: List<Content>,
     onContentClick: (Content) -> Unit
 ) {
-    Column {
+    Column(
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
         Text(
-            text = "Related",
+            text = "More Like This",
             style = MaterialTheme.typography.headlineMedium.copy(
                 fontSize = 24.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Bold
             ),
-            color = androidx.compose.ui.graphics.Color.White,
+            color = Color.White,
             modifier = Modifier.padding(bottom = 16.dp)
         )
         
@@ -550,4 +541,4 @@ fun RelatedContentSection(
             }
         }
     }
-} 
+}

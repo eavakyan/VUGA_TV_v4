@@ -51,7 +51,7 @@ class EpisodeAdapter(
             "S${seasonNumber}E${episode.number}"
         }
         holder.titleText.text = episodeTitle
-        holder.durationText.text = episode.duration.ifEmpty { "45 min" }
+        holder.durationText.text = if (episode.duration.isNullOrEmpty()) "45 min" else episode.duration
         
         // Set description - use episode description if available, otherwise use a placeholder
         val description = if (episode.description.isNotEmpty()) {

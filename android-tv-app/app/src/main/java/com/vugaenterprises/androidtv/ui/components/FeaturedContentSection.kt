@@ -106,7 +106,7 @@ fun FeaturedContentSection(
                 )
                 
                 // Duration
-                if (featuredContent.duration.isNotEmpty()) {
+                if (!featuredContent.duration.isNullOrEmpty()) {
                     Text(
                         text = featuredContent.duration,
                         color = Color.White.copy(alpha = 0.8f),

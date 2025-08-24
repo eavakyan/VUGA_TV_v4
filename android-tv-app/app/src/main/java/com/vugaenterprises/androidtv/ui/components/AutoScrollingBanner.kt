@@ -268,7 +268,7 @@ fun BannerItem(
                     }
                     
                     // Duration
-                    if (content.duration.isNotEmpty()) {
+                    if (!content.duration.isNullOrEmpty()) {
                         Text(
                             text = content.duration,
                             style = MaterialTheme.typography.bodyMedium,

@@ -27,8 +27,8 @@ object TimeUtils {
      * API returns duration in seconds, this function converts to proper hour/minute display
      * Handles various input formats like "7200", "3600", etc.
      */
-    fun formatRuntimeFromString(duration: String): String {
-        if (duration.isBlank()) return ""
+    fun formatRuntimeFromString(duration: String?): String {
+        if (duration == null || duration.isBlank()) return ""
         
         // Extract numbers from the string
         val numbers = duration.filter { it.isDigit() }

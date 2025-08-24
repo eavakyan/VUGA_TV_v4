@@ -20,7 +20,7 @@ data class Content(
     val type: Int = 0,
 
     @SerializedName("duration")
-    val duration: String = "",
+    val duration: String? = null,
 
     @SerializedName("release_year")
     val releaseYear: Int = 0,
@@ -229,7 +229,7 @@ data class EpisodeItem(
     val description: String = "",
 
     @SerializedName("duration")
-    val duration: String = "",
+    val duration: String? = null,
 
     @SerializedName("access_type")
     val accessType: Int = 0,
