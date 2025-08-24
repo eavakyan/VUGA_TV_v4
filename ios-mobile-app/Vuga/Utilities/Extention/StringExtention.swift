@@ -99,4 +99,29 @@ extension String {
             return nil
         }
     }
+    
+    /// Formats duration string from minutes to human-readable format with units
+    func formatDurationWithUnits() -> String {
+        // Try to convert string to integer minutes
+        guard let totalMinutes = Int(self) else {
+            return self // Return as-is if not a valid number
+        }
+        
+        if totalMinutes < 60 {
+            // Less than an hour - show only minutes
+            return "\(totalMinutes) Min"
+        } else {
+            // An hour or more - show hours and minutes
+            let hours = totalMinutes / 60
+            let minutes = totalMinutes % 60
+            
+            if minutes == 0 {
+                // Exactly X hours
+                return "\(hours) H"
+            } else {
+                // X hours and Y minutes
+                return "\(hours) H \(minutes) Min"
+            }
+        }
+    }
 }

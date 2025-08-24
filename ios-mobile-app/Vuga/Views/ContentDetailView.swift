@@ -818,11 +818,8 @@ struct ContentDetailView: View {
                 }
                 
                 // Duration
-                if let durationStr = content.duration?.stringValue, let duration = Int(durationStr) {
-                    let hours = duration / 3600
-                    let minutes = (duration % 3600) / 60
-                    let durationText = hours > 0 ? "\(hours)h \(minutes)m" : "\(minutes)m"
-                    Text(durationText)
+                if let durationStr = content.duration?.stringValue {
+                    Text(durationStr.formatDurationWithUnits())
                         .font(.system(size: 14))
                         .foregroundColor(.white.opacity(0.7))
                 }
@@ -915,7 +912,7 @@ struct ContentDetailView: View {
                 HStack {
                     Image.clock
                         .resizeFitTo(size: 16)
-                    Text(content.duration?.stringValue ?? "")
+                    Text((content.duration?.stringValue ?? "").formatDurationWithUnits())
                 }
             }
         }
@@ -2023,7 +2020,7 @@ struct EpisodeCard : View {
                         .foregroundColor(.text)
                     
                     HStack(spacing: 10) {
-                        Text(episode.duration ?? "")
+                        Text((episode.duration ?? "").formatDurationWithUnits())
                             .outfitRegular(16)
                             .foregroundColor(.textLight)
                         

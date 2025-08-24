@@ -39,6 +39,7 @@ struct EpisodeDetailView: View {
     @State private var isSubmittingRating = false
     @State private var isCheckingWatchlist = false
     @State private var showCastMenu = false
+    @State private var castRequestDelegate: EpisodeCastRequestDelegate?
     
     // Helper function to check if content has trailers available
     private func hasTrailersAvailable() -> Bool {
@@ -116,20 +117,6 @@ struct EpisodeDetailView: View {
         .onAppear {
             checkBookmarkStatus()
             checkEpisodeWatchlistStatus()
-        }
-        .sheet(isPresented: $showCastMenu) {
-            // Cast device selection will be implemented
-            VStack {
-                Text("Cast to Device")
-                    .font(.title2)
-                    .foregroundColor(.white)
-                    .padding()
-                Text("Cast functionality coming soon")
-                    .foregroundColor(.white.opacity(0.7))
-                Spacer()
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.black)
         }
     }
     
@@ -291,7 +278,7 @@ struct EpisodeDetailView: View {
                 
                 // Duration if available
                 if let duration = episode.duration {
-                    Text(duration)
+                    Text(duration.formatDurationWithUnits())
                         .font(.system(size: 14))
                         .foregroundColor(.white.opacity(0.7))
                 }
@@ -406,13 +393,8 @@ struct EpisodeDetailView: View {
             
             // Cast button
             VStack(spacing: 5) {
-                Button(action: {
-                    showCastMenu = true
-                }) {
-                    Image(systemName: "tv")
-                        .font(.system(size: 22))
-                        .foregroundColor(.white)
-                }
+                EpisodeGoogleCastButton(episode: episode, seriesContent: seriesContent)
+                    .frame(width: 24, height: 24)
                 Text("Cast")
                     .font(.system(size: 11))
                     .foregroundColor(.white)
@@ -783,6 +765,223 @@ struct EpisodeDetailView: View {
             return Color.purple
         default:
             return Color.gray
+        }
+    }
+}
+
+// MARK: - Episode Cast Request Delegate
+class EpisodeCastRequestDelegate: NSObject, GCKRequestDelegate {
+    func requestDidComplete(_ request: GCKRequest) {
+        print("✅ SUCCESS: Episode is now playing on Cast device!")
+        
+        // Check media status
+        if let session = GCKCastContext.sharedInstance().sessionManager.currentCastSession,
+           let remoteMediaClient = session.remoteMediaClient {
+            if let mediaStatus = remoteMediaClient.mediaStatus {
+                print("📺 Player State: \(mediaStatus.playerState.rawValue)")
+                print("📊 Media Duration: \(mediaStatus.mediaInformation?.streamDuration ?? 0) seconds")
+            }
+        }
+    }
+    
+    func request(_ request: GCKRequest, didFailWithError error: GCKError) {
+        print("❌ ERROR: Failed to cast episode")
+        print("Error Code: \(error.code)")
+        print("Error Domain: \(error.domain)")
+        print("Error Description: \(error.localizedDescription)")
+        
+        // Provide specific error guidance
+        switch error.code {
+        case 4:
+            print("💡 INVALID_REQUEST - Check media URL and metadata")
+        case 2001:
+            print("💡 MEDIA_LOAD_FAILED - The media could not be loaded")
+        case 2100:
+            print("💡 MEDIA_LOAD_CANCELLED - The media load was cancelled")
+        case 2103:
+            print("💡 MEDIA_LOAD_INTERRUPTED - The media load was interrupted")
+        default:
+            print("💡 Error details: Check if the Cast receiver app supports the media format")
+        }
+    }
+}
+
+// MARK: - EpisodeGoogleCastButton
+struct EpisodeGoogleCastButton: UIViewRepresentable {
+    let episode: Episode
+    let seriesContent: VugaContent?
+    
+    func makeUIView(context: Context) -> GCKUICastButton {
+        let castButton = GCKUICastButton(frame: CGRect(x: 0, y: 0, width: 24, height: 24))
+        castButton.tintColor = UIColor.white
+        
+        // Log when button is created
+        print("🎯 EpisodeGoogleCastButton: Created Cast button for episode")
+        
+        // Add target to log taps
+        castButton.addTarget(context.coordinator, action: #selector(Coordinator.castButtonTapped), for: .touchUpInside)
+        
+        return castButton
+    }
+    
+    func updateUIView(_ uiView: GCKUICastButton, context: Context) {
+        // Update if needed
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(episode: episode, seriesContent: seriesContent)
+    }
+    
+    class Coordinator: NSObject {
+        var castRequestDelegate: EpisodeCastRequestDelegate?
+        let episode: Episode
+        let seriesContent: VugaContent?
+        
+        init(episode: Episode, seriesContent: VugaContent?) {
+            self.episode = episode
+            self.seriesContent = seriesContent
+            super.init()
+        }
+        
+        @objc func castButtonTapped() {
+            print("🎯 EpisodeGoogleCastButton: Cast button tapped!")
+            let context = GCKCastContext.sharedInstance()
+            print("📱 Cast state: \(context.castState.rawValue)")
+            print("📱 Device count: \(context.discoveryManager.deviceCount)")
+            print("📱 Discovery active: \(context.discoveryManager.discoveryActive)")
+            
+            // If already connected, start casting immediately
+            if context.castState == .connected {
+                print("📺 Already connected to Cast device - starting episode playback immediately!")
+                startCastingEpisode()
+            } else {
+                // Force start discovery
+                if !context.discoveryManager.discoveryActive {
+                    print("🔍 Starting device discovery...")
+                    context.discoveryManager.startDiscovery()
+                }
+                
+                // Set up observer to start casting when connection is established
+                NotificationCenter.default.addObserver(
+                    self,
+                    selector: #selector(castStateChanged),
+                    name: NSNotification.Name.gckCastStateDidChange,
+                    object: nil
+                )
+            }
+        }
+        
+        @objc func castStateChanged() {
+            let context = GCKCastContext.sharedInstance()
+            print("🔄 Cast state changed to: \(context.castState.rawValue)")
+            
+            if context.castState == .connected {
+                print("✅ Cast connected - starting episode playback!")
+                // Small delay to ensure session is fully established
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.startCastingEpisode()
+                }
+                // Remove observer after use
+                NotificationCenter.default.removeObserver(self, name: NSNotification.Name.gckCastStateDidChange, object: nil)
+            }
+        }
+        
+        private func startCastingEpisode() {
+            print("🎬 Starting episode cast playback...")
+            
+            // Get video URL from episode sources
+            var videoUrl: String?
+            var contentType: String = "video/mp4"
+            
+            if let sources = episode.sources, !sources.isEmpty {
+                // Prefer non-YouTube sources for casting
+                let nonYouTubeSources = sources.filter { $0.type?.rawValue != 1 }
+                if let source = nonYouTubeSources.first ?? sources.first {
+                    videoUrl = source.source
+                    
+                    // Determine content type based on URL
+                    if let url = videoUrl {
+                        if url.contains(".m3u8") {
+                            contentType = "application/x-mpegURL"
+                        } else if url.contains(".mpd") {
+                            contentType = "application/dash+xml"
+                        }
+                    }
+                    
+                    print("📹 Using episode source: \(source.source ?? "nil")")
+                }
+            }
+            
+            // Fallback URL if no source available
+            let finalVideoUrl = videoUrl ?? "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4"
+            
+            let castContext = GCKCastContext.sharedInstance()
+            guard let session = castContext.sessionManager.currentCastSession,
+                  let remoteMediaClient = session.remoteMediaClient else {
+                print("❌ No active Cast session or media client")
+                return
+            }
+            
+            // Validate URL
+            guard let url = URL(string: finalVideoUrl) else {
+                print("❌ Invalid video URL: \(finalVideoUrl)")
+                return
+            }
+            
+            // Log session details
+            print("📱 Cast device: \(session.device.friendlyName ?? "Unknown")")
+            print("📺 Episode: \(episode.title ?? "Unknown")")
+            print("📺 Series: \(seriesContent?.title ?? "Unknown")")
+            print("🎬 URL: \(finalVideoUrl)")
+            print("📄 Content type: \(contentType)")
+            
+            // Create metadata
+            let metadata = GCKMediaMetadata(metadataType: .tvShow)
+            metadata.setString(episode.title ?? "Episode", forKey: kGCKMetadataKeyTitle)
+            if let seriesTitle = seriesContent?.title {
+                metadata.setString(seriesTitle, forKey: kGCKMetadataKeySeriesTitle)
+            }
+            // Episode number is stored in the 'number' field
+            if let episodeNumber = episode.number {
+                metadata.setString(String(episodeNumber), forKey: kGCKMetadataKeyEpisodeNumber)
+            }
+            // Season info would need to be passed from parent content
+            // For now, we'll skip setting season number
+            
+            // Add poster images
+            if let thumbnailUrl = episode.thumbnail {
+                let posterUrl = thumbnailUrl.starts(with: "http") ? thumbnailUrl :
+                    "https://iosdev.gossip-stone.com/\(thumbnailUrl)"
+                metadata.addImage(GCKImage(url: URL(string: posterUrl)!, width: 480, height: 360))
+            }
+            
+            // Build the media information
+            let mediaInfoBuilder = GCKMediaInformationBuilder(contentURL: url)
+            mediaInfoBuilder.streamType = .buffered
+            mediaInfoBuilder.contentType = contentType
+            mediaInfoBuilder.metadata = metadata
+            
+            let mediaInformation = mediaInfoBuilder.build()
+            
+            // Build and send the load request
+            let loadRequestBuilder = GCKMediaLoadRequestDataBuilder()
+            loadRequestBuilder.mediaInformation = mediaInformation
+            loadRequestBuilder.autoplay = true
+            loadRequestBuilder.startTime = 0
+            
+            let request = loadRequestBuilder.build()
+            
+            print("📤 Sending episode cast request...")
+            
+            let loadRequest = remoteMediaClient.loadMedia(with: request)
+            self.castRequestDelegate = EpisodeCastRequestDelegate()
+            loadRequest.delegate = self.castRequestDelegate
+            
+            print("📤 Episode cast request sent - episode should start playing on TV")
+        }
+        
+        deinit {
+            NotificationCenter.default.removeObserver(self)
         }
     }
 }
