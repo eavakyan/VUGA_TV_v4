@@ -45,6 +45,7 @@ public class WatchListFragment extends BaseFragment {
     private static final int ALL = 0;
     private static final int MOVIES = 1;
     private static final int SERIES = 2;
+    private static final int CAST = 3;
     int contentType = ALL;
     FragmentWatchListBinding binding;
 
@@ -123,6 +124,12 @@ public class WatchListFragment extends BaseFragment {
             changeData();
 
 
+        });
+
+        binding.tvCast.setOnClickListener(v -> {
+            contentType = CAST;
+            binding.setType(contentType);
+            changeData();
         });
 
 
@@ -306,7 +313,8 @@ public class WatchListFragment extends BaseFragment {
             
             if (useUnifiedApi) {
                 // Use unified watchlist API
-                Integer typeParam = contentType == ALL ? null : contentType;
+                // Pass null for ALL (0), or the actual type value for filtering
+                Integer typeParam = (contentType == ALL) ? null : contentType;
                 int startOffset = unifiedAdapter != null ? unifiedAdapter.getItemCount() : 0;
                 
                 disposable.add(RetrofitClient.getService().getUnifiedWatchlist(

@@ -61,12 +61,13 @@ class WatchlistViewModel : BaseViewModel {
         ]
         
         if contentType != .all {
-            // Map ContentType to API types: 1=movies, 2=series, 3=episodes (for "All", don't send type)
+            // Map ContentType to API types
             if contentType == .movie {
+                // For movies, only fetch type 1 (movies)
                 params[.type] = 1
-            } else if contentType == .series {
-                params[.type] = 2
             }
+            // For TV Shows (.series), don't send type filter
+            // We'll fetch all and filter client-side to include both series and episodes
         }
         
         if let profileId = myUser?.lastActiveProfileId {
@@ -89,7 +90,26 @@ class WatchlistViewModel : BaseViewModel {
             
             if let newItems = obj.data {
                 print("WatchlistViewModel: Received \(newItems.count) unified items for profile \(self.currentProfileId ?? 0)")
-                self.unifiedItems.append(contentsOf: newItems)
+                
+                // Filter items based on content type
+                let filteredItems: [UnifiedWatchlistItem]
+                if self.contentType == .series {
+                    // For TV Shows, include both series (type 2) and episodes
+                    filteredItems = newItems.filter { item in
+                        item.type == 2 || item.itemType == "episode"
+                    }
+                } else if self.contentType == .movie {
+                    // For Movies, only include movies (type 1)
+                    filteredItems = newItems.filter { item in
+                        item.type == 1 && item.itemType != "episode"
+                    }
+                } else {
+                    // For All, include everything
+                    filteredItems = newItems
+                }
+                
+                print("WatchlistViewModel: Filtered to \(filteredItems.count) items for type \(self.contentType)")
+                self.unifiedItems.append(contentsOf: filteredItems)
                 self.isDataFetched = true
                 
                 // Check if we have more data
