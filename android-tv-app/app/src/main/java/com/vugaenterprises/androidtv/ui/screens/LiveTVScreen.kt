@@ -4,9 +4,6 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.grid.*
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.*
 import androidx.compose.ui.platform.LocalFocusManager
@@ -26,13 +22,16 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.vugaenterprises.androidtv.data.model.LiveChannel
 import com.vugaenterprises.androidtv.data.model.ChannelCategory
+import com.vugaenterprises.androidtv.data.model.LiveTvCategory
 import com.vugaenterprises.androidtv.data.repository.ChannelSortBy
-import com.vugaenterprises.androidtv.ui.components.ChannelCard
 import com.vugaenterprises.androidtv.ui.components.ChannelCardSize
+import com.vugaenterprises.androidtv.ui.components.ChannelGrid
+import com.vugaenterprises.androidtv.ui.components.CategorySidebar
+import com.vugaenterprises.androidtv.ui.components.HeaderTimeIndicator
 import com.vugaenterprises.androidtv.ui.viewmodels.LiveTVViewModel
 
 /**
- * Main Live TV browsing screen with channel grid and filtering options
+ * TUBI-style Live TV browsing screen with left sidebar and main channel grid
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,10 +43,10 @@ fun LiveTVScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val focusManager = LocalFocusManager.current
-    val filterRowFocusRequester = remember { FocusRequester() }
+    val sidebarFocusRequester = remember { FocusRequester() }
     val channelGridFocusRequester = remember { FocusRequester() }
     
-    // Handle D-pad navigation
+    // Handle D-pad navigation for TUBI-style layout
     val keyEventHandler = { keyEvent: KeyEvent ->
         when {
             keyEvent.type == KeyEventType.KeyDown -> {
@@ -79,139 +78,129 @@ fun LiveTVScreen(
         }
     }
 
-    Box(
+    // TUBI-style layout with sidebar and main content
+    Row(
         modifier = modifier
             .fillMaxSize()
             .background(Color.Black)
             .onKeyEvent(keyEventHandler)
     ) {
-        Column(
-            modifier = Modifier.fillMaxSize()
+        // Left sidebar for categories
+        CategorySidebar(
+            categories = convertToLiveTvCategories(uiState.categories),
+            selectedCategory = uiState.selectedCategory,
+            onCategorySelected = viewModel::filterByCategory,
+            onNavigateToGrid = { 
+                // Move focus to channel grid
+                try {
+                    channelGridFocusRequester.requestFocus()
+                } catch (e: Exception) {
+                    android.util.Log.w("LiveTVScreen", "Failed to focus grid", e)
+                }
+            },
+            focusRequester = sidebarFocusRequester
+        )
+        
+        // Main content area
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight()
         ) {
-            // Header section
-            LiveTVHeader(
-                selectedCategory = uiState.selectedCategory,
-                sortBy = uiState.sortBy,
-                hasActiveFilters = viewModel.hasActiveFilters(),
-                onRefresh = viewModel::refreshChannels,
-                onClearFilters = viewModel::clearAllFilters,
-                modifier = Modifier.padding(horizontal = 48.dp, vertical = 16.dp)
-            )
-            
-            // Filter section
-            if (uiState.categories.isNotEmpty()) {
-                CategoryFilterRow(
-                    categories = uiState.categories,
+            Column(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                // Header with time indicator
+                TubiStyleHeader(
                     selectedCategory = uiState.selectedCategory,
-                    onCategorySelected = viewModel::filterByCategory,
-                    modifier = Modifier
-                        .focusRequester(filterRowFocusRequester)
-                        .padding(horizontal = 48.dp, vertical = 8.dp)
+                    channelCount = uiState.filteredChannels.size,
+                    onRefresh = viewModel::refreshChannels,
+                    modifier = Modifier.padding(horizontal = 32.dp, vertical = 16.dp)
                 )
+                
+                // Main content based on state
+                when {
+                    uiState.isLoading -> {
+                        LoadingScreen(
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    uiState.errorMessage != null -> {
+                        ErrorScreen(
+                            message = uiState.errorMessage ?: "Unknown error",
+                            onRetry = viewModel::loadLiveChannels,
+                            onDismiss = viewModel::clearError,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    uiState.filteredChannels.isEmpty() -> {
+                        EmptyChannelsScreen(
+                            hasActiveFilters = viewModel.hasActiveFilters(),
+                            onClearFilters = viewModel::clearAllFilters,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    else -> {
+                        // TUBI-style channel grid
+                        ChannelGrid(
+                            channels = uiState.filteredChannels,
+                            onChannelClick = onChannelClick,
+                            columns = 3, // Reduced columns for better TUBI-style layout
+                            cardSize = ChannelCardSize.LARGE,
+                            showChannelNumbers = true,
+                            showProgramInfo = true,
+                            useTubiStyle = true,
+                            selectedChannelId = viewModel.getSelectedChannelId(),
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .focusRequester(channelGridFocusRequester)
+                                .padding(horizontal = 32.dp)
+                        )
+                    }
+                }
             }
             
-            // Sort options
-            SortOptionsRow(
-                currentSortBy = uiState.sortBy,
-                onSortByChanged = viewModel::sortChannels,
-                modifier = Modifier.padding(horizontal = 48.dp, vertical = 8.dp)
-            )
-            
-            // Main content
-            when {
-                uiState.isLoading -> {
-                    LoadingScreen(
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                uiState.errorMessage != null -> {
-                    ErrorScreen(
-                        message = uiState.errorMessage ?: "Unknown error",
-                        onRetry = viewModel::loadLiveChannels,
-                        onDismiss = viewModel::clearError,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                uiState.filteredChannels.isEmpty() -> {
-                    EmptyChannelsScreen(
-                        hasActiveFilters = viewModel.hasActiveFilters(),
-                        onClearFilters = viewModel::clearAllFilters,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-                else -> {
-                    // Channel grid
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(4),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .focusRequester(channelGridFocusRequester)
-                            .padding(horizontal = 48.dp),
-                        contentPadding = PaddingValues(vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
-                        horizontalArrangement = Arrangement.spacedBy(24.dp)
+            // Refresh indicator
+            if (uiState.isRefreshing) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopCenter)
+                        .padding(top = 80.dp)
+                ) {
+                    Surface(
+                        shape = RoundedCornerShape(24.dp),
+                        color = Color.Black.copy(alpha = 0.9f)
                     ) {
-                        items(uiState.filteredChannels.size) { index ->
-                            ChannelCard(
-                                channel = uiState.filteredChannels[index],
-                                onChannelClick = onChannelClick,
-                                cardSize = ChannelCardSize.MEDIUM,
-                                showChannelNumber = true,
-                                showProgramInfo = true,
-                                modifier = Modifier.onFocusChanged { focusState ->
-                                    if (focusState.isFocused) {
-                                        // Optional: Auto-scroll logic can be added here
-                                    }
-                                }
+                        Row(
+                            modifier = Modifier.padding(20.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(24.dp),
+                                color = Color(0xFFE50914),
+                                strokeWidth = 3.dp
+                            )
+                            Text(
+                                text = "Refreshing channels...",
+                                color = Color.White,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     }
                 }
             }
         }
-        
-        // Refresh indicator
-        if (uiState.isRefreshing) {
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 100.dp)
-            ) {
-                Surface(
-                    shape = RoundedCornerShape(24.dp),
-                    color = Color.Black.copy(alpha = 0.8f)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(20.dp),
-                            color = Color(0xFFE50914),
-                            strokeWidth = 2.dp
-                        )
-                        Text(
-                            text = "Refreshing channels...",
-                            color = Color.White,
-                            fontSize = 14.sp
-                        )
-                    }
-                }
-            }
-        }
     }
     
-    // Initial focus management - safe focus request after composition
+    // Initial focus management for TUBI-style layout
     LaunchedEffect(uiState.categories.isNotEmpty(), !uiState.isLoading) {
         if (!uiState.isLoading) {
-            kotlinx.coroutines.delay(200) // Allow composition to complete
+            kotlinx.coroutines.delay(300) // Allow composition to complete
             try {
-                if (uiState.categories.isNotEmpty()) {
-                    filterRowFocusRequester.requestFocus()
-                } else if (uiState.filteredChannels.isNotEmpty()) {
-                    channelGridFocusRequester.requestFocus()
-                }
+                // Always start focus on sidebar for TUBI-style navigation
+                sidebarFocusRequester.requestFocus()
             } catch (e: Exception) {
                 android.util.Log.w("LiveTVScreen", "Failed to request initial focus", e)
             }
@@ -220,179 +209,97 @@ fun LiveTVScreen(
 }
 
 /**
- * Header section with title and actions
+ * TUBI-style header with category info and time
  */
 @Composable
-private fun LiveTVHeader(
+private fun TubiStyleHeader(
     selectedCategory: String?,
-    sortBy: ChannelSortBy,
-    hasActiveFilters: Boolean,
+    channelCount: Int,
     onRefresh: () -> Unit,
-    onClearFilters: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        // Category and channel count info
+        Column(
+            verticalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(
-                text = "Live TV",
+                text = getCategoryDisplayName(selectedCategory),
                 color = Color.White,
-                fontSize = 32.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold
             )
-            
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // Clear filters button
-                AnimatedVisibility(
-                    visible = hasActiveFilters,
-                    enter = slideInHorizontally() + fadeIn(),
-                    exit = slideOutHorizontally() + fadeOut()
-                ) {
-                    OutlinedButton(
-                        onClick = onClearFilters,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = Color.White
-                        ),
-                        border = ButtonDefaults.outlinedButtonBorder.copy(
-                            brush = androidx.compose.ui.graphics.SolidColor(Color.White.copy(alpha = 0.5f))
-                        )
-                    ) {
-                        Text("Clear Filters")
-                    }
-                }
-                
-                // Refresh button
-                OutlinedButton(
-                    onClick = onRefresh,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = Color.White
-                    ),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = androidx.compose.ui.graphics.SolidColor(Color.White.copy(alpha = 0.5f))
-                    )
-                ) {
-                    Text("Refresh")
-                }
-            }
-        }
-        
-        // Active filters display
-        if (selectedCategory != null) {
             Text(
-                text = "Category: $selectedCategory",
+                text = "$channelCount channels available",
                 color = Color.White.copy(alpha = 0.7f),
-                fontSize = 16.sp
-            )
-        }
-    }
-}
-
-/**
- * Category filter row
- */
-@Composable
-private fun CategoryFilterRow(
-    categories: List<ChannelCategory>,
-    selectedCategory: String?,
-    onCategorySelected: (String?) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        // All categories option
-        item {
-            CategoryChip(
-                label = "All",
-                isSelected = selectedCategory == null,
-                onClick = { onCategorySelected(null) }
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium
             )
         }
         
-        items(categories) { category ->
-            CategoryChip(
-                label = "${category.name} (${category.channelCount})",
-                isSelected = selectedCategory == category.slug,
-                onClick = { onCategorySelected(category.slug) }
-            )
+        // Header actions and time
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(20.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // Refresh button with TUBI styling
+            Surface(
+                onClick = onRefresh,
+                shape = RoundedCornerShape(8.dp),
+                color = Color(0xFF2A2A2A),
+                modifier = Modifier
+                    .focusable()
+                    .padding(2.dp)
+            ) {
+                Text(
+                    text = "Refresh",
+                    color = Color.White,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+            }
+            
+            // Current time indicator
+            HeaderTimeIndicator()
         }
     }
 }
 
 /**
- * Sort options row
+ * Convert ChannelCategory to LiveTvCategory
  */
-@Composable
-private fun SortOptionsRow(
-    currentSortBy: ChannelSortBy,
-    onSortByChanged: (ChannelSortBy) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyRow(
-        modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(ChannelSortBy.values()) { sortBy ->
-            CategoryChip(
-                label = when (sortBy) {
-                    ChannelSortBy.CHANNEL_NUMBER -> "Channel #"
-                    ChannelSortBy.NAME -> "Name"
-                    ChannelSortBy.CATEGORY -> "Category"
-                    ChannelSortBy.CUSTOM_ORDER -> "Featured"
-                },
-                isSelected = currentSortBy == sortBy,
-                onClick = { onSortByChanged(sortBy) }
-            )
-        }
+private fun convertToLiveTvCategories(categories: List<ChannelCategory>): List<LiveTvCategory> {
+    return categories.map { category ->
+        LiveTvCategory(
+            id = category.id,
+            name = category.name,
+            slug = category.slug,
+            iconUrl = category.imageUrl,
+            channelCount = category.channelCount,
+            isActive = category.isActive
+        )
     }
 }
 
 /**
- * Reusable category/filter chip
+ * Get display name for category
  */
-@Composable
-private fun CategoryChip(
-    label: String,
-    isSelected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    val backgroundColor = if (isSelected) Color(0xFFE50914) else Color.Transparent
-    val textColor = if (isSelected) Color.White else Color.White.copy(alpha = 0.7f)
-    val borderColor = if (isSelected) Color(0xFFE50914) else Color.White.copy(alpha = 0.3f)
-    
-    Surface(
-        modifier = modifier
-            .focusable()
-            .onKeyEvent { keyEvent ->
-                if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.Enter) {
-                    onClick()
-                    true
-                } else false
-            },
-        onClick = onClick,
-        shape = RoundedCornerShape(20.dp),
-        color = backgroundColor,
-        border = androidx.compose.foundation.BorderStroke(
-            width = 1.dp,
-            color = borderColor
-        )
-    ) {
-        Text(
-            text = label,
-            color = textColor,
-            fontSize = 14.sp,
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+private fun getCategoryDisplayName(selectedCategory: String?): String {
+    return when (selectedCategory) {
+        null -> "Recommended Channels"
+        "featured" -> "Featured Channels"
+        "recently-added" -> "Recently Added"
+        "news" -> "National News"
+        "sports-live" -> "Sports On Now"
+        "movies" -> "Movies"
+        "entertainment" -> "Entertainment"
+        "kids" -> "Kids Programming"
+        else -> selectedCategory.replaceFirstChar { it.uppercase() }.replace("-", " ")
     }
 }
 

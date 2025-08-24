@@ -5,9 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.vugaenterprises.androidtv.data.UserDataStore
 import com.vugaenterprises.androidtv.data.model.LiveChannel
 import com.vugaenterprises.androidtv.data.model.ChannelCategory
+import com.vugaenterprises.androidtv.data.model.LiveTvSchedule
 import com.vugaenterprises.androidtv.data.model.UserData
 import com.vugaenterprises.androidtv.data.repository.LiveTVRepository
 import com.vugaenterprises.androidtv.data.repository.ChannelSortBy
+import kotlinx.coroutines.delay
+import java.util.Calendar
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -22,10 +25,13 @@ data class LiveTVUiState(
     val filteredChannels: List<LiveChannel> = emptyList(),
     val categories: List<ChannelCategory> = emptyList(),
     val selectedCategory: String? = null,
+    val selectedChannelId: Int? = null,
     val searchQuery: String = "",
     val sortBy: ChannelSortBy = ChannelSortBy.CHANNEL_NUMBER,
     val errorMessage: String? = null,
-    val isRefreshing: Boolean = false
+    val isRefreshing: Boolean = false,
+    val currentTime: Long = System.currentTimeMillis(),
+    val scheduleData: Map<Int, List<LiveTvSchedule>> = emptyMap()
 )
 
 /**
@@ -59,6 +65,19 @@ class LiveTVViewModel @Inject constructor(
             userData.filterNotNull().take(1).collect { user ->
                 loadLiveChannels()
                 loadCategories()
+                startTimeTracking()
+            }
+        }
+    }
+    
+    /**
+     * Start time tracking for program schedules
+     */
+    private fun startTimeTracking() {
+        viewModelScope.launch {
+            while (true) {
+                _uiState.update { it.copy(currentTime = System.currentTimeMillis()) }
+                delay(60000L) // Update every minute
             }
         }
     }
@@ -87,6 +106,10 @@ class LiveTVViewModel @Inject constructor(
                             filteredChannels = applyFilters(sortedChannels)
                         )
                     }
+                    
+                    // Load schedule data for the first batch of channels
+                    val channelIdsToLoad = sortedChannels.take(20).map { it.id }
+                    loadScheduleData(channelIdsToLoad)
                 },
                 onFailure = { error ->
                     _uiState.update { 
@@ -146,6 +169,11 @@ class LiveTVViewModel @Inject constructor(
         
         // Optionally reload with server-side filtering
         loadLiveChannels()
+        
+        // Load schedule data for filtered channels
+        if (_uiState.value.filteredChannels.isNotEmpty()) {
+            loadScheduleData(_uiState.value.filteredChannels.map { it.id })
+        }
     }
 
     /**
@@ -245,6 +273,99 @@ class LiveTVViewModel @Inject constructor(
     fun getChannelById(channelId: Int): LiveChannel? {
         return _uiState.value.channels.find { it.id == channelId }
     }
+    
+    /**
+     * Get selected channel ID for UI highlighting
+     */
+    fun getSelectedChannelId(): Int? {
+        return _uiState.value.selectedChannelId
+    }
+    
+    /**
+     * Set selected channel for UI highlighting
+     */
+    fun setSelectedChannel(channelId: Int?) {
+        _uiState.update { it.copy(selectedChannelId = channelId) }
+    }
+    
+    /**
+     * Load schedule data for channels
+     */
+    fun loadScheduleData(channelIds: List<Int>) {
+        val userId = userData.value?.id ?: return
+        val profileId = selectedProfile.value?.profileId
+        
+        viewModelScope.launch {
+            channelIds.forEach { channelId ->
+                liveTVRepository.getChannelSchedule(
+                    userId = userId,
+                    channelId = channelId,
+                    date = getCurrentDateString(),
+                    profileId = profileId
+                ).fold(
+                    onSuccess = { schedule ->
+                        _uiState.update { currentState ->
+                            val updatedScheduleData = currentState.scheduleData.toMutableMap()
+                            updatedScheduleData[channelId] = schedule
+                            currentState.copy(scheduleData = updatedScheduleData)
+                        }
+                    },
+                    onFailure = { error ->
+                        android.util.Log.w("LiveTVViewModel", "Failed to load schedule for channel $channelId", error)
+                    }
+                )
+            }
+        }
+    }
+    
+    /**
+     * Get current date string for schedule API
+     */
+    private fun getCurrentDateString(): String {
+        val calendar = Calendar.getInstance()
+        return "%04d-%02d-%02d".format(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH) + 1,
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+    }
+    
+    /**
+     * Get schedule for a specific channel
+     */
+    fun getChannelSchedule(channelId: Int): List<LiveTvSchedule> {
+        return _uiState.value.scheduleData[channelId] ?: emptyList()
+    }
+    
+    /**
+     * Update program progress based on current time
+     */
+    fun updateProgramProgress() {
+        val currentTime = _uiState.value.currentTime
+        val updatedChannels = _uiState.value.channels.map { channel ->
+            val schedule = getChannelSchedule(channel.id)
+            val currentProgram = schedule.find { it.isCurrent }
+            
+            if (currentProgram != null) {
+                // Update channel with current program info
+                channel.copy(
+                    currentSchedule = currentProgram,
+                    nextSchedule = schedule.firstOrNull { 
+                        !it.isCurrent && it.startTime > currentProgram.endTime 
+                    }
+                )
+            } else {
+                channel
+            }
+        }
+        
+        _uiState.update { currentState ->
+            currentState.copy(
+                channels = updatedChannels,
+                filteredChannels = applyFilters(updatedChannels)
+            )
+        }
+    }
 
     /**
      * Check if there are any active filters
@@ -265,5 +386,29 @@ class LiveTVViewModel @Inject constructor(
                 filteredChannels = currentState.channels
             )
         }
+    }
+    
+    /**
+     * Handle channel selection and navigation
+     */
+    fun onChannelSelected(channel: LiveChannel) {
+        setSelectedChannel(channel.id)
+        trackChannelView(channel.id, 0) // Track the selection
+    }
+    
+    /**
+     * Get featured channels with enhanced logic
+     */
+    fun getEnhancedFeaturedChannels(): List<LiveChannel> {
+        val currentTime = _uiState.value.currentTime
+        return _uiState.value.channels
+            .filter { it.isLive && it.isActive }
+            .filter { channel ->
+                // Prioritize channels with current programs
+                val schedule = getChannelSchedule(channel.id)
+                schedule.any { it.isCurrent }
+            }
+            .sortedByDescending { it.sortOrder }
+            .take(12)
     }
 }

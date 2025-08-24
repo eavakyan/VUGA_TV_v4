@@ -33,6 +33,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.vugaenterprises.androidtv.data.model.LiveChannel
+import com.vugaenterprises.androidtv.ui.components.CompactProgramProgress
+import com.vugaenterprises.androidtv.ui.components.LiveIndicatorWithProgress
 
 /**
  * TV-optimized channel card component for Live TV browsing
@@ -127,9 +129,11 @@ fun ChannelCard(
                     )
             )
             
-            // Live indicator
+            // Live indicator with program progress
             if (channel.isLive) {
-                LiveIndicator(
+                LiveIndicatorWithProgress(
+                    isLive = channel.isLive,
+                    isEndingSoon = channel.isEndingSoon,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
                         .padding(8.dp)
@@ -164,14 +168,50 @@ fun ChannelCard(
                     overflow = TextOverflow.Ellipsis
                 )
                 
-                // Program info
+                // Program info with time display
                 if (showProgramInfo && channel.hasProgramInfo) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = channel.programInfo,
+                            color = Color.White.copy(alpha = 0.8f),
+                            fontSize = cardSize.subtitleFontSize,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        
+                        // Current program time and progress
+                        if (channel.currentProgramTime.isNotEmpty()) {
+                            Text(
+                                text = channel.currentProgramTime,
+                                color = Color.White.copy(alpha = 0.6f),
+                                fontSize = (cardSize.subtitleFontSize.value - 1).sp,
+                                maxLines = 1
+                            )
+                        }
+                        
+                        // Time remaining progress for current program
+                        if (channel.timeRemaining.isNotEmpty()) {
+                            CompactProgramProgress(
+                                timeRemaining = channel.timeRemaining,
+                                progressPercent = 0.6f, // TODO: Calculate actual progress
+                                isEndingSoon = channel.isEndingSoon,
+                                modifier = Modifier.padding(top = 2.dp)
+                            )
+                        }
+                    }
+                }
+                
+                // Next program info (if available)
+                if (channel.nextProgramInfo.isNotEmpty() && showProgramInfo) {
                     Text(
-                        text = channel.programInfo,
-                        color = Color.White.copy(alpha = 0.8f),
-                        fontSize = cardSize.subtitleFontSize,
+                        text = channel.nextProgramInfo,
+                        color = Color.Yellow.copy(alpha = 0.8f),
+                        fontSize = (cardSize.subtitleFontSize.value - 1).sp,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.padding(top = 2.dp)
                     )
                 }
                 
@@ -179,7 +219,7 @@ fun ChannelCard(
                 if (channel.category.isNotEmpty()) {
                     CategoryTag(
                         category = channel.category,
-                        modifier = Modifier.padding(top = 2.dp)
+                        modifier = Modifier.padding(top = 4.dp)
                     )
                 }
             }
@@ -314,6 +354,235 @@ enum class ChannelCardSize(
 }
 
 /**
+ * TUBI-style enhanced channel card with detailed program information
+ */
+@Composable
+fun TubiStyleChannelCard(
+    channel: LiveChannel,
+    onChannelClick: (LiveChannel) -> Unit,
+    isSelected: Boolean = false,
+    modifier: Modifier = Modifier,
+    cardSize: ChannelCardSize = ChannelCardSize.MEDIUM
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isFocused by interactionSource.collectIsFocusedAsState()
+    
+    // Enhanced TV-friendly focus animations
+    val scale by animateFloatAsState(
+        targetValue = when {
+            isSelected -> 1.15f
+            isFocused -> 1.08f
+            else -> 1.0f
+        },
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessLow
+        ),
+        label = "tubiChannelCardScale"
+    )
+    
+    val borderColor by animateColorAsState(
+        targetValue = when {
+            isSelected -> Color(0xFFFFD700) // Gold for selected
+            isFocused -> Color(0xFFE50914)
+            else -> Color.Transparent
+        },
+        animationSpec = tween(durationMillis = 200),
+        label = "tubiChannelCardBorder"
+    )
+    
+    val shadowElevation by animateDpAsState(
+        targetValue = when {
+            isSelected -> 12.dp
+            isFocused -> 8.dp
+            else -> 2.dp
+        },
+        animationSpec = tween(durationMillis = 200),
+        label = "tubiChannelCardShadow"
+    )
+
+    Card(
+        modifier = modifier
+            .size(
+                width = cardSize.width + if (isSelected) 20.dp else 0.dp,
+                height = cardSize.height + if (isSelected) 15.dp else 0.dp
+            )
+            .scale(scale)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = { onChannelClick(channel) }
+            )
+            .focusable(interactionSource = interactionSource)
+            .border(
+                width = when {
+                    isSelected -> 4.dp
+                    isFocused -> 3.dp
+                    else -> 0.dp
+                },
+                color = borderColor,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF1E1E1E)
+        ),
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = shadowElevation
+        )
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            // Channel thumbnail/logo with enhanced overlay
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(channel.imageUrl)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "${channel.name} logo",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(RoundedCornerShape(12.dp))
+            )
+            
+            // Enhanced gradient overlay for better text readability
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(
+                                Color.Transparent,
+                                Color.Black.copy(alpha = 0.4f),
+                                Color.Black.copy(alpha = 0.8f)
+                            ),
+                            startY = 0f,
+                            endY = Float.POSITIVE_INFINITY
+                        )
+                    )
+            )
+            
+            // Live indicator with enhanced styling
+            if (channel.isLive) {
+                LiveIndicatorWithProgress(
+                    isLive = channel.isLive,
+                    isEndingSoon = channel.isEndingSoon,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(10.dp)
+                )
+            }
+            
+            // Channel number badge with enhanced styling
+            if (channel.channelNumber > 0) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.TopStart)
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(8.dp),
+                    color = Color.Black.copy(alpha = 0.8f)
+                ) {
+                    Text(
+                        text = channel.channelNumber.toString(),
+                        color = Color.White,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
+            }
+            
+            // Enhanced channel info at bottom
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomStart)
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // Channel name with larger text
+                Text(
+                    text = channel.name,
+                    color = Color.White,
+                    fontSize = (cardSize.titleFontSize.value + 2).sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Current program with enhanced styling
+                if (channel.hasProgramInfo) {
+                    Text(
+                        text = channel.programInfo,
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = cardSize.subtitleFontSize,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    
+                    // Program time with progress
+                    if (channel.currentProgramTime.isNotEmpty()) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = channel.currentProgramTime,
+                                color = Color.White.copy(alpha = 0.7f),
+                                fontSize = (cardSize.subtitleFontSize.value - 2).sp,
+                                maxLines = 1
+                            )
+                            
+                            // Time remaining with enhanced styling
+                            if (channel.timeRemaining.isNotEmpty()) {
+                                CompactProgramProgress(
+                                    timeRemaining = channel.timeRemaining,
+                                    progressPercent = 0.65f, // TODO: Calculate from schedule
+                                    isEndingSoon = channel.isEndingSoon
+                                )
+                            }
+                        }
+                    }
+                }
+                
+                // Next program preview
+                if (channel.nextProgramInfo.isNotEmpty()) {
+                    Text(
+                        text = channel.nextProgramInfo,
+                        color = Color(0xFFFFD700).copy(alpha = 0.9f),
+                        fontSize = (cardSize.subtitleFontSize.value - 1).sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+            }
+            
+            // Premium indicator with enhanced positioning
+            if (channel.isPremium > 0) {
+                Surface(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(10.dp),
+                    shape = RoundedCornerShape(6.dp),
+                    color = Color(0xFFFFD700)
+                ) {
+                    Text(
+                        text = "PREMIUM",
+                        color = Color.Black,
+                        fontSize = 9.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+/**
  * Grid layout for multiple channels
  */
 @Composable
@@ -324,23 +593,36 @@ fun ChannelGrid(
     columns: Int = 4,
     cardSize: ChannelCardSize = ChannelCardSize.MEDIUM,
     showChannelNumbers: Boolean = true,
-    showProgramInfo: Boolean = true
+    showProgramInfo: Boolean = true,
+    useTubiStyle: Boolean = false,
+    selectedChannelId: Int? = null
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(columns),
         modifier = modifier,
         contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(20.dp),
+        horizontalArrangement = Arrangement.spacedBy(20.dp)
     ) {
         items(channels.size) { index ->
-            ChannelCard(
-                channel = channels[index],
-                onChannelClick = onChannelClick,
-                cardSize = cardSize,
-                showChannelNumber = showChannelNumbers,
-                showProgramInfo = showProgramInfo
-            )
+            val channel = channels[index]
+            
+            if (useTubiStyle) {
+                TubiStyleChannelCard(
+                    channel = channel,
+                    onChannelClick = onChannelClick,
+                    isSelected = selectedChannelId == channel.id,
+                    cardSize = cardSize
+                )
+            } else {
+                ChannelCard(
+                    channel = channel,
+                    onChannelClick = onChannelClick,
+                    cardSize = cardSize,
+                    showChannelNumber = showChannelNumbers,
+                    showProgramInfo = showProgramInfo
+                )
+            }
         }
     }
 }

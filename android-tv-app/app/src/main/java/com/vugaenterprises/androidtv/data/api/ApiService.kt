@@ -21,6 +21,7 @@ import com.vugaenterprises.androidtv.data.model.CreateProfileRequest
 import com.vugaenterprises.androidtv.data.model.SelectProfileRequest
 import com.vugaenterprises.androidtv.data.model.LiveChannelsResponse
 import com.vugaenterprises.androidtv.data.model.LiveCategoriesResponse
+import com.vugaenterprises.androidtv.data.model.LiveTvScheduleResponse
 import retrofit2.http.*
 
 interface ApiService {
@@ -281,6 +282,15 @@ interface ApiService {
         @Field("profile_id") profileId: Int? = null,
         @Field("device_type") deviceType: Int = 2 // Android TV
     ): RestResponse
+    
+    @FormUrlEncoded
+    @POST("live-tv/schedule")
+    suspend fun getLiveChannelSchedule(
+        @Field("user_id") userId: Int,
+        @Field("channel_id") channelId: Int,
+        @Field("date") date: String,
+        @Field("profile_id") profileId: Int? = null
+    ): LiveTvScheduleResponse
 }
 
 // Constants for API field names
