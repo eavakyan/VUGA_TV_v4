@@ -21,7 +21,7 @@ class APIClient {
         
         let params: [Params: Any] = [
             .sessionToken: sessionToken,
-            .userId: myUser?.id ?? 0
+            .appUserId: myUser?.id ?? 0
         ]
         
         print("APIClient: Calling API endpoint: \(APIs.tvAuthAuthenticate.rawValue)")
