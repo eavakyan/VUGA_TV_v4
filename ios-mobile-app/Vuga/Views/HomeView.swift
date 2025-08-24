@@ -818,11 +818,12 @@ struct HomeView: View {
                                     .outfitSemiBold(fontSizes.subtitle)
                                     .tracking(0.5)
                             }
-                            .foregroundColor(Color.gray.opacity(0.9))
+                            .foregroundColor(Color.black.opacity(0.9))
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AdaptiveContentSizing.isIPad ? 14 : 12)
                             .background(Color.white)
                             .clipShape(Capsule())
+
                         }
                         .frame(width: AdaptiveContentSizing.isIPad ? min(geometry.size.width * 0.35, 200) : geometry.size.width * 0.45)
                         

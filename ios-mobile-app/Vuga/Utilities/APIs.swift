@@ -38,7 +38,7 @@ enum APIs : String {
     case getContinueWatching                = "watch/continue-watching"
     case markAsCompleted                    = "watch/mark-completed"
     case getWatchHistory                    = "user/watch-history"
-    case fetchContentsByGenre               = "fetchContentsByGenre"
+    case fetchContentsByGenre               = "fetchContentsByCategory"
     case fetchContentDetails                = "fetchContentDetails"
     case fetchContentsByIds                 = "fetchContentsByIds"
     case searchContent                      = "searchContent"
