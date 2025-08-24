@@ -575,46 +575,74 @@ public class HomeFragment extends BaseFragment {
         // Removed header buttons - no longer needed after UI update
         
         // Set up sticky categories RecyclerView
-        if (binding.rvCategoriesSticky != null) {
-            binding.rvCategoriesSticky.setAdapter(horizontalCategoryAdapter);
-        }
+        // TODO: Add sticky categories if needed
+        // if (binding.rvCategoriesSticky != null) {
+        //     binding.rvCategoriesSticky.setAdapter(horizontalCategoryAdapter);
+        // }
     }
     
     private void setupHorizontalCategoryList() {
-        if (horizontalCategoryAdapter == null) {
-            Log.e("HomeFragment", "horizontalCategoryAdapter is null in setupHorizontalCategoryList!");
-            return;
+        // Setup fixed navigation buttons
+        setupFixedNavigationButtons();
+        
+        Log.d("HomeFragment", "Fixed navigation buttons set up successfully");
+    }
+    
+    private void setupFixedNavigationButtons() {
+        // TV Shows button
+        if (binding.btnTVShows != null) {
+            binding.btnTVShows.setOnClickListener(v -> {
+                Log.d("HomeFragment", "TV Shows clicked");
+                Intent intent = new Intent(getActivity(), com.retry.vuga.activities.TVShowsCategoriesActivity.class);
+                startActivity(intent);
+                updateSelectedNavButton(binding.btnTVShows);
+            });
         }
         
-        // Set category click listener
-        horizontalCategoryAdapter.setOnCategoryClickListener((genre, position) -> {
-            // Navigate to category detail view
-            Intent intent = new Intent(getActivity(), ContentByGenreActivity.class);
-            intent.putExtra(Const.DataKey.DATA, new Gson().toJson(genre));
-            startActivity(intent);
-        });
+        // Movies button  
+        if (binding.btnMovies != null) {
+            binding.btnMovies.setOnClickListener(v -> {
+                Log.d("HomeFragment", "Movies clicked");
+                Intent intent = new Intent(getActivity(), com.retry.vuga.activities.MoviesCategoriesActivity.class);
+                startActivity(intent);
+                updateSelectedNavButton(binding.btnMovies);
+            });
+        }
         
-        // Set static item click listener
-        horizontalCategoryAdapter.setOnStaticItemClickListener(itemType -> {
-            Log.d("HomeFragment", "Static item clicked: " + itemType);
-            switch (itemType) {
-                case "tv_shows":
-                    // Filter content to show only TV shows
-                    filterContentByType("tv_shows");
-                    break;
-                case "movies":
-                    // Filter content to show only movies
-                    filterContentByType("movies");
-                    break;
-                case "live_tv":
-                    // Navigate to Live TV fragment
-                    Log.d("HomeFragment", "Navigating to Live TV");
-                    navigateToLiveTv();
-                    break;
-            }
-        });
+        // Live TV button
+        if (binding.btnLiveTV != null) {
+            binding.btnLiveTV.setOnClickListener(v -> {
+                Log.d("HomeFragment", "Live TV clicked");
+                navigateToLiveTv();
+                updateSelectedNavButton(binding.btnLiveTV);
+            });
+        }
         
-        Log.d("HomeFragment", "Static item listener set successfully");
+        // No default button selection - user must explicitly choose
+    }
+    
+    private void updateSelectedNavButton(TextView selectedButton) {
+        // Reset all buttons to unselected state
+        if (binding.btnTVShows != null) {
+            binding.btnTVShows.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.transparent));
+            binding.btnTVShows.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+        }
+        
+        if (binding.btnMovies != null) {
+            binding.btnMovies.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.transparent));
+            binding.btnMovies.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+        }
+        
+        if (binding.btnLiveTV != null) {
+            binding.btnLiveTV.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.transparent));
+            binding.btnLiveTV.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+        }
+        
+        // Set selected button styling
+        if (selectedButton != null) {
+            selectedButton.setBackgroundTintList(ContextCompat.getColorStateList(getContext(), R.color.app_color));
+            selectedButton.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
+        }
     }
     
     private void navigateToLiveTv() {
@@ -642,13 +670,7 @@ public class HomeFragment extends BaseFragment {
         }
     }
     
-    private void filterContentByType(String contentType) {
-        // This will filter the home content based on type
-        // You can implement specific filtering logic here if needed
-        selectedFilter = contentType.equals("tv_shows") ? "TV Shows" : "Movies";
-        // Refresh the content based on the filter
-        getHomePageData();
-    }
+    // filterContentByType method removed - now using separate activities for TV Shows and Movies
     
     private void setupCategoryDropdown() {
         if (binding.btnCategoryDropdown == null) return;
@@ -684,6 +706,8 @@ public class HomeFragment extends BaseFragment {
         if (catList != null && !catList.isEmpty()) {
             for (HomePage.GenreContents genre : catList) {
                 if (genre.getGenre() != null && !genre.getGenre().isEmpty()) {
+                    // Log the genre data to debug
+                    Log.d("HomeFragment", "Genre: " + genre.getGenre() + ", ID: " + genre.getId() + ", Title: " + genre.getTitle());
                     items.add(new DropdownMenuAdapter.DropdownItem(
                         genre.getGenre(), 
                         "genre", 

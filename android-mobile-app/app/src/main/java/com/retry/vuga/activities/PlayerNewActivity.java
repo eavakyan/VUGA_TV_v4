@@ -29,6 +29,8 @@ import com.google.android.exoplayer2.ui.PlayerView;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.source.ProgressiveMediaSource;
 import com.google.android.exoplayer2.source.hls.HlsMediaSource;
+import com.google.android.exoplayer2.source.dash.DashMediaSource;
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource;
 
 import com.downloader.Error;
 import com.downloader.OnDownloadListener;
@@ -45,6 +47,7 @@ import com.retry.vuga.model.AppSetting;
 import com.retry.vuga.model.ContentDetail;
 import com.retry.vuga.model.Downloads;
 import com.retry.vuga.model.LiveTv;
+import com.retry.vuga.model.LiveTvChannel;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.CustomDialogBuilder;
 import com.retry.vuga.utils.OnSwipeTouchListeners;
@@ -85,6 +88,7 @@ public class PlayerNewActivity extends BaseActivity {
     SessionManager sessionManager;
     ContentDetail.SourceItem modelSource;
     LiveTv.CategoryItem.TvChannelItem modelChannel;
+    LiveTvChannel liveTvChannel;
     Downloads modelDownload;
 
     List<ContentDetail.SubtitlesItem> subTitlesList = new ArrayList<>();
@@ -212,23 +216,21 @@ public class PlayerNewActivity extends BaseActivity {
 
 
         if (liveTv != null) {
-            modelChannel = new Gson().fromJson(liveTv, LiveTv.CategoryItem.TvChannelItem.class);
-            binding.tvTitle.setText(modelChannel.getTitle());
-
-            if (modelChannel.getType() == 1) {
-                videoPath = modelChannel.getSource();
-                playByYoutubePlayer();
-            } else if (modelChannel.getType() == 2) {
-                videoPath = modelChannel.getSource();
-                
-                // Check if the stream is MPD (MPEG-DASH) format
-                if (videoPath != null && videoPath.toLowerCase().contains(".mpd")) {
-                    // Use VLC player for MPD streams as it has better support
-                    playByVLCPlayer();
-                } else {
-                    // Use ExoPlayer for other streams (HLS, etc.)
-                    playByExoPlayer();
-                }
+            // Try to parse as new LiveTvChannel model first
+            try {
+                liveTvChannel = new Gson().fromJson(liveTv, LiveTvChannel.class);
+                binding.tvTitle.setText(liveTvChannel.getTitle());
+                videoPath = liveTvChannel.getStreamUrl();
+            } catch (Exception e) {
+                // Fallback to old model if parsing fails
+                modelChannel = new Gson().fromJson(liveTv, LiveTv.CategoryItem.TvChannelItem.class);
+                binding.tvTitle.setText(modelChannel.getChannelTitle());
+                videoPath = modelChannel.getStreamUrl();
+            }
+            
+            if (videoPath != null && !videoPath.isEmpty()) {
+                // Always use ExoPlayer which supports both HLS and DASH
+                playByExoPlayer();
             }
         }
         if (download != null) {
@@ -429,9 +431,17 @@ public class PlayerNewActivity extends BaseActivity {
                 .build();
         
         MediaSource mediaSource;
-        if (videoPath.contains(".m3u8") || videoPath.contains(".M3U8")) {
+        String lowerCasePath = videoPath.toLowerCase();
+        
+        if (lowerCasePath.contains(".m3u8")) {
             // HLS stream with caching
             mediaSource = new HlsMediaSource.Factory(cacheManager.getCacheDataSourceFactory())
+                    .createMediaSource(mediaItem);
+        } else if (lowerCasePath.contains(".mpd")) {
+            // DASH stream with caching
+            mediaSource = new DashMediaSource.Factory(
+                    new DefaultDashChunkSource.Factory(cacheManager.getCacheDataSourceFactory()),
+                    cacheManager.getCacheDataSourceFactory())
                     .createMediaSource(mediaItem);
         } else {
             // Progressive media (MP4, etc.) with caching

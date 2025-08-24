@@ -112,4 +112,21 @@ public class GlideLoader {
     private int getColor(int color) {
         return ContextCompat.getColor(mContext, color);
     }
+
+    // Static helper methods for adapters
+    public static void load(Context context, String imageUrl, ImageView imageView, int placeholder) {
+        if (context != null && imageView != null) {
+            Glide.with(context)
+                    .load(imageUrl)
+                    .apply(new RequestOptions()
+                            .placeholder(placeholder)
+                            .error(placeholder)
+                            .priority(Priority.HIGH))
+                    .into(imageView);
+        }
+    }
+
+    public static void loadIntoImageView(Context context, String imageUrl, ImageView imageView, int placeholder) {
+        load(context, imageUrl, imageView, placeholder);
+    }
 }

@@ -1,168 +1,150 @@
 package com.retry.vuga.model;
 
 import com.google.gson.annotations.SerializedName;
-
+import java.io.Serializable;
 import java.util.List;
 
-public class LiveTv {
-
-    @SerializedName("data")
-    private List<CategoryItem> data;
-
-    @SerializedName("message")
-    private String message;
-
+public class LiveTv implements Serializable {
+    
     @SerializedName("status")
     private boolean status;
-
-    public List<CategoryItem> getData() {
-        return data;
-    }
-
-    public void setData(List<CategoryItem> data) {
-        this.data = data;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public boolean getStatus() {
+    
+    @SerializedName("data")
+    private List<CategoryItem> data;
+    
+    // Getters and Setters
+    public boolean isStatus() {
         return status;
     }
-
+    
     public void setStatus(boolean status) {
         this.status = status;
     }
-
-    public static class CategoryItem {
-
-        @SerializedName("image")
-        private String image;
-
-        @SerializedName("title")
-        private String title;
-
-        @SerializedName("id")
-        private int id;
-
+    
+    public List<CategoryItem> getData() {
+        return data;
+    }
+    
+    public void setData(List<CategoryItem> data) {
+        this.data = data;
+    }
+    
+    // Inner class for Category
+    public static class CategoryItem implements Serializable {
+        
+        @SerializedName("category_id")
+        private int categoryId;
+        
+        @SerializedName("category_name")
+        private String categoryName;
+        
         @SerializedName("channels")
         private List<TvChannelItem> channels;
-
-        public String getImage() {
-            return image == null ? "" : image;
+        
+        // Getters and Setters
+        public int getCategoryId() {
+            return categoryId;
         }
-
-        public void setImage(String image) {
-            this.image = image;
+        
+        public void setCategoryId(int categoryId) {
+            this.categoryId = categoryId;
         }
-
-        public String getTitle() {
-            return title == null ? "" : title;
+        
+        public String getCategoryName() {
+            return categoryName;
         }
-
-        public void setTitle(String title) {
-            this.title = title;
+        
+        public void setCategoryName(String categoryName) {
+            this.categoryName = categoryName;
         }
-
-        public int getId() {
-            return id;
-        }
-
-        public void setId(int id) {
-            this.id = id;
-        }
-
+        
         public List<TvChannelItem> getChannels() {
             return channels;
         }
-
+        
         public void setChannels(List<TvChannelItem> channels) {
             this.channels = channels;
         }
-
-        public static class TvChannelItem {
-
-            @SerializedName("title")
-            private String title;
-
-            @SerializedName("access_type")
-            private int accessType;
-
-            @SerializedName("thumbnail")
-            private String thumbnail;
-
-            @SerializedName("category_ids")
-            private String category_ids;
-
+        
+        // Inner class for TV Channel
+        public static class TvChannelItem implements Serializable {
+            
             @SerializedName("id")
-            private String id;
-
-            @SerializedName("type")
-            private int type;
-            @SerializedName("source")
-            private String source;
-
-            public String getCategory_ids() {
-                return category_ids == null ? "" : category_ids;
+            private int id;
+            
+            @SerializedName("channel_title")
+            private String channelTitle;
+            
+            @SerializedName("channel_thumbnail")
+            private String channelThumbnail;
+            
+            @SerializedName("stream_url")
+            private String streamUrl;
+            
+            @SerializedName("access_type")
+            private String accessType;
+            
+            @SerializedName("is_premium")
+            private boolean isPremium;
+            
+            @SerializedName("description")
+            private String description;
+            
+            // Getters and Setters
+            public int getId() {
+                return id;
             }
-
-            public void setCategory_ids(String category_ids) {
-                this.category_ids = category_ids;
+            
+            public void setId(int id) {
+                this.id = id;
             }
-
-            public int getType() {
-                return type;
+            
+            public String getChannelTitle() {
+                return channelTitle;
             }
-
-            public void setType(int type) {
-                this.type = type;
+            
+            public void setChannelTitle(String channelTitle) {
+                this.channelTitle = channelTitle;
             }
-
-            public String getSource() {
-                return source == null ? "" : source;
+            
+            public String getChannelThumbnail() {
+                return channelThumbnail;
             }
-
-            public void setSource(String source) {
-                this.source = source;
+            
+            public void setChannelThumbnail(String channelThumbnail) {
+                this.channelThumbnail = channelThumbnail;
             }
-
-
-            public String getTitle() {
-                return title == null ? "" : title;
+            
+            public String getStreamUrl() {
+                return streamUrl;
             }
-
-            public void setTitle(String title) {
-                this.title = title;
+            
+            public void setStreamUrl(String streamUrl) {
+                this.streamUrl = streamUrl;
             }
-
-            public int getAccessType() {
+            
+            public String getAccessType() {
                 return accessType;
             }
-
-            public void setAccessType(int accessType) {
+            
+            public void setAccessType(String accessType) {
                 this.accessType = accessType;
             }
-
-            public String getThumbnail() {
-                return thumbnail == null ? "" : thumbnail;
+            
+            public boolean isPremium() {
+                return isPremium;
             }
-
-            public void setThumbnail(String thumbnail) {
-                this.thumbnail = thumbnail;
+            
+            public void setPremium(boolean premium) {
+                isPremium = premium;
             }
-
-
-            public String getId() {
-                return id == null ? "" : id;
+            
+            public String getDescription() {
+                return description;
             }
-
-            public void setId(String id) {
-                this.id = id;
+            
+            public void setDescription(String description) {
+                this.description = description;
             }
         }
     }

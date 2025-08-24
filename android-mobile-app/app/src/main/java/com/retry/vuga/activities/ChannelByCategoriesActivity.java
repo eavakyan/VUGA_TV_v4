@@ -58,7 +58,7 @@ public class ChannelByCategoriesActivity extends BaseActivity {
     private void initialization() {
         myRewardAds = new MyRewardAds(this);
         disposable = new CompositeDisposable();
-        liveTvObjectAdapter = new LiveTvObjectAdapter(2);
+        liveTvObjectAdapter = new LiveTvObjectAdapter(this);
 
         binding.rv.setAdapter(liveTvObjectAdapter);
         binding.rv.setItemAnimator(null);
@@ -91,19 +91,20 @@ public class ChannelByCategoriesActivity extends BaseActivity {
             @Override
             public void onClick(LiveTv.CategoryItem.TvChannelItem model) {
                 //                 AccessType :  1:free , 2:paid , 3:ad
-                if (model.getAccessType() == 1) {
+                String accessType = model.getAccessType();
+                if ("1".equals(accessType)) {
 
-                    increaseView(model.getId());
+                    BaseActivity.increaseView(String.valueOf(model.getId()));
                     Intent intent = new Intent(ChannelByCategoriesActivity.this, PlayerNewActivity.class);
                     intent.putExtra(Const.DataKey.LIVE_TV_MODEL, new Gson().toJson(model));
                     startActivity(intent);
 
-                } else if (model.getAccessType() == 2) {
+                } else if ("2".equals(accessType)) {
 //                        premium pop up
                     showPremiumPopup();
 
 
-                } else if (model.getAccessType() == 3) {
+                } else if ("3".equals(accessType)) {
 //                      video ad pop up
                     showADDPopup(model);
 
@@ -161,7 +162,7 @@ public class ChannelByCategoriesActivity extends BaseActivity {
 
                 Log.i("TAG", "add:closed ");
                 if (rewardEarned) {
-                    increaseView(model.getId()); //api
+                    BaseActivity.increaseView(String.valueOf(model.getId())); //api
 
                     Intent intent = new Intent(ChannelByCategoriesActivity.this, PlayerNewActivity.class);
                     intent.putExtra(Const.DataKey.LIVE_TV_MODEL, new Gson().toJson(model));
@@ -275,4 +276,5 @@ public class ChannelByCategoriesActivity extends BaseActivity {
                     }));
         }
     }
+
 }

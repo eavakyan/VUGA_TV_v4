@@ -57,4 +57,19 @@
     <color name="darkYellow">#FFA500</color>
     <color name="darkBg">#0A0A0F</color>
 
+    <!-- Live TV UI Colors -->
+    <color name="primary_color">@color/app_color</color>
+    <color name="card_background">#16161D</color>
+    <color name="search_background">#1E1E26</color>
+    <color name="text_hint_color">@color/text_color_20</color>
+    <color name="text_secondary_color">@color/text_color_light</color>
+    <color name="stroke_color">#3E3E43</color>
+    <color name="ripple_color">#33F64136</color>
+    <color name="overlay_premium">#33000000</color>
+    <color name="progress_track_color">#33FFFFFF</color>
+    <color name="chip_background_unselected">#2A2A32</color>
+    <color name="chip_stroke_color">#4A4A52</color>
+    <color name="chip_background_color">#2A2A32</color>
+    <color name="gold_color">#FFD700</color>
+
 </resources>

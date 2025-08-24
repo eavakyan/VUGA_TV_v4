@@ -313,7 +313,7 @@
 
                  </com.google.android.material.appbar.AppBarLayout>
      -->
-            <!-- Sticky Header with Category List -->
+            <!-- Sticky Header with Fixed Navigation -->
             <LinearLayout
                 android:id="@+id/stickyHeaderContainer"
                 android:layout_width="match_parent"
@@ -327,27 +327,81 @@
                 android:paddingHorizontal="15dp"
                 android:gravity="center_vertical">
 
-                <!-- Horizontal Category List -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvCategoriesSticky"
+                <!-- Fixed Category Navigation Items -->
+                <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:clipToPadding="false"
-                    android:orientation="horizontal"
-                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+                    android:orientation="horizontal">
+                    
+                    <!-- TV Shows -->
+                    <TextView
+                        android:id="@+id/btnTVShows"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_stoke_15"
+                        android:backgroundTint="@color/transparent"
+                        android:fontFamily="@font/outfit_medium"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="8dp"
+                        android:text="TV Shows"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:clickable="true"
+                        android:focusable="true" />
+                    
+                    <!-- Movies -->
+                    <TextView
+                        android:id="@+id/btnMovies"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_stoke_15"
+                        android:backgroundTint="@color/transparent"
+                        android:fontFamily="@font/outfit_medium"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="8dp"
+                        android:text="Movies"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:clickable="true"
+                        android:focusable="true" />
+                    
+                    <!-- Live TV -->
+                    <TextView
+                        android:id="@+id/btnLiveTV"
+                        style="@style/TextViewLocal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="2dp"
+                        android:background="@drawable/bg_stoke_15"
+                        android:backgroundTint="@color/transparent"
+                        android:fontFamily="@font/outfit_medium"
+                        android:paddingHorizontal="10dp"
+                        android:paddingVertical="8dp"
+                        android:text="Live TV"
+                        android:textColor="@color/white"
+                        android:textSize="16sp"
+                        android:clickable="true"
+                        android:focusable="true" />
+                        
+                </LinearLayout>
                 
-                <!-- Dropdown Button for Genres/Distributors -->
+                <!-- Categories Button - styled to match other navigation items -->
                 <LinearLayout
                     android:id="@+id/btnCategoryDropdown"
                     android:layout_width="wrap_content"
-                    android:layout_height="40dp"
+                    android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:background="@drawable/bg_for_edit_text_13"
-                    android:backgroundTint="@color/text_color_10"
-                    android:paddingHorizontal="12dp"
+                    android:background="@drawable/bg_stoke_15"
+                    android:backgroundTint="@color/transparent"
+                    android:paddingHorizontal="10dp"
+                    android:paddingVertical="8dp"
                     android:gravity="center"
-                    android:layout_marginStart="10dp"
+                    android:layout_marginStart="2dp"
                     android:clickable="true"
                     android:focusable="true">
                     
@@ -356,9 +410,10 @@
                         style="@style/TextViewLocal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="More"
-                        android:textSize="14sp"
-                        android:fontFamily="@font/outfit_regular" />
+                        android:text="Categories"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/outfit_medium" />
                     
                     <ImageView
                         android:id="@+id/ivDropdownArrow"
@@ -367,7 +422,7 @@
                         android:layout_marginStart="6dp"
                         android:src="@drawable/ic_back"
                         android:rotation="270"
-                        app:tint="@color/text_color" />
+                        app:tint="@color/white" />
                 </LinearLayout>
 
             </LinearLayout>

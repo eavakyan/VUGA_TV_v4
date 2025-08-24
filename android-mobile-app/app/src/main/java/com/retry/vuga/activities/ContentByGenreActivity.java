@@ -1,6 +1,7 @@
 package com.retry.vuga.activities;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -62,9 +63,22 @@ public class ContentByGenreActivity extends BaseActivity {
         binding.rv.setAdapter(contentGridAdapter);
         binding.rv.setItemAnimator(null);
         String s = getIntent().getStringExtra(Const.DataKey.DATA);
-        genreContents = new Gson().fromJson(s, HomePage.GenreContents.class);
-
-        binding.tvName.setText(genreContents.getTitle());
+        Log.d("ContentByGenre", "Received data: " + s);
+        
+        try {
+            genreContents = new Gson().fromJson(s, HomePage.GenreContents.class);
+            if (genreContents != null) {
+                binding.tvName.setText(genreContents.getTitle());
+                Log.d("ContentByGenre", "Genre: " + genreContents.getTitle() + ", ID: " + genreContents.getId());
+            } else {
+                Log.e("ContentByGenre", "Failed to parse genre data");
+                binding.tvName.setText("Content");
+            }
+        } catch (Exception e) {
+            Log.e("ContentByGenre", "Error parsing genre data", e);
+            binding.tvName.setText("Content");
+            // Don't finish the activity, let it continue with empty/default data
+        }
     }
 
     private void setListeners() {
@@ -97,14 +111,53 @@ public class ContentByGenreActivity extends BaseActivity {
     }
 
     private void getContent() {
-
+        
+        // Check if genreContents is null
+        if (genreContents == null) {
+            Log.e("ContentByGenre", "Genre data is null");
+            binding.centerLoader.setVisibility(View.GONE);
+            binding.swipeRefresh.setRefreshing(false);
+            binding.tvNoContent.setVisibility(View.VISIBLE);
+            Toast.makeText(this, "Unable to load content. Invalid category.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        
+        // If ID is 0, try showing the pre-loaded content
+        if (genreContents.getId() <= 0) {
+            Log.w("ContentByGenre", "Genre ID is 0 or invalid. Genre: " + genreContents.getGenre() + 
+                  ", Title: " + genreContents.getTitle());
+            
+            // Show the content that was already loaded with the genre from the home page
+            Log.d("ContentByGenre", "Showing pre-loaded content for genre: " + genreContents.getGenre());
+            if (genreContents.getContent() != null && !genreContents.getContent().isEmpty()) {
+                contentGridAdapter.updateItems(genreContents.getContent());
+                binding.rv.setVisibility(View.VISIBLE);
+                binding.centerLoader.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
+                // Hide the swipe refresh since we're not loading from API
+                binding.swipeRefresh.setEnabled(false);
+            } else {
+                binding.tvNoContent.setVisibility(View.VISIBLE);
+                binding.centerLoader.setVisibility(View.GONE);
+                binding.swipeRefresh.setRefreshing(false);
+                Toast.makeText(this, "No content available for this category", Toast.LENGTH_SHORT).show();
+            }
+            return;
+        }
+        
         if (!dataOver) {
-
-
+            
             disposable.clear();
             isLoading = true;
+            
+            // Calculate page number (V2 API uses page-based pagination instead of offset-based)
+            int currentPage = (contentGridAdapter.getItemCount() / Const.PAGINATION_COUNT) + 1;
+            
+            Log.d("ContentByGenre", "Loading content for category ID: " + genreContents.getId() + 
+                  ", page: " + currentPage + 
+                  ", per_page: " + Const.PAGINATION_COUNT);
 
-            disposable.add(RetrofitClient.getService().getContentByGenre(contentGridAdapter.getItemCount(), Const.PAGINATION_COUNT, genreContents.getId())
+            disposable.add(RetrofitClient.getService().getContentByGenre(currentPage, Const.PAGINATION_COUNT, genreContents.getId())
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .unsubscribeOn(Schedulers.io())
@@ -127,15 +180,27 @@ public class ContentByGenreActivity extends BaseActivity {
 
 
                     }).doOnError(throwable -> {
-
-                        Toast.makeText(this, getString(R.string.something_went_wrong), Toast.LENGTH_SHORT).show();
-
+                        Log.e("ContentByGenre", "API Error: " + throwable.getMessage(), throwable);
+                        String errorMsg = "Error loading content";
+                        if (throwable.getMessage() != null && throwable.getMessage().contains("404")) {
+                            errorMsg = "Category not found";
+                        } else if (throwable.getMessage() != null && throwable.getMessage().contains("500")) {
+                            errorMsg = "Server error. Please try again later.";
+                        }
+                        Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+                        if (contentGridAdapter.getItemCount() == 0) {
+                            binding.tvNoContent.setVisibility(View.VISIBLE);
+                        }
                         isLoading = false;
-
-
                     })
                     .subscribe((contentByGenre, throwable) -> {
-
+                        if (throwable != null) {
+                            Log.e("ContentByGenre", "Subscribe Error: " + throwable.getMessage(), throwable);
+                            String errorDetail = throwable.getMessage() != null ? throwable.getMessage() : "Unknown error";
+                            Log.e("ContentByGenre", "Error details - Category: " + genreContents.getTitle() + 
+                                  ", ID: " + genreContents.getId() + ", Error: " + errorDetail);
+                            return;
+                        }
 
                         if (contentByGenre != null && contentByGenre.getStatus() && contentByGenre.getData() != null) {
 

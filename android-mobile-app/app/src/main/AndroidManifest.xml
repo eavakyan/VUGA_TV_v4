@@ -52,6 +52,12 @@
             android:screenOrientation="portrait"
             android:exported="false" />
         <activity
+            android:name=".activities.LiveTvActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:screenOrientation="unspecified"
+            android:exported="false"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
             android:name=".activities.PlayerNewActivity"
             android:configChanges="orientation|screenSize"
             android:exported="false"
@@ -113,6 +119,12 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.ContentByGenreActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.TVShowsCategoriesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.MoviesCategoriesActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.ContentByDistributorActivity"
@@ -206,7 +218,9 @@
         <activity
             android:name=".activities.MainActivity"
             android:configChanges="orientation|screenSize|keyboardHidden"
-            android:screenOrientation="unspecified" />
+            android:screenOrientation="unspecified"
+            android:launchMode="singleTask"
+            android:exported="false" />
 
         <meta-data
             android:name="io.branch.sdk.BranchKey"

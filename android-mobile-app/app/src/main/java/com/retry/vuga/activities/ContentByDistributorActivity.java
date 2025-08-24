@@ -23,11 +23,13 @@ import java.util.HashMap;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class ContentByDistributorActivity extends BaseActivity {
     
     private ActivityContentByDistributorBinding binding;
+    private CompositeDisposable disposable;
     private HomeCatNameAdapter adapter;
     private String distributorName;
     private List<HomePage.GenreContents> genreContentsList = new ArrayList<>();
@@ -49,6 +51,8 @@ public class ContentByDistributorActivity extends BaseActivity {
     }
     
     private void init() {
+        disposable = new CompositeDisposable();
+        
         binding.tvTitle.setText(distributorName);
         
         binding.btnBack.setOnClickListener(v -> finish());
@@ -71,20 +75,27 @@ public class ContentByDistributorActivity extends BaseActivity {
                     binding.loutLoader.setVisibility(View.GONE);
                 })
                 .subscribe((response, throwable) -> {
+                    if (throwable != null) {
+                        Log.e("ContentByDistributor", "API Error: " + throwable.getMessage(), throwable);
+                        showNoData();
+                        Toast.makeText(this, "Error loading content: " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
                     if (response != null && response.getStatus()) {
                         if (response.getData() != null && !response.getData().isEmpty()) {
                             genreContentsList = response.getData();
                             adapter.updateItems(genreContentsList);
                             binding.tvNoData.setVisibility(View.GONE);
                             binding.rvContent.setVisibility(View.VISIBLE);
+                            Log.d("ContentByDistributor", "Loaded " + genreContentsList.size() + " categories for " + distributorName);
                         } else {
+                            Log.d("ContentByDistributor", "No content found for distributor: " + distributorName);
                             showNoData();
                         }
                     } else {
+                        Log.e("ContentByDistributor", "API returned error status for distributor: " + distributorName);
                         showNoData();
-                        if (throwable != null) {
-                            Log.e("ContentByDistributor", "Error loading content", throwable);
-                        }
                     }
                 }));
     }
@@ -92,5 +103,13 @@ public class ContentByDistributorActivity extends BaseActivity {
     private void showNoData() {
         binding.tvNoData.setVisibility(View.VISIBLE);
         binding.rvContent.setVisibility(View.GONE);
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (disposable != null && !disposable.isDisposed()) {
+            disposable.dispose();
+        }
     }
 }

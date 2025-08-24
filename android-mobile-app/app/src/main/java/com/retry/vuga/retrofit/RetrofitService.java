@@ -68,10 +68,10 @@ public interface RetrofitService {
     Single<AllContent> searchContent(@FieldMap HashMap<String, Object> hashMap);
 
     @FormUrlEncoded
-    @POST("fetchContentsByGenre")
-    Single<ContentByGenre> getContentByGenre(@Field(Const.ApiKey.start) int start,
-                                             @Field(Const.ApiKey.limit) int limit,
-                                             @Field(Const.ApiKey.genre_id) int id);
+    @POST("content/by-category")
+    Single<ContentByGenre> getContentByGenre(@Field("page") int page,
+                                             @Field("per_page") int perPage,
+                                             @Field("category_id") int categoryId);
     
     @FormUrlEncoded
     @POST("fetchContentsByDistributor")
@@ -303,5 +303,25 @@ public interface RetrofitService {
     // Watch History Sync endpoint
     @POST("watch/sync")
     Single<Response<JsonObject>> syncWatchHistory(@Body JsonObject syncData);
+
+    // Enhanced Live TV endpoints
+    @FormUrlEncoded
+    @POST("fetchLiveTVPageData")  // Using existing V1 endpoint until new one is deployed
+    Single<com.retry.vuga.model.LiveTvResponse> getLiveTvChannelsWithPrograms(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("live-tv/schedule-grid")
+    Single<com.retry.vuga.model.LiveTvResponse.ScheduleGridResponse> getLiveTvScheduleGrid(@FieldMap HashMap<String, Object> params);
+
+    @FormUrlEncoded
+    @POST("live-tv/search")
+    Single<com.retry.vuga.model.LiveTvResponse> searchLiveTvChannels(@FieldMap HashMap<String, Object> params);
+
+    @POST("live-tv/categories")
+    Single<com.retry.vuga.model.LiveTvResponse> getLiveTvCategories();
+
+    @FormUrlEncoded
+    @POST("live-tv/track-view")
+    Single<com.retry.vuga.model.LiveTvResponse.ViewTrackingResponse> trackLiveTvView(@FieldMap HashMap<String, Object> params);
 
 }
