@@ -82,7 +82,20 @@ fun ContentDetailScreen(
         }
         
         uiState.content != null -> {
-            val content = uiState.content!!
+            val content = uiState.content
+            if (content == null) {
+                // Safety check - should not happen but prevents crash
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "Content unavailable",
+                        color = MaterialTheme.colorScheme.error
+                    )
+                }
+                return@ContentDetailScreen
+            }
             
             LazyColumn(
                 modifier = Modifier
