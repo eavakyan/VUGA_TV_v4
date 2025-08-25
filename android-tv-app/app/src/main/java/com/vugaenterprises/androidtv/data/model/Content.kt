@@ -230,6 +230,12 @@ data class EpisodeItem(
 
     @SerializedName("duration")
     val duration: String? = null,
+    
+    @SerializedName("release_date")
+    val releaseDate: String? = null,
+    
+    @SerializedName("ratings")
+    val rating: Double = 0.0,
 
     @SerializedName("access_type")
     val accessType: Int = 0,

@@ -152,9 +152,14 @@ fun AppNavigation(
                         navController.popBackStack()
                     },
                     onPlayVideo = { content ->
-                        // Direct play for movies
-                        videoPlayerDataStore.setCurrentContent(content)
-                        navController.navigate(Screen.VideoPlayer.createRoute())
+                        if (content.isShow == 1 && content.seasons.isNotEmpty()) {
+                            // Navigate to episode selection for TV shows
+                            navController.navigate(Screen.EpisodeSelection.createRoute(content.contentId))
+                        } else {
+                            // Direct play for movies
+                            videoPlayerDataStore.setCurrentContent(content)
+                            navController.navigate(Screen.VideoPlayer.createRoute())
+                        }
                     },
                     onWatchlistChanged = {
                         // Refresh the home screen watchlist when watchlist changes

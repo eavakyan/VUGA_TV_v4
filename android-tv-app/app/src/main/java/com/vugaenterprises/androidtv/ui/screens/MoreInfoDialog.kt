@@ -108,21 +108,25 @@ fun MoreInfoDialog(
                                     fontSize = 16.sp
                                 )
                                 
-                                if (content.isShow == 1) {
-                                    Card(
-                                        colors = CardDefaults.cardColors(
-                                            containerColor = Color(0xFF2196F3)
-                                        ),
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Text(
-                                            text = "TV SERIES",
-                                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color.White,
-                                            fontSize = 12.sp
-                                        )
-                                    }
+                                // Show content type badge
+                                val contentTypeText = when(content.type) {
+                                    2 -> "TV SERIES"
+                                    1 -> "MOVIE"
+                                    else -> if (content.isShow == 1) "TV SERIES" else "MOVIE"
+                                }
+                                Card(
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = if (content.type == 2 || content.isShow == 1) Color(0xFF2196F3) else Color(0xFF4CAF50)
+                                    ),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = contentTypeText,
+                                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.White,
+                                        fontSize = 12.sp
+                                    )
                                 }
                             }
                         }
@@ -234,16 +238,19 @@ fun MoreInfoDialog(
                         Column(
                             verticalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
-                            DetailRow("Type", if (content.isShow == 1) "TV Series" else "Movie")
+                            DetailRow("Type", when(content.type) {
+                                2 -> "TV Series"
+                                1 -> "Movie"
+                                else -> if (content.isShow == 1) "TV Series" else "Movie"
+                            })
                             DetailRow("Release Year", content.releaseYear.toString())
                             DetailRow("Duration", TimeUtils.formatRuntimeFromString(content.duration))
+                            if (content.ratings > 0) {
+                                DetailRow("Average Rating", String.format("%.1f / 10", content.ratings))
+                            }
                             if (content.seasons.isNotEmpty()) {
                                 DetailRow("Seasons", content.seasons.size.toString())
                                 DetailRow("Episodes", content.seasons.sumOf { it.episodes.size }.toString())
-                            }
-                            DetailRow("Views", content.totalView.toString())
-                            if (content.totalDownload > 0) {
-                                DetailRow("Downloads", content.totalDownload.toString())
                             }
                         }
                     }

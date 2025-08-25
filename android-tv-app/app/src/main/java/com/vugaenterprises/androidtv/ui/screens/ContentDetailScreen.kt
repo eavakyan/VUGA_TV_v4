@@ -9,6 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,6 +32,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.vugaenterprises.androidtv.data.model.Content
+import com.vugaenterprises.androidtv.data.model.EpisodeItem
+import com.vugaenterprises.androidtv.data.model.SeasonItem
 import com.vugaenterprises.androidtv.ui.components.TrailerPlayer
 import com.vugaenterprises.androidtv.ui.viewmodels.ContentDetailViewModel
 import com.vugaenterprises.androidtv.utils.CategoryUtils
@@ -284,7 +288,7 @@ fun ContentDetailScreen(
                             ) {
                                 Text(
                                     text = if (content.isShow == 1 && content.seasons.isNotEmpty()) 
-                                        "▶ Select Episode" else "▶ Play",
+                                        "▶ Episodes" else "▶ Play",
                                     style = MaterialTheme.typography.titleMedium.copy(
                                         fontWeight = FontWeight.Bold
                                     ),
@@ -425,6 +429,23 @@ fun ContentDetailScreen(
                     }
                 }
                 
+                // Episodes Section for TV Shows
+                if (content.isShow == 1 && content.seasons.isNotEmpty()) {
+                    item {
+                        EpisodesSection(
+                            seasons = content.seasons,
+                            onEpisodeClick = { episode ->
+                                // Navigate to episode playback
+                                onPlayVideo(content)
+                            },
+                            onViewAllClick = {
+                                // Navigate to full episode selection screen
+                                onPlayVideo(content)
+                            }
+                        )
+                    }
+                }
+                
                 // Related Content
                 if (content.moreLikeThis.isNotEmpty()) {
                     item {
@@ -520,6 +541,293 @@ fun RelatedContentCard(
                         color = MaterialTheme.colorScheme.primary
                     )
                 }
+            }
+        }
+    }
+}
+
+// Helper function to format episode release date
+fun formatEpisodeReleaseDate(dateString: String): String {
+    return try {
+        val parts = dateString.split("-")
+        if (parts.size >= 3) {
+            val year = parts[0]
+            val month = parts[1].toIntOrNull() ?: 1
+            val day = parts[2].toIntOrNull() ?: 1
+            
+            val monthNames = listOf(
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+            )
+            
+            "${monthNames.getOrNull(month - 1) ?: "Jan"} $day, $year"
+        } else {
+            dateString
+        }
+    } catch (e: Exception) {
+        dateString
+    }
+}
+
+@Composable
+fun EpisodesSection(
+    seasons: List<SeasonItem>,
+    onEpisodeClick: (EpisodeItem) -> Unit,
+    onViewAllClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = if (seasons.size == 1) "Episodes" else "Season ${seasons.firstOrNull()?.id ?: 1} Episodes",
+                style = MaterialTheme.typography.headlineMedium.copy(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                color = Color.White
+            )
+            
+            TextButton(
+                onClick = onViewAllClick,
+                colors = ButtonDefaults.textButtonColors(
+                    contentColor = Color(0xFF00BFFF)
+                )
+            ) {
+                Text(
+                    text = "View All Episodes →",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
+        // Show first season's episodes (or first 6 episodes)
+        val firstSeason = seasons.firstOrNull()
+        if (firstSeason != null) {
+            LazyRow(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                val episodesToShow = firstSeason.episodes.take(6)
+                items(episodesToShow) { episode ->
+                    EpisodeCard(
+                        episode = episode,
+                        seasonNumber = firstSeason.id,
+                        onClick = { onEpisodeClick(episode) }
+                    )
+                }
+                
+                // Add "View More" card if there are more episodes
+                if (firstSeason.episodes.size > 6 || seasons.size > 1) {
+                    item {
+                        ViewMoreEpisodesCard(onClick = onViewAllClick)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun EpisodeCard(
+    episode: EpisodeItem,
+    seasonNumber: Int,
+    onClick: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isFocused) 1.1f else 1.0f,
+        animationSpec = tween(durationMillis = 200),
+        label = "scale"
+    )
+    
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .width(280.dp)
+            .scale(scale)
+            .focusRequester(focusRequester)
+            .focusable()
+            .onFocusChanged { isFocused = it.isFocused }
+            .border(
+                width = if (isFocused) 3.dp else 0.dp,
+                color = if (isFocused) Color(0xFF00BFFF) else Color.Transparent,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2A2A2A)
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Column {
+            // Episode Thumbnail
+            Box {
+                AsyncImage(
+                    model = episode.thumbnail,
+                    contentDescription = episode.title,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(157.dp)
+                        .clip(RoundedCornerShape(topStart = 12.dp, topEnd = 12.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                
+                // Episode number badge
+                Card(
+                    modifier = Modifier
+                        .padding(8.dp)
+                        .align(Alignment.TopStart),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.Black.copy(alpha = 0.8f)
+                    ),
+                    shape = RoundedCornerShape(4.dp)
+                ) {
+                    Text(
+                        text = "S${seasonNumber}E${episode.number}",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
+            
+            // Episode Info
+            Column(
+                modifier = Modifier.padding(12.dp),
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = episode.title.ifEmpty { "Episode ${episode.number}" },
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color.White,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                
+                // Episode metadata row
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Duration
+                    Text(
+                        text = if (!episode.duration.isNullOrEmpty()) {
+                            TimeUtils.formatRuntimeFromString(episode.duration)
+                        } else {
+                            "N/A"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.7f)
+                    )
+                    
+                    // Separator
+                    Text(
+                        text = "•",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.White.copy(alpha = 0.5f)
+                    )
+                    
+                    // Rating
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(2.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "★",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color(0xFFFFD700)
+                        )
+                        Text(
+                            text = if (episode.rating > 0) {
+                                String.format("%.1f", episode.rating)
+                            } else {
+                                "N/A"
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = Color.White.copy(alpha = 0.7f)
+                        )
+                    }
+                }
+                
+                // Release date - always show
+                Text(
+                    text = if (!episode.releaseDate.isNullOrEmpty()) {
+                        "Released: ${formatEpisodeReleaseDate(episode.releaseDate)}"
+                    } else {
+                        "Release Date: N/A"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.6f),
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ViewMoreEpisodesCard(
+    onClick: () -> Unit
+) {
+    val focusRequester = remember { FocusRequester() }
+    var isFocused by remember { mutableStateOf(false) }
+    
+    val scale by animateFloatAsState(
+        targetValue = if (isFocused) 1.1f else 1.0f,
+        animationSpec = tween(durationMillis = 200),
+        label = "scale"
+    )
+    
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .width(280.dp)
+            .height(220.dp)
+            .scale(scale)
+            .focusRequester(focusRequester)
+            .focusable()
+            .onFocusChanged { isFocused = it.isFocused }
+            .border(
+                width = if (isFocused) 3.dp else 0.dp,
+                color = if (isFocused) Color(0xFF00BFFF) else Color.Transparent,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = Color(0xFF2A2A2A)
+        ),
+        shape = RoundedCornerShape(12.dp)
+    ) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Icon(
+                    Icons.Default.PlayArrow,
+                    contentDescription = "View More",
+                    modifier = Modifier.size(48.dp),
+                    tint = Color.White
+                )
+                Text(
+                    text = "View All Episodes",
+                    style = MaterialTheme.typography.bodyLarge.copy(
+                        fontWeight = FontWeight.Bold
+                    ),
+                    color = Color.White
+                )
             }
         }
     }
