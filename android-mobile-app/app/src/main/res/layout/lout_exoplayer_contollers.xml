@@ -11,14 +11,19 @@
         android:id="@+id/exo_controller"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/app_black_50"
+        android:background="@android:color/transparent"
         >
 
+        <!-- Removed dark overlay to prevent video blocking issues -->
+        <!-- The overlay was causing problems during seeking and fast-forward operations -->
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="50dp"
-            android:layout_centerInParent="true">
+            android:layout_centerInParent="true"
+            android:background="@drawable/bg_round_rect_15"
+            android:backgroundTint="@color/app_black_30"
+            android:padding="8dp">
 
             <RelativeLayout
                 android:id="@+id/btn_rewind"
@@ -111,10 +116,11 @@
             android:layout_marginHorizontal="50dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/bg_round_rect_10"
-            android:backgroundTint="@color/transparent"
+            android:backgroundTint="@color/app_black_30"
             android:gravity="center_vertical"
             android:orientation="vertical"
-            android:paddingHorizontal="5dp">
+            android:paddingHorizontal="5dp"
+            android:paddingVertical="8dp">
 
             <com.google.android.exoplayer2.ui.DefaultTimeBar
                 android:id="@+id/exo_progress"

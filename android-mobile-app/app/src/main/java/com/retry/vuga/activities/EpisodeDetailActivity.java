@@ -187,18 +187,8 @@ public class EpisodeDetailActivity extends BaseActivity {
             }
         };
         
-        };
-        
-        // Find the parent container of the video/thumbnail area (first 300dp)
-        // Since the parent RelativeLayout doesn't have an ID, we need to get it through its children
-        if (binding.imgEpisodeThumbnail.getParent() instanceof View) {
-            View videoContainer = (View) binding.imgEpisodeThumbnail.getParent();
-            videoContainer.setOnTouchListener(swipeListener);
-        }
-        
-        // Also set on the individual elements as fallback
-        binding.imgEpisodeThumbnail.setOnTouchListener(swipeListener);
-        binding.btnPlayEpisode.setOnTouchListener(swipeListener);
+        // Set swipe listener on the video container  
+        binding.videoContainer.setOnTouchListener(swipeListener);
         
         // Play button click (bottom bar)
         binding.btnPlay.setOnClickListener(v -> playEpisode());

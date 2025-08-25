@@ -59,6 +59,7 @@
     <string name="genre">Genre</string>
     <string name="search_here">Search here</string>
     <string name="watchlist">Watchlist</string>
+    <string name="recently_watched">Recently Watched</string>
     <string name="languages">Languages</string>
     <string name="language">Language</string>
     <string name="trailer">Trailer</string>
@@ -168,7 +169,6 @@
     <string name="top">Top Contents</string>
     <string name="no_data_found">No Data Found</string>
     <string name="change">Change</string>
-    <string name="recently_watched">Recently Watched</string>
     <string name="do_you_really_want_to_delete_this_from_history">Do you really want to delete this from history?</string>
 
     <string name="featured">Featured</string>

@@ -33,6 +33,9 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.request.RequestOptions;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.google.android.flexbox.AlignItems;
 import com.google.android.flexbox.FlexDirection;
 import com.google.android.flexbox.FlexboxLayoutManager;
@@ -58,6 +61,8 @@ import com.retry.vuga.databinding.FragmentHomeBinding;
 import com.retry.vuga.model.ContentDetail;
 import com.retry.vuga.model.UserRegistration;
 import com.retry.vuga.model.HomePage;
+import com.retry.vuga.model.RecentlyWatchedContent;
+import com.retry.vuga.model.RestResponse;
 import com.retry.vuga.retrofit.RetrofitClient;
 import com.retry.vuga.utils.Const;
 import com.retry.vuga.utils.Global;
@@ -67,6 +72,7 @@ import com.retry.vuga.viewmodel.MainViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -81,7 +87,7 @@ public class HomeFragment extends BaseFragment {
     FragmentHomeBinding binding;
 
     HomeFeaturedAdapter homeFeaturedAdapter;
-    HomeWatchlistAdapter homeWatchlistAdapter;
+    HomeWatchlistAdapter homeRecentlyWatchedAdapter;
     HomeTopItemsAdapter homeTopItemsAdapter;
     HomeCatNameAdapter homeCatNameAdapter;
     NewReleasesAdapter newReleasesAdapter;
@@ -89,7 +95,7 @@ public class HomeFragment extends BaseFragment {
     CompositeDisposable disposable;
 
     List<ContentDetail.DataItem> featuredList = new ArrayList<>();
-    List<ContentDetail.DataItem> watchList = new ArrayList<>();
+    List<ContentDetail.DataItem> recentlyWatchedList = new ArrayList<>();
     List<HomePage.TopContentItem> topList = new ArrayList<>();
     List<HomePage.GenreContents> catList = new ArrayList<>();
     List<ContentDetail.DataItem> newReleasesList = new ArrayList<>();
@@ -185,12 +191,15 @@ public class HomeFragment extends BaseFragment {
         setupHorizontalCategoryList();
         setupCategoryDropdown();
 
-        binding.btnWatchlistMore.setOnClickListener(v -> {
-
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).openWatchList();
-            }
-        });
+        // Set up Recently Watched "More" button if it exists
+        if (binding.btnRecentlyWatchedMore != null) {
+            binding.btnRecentlyWatchedMore.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    // For now, open watchlist - can be changed to a recently watched view later
+                    ((MainActivity) getActivity()).openWatchList();
+                }
+            });
+        }
 
         binding.centerLoader.setOnClickListener(v -> {
 
@@ -371,20 +380,8 @@ public class HomeFragment extends BaseFragment {
 
                         }
                         
-                        // Show Watchlist row only when there are items
-                        if (homePage.getWatchlist() != null && !homePage.getWatchlist().isEmpty()) {
-                            watchList = new ArrayList<>();
-                            watchList.addAll(homePage.getWatchlist());
-                            homeWatchlistAdapter.updateItems(watchList);
-                            if (binding.loutWathlist != null) {
-                                binding.loutWathlist.setVisibility(View.VISIBLE);
-                            }
-                        } else {
-                            // Hide watchlist row when empty
-                            if (binding.loutWathlist != null) {
-                                binding.loutWathlist.setVisibility(View.GONE);
-                            }
-                        }
+                        // Fetch Recently Watched content
+                        fetchRecentlyWatched();
 
                         if (homePage.getTopContents() != null) {
 
@@ -421,6 +418,134 @@ public class HomeFragment extends BaseFragment {
         }
 
     }
+    
+    private void fetchRecentlyWatched() {
+        if (sessionManager == null || sessionManager.getUser() == null) {
+            return;
+        }
+        
+        // First get the watch history to get content IDs
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("user_id", sessionManager.getUser().getId());
+        params.put("limit", 20);
+        
+        // Add profile ID if available
+        if (sessionManager.getUser().getLastActiveProfileId() != null && 
+            sessionManager.getUser().getLastActiveProfileId() > 0) {
+            params.put("profile_id", sessionManager.getUser().getLastActiveProfileId());
+        }
+        
+        disposable.add(RetrofitClient.getService().getWatchHistory(params)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    if (response != null && response.getStatus()) {
+                        try {
+                            // Parse the response to get content IDs
+                            Gson gson = new Gson();
+                            String jsonData = gson.toJson(response);
+                            JsonObject jsonObject = gson.fromJson(jsonData, JsonObject.class);
+                            
+                            if (jsonObject.has("data") && jsonObject.get("data").isJsonArray()) {
+                                JsonArray dataArray = jsonObject.getAsJsonArray("data");
+                                
+                                if (dataArray.size() > 0) {
+                                    // Collect content IDs
+                                    List<Integer> contentIds = new ArrayList<>();
+                                    for (JsonElement element : dataArray) {
+                                        if (element.isJsonObject()) {
+                                            JsonObject item = element.getAsJsonObject();
+                                            if (item.has("content_id")) {
+                                                contentIds.add(item.get("content_id").getAsInt());
+                                            }
+                                        }
+                                    }
+                                    
+                                    if (!contentIds.isEmpty()) {
+                                        // Fetch content details by IDs
+                                        fetchContentByIds(contentIds);
+                                    } else {
+                                        hideRecentlyWatched();
+                                    }
+                                } else {
+                                    hideRecentlyWatched();
+                                }
+                            } else {
+                                hideRecentlyWatched();
+                            }
+                        } catch (Exception e) {
+                            Log.e("HomeFragment", "Error parsing watch history: " + e.getMessage());
+                            hideRecentlyWatched();
+                        }
+                    } else {
+                        hideRecentlyWatched();
+                    }
+                }, throwable -> {
+                    Log.e("HomeFragment", "Error fetching watch history: " + throwable.getMessage());
+                    hideRecentlyWatched();
+                }));
+    }
+    
+    private void fetchContentByIds(List<Integer> contentIds) {
+        // Convert list to comma-separated string
+        StringBuilder idsBuilder = new StringBuilder();
+        for (int i = 0; i < contentIds.size(); i++) {
+            if (i > 0) idsBuilder.append(",");
+            idsBuilder.append(contentIds.get(i));
+        }
+        
+        Integer profileId = (sessionManager.getUser().getLastActiveProfileId() != null && 
+                            sessionManager.getUser().getLastActiveProfileId() > 0) ? 
+                           sessionManager.getUser().getLastActiveProfileId() : null;
+        
+        disposable.add(RetrofitClient.getService().getRecentlyWatchedContent(
+                idsBuilder.toString(),
+                sessionManager.getUser().getId(),
+                profileId)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(response -> {
+                    if (response != null && response.getStatus() && response.getData() != null) {
+                        List<RecentlyWatchedContent.DataItem> items = response.getData();
+                        if (!items.isEmpty()) {
+                            if (binding.loutRecentlyWatched != null) {
+                                binding.loutRecentlyWatched.setVisibility(View.VISIBLE);
+                            }
+                            
+                            // Convert to ContentDetail.DataItem format for the adapter
+                            List<ContentDetail.DataItem> contentItems = new ArrayList<>();
+                            for (RecentlyWatchedContent.DataItem item : items) {
+                                ContentDetail.DataItem contentItem = new ContentDetail.DataItem();
+                                contentItem.setId(item.getContentId());
+                                contentItem.setTitle(item.getDisplayTitle());
+                                contentItem.setVerticalPoster(item.getVerticalPoster());
+                                contentItem.setHorizontalPoster(item.getDisplayPoster());
+                                contentItem.setDuration(item.getDisplayDuration());
+                                contentItem.setReleaseYear(item.getReleaseYear());
+                                contentItem.setType(item.getType());
+                                contentItems.add(contentItem);
+                            }
+                            
+                            if (homeRecentlyWatchedAdapter != null) {
+                                homeRecentlyWatchedAdapter.updateItems(contentItems);
+                            }
+                        } else {
+                            hideRecentlyWatched();
+                        }
+                    } else {
+                        hideRecentlyWatched();
+                    }
+                }, throwable -> {
+                    Log.e("HomeFragment", "Error fetching content by IDs: " + throwable.getMessage());
+                    hideRecentlyWatched();
+                }));
+    }
+    
+    private void hideRecentlyWatched() {
+        if (binding != null && binding.loutRecentlyWatched != null) {
+            binding.loutRecentlyWatched.setVisibility(View.GONE);
+        }
+    }
 
     private void initialization() {
 
@@ -433,7 +558,7 @@ public class HomeFragment extends BaseFragment {
         disposable = new CompositeDisposable();
 
         homeCatNameAdapter = new HomeCatNameAdapter();
-        homeWatchlistAdapter = new HomeWatchlistAdapter();
+        homeRecentlyWatchedAdapter = new HomeWatchlistAdapter();
         homeTopItemsAdapter = new HomeTopItemsAdapter();
         homeFeaturedAdapter = new HomeFeaturedAdapter();
         genreAdapter = new ContentDetailGenreAdapter();
@@ -448,8 +573,8 @@ public class HomeFragment extends BaseFragment {
         if (binding.rvFeatured != null) {
             binding.rvFeatured.setAdapter(homeFeaturedAdapter);
         }
-        if (binding.rvWatchlist != null) {
-            binding.rvWatchlist.setAdapter(homeWatchlistAdapter);
+        if (binding.rvRecentlyWatched != null) {
+            binding.rvRecentlyWatched.setAdapter(homeRecentlyWatchedAdapter);
         }
         if (binding.rvCat != null) {
             binding.rvCat.setAdapter(homeCatNameAdapter);

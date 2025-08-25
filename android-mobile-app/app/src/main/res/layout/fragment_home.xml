@@ -762,9 +762,9 @@
                             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                             tools:listitem="@layout/item_movie_history" />
 
-                        <!-- Watchlist Section -->
+                        <!-- Recently Watched Section -->
                         <LinearLayout
-                            android:id="@+id/lout_watchlist"
+                            android:id="@+id/lout_recently_watched"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
@@ -786,12 +786,12 @@
                                     android:layout_height="wrap_content"
                                     android:layout_weight="1"
                                     android:fontFamily="@font/outfit_semi_bold"
-                                    android:text="@string/watchlist"
+                                    android:text="@string/recently_watched"
 
                                     android:textSize="@dimen/_20sp" />
 
                                 <TextView
-                                    android:id="@+id/btn_watchlist_more"
+                                    android:id="@+id/btn_recently_watched_more"
                                     style="@style/TextViewLocal"
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
@@ -802,7 +802,7 @@
                             </LinearLayout>
 
                             <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/rv_Watchlist"
+                                android:id="@+id/rv_recently_watched"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginStart="5dp"

@@ -107,6 +107,30 @@ public class PlayerNewActivity extends BaseActivity {
     private int maxGestureLength = 0;
     Runnable showRunnable = () -> setControllerVisibility(View.GONE);
     
+    // Runnable to hide loader if it gets stuck
+    Runnable hideLoaderRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (binding != null && binding.loader != null) {
+                binding.loader.setVisibility(View.GONE);
+            }
+            if (viewModel != null) {
+                viewModel.isLoading.set(false);
+            }
+        }
+    };
+    
+    // Runnable to hide swipe overlays if they get stuck
+    Runnable hideSwipeOverlaysRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (binding != null && binding.swipeLout != null) {
+                binding.swipeLout.volPogressContainer.setVisibility(View.GONE);
+                binding.swipeLout.brightPogressContainer.setVisibility(View.GONE);
+            }
+        }
+    };
+    
     // Runnable to periodically save playback progress
     Runnable progressSaveRunnable = new Runnable() {
         @Override
@@ -159,12 +183,24 @@ public class PlayerNewActivity extends BaseActivity {
     Player.Listener playerListener = new Player.Listener() {
         @Override
         public void onPlaybackStateChanged(int playbackState) {
-            if (playbackState == Player.STATE_BUFFERING) {
-                binding.loader.setVisibility(View.VISIBLE);
-            } else {
-                binding.loader.setVisibility(View.GONE);
+            // Handle loader visibility based on player state
+            switch (playbackState) {
+                case Player.STATE_BUFFERING:
+                    binding.loader.setVisibility(View.VISIBLE);
+                    viewModel.isLoading.set(true);
+                    // Add a timeout to hide loader if it gets stuck
+                    handler.removeCallbacks(hideLoaderRunnable);
+                    handler.postDelayed(hideLoaderRunnable, 3000); // Hide after 3 seconds max
+                    break;
+                case Player.STATE_READY:
+                case Player.STATE_ENDED:
+                case Player.STATE_IDLE:
+                    handler.removeCallbacks(hideLoaderRunnable);
+                    binding.loader.setVisibility(View.GONE);
+                    viewModel.isLoading.set(false);
+                    break;
             }
-            viewModel.isLoading.set(false);
+            
             if (playbackState == Player.STATE_READY && !isSetProgress) {
                 if (modelSource != null) {
                     simpleExoPlayer.seekTo((modelSource.playProgress * simpleExoPlayer.getDuration()) / 100);
@@ -424,6 +460,11 @@ public class PlayerNewActivity extends BaseActivity {
                 .build();
         binding.exoPlayerView.setPlayer(simpleExoPlayer);
         binding.exoPlayerView.setKeepScreenOn(true);
+        
+        // Set controller auto-hide timeout for better user experience
+        binding.exoPlayerView.setControllerAutoShow(true);
+        binding.exoPlayerView.setControllerHideOnTouch(true);
+        binding.exoPlayerView.setControllerShowTimeoutMs(3000);
 
         // Create media source with caching support
         MediaItem mediaItem = new MediaItem.Builder()
@@ -605,8 +646,11 @@ public class PlayerNewActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Cancel the periodic progress save
+        // Cancel all pending callbacks
         handler.removeCallbacks(progressSaveRunnable);
+        handler.removeCallbacks(hideLoaderRunnable);
+        handler.removeCallbacks(hideSwipeOverlaysRunnable);
+        handler.removeCallbacks(showRunnable);
         
         // Save final progress
         saveCurrentProgress();
@@ -663,6 +707,8 @@ public class PlayerNewActivity extends BaseActivity {
                 handler.postDelayed(showRunnable, 2000);
             }
         });
+        // DISABLED: All swipe gestures have been disabled to prevent overlay issues
+        /* 
         binding.vclLout.setOnTouchListener(new OnSwipeTouchListeners(this) {
             final int streamMaxVolume = audioManager.getStreamMaxVolume(3);
 
@@ -673,6 +719,9 @@ public class PlayerNewActivity extends BaseActivity {
                 double d;
                 if (motionEvent.getX() > ((float) (PlayerNewActivity.this.widthScreen / 2))) {
                     binding.swipeLout.volPogressContainer.setVisibility(View.VISIBLE);
+                    // Auto-hide volume overlay after 2 seconds
+                    handler.removeCallbacks(hideSwipeOverlaysRunnable);
+                    handler.postDelayed(hideSwipeOverlaysRunnable, 2000);
                     PlayerNewActivity.this.binding.swipeLout.volProgress.incrementProgressBy((int) f2);
                     progress = ((float) PlayerNewActivity.this.binding.swipeLout.volProgress.getProgress()) / ((float) PlayerNewActivity.this.maxGestureLength);
                     int i2 = (int) (((float) streamMaxVolume) * progress);
@@ -690,6 +739,9 @@ public class PlayerNewActivity extends BaseActivity {
                     PlayerNewActivity.this.binding.swipeLout.volIcon.setImageResource(i);
                 } else if (motionEvent.getX() < ((float) (PlayerNewActivity.this.widthScreen / 2))) {
                     binding.swipeLout.brightPogressContainer.setVisibility(View.VISIBLE);
+                    // Auto-hide brightness overlay after 2 seconds
+                    handler.removeCallbacks(hideSwipeOverlaysRunnable);
+                    handler.postDelayed(hideSwipeOverlaysRunnable, 2000);
                     binding.swipeLout.brightProgress.incrementProgressBy((int) f2);
                     progress = ((float) binding.swipeLout.brightProgress.getProgress()) / ((float) maxGestureLength);
                     WindowManager.LayoutParams attributes = getWindow().getAttributes();
@@ -726,8 +778,11 @@ public class PlayerNewActivity extends BaseActivity {
                         break;
 
                     case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
                         swipe_move = false;
                         start = false;
+                        // Immediately hide overlays and cancel any pending hide
+                        handler.removeCallbacks(hideSwipeOverlaysRunnable);
                         binding.swipeLout.volPogressContainer.setVisibility(View.GONE);
                         binding.swipeLout.brightPogressContainer.setVisibility(View.GONE);
 
@@ -756,6 +811,20 @@ public class PlayerNewActivity extends BaseActivity {
             }
 
         });
+        */
+        
+        // Simple click listener to show/hide controls only
+        binding.vclLout.setOnClickListener(v -> {
+            viewModel.removeCallback.setValue(true);
+            if (binding.exoController.getVisibility() == View.GONE) {
+                setControllerVisibility(View.VISIBLE);
+                viewModel.removeCallback.setValue(false);
+            } else {
+                setControllerVisibility(View.GONE);
+            }
+        });
+        // DISABLED: Layout change listener for swipe gestures is no longer needed
+        /*
         binding.vclLout.addOnLayoutChangeListener((view, i, i2, i3, i4, i5, i6, i7, i8) -> {
             maxGestureLength = (int) (((float) Math.min(i3 - i, i4 - i2)) * 0.75f);
             binding.swipeLout.volProgress.setMax(maxGestureLength);
@@ -766,6 +835,7 @@ public class PlayerNewActivity extends BaseActivity {
             getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
             widthScreen = displayMetrics.widthPixels;
         });
+        */
 
         binding.btnBack.setOnClickListener(v -> getOnBackPressedDispatcher().onBackPressed());
 
@@ -853,6 +923,10 @@ public class PlayerNewActivity extends BaseActivity {
         binding.youtubePlayerView.setVisibility(View.GONE);
         binding.exoPlayerView.setVisibility(View.GONE);
         binding.btnBack.setVisibility(View.GONE);
+        
+        // Ensure swipe overlays are initially hidden
+        binding.swipeLout.volPogressContainer.setVisibility(View.GONE);
+        binding.swipeLout.brightPogressContainer.setVisibility(View.GONE);
 //        binding.btnMute.setVisibility(View.GONE);
         binding.btnSubtitle.setVisibility(View.GONE);
         sessionManager.saveIntValue(Const.DataKey.SUBTITLE_POSITION, 0);
